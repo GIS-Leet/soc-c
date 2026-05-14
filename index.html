@@ -2,583 +2,64 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>통합사회 C QnA 게시판</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>통합사회 C 홈페이지</title>
 <style>
-    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; color: #1c1e21; }
+    /* 기본 설정 */
+    body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: #333; }
     a { text-decoration: none; color: inherit; }
 
-    /* =========================================
-       상단 네비게이션 바 (메인 화면과 동일)
-       ========================================= */
+    /* 상단 네비게이션 바 (메뉴) */
     .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; position: sticky; top: 0; z-index: 1000; }
     .logo { font-size: 20px; font-weight: bold; color: #1a73e8; }
     .menu { display: flex; gap: 20px; }
     .menu a { font-size: 15px; font-weight: 500; color: #5f6368; padding: 5px 10px; transition: color 0.2s; }
-    .menu a:hover, .menu a.active { color: #1a73e8; font-weight: bold; }
+    .menu a:hover { color: #1a73e8; }
 
-    /* =========================================
-       게시판 본문 영역
-       ========================================= */
-    .qna-wrapper { padding: 50px 20px; } /* 네비바 아래 여백 */
-    .qna-container { max-width: 700px; margin: 0 auto; box-sizing: border-box; position: relative; }
+    /* 메인 배너 (Hero Section) */
+    .hero { background: linear-gradient(135deg, #1a73e8, #4285f4); color: white; padding: 100px 20px; text-align: center; }
+    .hero h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .hero p { font-size: 1.2em; opacity: 0.9; margin-bottom: 30px; }
+    .hero-btn { background-color: white; color: #1a73e8; padding: 12px 30px; border-radius: 30px; font-weight: bold; font-size: 16px; transition: 0.3s; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+
+    /* 콘텐츠 영역 */
+    .content { max-width: 900px; margin: 50px auto; padding: 20px; text-align: center; }
     
-    /* 관리자 로그인 */
-    .admin-auth { position: absolute; top: -35px; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; z-index: 20; }
-    #adminBtn { padding: 6px 12px; font-size: 12px; cursor: pointer; background: #ffffff; border: 1px solid #ccd0d5; border-radius: 20px; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    #adminBtn.active { background: #e7f3ff; color: #1877f2; border-color: #1877f2; font-weight: bold; }
-    .admin-login-box { display: none; background: #fff; border: 1px solid #ddd; padding: 10px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-top: 5px; }
-    .admin-login-box input { width: 120px; padding: 6px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; outline: none; box-sizing: border-box; }
-    .admin-login-box button { padding: 6px 10px; font-size: 13px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; }
-
-    /* 공지사항 */
-    .notice-box { background-color: #ffffff; padding: 20px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); border-top: 4px solid #1a73e8; }
-    .notice-box h2 { margin: 0 0 12px 0; color: #1a73e8; font-size: 1.3em; }
-    .notice-box ol { margin: 0; padding-left: 22px; color: #4b4f56; line-height: 1.6; font-size: 0.95em; }
-
-    /* 새 글 쓰기 */
-    .write-box { background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); margin-bottom: 30px; display: flex; flex-direction: column; gap: 10px; }
-    .write-title-input { width: 100%; padding: 12px; border: 1px solid #ccd0d5; border-radius: 6px; font-size: 15px; font-weight: bold; outline: none; box-sizing: border-box; }
-    .write-header { display: flex; gap: 10px; }
-    .write-header > input { flex: 1; padding: 12px; border: 1px solid #ccd0d5; border-radius: 6px; font-size: 14px; outline: none; box-sizing: border-box; }
-    .write-options { display: flex; gap: 10px; align-items: center; flex: 1; }
-    .write-options input[type="password"] { flex: 1; padding: 12px; border: 1px solid #ccd0d5; border-radius: 6px; font-size: 14px; outline: none; box-sizing: border-box; }
-    .secret-label { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: bold; cursor: pointer; color: #5f6368; white-space: nowrap; padding-right: 5px; user-select: none; }
-    .secret-label input { width: 16px; height: 16px; cursor: pointer; margin: 0; }
-    .write-box textarea { width: 100%; height: 80px; padding: 12px; border: 1px solid #ccd0d5; border-radius: 6px; font-size: 15px; outline: none; resize: none; box-sizing: border-box; font-family: inherit; line-height: 1.5; }
-    .write-title-input:focus, .write-box textarea:focus, .write-header input:focus, .write-options input[type="password"]:focus { border-color: #1877f2; }
-    .write-actions { display: flex; justify-content: flex-end; }
-    .write-actions button { background-color: #1a73e8; color: white; border: none; border-radius: 6px; padding: 10px 24px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
-
-    /* 게시판 리스트 디자인 */
-    .board-wrapper { background: #ffffff; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); overflow: hidden; }
-    .board-header { display: flex; padding: 12px 15px; background: #f8f9fa; border-bottom: 2px solid #e4e6eb; font-size: 13px; font-weight: bold; color: #65676b; }
-    .board-header .col-title { flex: 1; text-align: center; }
-    .board-header .col-author { width: 80px; text-align: center; }
-    .board-header .col-time { width: 120px; text-align: center; }
-    .board-list { list-style: none; padding: 0; margin: 0; }
-    .board-item { border-bottom: 1px solid #e4e6eb; }
-    .item-row { display: flex; padding: 15px; align-items: center; cursor: pointer; transition: 0.2s; }
-    .item-row:hover { background-color: #fcfcfd; }
-    .item-title-wrapper { flex: 1; display: flex; align-items: center; gap: 8px; overflow: hidden; padding-right: 10px; }
-    .item-title { font-size: 15px; font-weight: 500; color: #1c1e21; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .reply-count { font-size: 13px; font-weight: bold; color: #d93025; flex-shrink: 0; }
-    .item-author { width: 80px; font-size: 13px; color: #65676b; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-time { width: 120px; font-size: 12px; color: #8d949e; text-align: center; white-space: nowrap; }
-
-    /* 펼쳐지는 본문 영역 */
-    .item-content { display: none; background: #fafbfc; border-top: 1px dashed #e4e6eb; position: relative; }
-    .post-actions-inline { position: absolute; top: 15px; right: 15px; display: flex; gap: 6px; z-index: 5; }
-    .action-btn { background: #ffffff; border: 1px solid #ccd0d5; font-size: 12px; font-weight: bold; color: #65676b; cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: 0.2s; }
-    .action-btn:hover { background-color: #e4e6eb; color: #1c1e21; }
-    .action-btn.delete:hover { background-color: #fad2cf; border-color: #fad2cf; color: #d93025; }
-    .post-body { padding: 45px 20px 20px 20px; font-size: 15px; color: #1c1e21; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
-
-    /* 댓글 디자인 */
-    .comment-section { background-color: #ffffff; padding: 15px 20px; border-top: 1px solid #e4e6eb; }
-    .comment-header { font-size: 13px; font-weight: bold; color: #65676b; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; }
-    .comment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-    .comment-item { display: flex; gap: 10px; width: 100%; box-sizing: border-box; }
-    .comment-profile { font-size: 16px; padding-top: 2px; flex-shrink: 0; }
-    .comment-content { background: #f8f9fa; padding: 10px 14px; border-radius: 14px; border: 1px solid #e4e6eb; width: 100%; box-sizing: border-box; }
-    .comment-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-    .comment-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .teacher-badge { font-size: 11px; font-weight: bold; background: #e7f3ff; color: #1877f2; padding: 2px 6px; border-radius: 4px; }
-    .comment-text { font-size: 14px; color: #1c1e21; line-height: 1.5; white-space: pre-wrap; word-break: break-all; }
-    .comment-time { font-size: 11px; color: #8d949e; }
-    .reply-actions { display: none; gap: 4px; }
-    .reply-input-group { display: none; margin-top: 15px; gap: 8px; align-items: stretch; }
-    .reply-input-group textarea { flex: 1; padding: 10px; border: 1px solid #ccd0d5; border-radius: 8px; font-size: 14px; resize: none; outline: none; height: 40px; box-sizing: border-box; }
-    .reply-input-group button { background-color: #34a853; color: white; border: none; border-radius: 8px; padding: 0 15px; font-weight: bold; cursor: pointer; white-space: nowrap; }
-
-    /* 모달 */
-    .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 9999; justify-content: center; align-items: center; }
-    .custom-modal-box { background: white; padding: 24px; border-radius: 12px; width: 300px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 15px; }
-    .custom-modal-box h3 { margin: 0; font-size: 18px; color: #1a73e8; }
-    .custom-modal-box p { margin: 0; font-size: 14px; color: #333; line-height: 1.5; word-break: keep-all; }
-    .custom-modal-box input { padding: 12px; border: 1px solid #ccd0d5; border-radius: 6px; font-size: 14px; outline: none; display: none; box-sizing: border-box; }
-    .custom-modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
-    .custom-modal-actions button { padding: 8px 16px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; }
-    .custom-modal-actions .cancel { background: #e4e6eb; color: #333; }
-    .custom-modal-actions .confirm { background: #1a73e8; color: white; }
-    .custom-modal-actions .confirm.danger { background: #d93025; }
-
-    /* 모바일 반응형 완벽 최적화 */
-    @media screen and (max-width: 600px) {
+    /* 모바일 반응형 */
+    @media (max-width: 600px) {
         .navbar { flex-direction: column; gap: 15px; padding: 15px; }
-        .qna-wrapper { padding: 45px 10px 20px 10px; }
-        .admin-auth { top: -40px; right: 0; }
-        .write-box { padding: 15px; }
-        .write-header { flex-direction: column; gap: 10px; }
-        .write-header > input { width: 100%; }
-        .write-options { width: 100%; }
-        .write-actions { display: block; margin-top: 5px; }
-        .write-actions button { width: 100%; padding: 14px; font-size: 16px; }
-        .board-header { display: none; }
-        .item-row { flex-direction: column; align-items: flex-start; gap: 6px; padding: 15px; }
-        .item-title-wrapper { width: 100%; padding-right: 0; }
-        .item-meta-mobile { display: flex; gap: 10px; align-items: center; width: 100%; }
-        .item-author, .item-time { width: auto; text-align: left; display: inline-block; font-size: 12px; color: #8d949e; }
-        .item-meta-mobile .item-author::after { content: "•"; margin-left: 10px; color: #ccd0d5; }
-        .post-body { padding: 45px 15px 15px 15px; }
-        .comment-section { padding: 15px; }
-        .post-actions-inline { top: 12px; right: 12px; }
+        .hero { padding: 60px 20px; }
+        .hero h1 { font-size: 2em; }
     }
 </style>
 </head>
 <body>
 
-    <!-- ★ 상단 메뉴바 추가됨 ★ -->
+    <!-- 상단 메뉴바 -->
     <nav class="navbar">
-        <a href="index.html" class="logo">🌍 통합사회 C</a>
+        <div class="logo">🌍 통합사회 C</div>
         <div class="menu">
+            <!-- href 속성에 이동할 HTML 파일 이름을 적어줍니다 -->
             <a href="index.html">홈</a>
-            <!-- 현재 페이지 강조 (active) -->
-            <a href="qna.html" class="active">Q&A 게시판</a>
+            <a href="qna.html">Q&A 게시판</a>
             <a href="#">수업 자료(준비중)</a>
         </div>
     </nav>
 
-    <!-- 기존 게시판 컨텐츠를 안전하게 감싸는 Wrapper -->
-    <div class="qna-wrapper">
-        <div class="qna-container">
-            <div class="admin-auth">
-                <button id="adminBtn" onclick="window.toggleAdminPanel()">⚙️ 선생님 로그인</button>
-                <div class="admin-login-box" id="adminLoginBox">
-                    <input type="password" id="adminPwInput" placeholder="비밀번호" onkeypress="window.handlePwKeyPress(event)">
-                    <button onclick="window.loginAdmin()">확인</button>
-                </div>
-            </div>
+    <!-- 메인 배너 영역 -->
+    <header class="hero">
+        <h1>환영합니다! 통합사회 C 클래스입니다.</h1>
+        <p>질문이 있다면 언제든 Q&A 게시판을 이용해주세요.</p>
+        <!-- 버튼을 누르면 qna.html 로 이동 -->
+        <a href="qna.html" class="hero-btn">Q&A 게시판 바로가기</a>
+    </header>
 
-            <div class="notice-box">
-                <h2>통합사회 C 질문 게시판</h2>
-                <ol>
-                    <li>질문 아카이브와 별개입니다.</li>
-                    <li>답변 속도는 다소 느릴 수 있습니다.</li>
-                    <li>교과 외 질문은 받지 않습니다.</li>
-                    <li>급한 질문은 교무실로 찾아와주세요.</li>
-                </ol>
-            </div>
-            
-            <div class="write-box">
-                <input type="text" id="titleInput" class="write-title-input" placeholder="게시글 제목" maxlength="50">
-                <div class="write-header">
-                    <input type="text" id="authorInput" placeholder="닉네임 (선택)" maxlength="10">
-                    <div class="write-options">
-                        <input type="password" id="pwInput" placeholder="비밀번호 (필수)" maxlength="20">
-                        <label class="secret-label">
-                            <input type="checkbox" id="secretInput"> 🔒 비밀글
-                        </label>
-                    </div>
-                </div>
-                <textarea id="questionInput" placeholder="궁금한 내용을 자유롭게 작성해주세요..."></textarea>
-                <div class="write-actions">
-                    <button onclick="window.addQuestion()">게시글 등록</button>
-                </div>
-            </div>
+    <!-- 본문 영역 -->
+    <main class="content">
+        <h2>공지사항</h2>
+        <p>이곳에 이번 주 수업 일정이나 준비물 등 간단한 공지를 적어보세요!</p>
+    </main>
 
-            <div class="board-wrapper">
-                <div class="board-header">
-                    <div class="col-title">제목</div>
-                    <div class="col-author">작성자</div>
-                    <div class="col-time">작성일</div>
-                </div>
-                <ul class="board-list" id="qnaList"></ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- 자체 커스텀 모달 -->
-    <div id="customModal" class="custom-modal-overlay">
-        <div class="custom-modal-box">
-            <h3 id="modalTitle">알림</h3>
-            <p id="modalMessage">메시지 내용</p>
-            <input type="password" id="modalInput" placeholder="비밀번호 입력">
-            <div class="custom-modal-actions">
-                <button id="modalCancelBtn" class="cancel">취소</button>
-                <button id="modalConfirmBtn" class="confirm">확인</button>
-            </div>
-        </div>
-    </div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref, push, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
-      authDomain: "soc-c-qna.firebaseapp.com",
-      databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
-      projectId: "soc-c-qna",
-      storageBucket: "soc-c-qna.firebasestorage.app",
-      messagingSenderId: "927605189358",
-      appId: "1:927605189358:web:9ea5171373ac4c9e8661ff",
-      measurementId: "G-5KMMM2T0ED"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const questionsRef = ref(db, 'questions');
-
-    const ADMIN_PW = "tkdkxkd1~"; 
-    let isAdmin = false;
-
-    function escapeHTML(str) {
-        if (!str) return '';
-        return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
-    }
-
-    window.AppModal = {
-        overlay: document.getElementById('customModal'),
-        title: document.getElementById('modalTitle'),
-        msg: document.getElementById('modalMessage'),
-        input: document.getElementById('modalInput'),
-        cancelBtn: document.getElementById('modalCancelBtn'),
-        confirmBtn: document.getElementById('modalConfirmBtn'),
-        callback: null,
-        show(options, callback) {
-            this.callback = callback;
-            this.title.innerText = options.title || '알림';
-            this.msg.innerText = options.msg || '';
-            this.input.value = '';
-            this.confirmBtn.innerText = options.confirmText || '확인';
-            this.confirmBtn.className = 'confirm' + (options.confirmText === '삭제' ? ' danger' : '');
-            this.input.style.display = options.type === 'prompt' ? 'block' : 'none';
-            this.cancelBtn.style.display = options.type === 'alert' ? 'none' : 'inline-block';
-            this.overlay.style.display = 'flex';
-            if(options.type === 'prompt') setTimeout(() => this.input.focus(), 100);
-        },
-        close() { this.overlay.style.display = 'none'; },
-        submit() { this.close(); if (this.callback) this.callback(this.input.style.display === 'block' ? this.input.value : true); },
-        cancel() { this.close(); if (this.callback) this.callback(null); }
-    };
-
-    document.getElementById('modalConfirmBtn').onclick = () => window.AppModal.submit();
-    document.getElementById('modalCancelBtn').onclick = () => window.AppModal.cancel();
-    document.getElementById('modalInput').onkeypress = (e) => { if(e.key === 'Enter') window.AppModal.submit(); };
-
-    window.toggleAdminPanel = function() {
-        if (isAdmin) {
-            isAdmin = false;
-            document.getElementById('adminBtn').innerText = "⚙️ 선생님 로그인";
-            document.getElementById('adminBtn').classList.remove('active');
-            refreshAdminUI();
-        } else {
-            const box = document.getElementById('adminLoginBox');
-            box.style.display = box.style.display === 'block' ? 'none' : 'block';
-            if(box.style.display === 'block') document.getElementById('adminPwInput').focus();
-        }
-    };
-    
-    window.loginAdmin = function() {
-        const input = document.getElementById('adminPwInput');
-        if (input.value === ADMIN_PW) {
-            isAdmin = true;
-            document.getElementById('adminBtn').innerText = "👨‍🏫 선생님 모드 작동 중";
-            document.getElementById('adminBtn').classList.add('active');
-            document.getElementById('adminLoginBox').style.display = 'none';
-            input.value = ''; refreshAdminUI();
-        } else {
-            const btn = document.getElementById('adminBtn');
-            btn.innerText = "비밀번호 오류!";
-            btn.style.color = "red";
-            setTimeout(() => { btn.innerText = "⚙️ 선생님 로그인"; btn.style.color = ""; }, 1500);
-            input.value = '';
-        }
-    };
-    window.handlePwKeyPress = (e) => { if (e.key === 'Enter') window.loginAdmin(); };
-
-    function refreshAdminUI() {
-        document.querySelectorAll('.reply-input-group').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
-        document.querySelectorAll('.reply-actions').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
-    }
-
-    window.addQuestion = function() {
-        const title = document.getElementById('titleInput').value.trim();
-        const text = document.getElementById('questionInput').value.trim();
-        const author = document.getElementById('authorInput').value.trim() || '익명'; 
-        const password = document.getElementById('pwInput').value.trim();
-        const isSecret = document.getElementById('secretInput').checked;
-        
-        if (!title || !password || !text) {
-            window.AppModal.show({type: 'alert', msg: '제목, 비밀번호, 내용을 모두 입력해주세요.'});
-            return;
-        }
-        push(questionsRef, { title, author, password, text, isSecret, time: getCurrentTime(), timestamp: Date.now() });
-        document.getElementById('titleInput').value = '';
-        document.getElementById('questionInput').value = '';
-        document.getElementById('authorInput').value = '';
-        document.getElementById('pwInput').value = '';
-        document.getElementById('secretInput').checked = false;
-    };
-
-    window.togglePost = (id) => {
-        const li = document.getElementById(`post-${id}`);
-        const content = document.getElementById(`content-${id}`);
-        const isSecret = li.dataset.secret === 'true';
-        const correctPw = li.dataset.pw;
-
-        if (content.style.display === 'block') {
-            content.style.display = 'none';
-            return;
-        }
-
-        if (isSecret && !isAdmin) {
-            window.AppModal.show({type: 'prompt', title: '🔒 비밀글', msg: '작성 시 설정한 비밀번호를 입력해주세요.'}, (pw) => {
-                if (pw === correctPw) {
-                    content.style.display = 'block';
-                } else if (pw !== null) {
-                    window.AppModal.show({type: 'alert', msg: '비밀번호가 일치하지 않습니다.'});
-                }
-            });
-        } else {
-            content.style.display = 'block';
-        }
-    };
-
-    window.handleEdit = function(id) {
-        const li = document.getElementById(`post-${id}`);
-        const correctPw = li.dataset.pw;
-        if (!isAdmin) {
-            window.AppModal.show({type: 'prompt', title: '수정', msg: '비밀번호를 입력해주세요.'}, (pw) => {
-                if (pw === correctPw) enableEditMode(id);
-                else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'});
-            });
-        } else enableEditMode(id);
-    };
-
-    function enableEditMode(id) {
-        const bodyDiv = document.getElementById(`post-body-${id}`);
-        const currentText = bodyDiv.dataset.text;
-        const currentTitle = bodyDiv.dataset.title;
-        bodyDiv.innerHTML = `
-            <input type="text" id="edit-title-${id}" value="${escapeHTML(currentTitle)}" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #1877f2; border-radius:6px; font-weight:bold; outline:none; box-sizing:border-box;">
-            <textarea id="edit-textarea-${id}" style="width:100%; height:80px; padding:12px; border:1px solid #1877f2; border-radius:6px; outline:none; resize:none; box-sizing:border-box;">${escapeHTML(currentText)}</textarea>
-            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
-                <button onclick="window.cancelEdit('${id}')" style="padding:8px 16px; border:none; background:#e4e6eb; border-radius:6px; cursor:pointer;">취소</button>
-                <button onclick="window.saveEdit('${id}')" style="padding:8px 16px; border:none; background:#1a73e8; color:white; border-radius:6px; cursor:pointer;">저장</button>
-            </div>`;
-    }
-
-    window.cancelEdit = (id) => {
-        const bodyDiv = document.getElementById(`post-body-${id}`);
-        bodyDiv.textContent = bodyDiv.dataset.text;
-    };
-
-    window.saveEdit = (id) => {
-        const newTitle = document.getElementById(`edit-title-${id}`).value.trim();
-        const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
-        if (newTitle && newText) {
-            update(ref(db, `questions/${id}`), { title: newTitle, text: newText });
-            
-            const bodyDiv = document.getElementById(`post-body-${id}`);
-            bodyDiv.dataset.text = newText;
-            bodyDiv.dataset.title = newTitle;
-            bodyDiv.textContent = newText;
-            
-            const li = document.getElementById(`post-${id}`);
-            const isSecret = li.dataset.secret === 'true';
-            document.getElementById(`title-text-${id}`).textContent = (isSecret ? '🔒 ' : '') + newTitle;
-        } else {
-            window.AppModal.show({type: 'alert', msg: '제목과 내용을 모두 입력해주세요.'});
-        }
-    };
-
-    window.handleDelete = (id) => {
-        const li = document.getElementById(`post-${id}`);
-        const correctPw = li.dataset.pw;
-        if (isAdmin) {
-            window.AppModal.show({type: 'confirm', msg: '선생님 권한으로 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(ref(db, `questions/${id}`)); });
-        } else {
-            window.AppModal.show({type: 'prompt', msg: '비밀번호를 입력하세요.'}, (pw) => {
-                if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(ref(db, `questions/${id}`)); });
-                else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'});
-            });
-        }
-    };
-
-    // Firebase 연동
-    onChildAdded(questionsRef, (snapshot) => {
-        const id = snapshot.key;
-        renderPost(id, snapshot.val());
-        
-        const repliesRef = ref(db, `questions/${id}/replies`);
-        onChildAdded(repliesRef, (rep) => { 
-            renderComment(id, rep.key, rep.val()); 
-            updateReplyCount(id, 1); 
-        });
-        onChildRemoved(repliesRef, (rep) => {
-            document.getElementById(`reply-${id}-${rep.key}`)?.remove();
-            updateReplyCount(id, -1);
-        });
-        onChildChanged(repliesRef, (rep) => {
-            const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`);
-            if (textContainer && !textContainer.querySelector('textarea')) {
-                textContainer.textContent = rep.val().text;
-                document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text;
-            }
-        });
-    });
-
-    onChildRemoved(questionsRef, (snapshot) => document.getElementById(`post-${snapshot.key}`)?.remove());
-
-    onChildChanged(questionsRef, (snapshot) => {
-        const id = snapshot.key;
-        const data = snapshot.val();
-        const titleSpan = document.getElementById(`title-text-${id}`);
-        const bodyDiv = document.getElementById(`post-body-${id}`);
-        
-        const displayTitle = (data.isSecret ? '🔒 ' : '') + (data.title || data.text.substring(0, 20) + '...');
-        if (titleSpan) titleSpan.textContent = displayTitle;
-        
-        if (bodyDiv && !bodyDiv.querySelector('textarea')) {
-            bodyDiv.textContent = data.text;
-            bodyDiv.dataset.text = data.text;
-            bodyDiv.dataset.title = data.title;
-        }
-    });
-
-    function renderPost(id, data) {
-        const list = document.getElementById('qnaList');
-        const li = document.createElement('li');
-        li.className = 'board-item';
-        li.id = `post-${id}`;
-        li.dataset.pw = data.password || ''; 
-        li.dataset.secret = data.isSecret || false; 
-        
-        const author = data.author || '익명';
-        const rawTitle = data.title || data.text.substring(0, 20) + '...';
-        const displayTitle = (data.isSecret ? '🔒 ' : '') + rawTitle;
-        const listTime = data.time.split(' ')[0].substring(5) + ' ' + data.time.split(' ')[1];
-
-        li.innerHTML = `
-            <div class="item-row" onclick="window.togglePost('${id}')">
-                <div class="item-title-wrapper">
-                    <span class="item-title" id="title-text-${id}">${escapeHTML(displayTitle)}</span>
-                    <span class="reply-count" id="reply-count-${id}" style="display:none;">[0]</span>
-                </div>
-                <div class="item-meta-mobile">
-                    <div class="item-author">${escapeHTML(author)}</div>
-                    <div class="item-time">${listTime}</div>
-                </div>
-            </div>
-            <div class="item-content" id="content-${id}">
-                <div class="post-actions-inline">
-                    <button class="action-btn" onclick="window.handleEdit('${id}')">수정</button>
-                    <button class="action-btn delete" onclick="window.handleDelete('${id}')">삭제</button>
-                </div>
-                <div id="post-body-${id}" class="post-body" data-text="${escapeHTML(data.text)}" data-title="${escapeHTML(rawTitle)}">${escapeHTML(data.text)}
-                <div style="font-size:11px; color:#999; margin-top:10px;">작성일시: ${data.time}</div>
-                </div>
-                <div class="comment-section">
-                    <div class="comment-header">💬 댓글</div>
-                    <ul class="comment-list" id="comment-list-${id}"></ul>
-                    <div class="reply-input-group" id="reply-group-${id}">
-                        <textarea id="reply-input-${id}" placeholder="선생님 답변 입력..." onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); window.addReply('${id}'); }"></textarea>
-                        <button onclick="window.addReply('${id}')">등록</button>
-                    </div>
-                </div>
-            </div>`;
-        list.prepend(li);
-        refreshAdminUI();
-    }
-
-    function updateReplyCount(qId, change) {
-        const span = document.getElementById(`reply-count-${qId}`);
-        if (!span) return;
-        let current = parseInt(span.dataset.count || '0') + change;
-        span.dataset.count = current;
-        span.style.display = current > 0 ? 'inline' : 'none';
-        span.textContent = `[${current}]`;
-    }
-
-    window.addReply = (id) => {
-        if (!isAdmin) return;
-        const input = document.getElementById(`reply-input-${id}`);
-        const text = input.value.trim();
-        if (text) push(ref(db, `questions/${id}/replies`), { text, time: getCurrentTime(), isTeacher: true });
-        input.value = '';
-    };
-
-    function renderComment(qId, replyId, data) {
-        const list = document.getElementById(`comment-list-${qId}`);
-        const li = document.createElement('li');
-        li.className = 'comment-item';
-        li.id = `reply-${qId}-${replyId}`;
-        li.dataset.text = data.text; 
-        
-        li.innerHTML = `
-            <div class="comment-profile">👨‍🏫</div>
-            <div class="comment-content">
-                <div class="comment-header-row">
-                    <div class="comment-meta">
-                        <span class="teacher-badge">선생님</span>
-                        <span class="comment-time">${data.time}</span>
-                    </div>
-                    <div class="reply-actions" style="display: ${isAdmin ? 'flex' : 'none'};">
-                        <button class="action-btn" onclick="window.editReply('${qId}', '${replyId}')">수정</button>
-                        <button class="action-btn delete" onclick="window.deleteReply('${qId}', '${replyId}')">삭제</button>
-                    </div>
-                </div>
-                <div id="reply-text-${qId}-${replyId}" class="comment-text">${escapeHTML(data.text)}</div>
-            </div>
-        `;
-        list.appendChild(li);
-    }
-
-    window.editReply = (qId, replyId) => {
-        if (!isAdmin) return;
-        const li = document.getElementById(`reply-${qId}-${replyId}`);
-        const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`);
-        const currentText = li.dataset.text;
-
-        textContainer.innerHTML = `
-            <textarea id="edit-reply-input-${qId}-${replyId}" style="width:100%; height:60px; padding:8px; border:1px solid #1877f2; border-radius:6px; resize:none; font-family:inherit; outline:none; box-sizing:border-box; margin-top:5px;">${escapeHTML(currentText)}</textarea>
-            <div style="display:flex; justify-content:flex-end; gap:5px; margin-top:5px;">
-                <button onclick="window.cancelEditReply('${qId}', '${replyId}')" style="padding:4px 8px; font-size:12px; border:none; background:#e4e6eb; border-radius:4px; cursor:pointer;">취소</button>
-                <button onclick="window.saveEditReply('${qId}', '${replyId}')" style="padding:4px 8px; font-size:12px; border:none; background:#1a73e8; color:white; border-radius:4px; cursor:pointer;">저장</button>
-            </div>
-        `;
-    };
-
-    window.cancelEditReply = (qId, replyId) => {
-        const li = document.getElementById(`reply-${qId}-${replyId}`);
-        const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`);
-        textContainer.textContent = li.dataset.text;
-    };
-
-    window.saveEditReply = (qId, replyId) => {
-        const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim();
-        if (newText) {
-            update(ref(db, `questions/${qId}/replies/${replyId}`), { text: newText });
-            
-            const li = document.getElementById(`reply-${qId}-${replyId}`);
-            li.dataset.text = newText;
-            const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`);
-            textContainer.textContent = newText;
-        } else {
-            window.AppModal.show({type: 'alert', msg: '답변 내용을 입력해주세요.'});
-        }
-    };
-
-    window.deleteReply = (qId, replyId) => {
-        if (!isAdmin) return;
-        window.AppModal.show({type: 'confirm', msg: '이 답변을 완전히 삭제하시겠습니까?', confirmText: '삭제'}, (res) => {
-            if(res) remove(ref(db, `questions/${qId}/replies/${replyId}`));
-        });
-    };
-
-    function getCurrentTime() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const date = String(now.getDate()).padStart(2, '0');
-        const ampm = now.getHours() >= 12 ? '오후' : '오전';
-        let hour = now.getHours() % 12;
-        hour = hour ? hour : 12;
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        return `${year}/${month}/${date} ${ampm} ${hour}:${minutes}`;
-    }
-</script>
 </body>
 </html>
