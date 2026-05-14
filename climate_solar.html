@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>태양 고도와 입사각 시뮬레이터</title>
+    <style>
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f4f7f6; margin: 0; min-height: 100vh; }
+        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; width: 100%; box-sizing: border-box; margin-bottom: 20px; }
+        .logo { font-size: 20px; font-weight: bold; color: #1a73e8; text-decoration: none; }
+        .menu { display: flex; gap: 20px; }
+        .menu a { font-size: 15px; font-weight: 500; color: #5f6368; text-decoration: none; transition: 0.2s; }
+        .menu a:hover { color: #1a73e8; font-weight: bold; }
+
+        .container { background-color: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 700px; width: 90%; }
+        h1 { color: #333; font-size: 24px; margin-bottom: 10px; }
+        p.description { color: #666; margin-bottom: 20px; }
+        .controls { margin-bottom: 20px; padding: 15px; background-color: #f0f4f8; border-radius: 8px; }
+        input[type="range"] { width: 80%; margin: 10px 0; }
+        .equation { font-size: 20px; font-weight: bold; margin-top: 20px; color: #2c3e50; background-color: #e8f4f8; padding: 15px; border-radius: 8px; display: inline-block; }
+        .text-alt { color: #e74c3c; } .text-inc { color: #3498db; }
+        canvas { border: 1px solid #ddd; border-radius: 8px; background-color: #fafafa; margin-top: 10px; max-width: 100%; height: auto; }
+        @media (max-width: 600px) { .navbar { flex-direction: column; padding: 15px; gap: 10px; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
+        <div class="menu"><a href="index.html">홈</a><a href="qna.html">Q&A 게시판</a></div>
+    </nav>
+
+    <div class="container">
+        <h1>태양 고도와 입사각</h1>
+        <p class="description">슬라이더를 통해 태양의 위치를 조절.</p>
+        <div class="controls">
+            <label for="sunSlider" style="font-weight:bold; font-size: 18px;">태양 위치 (고도): <span id="altValue" class="text-alt">45°</span></label><br>
+            <input type="range" id="sunSlider" min="0" max="90" value="45">
+        </div>
+        <canvas id="simCanvas" width="600" height="400"></canvas>
+        <div class="equation">
+            <span class="text-alt">태양 고도 (<span id="eqAlt">45</span>°)</span> + <span class="text-inc">입사각 (<span id="eqInc">45</span>°)</span> = 90°
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas'); const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('sunSlider'); const altValueTxt = document.getElementById('altValue');
+        const eqAltTxt = document.getElementById('eqAlt'); const eqIncTxt = document.getElementById('eqInc');
+        const cx = 300; const cy = 350; const rayLength = 280;
+
+        function drawSimulation() {
+            const altitude = parseInt(slider.value, 10); const incidence = 90 - altitude;
+            altValueTxt.innerText = altitude + "°"; eqAltTxt.innerText = altitude; eqIncTxt.innerText = incidence;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath(); ctx.moveTo(50, cy); ctx.lineTo(550, cy); ctx.lineWidth = 4; ctx.strokeStyle = '#2c3e50'; ctx.stroke();
+            ctx.fillStyle = '#2c3e50'; ctx.font = '16px "Malgun Gothic"'; ctx.fillText("지표면", 500, cy + 25);
+            
+            ctx.beginPath(); ctx.setLineDash([10, 10]); ctx.moveTo(cx, cy); ctx.lineTo(cx, 40); ctx.lineWidth = 2; ctx.strokeStyle = '#7f8c8d'; ctx.stroke();
+            ctx.setLineDash([]); ctx.fillStyle = '#7f8c8d'; ctx.fillText("법선 (수직선)", cx - 45, 30);
+
+            const radAlt = altitude * (Math.PI / 180);
+            const sunX = cx + rayLength * Math.cos(radAlt); const sunY = cy - rayLength * Math.sin(radAlt);
+            
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(sunX, sunY); ctx.lineWidth = 3; ctx.strokeStyle = '#f1c40f'; ctx.stroke();
+            ctx.font = '40px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('☀️', sunX, sunY);
+
+            if (altitude > 0) {
+                ctx.beginPath(); ctx.arc(cx, cy, 100, 0, -radAlt, true); ctx.lineWidth = 3; ctx.strokeStyle = '#e74c3c'; ctx.stroke();
+                const altMidRad = radAlt / 2; ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 16px "Malgun Gothic"';
+                ctx.fillText(`고도 ${altitude}°`, cx + 130 * Math.cos(altMidRad), cy - 130 * Math.sin(altMidRad));
+            }
+            if (incidence > 0) {
+                ctx.beginPath(); ctx.arc(cx, cy, 140, -Math.PI / 2, -radAlt, false); ctx.lineWidth = 3; ctx.strokeStyle = '#3498db'; ctx.stroke();
+                const incMidRad = (Math.PI / 2 + radAlt) / 2; ctx.fillStyle = '#3498db'; ctx.font = 'bold 16px "Malgun Gothic"';
+                ctx.fillText(`입사각 ${incidence}°`, cx + 170 * Math.cos(incMidRad), cy - 170 * Math.sin(incMidRad));
+            }
+            ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fillStyle = '#2c3e50'; ctx.fill();
+        }
+        slider.addEventListener('input', drawSimulation); drawSimulation();
+    </script>
+</body>
+</html>
