@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지형 변화 시뮬레이터</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #02060f; color: #e7f0ff; font-family: "Pretendard", "Malgun Gothic", sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* 공통 네비게이션 바 */
+        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; position: relative; z-index: 9999; flex-shrink: 0; }
+        .logo { font-size: 20px; font-weight: bold; color: #1a73e8; text-decoration: none; }
+        .menu { display: flex; gap: 20px; }
+        .menu a { font-size: 15px; font-weight: 500; color: #5f6368; text-decoration: none; transition: 0.2s; }
+        .menu a:hover { color: #1a73e8; font-weight: bold; }
+
+        /* 메인 컨테이너 레이아웃 */
+        .main-wrapper { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        /* 왼쪽 컨트롤 패널 */
+        #ui-panel { width: 320px; background: rgba(10, 24, 48, 0.9); border-right: 2px solid #1a365d; padding: 25px; display: flex; flex-direction: column; gap: 20px; z-index: 10; box-shadow: 5px 0 20px rgba(0,0,0,0.5); overflow-y: auto; }
+        h1 { font-size: 1.4rem; color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.3); margin-bottom: 5px; }
+        p.desc { font-size: 0.85rem; color: #94a3b8; line-height: 1.5; }
+        .tool-group { display: flex; flex-direction: column; gap: 10px; }
+        button { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 12px 15px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; text-align: left; }
+        button:hover { background: #334155; border-color: #475569; }
+        button.active { background: #2563eb; border-color: #3b82f6; color: white; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
+        .slider-group { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #1e293b; }
+        .slider-group label { display: block; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 8px; }
+        input[type=range] { width: 100%; cursor: pointer; }
+        #reset-btn { background: #7f1d1d; border-color: #991b1b; margin-top: auto; justify-content: center; }
+        #reset-btn:hover { background: #991b1b; }
+
+        /* 캔버스 영역 */
+        #canvas-container { flex: 1; position: relative; background: radial-gradient(circle at 50% 40%, #0f172a 0%, #02060f 100%); cursor: crosshair; }
+        canvas { display: block; width: 100%; height: 100%; }
+        #status-bar { position: absolute; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.7); padding: 10px 20px; border-radius: 8px; border: 1px solid #334155; font-size: 0.9rem; color: #94a3b8; pointer-events: none; }
+
+        @media (max-width: 768px) { .main-wrapper { flex-direction: column; } #ui-panel { width: 100%; max-height: 40vh; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
+        <div class="menu"><a href="index.html">홈</a><a href="qna.html">Q&A 게시판</a></div>
+    </nav>
+
+    <div class="main-wrapper">
+        <div id="ui-panel">
+            <div><h1>지형 시뮬레이터</h1><p class="desc">지형 형성 작용 고도 변화 모델.</p></div>
+            <div class="tool-group">
+                <button class="tool-btn active" data-tool="erosion">💧 하천 침식 (깎기)</button>
+                <button class="tool-btn" data-tool="deposition">🪨 퇴적 (쌓기)</button>
+                <button class="tool-btn" data-tool="tectonic">🌋 융기 (산맥 형성)</button>
+            </div>
+            <div class="slider-group"><label>브러시 크기 (영향 범위)</label><input type="range" id="brush-size" min="1" max="8" value="3"></div>
+            <div class="slider-group"><label>작용 강도 (변화량)</label><input type="range" id="brush-strength" min="1" max="10" value="5"></div>
+            <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5; padding: 10px; background: #0f172a; border-radius: 8px;">
+                <strong>💡 조작 방법</strong><br>• 우측 지형을 클릭하거나 드래그하세요.<br>• 물 ➔ 모래 ➔ 평야 ➔ 암석 ➔ 만년설
+            </div>
+            <button id="reset-btn">지형 초기화</button>
+        </div>
+
+        <div id="canvas-container">
+            <canvas id="gameCanvas"></canvas>
+            <div id="status-bar">준비 완료. 마우스로 드래그해보세요.</div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d', { alpha: false });
+        let width, height; const GRID_SIZE = 60; const TILE_W = 16; const TILE_H = 8; const Z_SCALE = 3;
+        let elevation = []; let offsetX, offsetY;
+        let currentTool = 'erosion'; let brushSize = 3; let brushStrength = 5; let isDrawing = false;
+
+        function initTerrain() {
+            elevation = [];
+            for (let i = 0; i < GRID_SIZE; i++) {
+                elevation[i] = [];
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    let h = Math.sin(i * 0.1) * Math.cos(j * 0.1) * 5 + Math.sin(i * 0.05) * Math.cos(j * 0.08) * 8 + Math.sin(i * 0.2 + j * 0.1) * 2;
+                    elevation[i][j] = Math.max(-5, h);
+                }
+            }
+            resize();
+        }
+
+        function resize() {
+            width = canvas.parentElement.clientWidth; height = canvas.parentElement.clientHeight;
+            canvas.width = width; canvas.height = height;
+            offsetX = width / 2; offsetY = height * 0.3; drawMap();
+        }
+        window.addEventListener('resize', resize);
+
+        function getColor(h) {
+            if (h < 0) return { top: '#0ea5e9', left: '#0284c7', right: '#0369a1' };
+            if (h < 2) return { top: '#38bdf8', left: '#0ea5e9', right: '#0284c7' };
+            if (h < 4) return { top: '#fcd34d', left: '#fbbf24', right: '#f59e0b' };
+            if (h < 12) return { top: '#4ade80', left: '#22c55e', right: '#16a34a' };
+            if (h < 20) return { top: '#a3a8b4', left: '#838a97', right: '#666d7a' };
+            return { top: '#f8fafc', left: '#e2e8f0', right: '#cbd5e1' };
+        }
+
+        function drawMap() {
+            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, width, height);
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    let h = elevation[i][j]; let cx = offsetX + (i - j) * TILE_W; let cy = offsetY + (i + j) * TILE_H - (h * Z_SCALE);
+                    let colors = getColor(h);
+                    ctx.fillStyle = colors.top; ctx.beginPath(); ctx.moveTo(cx, cy - TILE_H); ctx.lineTo(cx + TILE_W, cy); ctx.lineTo(cx, cy + TILE_H); ctx.lineTo(cx - TILE_W, cy); ctx.closePath(); ctx.fill();
+                    let baseCy = offsetY + (i + j) * TILE_H - (-5 * Z_SCALE);
+                    ctx.fillStyle = colors.left; ctx.beginPath(); ctx.moveTo(cx - TILE_W, cy); ctx.lineTo(cx, cy + TILE_H); ctx.lineTo(cx, baseCy + TILE_H); ctx.lineTo(cx - TILE_W, baseCy); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = colors.right; ctx.beginPath(); ctx.moveTo(cx, cy + TILE_H); ctx.lineTo(cx + TILE_W, cy); ctx.lineTo(cx + TILE_W, baseCy); ctx.lineTo(cx, baseCy + TILE_H); ctx.closePath(); ctx.fill();
+                    ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 0.5; ctx.stroke();
+                }
+            }
+        }
+
+        function applyTool(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect(); const mx = clientX - rect.left; const my = clientY - rect.top;
+            let closestI = -1, closestJ = -1; let minDist = Infinity;
+            for (let i = 0; i < GRID_SIZE; i++) {
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    let dist = Math.hypot(offsetX + (i - j) * TILE_W - mx, offsetY + (i + j) * TILE_H - (elevation[i][j] * Z_SCALE) - my);
+                    if (dist < minDist) { minDist = dist; closestI = i; closestJ = j; }
+                }
+            }
+            if (minDist > 50) return;
+            let modified = false;
+            for (let i = Math.max(0, closestI - brushSize); i <= Math.min(GRID_SIZE - 1, closestI + brushSize); i++) {
+                for (let j = Math.max(0, closestJ - brushSize); j <= Math.min(GRID_SIZE - 1, closestJ + brushSize); j++) {
+                    let distGrid = Math.hypot(i - closestI, j - closestJ);
+                    if (distGrid <= brushSize) {
+                        let force = (1 - (distGrid / (brushSize + 1))) * (brushStrength * 0.2);
+                        if (currentTool === 'erosion') elevation[i][j] -= force;
+                        else if (currentTool === 'deposition') elevation[i][j] += force;
+                        else if (currentTool === 'tectonic') elevation[i][j] += force * 2;
+                        elevation[i][j] = Math.max(-10, Math.min(30, elevation[i][j]));
+                        modified = true;
+                    }
+                }
+            }
+            if (modified) drawMap();
+        }
+
+        canvas.addEventListener('mousedown', (e) => { isDrawing = true; applyTool(e.clientX, e.clientY); });
+        canvas.addEventListener('mousemove', (e) => { if (isDrawing) applyTool(e.clientX, e.clientY); });
+        window.addEventListener('mouseup', () => { isDrawing = false; }); window.addEventListener('mouseleave', () => { isDrawing = false; });
+
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); e.currentTarget.classList.add('active'); currentTool = e.currentTarget.dataset.tool;
+                let text = "";
+                if(currentTool === 'erosion') text = "침식 작용: 고도가 낮아집니다."; if(currentTool === 'deposition') text = "퇴적 작용: 고도가 높아집니다."; if(currentTool === 'tectonic') text = "융기 작용: 지각이 강하게 솟아오릅니다.";
+                document.getElementById('status-bar').innerText = text;
+            });
+        });
+        document.getElementById('brush-size').addEventListener('input', (e) => brushSize = parseInt(e.target.value));
+        document.getElementById('brush-strength').addEventListener('input', (e) => brushStrength = parseInt(e.target.value));
+        document.getElementById('reset-btn').addEventListener('click', () => { initTerrain(); document.getElementById('status-bar').innerText = "지형이 초기화되었습니다."; });
+        initTerrain();
+    </script>
+</body>
+</html>
