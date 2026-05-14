@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>통합사회 C 홈페이지</title>
+<style>
+    /* 기본 설정 */
+    body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: #333; }
+    a { text-decoration: none; color: inherit; }
+
+    /* 상단 네비게이션 바 (메뉴) */
+    .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; position: sticky; top: 0; z-index: 1000; }
+    .logo { font-size: 20px; font-weight: bold; color: #1a73e8; }
+    .menu { display: flex; gap: 20px; }
+    .menu a { font-size: 15px; font-weight: 500; color: #5f6368; padding: 5px 10px; transition: color 0.2s; }
+    .menu a:hover { color: #1a73e8; }
+
+    /* 메인 배너 (Hero Section) */
+    .hero { background: linear-gradient(135deg, #1a73e8, #4285f4); color: white; padding: 100px 20px; text-align: center; }
+    .hero h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .hero p { font-size: 1.2em; opacity: 0.9; margin-bottom: 30px; }
+    .hero-btn { background-color: white; color: #1a73e8; padding: 12px 30px; border-radius: 30px; font-weight: bold; font-size: 16px; transition: 0.3s; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+
+    /* 콘텐츠 영역 */
+    .content { max-width: 900px; margin: 50px auto; padding: 20px; text-align: center; }
+    
+    /* 모바일 반응형 */
+    @media (max-width: 600px) {
+        .navbar { flex-direction: column; gap: 15px; padding: 15px; }
+        .hero { padding: 60px 20px; }
+        .hero h1 { font-size: 2em; }
+    }
+</style>
+</head>
+<body>
+
+    <!-- 상단 메뉴바 -->
+    <nav class="navbar">
+        <div class="logo">🌍 통합사회 C</div>
+        <div class="menu">
+            <!-- href 속성에 이동할 HTML 파일 이름을 적어줍니다 -->
+            <a href="index.html">홈</a>
+            <a href="qna.html">Q&A 게시판</a>
+            <a href="#">수업 자료(준비중)</a>
+        </div>
+    </nav>
+
+    <!-- 메인 배너 영역 -->
+    <header class="hero">
+        <h1>환영합니다! 통합사회 C 클래스입니다.</h1>
+        <p>질문이 있다면 언제든 Q&A 게시판을 이용해주세요.</p>
+        <!-- 버튼을 누르면 qna.html 로 이동 -->
+        <a href="qna.html" class="hero-btn">Q&A 게시판 바로가기</a>
+    </header>
+
+    <!-- 본문 영역 -->
+    <main class="content">
+        <h2>공지사항</h2>
+        <p>이곳에 이번 주 수업 일정이나 준비물 등 간단한 공지를 적어보세요!</p>
+    </main>
+
+</body>
+</html>
