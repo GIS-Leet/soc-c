@@ -3,63 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>통합사회 C 홈페이지</title>
+<title>통합사회 C & D - 메인 포털</title>
 <style>
-    /* 기본 설정 */
-    body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; background-color: #f8f9fa; color: #333; }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; }
     a { text-decoration: none; color: inherit; }
 
-    /* 상단 네비게이션 바 (메뉴) */
+    /* 공통 상단 네비게이션 바 */
     .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; position: sticky; top: 0; z-index: 1000; }
     .logo { font-size: 20px; font-weight: bold; color: #1a73e8; }
     .menu { display: flex; gap: 20px; }
     .menu a { font-size: 15px; font-weight: 500; color: #5f6368; padding: 5px 10px; transition: color 0.2s; }
-    .menu a:hover { color: #1a73e8; }
+    .menu a:hover, .menu a.active { color: #1a73e8; font-weight: bold; }
 
-    /* 메인 배너 (Hero Section) */
-    .hero { background: linear-gradient(135deg, #1a73e8, #4285f4); color: white; padding: 100px 20px; text-align: center; }
-    .hero h1 { font-size: 2.5em; margin-bottom: 10px; }
-    .hero p { font-size: 1.2em; opacity: 0.9; margin-bottom: 30px; }
-    .hero-btn { background-color: white; color: #1a73e8; padding: 12px 30px; border-radius: 30px; font-weight: bold; font-size: 16px; transition: 0.3s; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+    /* 메인 배너 */
+    .hero { background: linear-gradient(135deg, #1a73e8, #283593); color: white; padding: 80px 20px; text-align: center; }
+    .hero h1 { font-size: 2.5em; margin-bottom: 15px; }
+    .hero p { font-size: 1.1em; opacity: 0.9; margin-bottom: 0; }
 
-    /* 콘텐츠 영역 */
-    .content { max-width: 900px; margin: 50px auto; padding: 20px; text-align: center; }
+    /* 섹션 레이아웃 */
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    .section-title { font-size: 1.5em; color: #2c3e50; border-bottom: 3px solid #1a73e8; padding-bottom: 10px; margin-bottom: 20px; display: inline-block; }
     
-    /* 모바일 반응형 */
+    /* 카드 그리드 시스템 */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-bottom: 50px; }
+    
+    .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+    .card-icon { font-size: 2.5em; margin-bottom: 15px; }
+    .card h3 { margin: 0 0 10px 0; color: #1a73e8; font-size: 1.2em; }
+    .card p { margin: 0 0 20px 0; color: #666; font-size: 0.95em; line-height: 1.5; flex-grow: 1; }
+    .card-btn { background: #f0f4f8; color: #1a73e8; text-align: center; padding: 10px; border-radius: 8px; font-weight: bold; transition: 0.2s; }
+    .card:hover .card-btn { background: #1a73e8; color: white; }
+
     @media (max-width: 600px) {
-        .navbar { flex-direction: column; gap: 15px; padding: 15px; }
-        .hero { padding: 60px 20px; }
-        .hero h1 { font-size: 2em; }
+        .navbar { flex-direction: column; gap: 10px; padding: 15px; }
+        .hero { padding: 50px 20px; }
+        .hero h1 { font-size: 1.8em; }
     }
 </style>
 </head>
 <body>
 
-    <!-- 상단 메뉴바 -->
     <nav class="navbar">
-        <div class="logo">🌍 통합사회 C</div>
+        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
         <div class="menu">
-            <!-- href 속성에 이동할 HTML 파일 이름을 적어줍니다 -->
-            <a href="index.html">홈</a>
+            <a href="index.html" class="active">홈</a>
             <a href="qna.html">Q&A 게시판</a>
-            <a href="#">수업 자료(준비중)</a>
         </div>
     </nav>
 
-    <!-- 메인 배너 영역 -->
     <header class="hero">
-        <h1>환영합니다! 통합사회 C 클래스입니다.</h1>
-        <p>질문이 있다면 언제든 Q&A 게시판을 이용해주세요.</p>
-        <!-- 버튼을 누르면 qna.html 로 이동 -->
-        <a href="qna.html" class="hero-btn">Q&A 게시판 바로가기</a>
+        <h1>통합사회 스마트 러닝 포털</h1>
+        <p>수업 자료, 수행평가, 인터랙티브 시뮬레이션을 한 곳에서 확인하세요.</p>
     </header>
 
-    <!-- 본문 영역 -->
-    <main class="content">
-        <h2>공지사항</h2>
-        <p>이곳에 이번 주 수업 일정이나 준비물 등 간단한 공지를 적어보세요!</p>
-    </main>
+    <div class="container">
+        
+        <h2 class="section-title">🖥️ 인터랙티브 시뮬레이터</h2>
+        <div class="grid">
+            <a href="climate.html" class="card">
+                <div class="card-icon">☀️</div>
+                <h3>기후 및 계절 변화 (3D)</h3>
+                <p>지구 공전에 따른 계절 변화, 적도 수렴대 이동, 태양 고도 시뮬레이션</p>
+                <div class="card-btn">실행하기</div>
+            </a>
+            <a href="seoul.html" class="card">
+                <div class="card-icon">🏙️</div>
+                <h3>서울 대도시권 팽창</h3>
+                <p>1~3기 신도시 및 GTX 교통망 확충에 따른 대도시권 형성 과정 지도</p>
+                <div class="card-btn">실행하기</div>
+            </a>
+            <a href="terrain.html" class="card">
+                <div class="card-icon">⛰️</div>
+                <h3>지형 변화 시뮬레이터</h3>
+                <p>침식, 퇴적, 융기 작용에 따른 등각 투영(Isometric) 지형 변화 모델</p>
+                <div class="card-btn">실행하기</div>
+            </a>
+        </div>
 
+        <h2 class="section-title">📚 수업 학습지 다운로드</h2>
+        <div class="grid">
+            <a href="https://drive.google.com/open?id=130XifHz-DPzWSbrY368n_wTIHJcC8coB" target="_blank" class="card">
+                <div class="card-icon">📄</div>
+                <h3>통합사회 C - 학습지 1</h3>
+                <p>기후의 구성요소 및 기본 개념 정리</p>
+                <div class="card-btn">PDF 다운로드</div>
+            </a>
+            <a href="https://drive.google.com/open?id=1MDdnongTqP2WeNVNV6_ge86tWPxnneMX" target="_blank" class="card">
+                <div class="card-icon">📄</div>
+                <h3>통합사회 C - 학습지 2</h3>
+                <p>세계의 기후 구분 및 특징 상세</p>
+                <div class="card-btn">PDF 다운로드</div>
+            </a>
+            <a href="https://drive.google.com/open?id=1kBUfaXQCZwgPIPOI51uiSZhefrJy80fx" target="_blank" class="card">
+                <div class="card-icon">💨</div>
+                <h3>통합사회 C - 보충 자료</h3>
+                <p>대기 대순환 및 바람의 이동 보충 심화</p>
+                <div class="card-btn">PDF 다운로드</div>
+            </a>
+            <a href="https://drive.google.com/open?id=1k-Z082RDck1CRtO9YTdQgQlNSYIlvbWu" target="_blank" class="card">
+                <div class="card-icon">📄</div>
+                <h3>통합사회 C - 학습지 3</h3>
+                <p>기후 변화와 인간 생활의 관계</p>
+                <div class="card-btn">PDF 다운로드</div>
+            </a>
+        </div>
+
+        <h2 class="section-title">🎯 수행평가 및 과제</h2>
+        <div class="grid">
+            <a href="https://forms.gle/WLknpMYbkpMuhsmz9" target="_blank" class="card">
+                <div class="card-icon">📝</div>
+                <h3>질문 아카이브 접수</h3>
+                <p>수업 중 발생한 질문을 제출하는 공식 구글 폼 양식</p>
+                <div class="card-btn">구글 폼 작성하기</div>
+            </a>
+            <a href="https://forms.gle/wZofWasghD87F75A6" target="_blank" class="card">
+                <div class="card-icon">🔍</div>
+                <h3>지역 탐구 프로젝트 (사전조사)</h3>
+                <p>지역 탐구 수행평가 주제 선정을 위한 사전 설문조사</p>
+                <div class="card-btn">구글 폼 작성하기</div>
+            </a>
+            <a href="https://drive.google.com/open?id=1COwn2eOerB1oMb2PkxMn5LBcCiuopBwUbBIIgcvDylY" target="_blank" class="card">
+                <div class="card-icon">📋</div>
+                <h3>지역 탐구 보고서 양식</h3>
+                <p>수행평가 최종 보고서 작성을 위한 공식 양식 예시 (Google Docs)</p>
+                <div class="card-btn">양식 확인하기</div>
+            </a>
+        </div>
+
+    </div>
 </body>
 </html>
