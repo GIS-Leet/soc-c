@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>적도 수렴대 이동 시뮬레이터</title>
+    <style>
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: #f8f9fa; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; }
+        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; width: 100%; box-sizing: border-box; margin-bottom: 20px; }
+        .logo { font-size: 20px; font-weight: bold; color: #1a73e8; text-decoration: none; }
+        .menu { display: flex; gap: 20px; }
+        .menu a { font-size: 15px; font-weight: 500; color: #5f6368; text-decoration: none; transition: 0.2s; }
+        .menu a:hover { color: #1a73e8; font-weight: bold; }
+        
+        .container { background-color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 800px; width: 90%; text-align: center; }
+        canvas { background-color: #0d1b2a; border-radius: 8px; margin-bottom: 20px; max-width: 100%; height: auto; }
+        .controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        input[type="range"] { width: 300px; cursor: pointer; }
+        .month-display { font-size: 1.2rem; font-weight: bold; color: #1e3a8a; width: 60px; }
+        .info-panel { background-color: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; font-size: 1.1rem; line-height: 1.5; min-height: 60px; }
+        @media (max-width: 600px) { .navbar { flex-direction: column; padding: 15px; gap: 10px; } input[type="range"] { width: 150px; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
+        <div class="menu"><a href="index.html">홈</a><a href="qna.html">Q&A 게시판</a></div>
+    </nav>
+
+    <div class="container">
+        <h2>적도 수렴대의 이동</h2>
+        <canvas id="simCanvas" width="700" height="400"></canvas>
+        <div class="controls">
+            <span>1월</span><input type="range" id="monthSlider" min="1" max="12" step="1" value="6"><span>12월</span>
+            <div class="month-display" id="monthLabel">6월</div>
+        </div>
+        <div class="info-panel" id="infoText"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas'); const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('monthSlider'); const monthLabel = document.getElementById('monthLabel'); const infoText = document.getElementById('infoText');
+        const cx = 500; const cy = 200; const R = 120;
+
+        function drawSimulation() {
+            const month = parseInt(slider.value); monthLabel.textContent = month + '월';
+            const maxTilt = 23.5; const tiltFactor = Math.cos((month - 6) * Math.PI / 6);
+            const tiltRad = -maxTilt * tiltFactor * Math.PI / 180;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2;
+            for (let y = 80; y <= 320; y += 30) {
+                ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(320, y); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(310, y - 5); ctx.lineTo(320, y); ctx.lineTo(310, y + 5); ctx.stroke();
+            }
+            ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(-20, cy, 150, 0, Math.PI * 2); ctx.fill();
+
+            ctx.save(); ctx.translate(cx, cy);
+            ctx.fillStyle = '#3b82f6'; ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill();
+            ctx.rotate(tiltRad);
+            ctx.strokeStyle = '#94a3b8'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, -R - 30); ctx.lineTo(0, R + 30); ctx.stroke();
+
+            function drawLat(lat, label, color, isDashed) {
+                const y = -R * Math.sin(lat * Math.PI / 180); const rLat = R * Math.cos(lat * Math.PI / 180);
+                ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.setLineDash(isDashed ? [4, 4] : []);
+                ctx.beginPath(); ctx.moveTo(-rLat, y); ctx.lineTo(rLat, y); ctx.stroke();
+                ctx.fillStyle = color; ctx.font = '12px "Malgun Gothic"'; ctx.textAlign = 'left'; ctx.fillText(label, rLat + 5, y + 4);
+            }
+            drawLat(0, "적도 (0°)", "#ef4444", false); drawLat(23.5, "북위 20도 근처", "#fcd34d", true); drawLat(-23.5, "남위 20도 근처", "#fcd34d", true);
+            
+            ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.fillText("북극", 0, -R - 10); ctx.fillText("남극", 0, R + 20);
+
+            const itczLat = maxTilt * tiltFactor; const itczY = -R * Math.sin(itczLat * Math.PI / 180); const itczWidth = R * Math.cos(itczLat * Math.PI / 180);
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; ctx.fillRect(-itczWidth, itczY - 15, itczWidth * 2, 30);
+            ctx.fillStyle = 'white'; ctx.font = 'bold 14px "Malgun Gothic"'; ctx.fillText("적도 수렴대 (상승기류/우기)", 0, itczY + 5);
+            ctx.restore();
+
+            let text = "";
+            if (month >= 5 && month <= 7) text = `<strong> 북반구 여름 (${month}월):</strong> 직사광선이 북반구를 비추며, <strong>비구름을 만드는 적도 수렴대가 북상</strong>.`;
+            else if (month >= 11 || month <= 1) text = `<strong> 북반구 겨울 (${month}월):</strong> 직사광선이 남반구를 비추며, <strong>적도 수렴대가 남하</strong>. 북반구는 건조해짐.`;
+            else text = `<strong> 봄/가을 부근 (${month}월):</strong> 직사광선이 <strong>적도</strong>를 수직으로 비추며, 적도 수렴대가 중앙에 위치.`;
+            infoText.innerHTML = text;
+        }
+        slider.addEventListener('input', drawSimulation); drawSimulation();
+    </script>
+</body>
+</html>
