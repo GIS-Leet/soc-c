@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서울의 대도시권 형성 과정</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; display: flex; flex-direction: column; height: 100vh; background: #f4f6f9; }
+        
+        /* 공통 네비게이션 바 */
+        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; position: relative; z-index: 2000; flex-shrink: 0; }
+        .logo { font-size: 20px; font-weight: bold; color: #1a73e8; text-decoration: none; }
+        .menu { display: flex; gap: 20px; }
+        .menu a { font-size: 15px; font-weight: 500; color: #5f6368; text-decoration: none; transition: 0.2s; }
+        .menu a:hover { color: #1a73e8; font-weight: bold; }
+
+        .header { background: #2c3e50; color: white; padding: 15px 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000; flex-shrink: 0; }
+        .header h1 { margin: 0; font-size: 1.5rem; }
+        .header p { margin: 5px 0 0 0; font-size: 0.9rem; color: #bdc3c7; }
+        
+        #map { flex: 1; width: 100%; z-index: 1; }
+        
+        .control-panel { background: white; padding: 20px 30px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
+        .slider-wrapper { display: flex; align-items: center; gap: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; }
+        #stageLabel { font-weight: bold; color: #2c3e50; min-width: 150px; font-size: 1.1rem; }
+        input[type=range] { flex: 1; cursor: pointer; }
+        
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .info-card { padding: 15px; border-radius: 8px; border-left: 4px solid #2c3e50; background: #fdfdfd; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
+        .info-card.transport { border-left-color: #e74c3c; }
+        .info-card h3 { margin: 0 0 8px 0; font-size: 1rem; color: #333; }
+        .info-card p { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #555; }
+        
+        @media (max-width: 600px) { .navbar { flex-direction: column; padding: 15px; gap: 10px; } .info-grid { grid-template-columns: 1fr; } .slider-wrapper { flex-direction: column; text-align: center; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
+        <div class="menu"><a href="index.html">홈</a><a href="qna.html">Q&A 게시판</a></div>
+    </nav>
+
+    <div class="header">
+        <h1>서울의 대도시권 형성 과정</h1>
+        <p>도시화에 따른 서울의 팽창 및 교통망 발전 과정</p>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="control-panel">
+        <div class="slider-wrapper">
+            <span id="stageLabel">1단계 (70~80년대)</span>
+            <input type="range" id="stageSlider" min="1" max="4" value="1" step="1">
+            <span style="font-size:0.9rem; color:#888; font-weight:bold;">진행 과정 ➔</span>
+        </div>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>서울의 확장</h3>
+                <p id="descArea">서울 중심부에만 인구와 일자리가 초과밀 상태. (집적 불이익 발생)</p>
+            </div>
+            <div class="info-card transport">
+                <h3>교통망의 발전</h3>
+                <p id="descTransport">대중교통 인프라 부족으로 서울 외부로의 장거리 출퇴근이 사실상 불가능한 시기.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const map = L.map('map').setView([37.53, 126.98], 10.5);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap', subdomains: 'abcd', maxZoom: 19 }).addTo(map);
+        
+        const seoulCoords = [ [37.645, 126.915], [37.655, 126.950], [37.685, 126.995], [37.695, 127.045], [37.675, 127.085], [37.625, 127.095], [37.595, 127.125], [37.565, 127.175], [37.535, 127.145], [37.485, 127.135], [37.465, 127.105], [37.435, 127.055], [37.455, 126.995], [37.435, 126.955], [37.435, 126.915], [37.465, 126.885], [37.485, 126.825], [37.525, 126.825], [37.555, 126.795], [37.585, 126.815], [37.585, 126.865], [37.605, 126.885], [37.625, 126.915] ];
+        const seoulPolygon = L.polygon(seoulCoords, { color: '#2c3e50', fillColor: '#34495e', fillOpacity: 0.65, weight: 2 });
+
+        const nt1_bundang = L.circle([37.38, 127.12], { radius: 3500, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
+        const nt1_ilsan = L.circle([37.66, 126.77], { radius: 3500, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
+        const nt1_pyeongchon = L.circle([37.39, 126.96], { radius: 2500, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
+        const nt1_sanbon = L.circle([37.36, 126.93], { radius: 2000, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
+        const nt1_jungdong = L.circle([37.50, 126.76], { radius: 2500, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
+        const stage2_areas = L.layerGroup([nt1_bundang, nt1_ilsan, nt1_pyeongchon, nt1_sanbon, nt1_jungdong]);
+
+        const sub_bundang = L.polyline([[37.52, 127.04], [37.38, 127.12]], { color: '#f1c40f', weight: 4, dashArray: '5, 10' });
+        const sub_ilsan = L.polyline([[37.56, 126.92], [37.66, 126.77]], { color: '#e67e22', weight: 4, dashArray: '5, 10' });
+        const sub_pyeongchon = L.polyline([[37.48, 126.98], [37.39, 126.96]], { color: '#3498db', weight: 4, dashArray: '5, 10' });
+        const stage2_lines = L.layerGroup([sub_bundang, sub_ilsan, sub_pyeongchon]);
+
+        const nt2_dongtan = L.circle([37.20, 127.09], { radius: 4500, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
+        const nt2_pangyo = L.circle([37.40, 127.11], { radius: 3000, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
+        const nt2_gimpo = L.circle([37.64, 126.67], { radius: 3500, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
+        const nt2_gwanggyo = L.circle([37.29, 127.05], { radius: 3000, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
+        const nt2_wirye = L.circle([37.47, 127.14], { radius: 2000, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
+        const nt2_unjeong = L.circle([37.73, 126.74], { radius: 3500, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
+        const nt2_yangju = L.circle([37.82, 127.09], { radius: 3000, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
+        const stage3_areas = L.layerGroup([nt2_dongtan, nt2_pangyo, nt2_gimpo, nt2_gwanggyo, nt2_wirye, nt2_unjeong, nt2_yangju]);
+
+        const highway = L.polyline([[37.68, 126.75], [37.74, 127.05], [37.58, 127.17], [37.40, 127.10], [37.38, 126.90], [37.45, 126.75], [37.55, 126.74], [37.68, 126.75]], { color: '#8e44ad', weight: 4, opacity: 0.7 });
+        const stage3_lines = L.layerGroup([highway]);
+
+        const gtx_a = L.polyline([[37.73, 126.74], [37.61, 126.92], [37.55, 126.97], [37.48, 127.10], [37.20, 127.09]], { color: '#e74c3c', weight: 6, opacity: 0.9 });
+        const gtx_b = L.polyline([[37.38, 126.64], [37.52, 126.92], [37.55, 126.97], [37.58, 127.04], [37.65, 127.30]], { color: '#3498db', weight: 6, opacity: 0.9 });
+        const gtx_c = L.polyline([[37.84, 127.06], [37.63, 127.05], [37.58, 127.04], [37.51, 127.06], [37.26, 127.00]], { color: '#27ae60', weight: 6, opacity: 0.9 });
+        const stage4_lines = L.layerGroup([gtx_a, gtx_b, gtx_c]);
+
+        seoulPolygon.addTo(map);
+
+        const textData = {
+            1: { title: "1단계 (70~80년대)", area: "<b>서울 집중:</b> 짙은 남색의 <b>[서울 경계]</b> 안에만 인구와 산업 과밀화. (집적 불이익)", trans: "<b>교통 한계:</b> 광역 수송 수단이 거의 없어 직장이 있는 서울 안에서만 거주." },
+            2: { title: "2단계 (90년대)", area: "<b>1기 신도시 교외화:</b> 파란 원 <b>[분당, 일산, 평촌 등]</b>이 건설되며 주거지가 서울 밖으로 팽창.", trans: "<b>광역 전철 개통:</b> 3, 4호선, 분당선 등 연장으로 장거리 통근 시대 시작." },
+            3: { title: "3단계 (00~10년대)", area: "<b>광역화:</b> 초록 원 <b>[판교, 동탄 등 2·3기 신도시]</b> 조성으로 대도시권이 경기 남북으로 확장.", trans: "<b>순환고속도로와 버스:</b> 보라색 <b>[수도권 제1순환선]</b> 개통 및 M버스로 광역 이동 활발." },
+            4: { title: "4단계 (현재~미래)", area: "<b>대도시권 완성:</b> 서울과 주변 도시들이 행정 경계를 초월해 하나의 거대 생활권 통합.", trans: "<b>GTX (수도권 광역급행철도):</b> 지도에 뻗은 <b>A, B, C 노선</b>이 서울 도심까지 30분대 관통." }
+        };
+
+        document.getElementById('stageSlider').addEventListener('input', function() {
+            const stage = parseInt(this.value);
+            map.removeLayer(stage2_areas); map.removeLayer(stage2_lines); map.removeLayer(stage3_areas); map.removeLayer(stage3_lines); map.removeLayer(stage4_lines);
+            if (stage >= 2) { stage2_areas.addTo(map); stage2_lines.addTo(map); }
+            if (stage >= 3) { stage3_areas.addTo(map); stage3_lines.addTo(map); }
+            if (stage === 4) { stage4_lines.addTo(map); }
+            document.getElementById('stageLabel').innerText = textData[stage].title;
+            document.getElementById('descArea').innerHTML = textData[stage].area;
+            document.getElementById('descTransport').innerHTML = textData[stage].trans;
+        });
+    </script>
+</body>
+</html>
