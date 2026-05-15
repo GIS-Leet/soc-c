@@ -4,7 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>경기여고 통합사회 클래스</title>
+
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
     :root {
         --primary: #2563eb;
@@ -20,11 +25,11 @@
     a { text-decoration: none; color: inherit; }
     ul { list-style: none; padding: 0; margin: 0; }
 
-    /* 글래스모피즘 네비게이션 바 */
+    /* 네비게이션 바 */
     .navbar { 
         background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         display: flex; justify-content: space-between; align-items: center; 
-        padding: 16px 40px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid rgba(0,0,0,0.05);
     }
     .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
     .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 1rem; }
@@ -43,7 +48,6 @@
     .container { max-width: 1200px; margin: 0 auto 80px; padding: 0 20px; }
     .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
     
-    /* 공통 카드 스타일 */
     .card { 
         background: var(--card-bg); border-radius: var(--radius); padding: 32px; 
         box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04);
@@ -52,7 +56,7 @@
     }
     .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
     
-    .card-tag { position: absolute; top: 24px; right: 24px; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: var(--bg-color); color: var(--text-sub); }
+    .card-tag { position: absolute; top: 24px; right: 24px; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: var(--bg-color); color: var(--text-sub); z-index: 10;}
     .card-icon-wrap { width: 56px; height: 56px; border-radius: 16px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 20px; }
     .card h3 { font-size: 1.3rem; font-weight: 700; margin: 0 0 8px 0; letter-spacing: -0.5px; }
     .card p { font-size: 0.95rem; color: var(--text-sub); margin: 0; flex-grow: 1; }
@@ -60,20 +64,18 @@
     .card-action::after { content: '→'; transition: transform 0.2s; }
     .card:hover .card-action::after { transform: translateX(4px); }
 
-    /* 그리드 배치 (데스크탑 기준) */
     .col-span-8 { grid-column: span 8; }
     .col-span-4 { grid-column: span 4; }
     .col-span-6 { grid-column: span 6; }
     .col-span-12 { grid-column: span 12; }
 
-    /* 특정 카드 커스텀 (QnA 하이라이트) */
+    /* 커스텀 카드 색상 */
     .card-primary { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; }
     .card-primary h3, .card-primary p, .card-primary .card-tag { color: white; }
     .card-primary .card-tag { background: rgba(255,255,255,0.2); }
     .card-primary .card-icon-wrap { background: rgba(255,255,255,0.1); }
     .card-primary .card-action { color: #bfdbfe; }
 
-    /* 컴팩트 리스트형 카드 (학습지, 수행평가용) */
     .list-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
     .list-item { display: flex; align-items: center; padding: 16px; border-radius: 16px; transition: background 0.2s; border: 1px solid transparent; }
     .list-item:hover { background: var(--bg-color); border-color: rgba(0,0,0,0.05); }
@@ -81,7 +83,12 @@
     .list-content h4 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 700; color: var(--text-main); }
     .list-content p { margin: 0; font-size: 0.85rem; color: var(--text-sub); }
 
-    /* 모바일 반응형 */
+    /* 입력 폼 공통 스타일 */
+    .input-group { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+    .input-group input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-family: inherit; font-size: 0.95rem; min-width: 80px; }
+    .input-group button { color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; transition: 0.2s; }
+    .result-box { background: white; padding: 15px; border-radius: 8px; font-size: 0.9rem; min-height: 40px; color: #334155; margin-top: 15px; border: 1px solid rgba(0,0,0,0.05); }
+
     @media (max-width: 900px) {
         .bento-grid { display: flex; flex-direction: column; }
         .hero h1 { font-size: 2.2rem; }
@@ -153,30 +160,38 @@
             <div class="card col-span-6" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0;">
                 <span class="card-tag" style="background: #16a34a; color: white;">GIS Satellite</span>
                 <div class="card-icon-wrap" style="background: #bbf7d0; color: #15803d;">🛰️</div>
-                <h3>위성 데이터 식생/도시화 분석</h3>
-                <p style="margin-bottom: 15px; font-size: 0.9rem;">지역과 연도를 입력하면 위성 이미지 데이터를 기반으로 식생지수(NDVI)와 도시 열섬 강도를 도출합니다.</p>
+                <h3 style="color: #166534;">위성 데이터 식생/도시화 분석</h3>
                 
-                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                    <input type="text" id="satRegion" placeholder="지역명 (예: 서울)" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none;">
-                    <input type="number" id="satYear" placeholder="연도 (1990~2026)" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none;">
+                <div id="satMap" style="height: 220px; width: 100%; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); z-index: 1;"></div>
+                
+                <p style="margin-bottom: 15px; font-size: 0.9rem; color: #15803d;">지역과 연도를 입력하여 위성 데이터를 바탕으로 식생지수(NDVI)와 열섬 강도를 도출합니다.</p>
+                
+                <div class="input-group">
+                    <input type="text" id="satRegion" placeholder="지역명 (예: 서울, 화성, 제주)">
+                    <input type="number" id="satYear" placeholder="목표 연도">
+                    <button onclick="fetchSatellite()" style="background: #16a34a;">위성 분석 스캔</button>
                 </div>
-                <button onclick="fetchSatellite()" style="background: #16a34a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px;">위성 분석 스캔</button>
-                <div id="satResult" style="background: white; padding: 15px; border-radius: 8px; font-size: 0.9rem; min-height: 40px; color: #334155;">대기 중...</div>
+                <div id="satResult" class="result-box">대기 중...</div>
             </div>
 
             <div class="card col-span-6" style="background: linear-gradient(135deg, #fdf4ff, #fce7f3); border: 1px solid #fbcfe8;">
                 <span class="card-tag" style="background: #db2777; color: white;">Demographics AI</span>
                 <div class="card-icon-wrap" style="background: #fbcfe8; color: #be185d;">👨‍👩‍👧‍👦</div>
-                <h3>미래 인구 예측 모델링</h3>
-                <p style="margin-bottom: 15px; font-size: 0.9rem;">특정 도시의 현재 인구와 목표 연도를 입력하면 성장 곡선 알고리즘을 통해 미래 인구 증감을 예측합니다.</p>
+                <h3 style="color: #9d174d;">미래 인구 예측 모델링</h3>
                 
-                <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
-                    <input type="text" id="popCity" placeholder="도시명 (예: 화성)" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; min-width: 80px;">
-                    <input type="number" id="popCurrent" placeholder="현재 인구(명)" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; min-width: 100px;">
-                    <input type="number" id="popYear" placeholder="예측 연도" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; min-width: 80px;">
+                <div style="background: white; border-radius: 12px; padding: 10px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05); height: 220px; display: flex; justify-content: center; align-items: center;">
+                    <canvas id="popChart"></canvas>
                 </div>
-                <button onclick="fetchPopulation()" style="background: #db2777; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px;">인구 시뮬레이션 돌리기</button>
-                <div id="popResult" style="background: white; padding: 15px; border-radius: 8px; font-size: 0.9rem; min-height: 40px; color: #334155;">대기 중...</div>
+
+                <p style="margin-bottom: 15px; font-size: 0.9rem; color: #9d174d;">머신러닝(선형회귀) 모델을 통해 특정 도시의 미래 인구 증감 추세를 시각화합니다.</p>
+                
+                <div class="input-group">
+                    <input type="text" id="popCity" placeholder="도시 (예: 서울, 화성, 부산)">
+                    <input type="number" id="popCurrent" placeholder="현재 인구(명)">
+                    <input type="number" id="popYear" placeholder="예측 연도">
+                    <button onclick="fetchPopulation()" style="background: #db2777;">인구 시뮬레이션 돌리기</button>
+                </div>
+                <div id="popResult" class="result-box">대기 중...</div>
             </div>
 
             <div class="col-span-12" style="margin-top: 20px;">
@@ -242,9 +257,41 @@
     </main>
 
     <script>
-    // [중요] 나중에 선생님께서 파이썬 서버를 배포하시면 아래 변수를 진짜 주소로 바꿔주세요!
-    // 예: const BACKEND_URL = "https://my-geo-server.onrender.com";
-    const BACKEND_URL = "https://geo-backend-l1u4.onrender.com";
+    // -----------------------------------------
+    // 1. 위성 지도 (Leaflet) 초기화
+    // -----------------------------------------
+    const satMap = L.map('satMap', { zoomControl: false }).setView([36.5, 127.5], 6); // 초기: 한반도 전체
+    L.control.zoom({ position: 'bottomright' }).addTo(satMap);
+    
+    // Esri 위성 레이어 로드
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        maxZoom: 18
+    }).addTo(satMap);
+    
+    let currentMarker = null;
+
+    // -----------------------------------------
+    // 2. 인구 그래프 (Chart.js) 초기화
+    // -----------------------------------------
+    let popChart = null;
+    const ctx = document.getElementById('popChart').getContext('2d');
+    
+    // 초기 빈 그래프 렌더링
+    popChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: ['2000', '2010', '2020', '2030', '2040'], datasets: [{ label: '인구 예측 대기중', data: [0, 0, 0, 0, 0], borderColor: '#cbd5e1', borderDash: [5, 5] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false } } }
+    });
+
+    // -----------------------------------------
+    // 3. 통신 로직 및 UI 제어
+    // -----------------------------------------
+    // [중요] 실제 서버를 띄우시면 아래 주소를 수정하세요!
+    const BACKEND_URL = "http://localhost:8000";
+
+    // 지역별 더미 좌표 (서버 연결 전 테스트용)
+    const dummyCoords = { "서울": [37.5665, 126.9780], "화성": [37.1995, 126.8311], "제주": [33.4996, 126.5312], "부산": [35.1796, 129.0756] };
 
     async function fetchSatellite() {
         const region = document.getElementById('satRegion').value;
@@ -252,12 +299,19 @@
         const display = document.getElementById('satResult');
 
         if(!region || !year) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 지역과 연도를 모두 입력해주세요.</span>"; return; }
-        display.innerHTML = "⏳ 🛰️ 위성 데이터를 파이썬 서버에서 분석 중입니다...";
+        display.innerHTML = "⏳ 🛰️ 위성 데이터를 스캔 중입니다...";
 
         try {
             const response = await fetch(`${BACKEND_URL}/analyze-satellite?region=${region}&year=${year}`);
-            if(!response.ok) throw new Error("서버 응답 없음");
+            if(!response.ok) throw new Error("서버 연동 전");
             const data = await response.json();
+
+            // 지도 이동 및 마커 생성 (진짜 서버 연결 시)
+            if(data.coords) {
+                satMap.setView(data.coords, 12);
+                if(currentMarker) satMap.removeLayer(currentMarker);
+                currentMarker = L.marker(data.coords).addTo(satMap).bindPopup(`<b>${data.region}</b><br>${data.year}년 기준`).openPopup();
+            }
 
             display.innerHTML = `
                 <strong style="color: #15803d;">분석 완료:</strong><br>
@@ -266,24 +320,31 @@
                 <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 ${data.insight}</span>
             `;
         } catch (error) {
-            // 서버 연동 전에도 화면이 어떻게 나오는지 볼 수 있게 만든 [로컬 테스트용 모드] 입니다.
-            // 실제 서버를 띄우고 URL을 연결하면 이 부분은 무시되고 진짜 데이터가 출력됩니다.
+            // [로컬 테스트 모드] 서버가 없어도 지도가 움직이도록 구현
+            const coords = dummyCoords[region] || [36.5, 127.5];
+            const zoomLevel = dummyCoords[region] ? 12 : 7;
+            
+            satMap.setView(coords, zoomLevel);
+            if(currentMarker) satMap.removeLayer(currentMarker);
+            if(dummyCoords[region]) {
+                currentMarker = L.marker(coords).addTo(satMap).bindPopup(`<b>${region}</b><br>${year}년 스캔 (테스트)`).openPopup();
+            }
+
             const fakeNdvi = Math.max(0.2, (0.85 - ((year - 1990) * 0.015))).toFixed(2);
             const fakeHeat = Math.min(5.5, (0.5 + ((year - 1990) * 0.12))).toFixed(1);
+            
             display.innerHTML = `
-                <span style="color: #ea580c; font-weight:bold;">[서버 미연결 - 로컬 시뮬레이션 모드]</span><br>
-                <strong style="color: #15803d;">${year}년 ${region} 분석 결과:</strong><br>
-                • <b>식생지수(NDVI):</b> ${fakeNdvi}<br>
-                • <b>열섬 강도:</b> +${fakeHeat}°C<br>
-                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 파이썬 백엔드 서버를 배포하고 연결하면 실제 연산 데이터가 이곳에 출력됩니다.</span>
+                <span style="color: #ea580c; font-weight:bold;">[서버 미연결 - 로컬 지도 모드]</span><br>
+                <strong style="color: #15803d;">${year}년 ${region} 분석:</strong> 식생지수 ${fakeNdvi} | 열섬강도 +${fakeHeat}°C<br>
+                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 위성 지도가 성공적으로 해당 지역(${region})으로 이동했습니다!</span>
             `;
         }
     }
 
     async function fetchPopulation() {
         const city = document.getElementById('popCity').value;
-        const currentPop = document.getElementById('popCurrent').value;
-        const targetYear = document.getElementById('popYear').value;
+        const currentPop = parseInt(document.getElementById('popCurrent').value);
+        const targetYear = parseInt(document.getElementById('popYear').value);
         const display = document.getElementById('popResult');
 
         if(!city || !currentPop || !targetYear) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 모든 값을 입력해주세요.</span>"; return; }
@@ -291,10 +352,11 @@
 
         try {
             const response = await fetch(`${BACKEND_URL}/predict-population?city=${city}&current_pop=${currentPop}&target_year=${targetYear}`);
-            if(!response.ok) throw new Error("서버 응답 없음");
+            if(!response.ok) throw new Error("서버 연동 전");
             const data = await response.json();
 
-            if(data.error) { display.innerHTML = `<span style='color:#ef4444; font-weight:bold;'>${data.error}</span>`; return; }
+            // 그래프 그리기 (진짜 서버 연결 시)
+            drawChart(data.years, data.population, city);
 
             const color = data.percent_change > 0 ? '#db2777' : '#2563eb';
             display.innerHTML = `
@@ -304,20 +366,61 @@
                 <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 ${data.insight}</span>
             `;
         } catch (error) {
-             // 서버 연동 전 테스트용
+            // [로컬 테스트 모드] 서버가 없어도 그래프가 예쁘게 그려지도록 구현
             let growth = -0.008; if(city === '화성' || city === '평택') growth = 0.035;
-            const fakePop = Math.floor(currentPop * Math.exp(growth * (targetYear - 2026)));
+            
+            const years = [2000, 2010, 2020, 2030, targetYear].sort((a,b)=>a-b);
+            const popData = years.map(y => Math.max(0, Math.floor(currentPop * Math.exp(growth * (y - 2026)))));
+            const fakePop = popData[popData.length - 1];
             const fakeChange = (((fakePop - currentPop) / currentPop) * 100).toFixed(1);
             const color = fakeChange > 0 ? '#db2777' : '#2563eb';
             
+            drawChart(years, popData, city);
+            
             display.innerHTML = `
-                <span style="color: #ea580c; font-weight:bold;">[서버 미연결 - 로컬 시뮬레이션 모드]</span><br>
-                <strong style="color: #be185d;">${targetYear}년 ${city} 인구 예측:</strong><br>
-                • <b>예상 인구:</b> ${fakePop.toLocaleString()}명<br>
-                • <b>증감률:</b> <span style="color:${color}; font-weight:bold;">${fakeChange > 0 ? '+' : ''}${fakeChange}%</span><br>
-                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 파이썬 서버 연결 후 더 정교한 알고리즘이 적용됩니다.</span>
+                <span style="color: #ea580c; font-weight:bold;">[서버 미연결 - 로컬 그래프 모드]</span><br>
+                <strong style="color: #be185d;">${targetYear}년 ${city} 인구 예측:</strong> ${fakePop.toLocaleString()}명 (<span style="color:${color}; font-weight:bold;">${fakeChange > 0 ? '+' : ''}${fakeChange}%</span>)<br>
+                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 위 차트에 ${city}의 과거~미래 인구 추세선이 그려졌습니다!</span>
             `;
         }
+    }
+
+    // Chart.js 그래프 다시 그리는 함수
+    function drawChart(labels, dataArr, city) {
+        if(popChart) popChart.destroy();
+        
+        // 데이터가 증가하는지 감소하는지에 따라 선 색상 변경
+        const isIncreasing = dataArr[dataArr.length-1] > dataArr[0];
+        const lineColor = isIncreasing ? '#db2777' : '#2563eb';
+        const bgColor = isIncreasing ? 'rgba(219, 39, 119, 0.1)' : 'rgba(37, 99, 235, 0.1)';
+
+        popChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `${city} 예측 인구`,
+                    data: dataArr,
+                    borderColor: lineColor,
+                    backgroundColor: bgColor,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: lineColor,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.05)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
     }
     </script>
 </body>
