@@ -20,7 +20,7 @@
     a { text-decoration: none; color: inherit; }
     ul { list-style: none; padding: 0; margin: 0; }
 
-    /* 네비게이션 바 */
+    /* 글래스모피즘 네비게이션 바 */
     .navbar { 
         background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         display: flex; justify-content: space-between; align-items: center; 
@@ -60,18 +60,20 @@
     .card-action::after { content: '→'; transition: transform 0.2s; }
     .card:hover .card-action::after { transform: translateX(4px); }
 
+    /* 그리드 배치 (데스크탑 기준) */
     .col-span-8 { grid-column: span 8; }
     .col-span-4 { grid-column: span 4; }
     .col-span-6 { grid-column: span 6; }
     .col-span-12 { grid-column: span 12; }
 
-    /* 커스텀 카드 색상 */
+    /* 특정 카드 커스텀 (QnA 하이라이트) */
     .card-primary { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; }
     .card-primary h3, .card-primary p, .card-primary .card-tag { color: white; }
     .card-primary .card-tag { background: rgba(255,255,255,0.2); }
     .card-primary .card-icon-wrap { background: rgba(255,255,255,0.1); }
     .card-primary .card-action { color: #bfdbfe; }
 
+    /* 컴팩트 리스트형 카드 (학습지, 수행평가용) */
     .list-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
     .list-item { display: flex; align-items: center; padding: 16px; border-radius: 16px; transition: background 0.2s; border: 1px solid transparent; }
     .list-item:hover { background: var(--bg-color); border-color: rgba(0,0,0,0.05); }
@@ -79,6 +81,7 @@
     .list-content h4 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 700; color: var(--text-main); }
     .list-content p { margin: 0; font-size: 0.85rem; color: var(--text-sub); }
 
+    /* 모바일 반응형 */
     @media (max-width: 900px) {
         .bento-grid { display: flex; flex-direction: column; }
         .hero h1 { font-size: 2.2rem; }
@@ -141,21 +144,39 @@
                 </ul>
             </div>
 
-            <div class="card col-span-12" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border: 1px solid #bae6fd;">
-                <span class="card-tag" style="background: #2563eb; color: white;">Python AI API</span>
-                <div class="card-icon-wrap" style="background: #bfdbfe; color: #1d4ed8;">🤖</div>
-                <h3>인공지능 기후 위험도 분석기</h3>
-                <p style="margin-bottom: 20px;">파이썬 백엔드 서버와 실시간으로 통신하여 현재 기후 데이터를 분석합니다.</p>
+            <div class="col-span-12" style="margin-top: 20px;">
+                <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    🧠 AI & 빅데이터 분석 API <span style="font-size: 0.8rem; font-weight: 600; padding: 4px 8px; background: #e2e8f0; border-radius: 6px; color: var(--text-sub);">Python Backend</span>
+                </h2>
+            </div>
 
-                <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                    <input type="number" id="temp" placeholder="온도 입력 (°C)" style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 15px; outline: none;">
-                    <input type="number" id="hum" placeholder="습도 입력 (%)" style="flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: inherit; font-size: 15px; outline: none;">
-                    <button onclick="askPythonServer()" style="background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 15px;">분석 요청</button>
+            <div class="card col-span-6" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0;">
+                <span class="card-tag" style="background: #16a34a; color: white;">GIS Satellite</span>
+                <div class="card-icon-wrap" style="background: #bbf7d0; color: #15803d;">🛰️</div>
+                <h3>위성 데이터 식생/도시화 분석</h3>
+                <p style="margin-bottom: 15px; font-size: 0.9rem;">지역과 연도를 입력하면 위성 이미지 데이터를 기반으로 식생지수(NDVI)와 도시 열섬 강도를 도출합니다.</p>
+                
+                <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+                    <input type="text" id="satRegion" placeholder="지역명 (예: 서울)" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none;">
+                    <input type="number" id="satYear" placeholder="연도 (1990~2026)" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none;">
                 </div>
+                <button onclick="fetchSatellite()" style="background: #16a34a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px;">위성 분석 스캔</button>
+                <div id="satResult" style="background: white; padding: 15px; border-radius: 8px; font-size: 0.9rem; min-height: 40px; color: #334155;">대기 중...</div>
+            </div>
 
-                <div id="resultDisplay" style="background: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; color: #334155; min-height: 50px; display: flex; align-items: center;">
-                    온도와 습도를 입력하고 분석을 요청해보세요.
+            <div class="card col-span-6" style="background: linear-gradient(135deg, #fdf4ff, #fce7f3); border: 1px solid #fbcfe8;">
+                <span class="card-tag" style="background: #db2777; color: white;">Demographics AI</span>
+                <div class="card-icon-wrap" style="background: #fbcfe8; color: #be185d;">👨‍👩‍👧‍👦</div>
+                <h3>미래 인구 예측 모델링</h3>
+                <p style="margin-bottom: 15px; font-size: 0.9rem;">특정 도시의 현재 인구와 목표 연도를 입력하면 성장 곡선 알고리즘을 통해 미래 인구 증감을 예측합니다.</p>
+                
+                <div style="display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <input type="text" id="popCity" placeholder="도시명 (예: 화성)" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; min-width: 80px;">
+                    <input type="number" id="popCurrent" placeholder="현재 인구(명)" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; min-width: 100px;">
+                    <input type="number" id="popYear" placeholder="예측 연도" style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; min-width: 80px;">
                 </div>
+                <button onclick="fetchPopulation()" style="background: #db2777; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px;">인구 시뮬레이션 돌리기</button>
+                <div id="popResult" style="background: white; padding: 15px; border-radius: 8px; font-size: 0.9rem; min-height: 40px; color: #334155;">대기 중...</div>
             </div>
 
             <div class="col-span-12" style="margin-top: 20px;">
@@ -221,47 +242,80 @@
     </main>
 
     <script>
-    async function askPythonServer() {
-        const t = document.getElementById('temp').value;
-        const h = document.getElementById('hum').value;
-        const display = document.getElementById('resultDisplay');
+    // [중요] 나중에 선생님께서 파이썬 서버를 배포하시면 아래 변수를 진짜 주소로 바꿔주세요!
+    // 예: const BACKEND_URL = "https://my-geo-server.onrender.com";
+    const BACKEND_URL = "http://localhost:8000";
 
-        if (!t || !h) {
-            display.innerHTML = "<span style='color: #ef4444; font-weight: bold;'>⚠️ 온도와 습도를 모두 입력해주세요.</span>";
-            return;
-        }
+    async function fetchSatellite() {
+        const region = document.getElementById('satRegion').value;
+        const year = document.getElementById('satYear').value;
+        const display = document.getElementById('satResult');
 
-        display.innerHTML = "⏳ 파이썬 서버가 계산 중입니다... (최대 30초 소요)";
+        if(!region || !year) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 지역과 연도를 모두 입력해주세요.</span>"; return; }
+        display.innerHTML = "⏳ 🛰️ 위성 데이터를 파이썬 서버에서 분석 중입니다...";
 
         try {
-            // [주의] Render.com 등에서 서버를 파시면 아래 주소를 진짜 서버 주소로 바꿔주셔야 합니다!
-            const url = `https://geo-backend.onrender.com/predict-climate?temp=${t}&humidity=${h}`;
-            
-            const response = await fetch(url);
-            
-            // 만약 진짜 서버를 아직 안 만드셨을 때 에러가 나지 않도록 가짜 결과를 보여주는 임시 코드입니다.
-            // 서버 배포 후에는 아래 if문 부분을 지우셔도 됩니다.
-            if (!response.ok) { throw new Error("서버 연동 전입니다."); }
-
+            const response = await fetch(`${BACKEND_URL}/analyze-satellite?region=${region}&year=${year}`);
+            if(!response.ok) throw new Error("서버 응답 없음");
             const data = await response.json();
 
             display.innerHTML = `
-                <b style="color: #2563eb;">분석 완료:</b>&nbsp; 
-                불쾌지수 <span style="font-weight: bold; color: #333;">${data.score}점</span> 
-                (위험도: <span style="color: ${data.risk === '높음' ? '#ef4444' : '#10b981'}; font-weight: bold;">${data.risk}</span>)<br>
-                <span style="color: #64748b; font-size: 0.9rem; margin-top: 5px; display: block;">💡 ${data.advice}</span>
+                <strong style="color: #15803d;">분석 완료:</strong><br>
+                • <b>식생지수(NDVI):</b> ${data.ndvi} (1에 가까울수록 녹지 많음)<br>
+                • <b>열섬 강도:</b> +${data.heat_island}°C<br>
+                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 ${data.insight}</span>
             `;
         } catch (error) {
-            // 아직 파이썬 서버 배포 전 테스트를 위한 가상 결과 노출 (서버 파신 후 삭제 가능)
-            const fakeScore = (0.81 * t + 0.01 * h * (0.99 * t - 14.3) + 46.3).toFixed(2);
-            const fakeRisk = fakeScore > 80 ? '높음' : '보통';
-            const riskColor = fakeRisk === '높음' ? '#ef4444' : '#10b981';
+            // 서버 연동 전에도 화면이 어떻게 나오는지 볼 수 있게 만든 [로컬 테스트용 모드] 입니다.
+            // 실제 서버를 띄우고 URL을 연결하면 이 부분은 무시되고 진짜 데이터가 출력됩니다.
+            const fakeNdvi = Math.max(0.2, (0.85 - ((year - 1990) * 0.015))).toFixed(2);
+            const fakeHeat = Math.min(5.5, (0.5 + ((year - 1990) * 0.12))).toFixed(1);
+            display.innerHTML = `
+                <span style="color: #ea580c; font-weight:bold;">[서버 미연결 - 로컬 시뮬레이션 모드]</span><br>
+                <strong style="color: #15803d;">${year}년 ${region} 분석 결과:</strong><br>
+                • <b>식생지수(NDVI):</b> ${fakeNdvi}<br>
+                • <b>열섬 강도:</b> +${fakeHeat}°C<br>
+                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 파이썬 백엔드 서버를 배포하고 연결하면 실제 연산 데이터가 이곳에 출력됩니다.</span>
+            `;
+        }
+    }
+
+    async function fetchPopulation() {
+        const city = document.getElementById('popCity').value;
+        const currentPop = document.getElementById('popCurrent').value;
+        const targetYear = document.getElementById('popYear').value;
+        const display = document.getElementById('popResult');
+
+        if(!city || !currentPop || !targetYear) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 모든 값을 입력해주세요.</span>"; return; }
+        display.innerHTML = "⏳ 👨‍👩‍👧‍👦 인구 모델링 연산 중...";
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/predict-population?city=${city}&current_pop=${currentPop}&target_year=${targetYear}`);
+            if(!response.ok) throw new Error("서버 응답 없음");
+            const data = await response.json();
+
+            if(data.error) { display.innerHTML = `<span style='color:#ef4444; font-weight:bold;'>${data.error}</span>`; return; }
+
+            const color = data.percent_change > 0 ? '#db2777' : '#2563eb';
+            display.innerHTML = `
+                <strong style="color: #be185d;">예측 완료:</strong><br>
+                • <b>${data.target_year}년 예상 인구:</b> ${data.predicted_pop.toLocaleString()}명<br>
+                • <b>증감률:</b> <span style="color:${color}; font-weight:bold;">${data.percent_change > 0 ? '+' : ''}${data.percent_change}%</span><br>
+                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 ${data.insight}</span>
+            `;
+        } catch (error) {
+             // 서버 연동 전 테스트용
+            let growth = -0.008; if(city === '화성' || city === '평택') growth = 0.035;
+            const fakePop = Math.floor(currentPop * Math.exp(growth * (targetYear - 2026)));
+            const fakeChange = (((fakePop - currentPop) / currentPop) * 100).toFixed(1);
+            const color = fakeChange > 0 ? '#db2777' : '#2563eb';
             
             display.innerHTML = `
-                <b style="color: #2563eb;">분석 완료 (로컬 테스트 모드):</b>&nbsp; 
-                불쾌지수 <span style="font-weight: bold; color: #333;">${fakeScore}점</span> 
-                (위험도: <span style="color: ${riskColor}; font-weight: bold;">${fakeRisk}</span>)<br>
-                <span style="color: #64748b; font-size: 0.9rem; margin-top: 5px; display: block;">💡 실제 파이썬 서버 배포 시 이 텍스트는 진짜 서버에서 넘어옵니다.</span>
+                <span style="color: #ea580c; font-weight:bold;">[서버 미연결 - 로컬 시뮬레이션 모드]</span><br>
+                <strong style="color: #be185d;">${targetYear}년 ${city} 인구 예측:</strong><br>
+                • <b>예상 인구:</b> ${fakePop.toLocaleString()}명<br>
+                • <b>증감률:</b> <span style="color:${color}; font-weight:bold;">${fakeChange > 0 ? '+' : ''}${fakeChange}%</span><br>
+                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 파이썬 서버 연결 후 더 정교한 알고리즘이 적용됩니다.</span>
             `;
         }
     }
