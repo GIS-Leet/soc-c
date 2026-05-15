@@ -3,163 +3,518 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지형 변화 시뮬레이터</title>
+    <title>실감형 지형 변화 시뮬레이터</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #02060f; color: #e7f0ff; font-family: "Pretendard", "Malgun Gothic", sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
-        /* 공통 네비게이션 바 */
-        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; position: relative; z-index: 9999; flex-shrink: 0; }
-        .logo { font-size: 20px; font-weight: bold; color: #1a73e8; text-decoration: none; }
-        .menu { display: flex; gap: 20px; }
-        .menu a { font-size: 15px; font-weight: 500; color: #5f6368; text-decoration: none; transition: 0.2s; }
-        .menu a:hover { color: #1a73e8; font-weight: bold; }
-
-        /* 메인 컨테이너 레이아웃 */
-        .main-wrapper { display: flex; flex: 1; overflow: hidden; position: relative; }
-
-        /* 왼쪽 컨트롤 패널 */
-        #ui-panel { width: 320px; background: rgba(10, 24, 48, 0.9); border-right: 2px solid #1a365d; padding: 25px; display: flex; flex-direction: column; gap: 20px; z-index: 10; box-shadow: 5px 0 20px rgba(0,0,0,0.5); overflow-y: auto; }
-        h1 { font-size: 1.4rem; color: #60a5fa; text-shadow: 0 0 10px rgba(96, 165, 250, 0.3); margin-bottom: 5px; }
-        p.desc { font-size: 0.85rem; color: #94a3b8; line-height: 1.5; }
-        .tool-group { display: flex; flex-direction: column; gap: 10px; }
-        button { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 12px 15px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.2s; text-align: left; }
-        button:hover { background: #334155; border-color: #475569; }
-        button.active { background: #2563eb; border-color: #3b82f6; color: white; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4); }
-        .slider-group { background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #1e293b; }
-        .slider-group label { display: block; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 8px; }
-        input[type=range] { width: 100%; cursor: pointer; }
-        #reset-btn { background: #7f1d1d; border-color: #991b1b; margin-top: auto; justify-content: center; }
-        #reset-btn:hover { background: #991b1b; }
-
-        /* 캔버스 영역 */
-        #canvas-container { flex: 1; position: relative; background: radial-gradient(circle at 50% 40%, #0f172a 0%, #02060f 100%); cursor: crosshair; }
-        canvas { display: block; width: 100%; height: 100%; }
-        #status-bar { position: absolute; bottom: 20px; right: 20px; background: rgba(0, 0, 0, 0.7); padding: 10px 20px; border-radius: 8px; border: 1px solid #334155; font-size: 0.9rem; color: #94a3b8; pointer-events: none; }
-
-        @media (max-width: 768px) { .main-wrapper { flex-direction: column; } #ui-panel { width: 100%; max-height: 40vh; } }
+        :root {
+            --ink: #e6f0ff;
+            --muted: #9fb3c8;
+            --panel: rgba(8, 16, 30, 0.78);
+            --panel-strong: rgba(6, 14, 26, 0.94);
+            --line: rgba(148, 163, 184, 0.2);
+            --blue: #38bdf8;
+            --green: #34d399;
+            --orange: #f59e0b;
+            --red: #f87171;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            font-family: 'Pretendard', 'Malgun Gothic', system-ui, sans-serif;
+            background: #020617;
+            overflow: hidden;
+        }
+        a { color: inherit; text-decoration: none; }
+        .app-shell { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+        .navbar {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 24px;
+            background: rgba(2, 6, 23, 0.78);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+        .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 900; letter-spacing: -0.03em; }
+        .logo span { width: 36px; height: 36px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(135deg, #2563eb, #06b6d4); box-shadow: 0 12px 28px rgba(37,99,235,0.35); }
+        .menu { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .menu a { padding: 9px 12px; border-radius: 999px; color: #cbd5e1; font-weight: 750; font-size: 0.9rem; }
+        .menu a:hover, .menu a.active { background: rgba(56,189,248,0.12); color: var(--blue); }
+        .stage { min-height: 0; position: relative; display: grid; grid-template-columns: 360px 1fr; }
+        .panel {
+            position: relative;
+            z-index: 5;
+            padding: 24px;
+            overflow-y: auto;
+            background: linear-gradient(180deg, var(--panel-strong), rgba(8, 16, 30, 0.84));
+            border-right: 1px solid var(--line);
+            box-shadow: 26px 0 70px rgba(0, 0, 0, 0.35);
+        }
+        .kicker { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border-radius: 999px; color: #bae6fd; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56,189,248,0.22); font-size: 0.82rem; font-weight: 850; }
+        h1 { margin: 16px 0 10px; font-size: 1.85rem; line-height: 1.13; letter-spacing: -0.06em; }
+        .lead { margin: 0 0 22px; color: var(--muted); line-height: 1.65; word-break: keep-all; }
+        .control-card { margin-top: 14px; padding: 16px; border-radius: 22px; background: rgba(15, 23, 42, 0.68); border: 1px solid var(--line); }
+        .control-card h2 { display: flex; align-items: center; justify-content: space-between; margin: 0 0 12px; font-size: 0.98rem; letter-spacing: -0.02em; }
+        .pill { padding: 4px 8px; border-radius: 999px; background: rgba(148, 163, 184, 0.12); color: #cbd5e1; font-size: 0.72rem; font-weight: 800; }
+        .preset-grid, .tool-grid { display: grid; gap: 9px; }
+        .preset-grid { grid-template-columns: repeat(3, 1fr); }
+        button, select, input { font: inherit; }
+        button {
+            border: 0;
+            color: var(--ink);
+            cursor: pointer;
+            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+        }
+        .preset-btn, .tool-btn, .action-btn {
+            min-height: 44px;
+            padding: 11px 12px;
+            border-radius: 15px;
+            background: rgba(30, 41, 59, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            color: #dbeafe;
+            font-weight: 820;
+        }
+        .preset-btn:hover, .tool-btn:hover, .action-btn:hover { transform: translateY(-1px); background: rgba(51,65,85,0.88); }
+        .preset-btn.active, .tool-btn.active { border-color: rgba(56,189,248,0.72); background: linear-gradient(135deg, rgba(37,99,235,0.9), rgba(6,182,212,0.72)); box-shadow: 0 14px 32px rgba(14,165,233,0.18); }
+        .tool-grid { grid-template-columns: 1fr; }
+        .tool-btn { display: flex; align-items: center; justify-content: space-between; text-align: left; }
+        .tool-btn small { display: block; margin-top: 2px; color: rgba(226,232,240,0.64); font-size: 0.75rem; font-weight: 600; }
+        .range-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 12px; }
+        .range-row label { color: #dbeafe; font-weight: 760; font-size: 0.9rem; }
+        .range-row output { color: #bae6fd; font-weight: 850; }
+        input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--blue); cursor: pointer; }
+        .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+        .action-btn.primary { background: linear-gradient(135deg, #16a34a, #0891b2); }
+        .action-btn.danger { background: linear-gradient(135deg, #7f1d1d, #ef4444); }
+        .hint { margin-top: 14px; padding: 14px; border-radius: 18px; background: rgba(56,189,248,0.09); border: 1px solid rgba(56,189,248,0.16); color: #cdeafe; font-size: 0.88rem; line-height: 1.55; }
+        .viewport { position: relative; min-width: 0; background: radial-gradient(circle at 50% 30%, #1e3a8a 0%, #0f172a 36%, #020617 100%); }
+        #terrainCanvas { display: block; width: 100%; height: 100%; outline: none; }
+        .hud {
+            position: absolute;
+            left: 22px;
+            right: 22px;
+            bottom: 22px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            pointer-events: none;
+        }
+        .hud-card { padding: 12px 14px; border-radius: 18px; background: rgba(2, 6, 23, 0.62); border: 1px solid rgba(226,232,240,0.14); backdrop-filter: blur(14px); }
+        .hud-card b { display: block; font-size: 1rem; }
+        .hud-card span { color: var(--muted); font-size: 0.78rem; }
+        .legend {
+            position: absolute;
+            right: 22px;
+            top: 22px;
+            width: min(260px, calc(100% - 44px));
+            padding: 14px;
+            border-radius: 20px;
+            background: rgba(2, 6, 23, 0.58);
+            border: 1px solid rgba(226,232,240,0.14);
+            backdrop-filter: blur(14px);
+            pointer-events: none;
+        }
+        .legend h2 { margin: 0 0 10px; font-size: 0.95rem; }
+        .legend-row { display: grid; grid-template-columns: 26px 1fr; gap: 9px; align-items: center; color: #cbd5e1; font-size: 0.82rem; margin-top: 7px; }
+        .swatch { width: 26px; height: 12px; border-radius: 999px; }
+        .loading {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: #dbeafe;
+            background: radial-gradient(circle, rgba(30,64,175,0.3), rgba(2,6,23,0.78));
+            z-index: 4;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .loading.hidden { opacity: 0; }
+        @media (max-width: 960px) {
+            body { overflow: auto; }
+            .app-shell { min-height: 100%; height: auto; }
+            .stage { grid-template-columns: 1fr; grid-template-rows: auto 70vh; }
+            .panel { border-right: 0; border-bottom: 1px solid var(--line); }
+            .hud { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 560px) {
+            .navbar { align-items: flex-start; flex-direction: column; }
+            .preset-grid, .button-row { grid-template-columns: 1fr; }
+            .hud { display: none; }
+            .legend { top: 12px; right: 12px; left: 12px; width: auto; }
+        }
     </style>
 </head>
 <body>
+<div class="app-shell">
     <nav class="navbar">
-        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
-        <div class="menu"><a href="index.html">홈</a><a href="qna.html">Q&A 게시판</a></div>
+        <a href="index.html" class="logo"><span>🌍</span>경기여고 통합사회</a>
+        <div class="menu"><a href="index.html">홈</a><a href="index.html#simulators" class="active">시뮬레이터</a><a href="qna.html">Q&A</a></div>
     </nav>
 
-    <div class="main-wrapper">
-        <div id="ui-panel">
-            <div><h1>지형 시뮬레이터</h1><p class="desc">지형 형성 작용 고도 변화 모델.</p></div>
-            <div class="tool-group">
-                <button class="tool-btn active" data-tool="erosion">💧 하천 침식 (깎기)</button>
-                <button class="tool-btn" data-tool="deposition">🪨 퇴적 (쌓기)</button>
-                <button class="tool-btn" data-tool="tectonic">🌋 융기 (산맥 형성)</button>
+    <main class="stage">
+        <aside class="panel">
+            <span class="kicker">🏔️ Terrain Lab v2.0</span>
+            <h1>실제 지형처럼 돌려보는 3D 지형 변화</h1>
+            <p class="lead">등고선 블록 대신 빛, 그림자, 물, 고도별 색을 입힌 연속 지형으로 산지·해안·화산 지형을 관찰합니다. 지형을 드래그해 침식·퇴적·융기를 직접 만들어 보세요.</p>
+
+            <section class="control-card">
+                <h2>지형 프리셋 <span class="pill">Landscape</span></h2>
+                <div class="preset-grid">
+                    <button class="preset-btn active" data-preset="alpine">산악</button>
+                    <button class="preset-btn" data-preset="coast">해안</button>
+                    <button class="preset-btn" data-preset="volcanic">화산</button>
+                </div>
+            </section>
+
+            <section class="control-card">
+                <h2>지형 형성 작용 <span class="pill">Brush</span></h2>
+                <div class="tool-grid">
+                    <button class="tool-btn active" data-tool="erosion"><span>💧 하천 침식<small>V자곡·계곡처럼 깎아 내립니다.</small></span><strong>−</strong></button>
+                    <button class="tool-btn" data-tool="deposition"><span>🪨 퇴적 작용<small>모래톱·삼각주처럼 쌓습니다.</small></span><strong>+</strong></button>
+                    <button class="tool-btn" data-tool="uplift"><span>🌋 지각 융기<small>산맥·화산체를 크게 솟게 합니다.</small></span><strong>▲</strong></button>
+                </div>
+                <div class="range-row"><label for="brushSize">브러시 범위</label><output id="brushSizeValue">8</output><input type="range" id="brushSize" min="3" max="18" value="8"></div>
+                <div class="range-row"><label for="brushPower">작용 강도</label><output id="brushPowerValue">6</output><input type="range" id="brushPower" min="1" max="12" value="6"></div>
+            </section>
+
+            <section class="control-card">
+                <h2>환경 설정 <span class="pill">View</span></h2>
+                <div class="range-row"><label for="seaLevel">해수면</label><output id="seaLevelValue">0m</output><input type="range" id="seaLevel" min="-10" max="18" value="0"></div>
+                <div class="range-row"><label for="reliefScale">기복 강조</label><output id="reliefScaleValue">1.0x</output><input type="range" id="reliefScale" min="60" max="170" value="100"></div>
+                <div class="button-row"><button class="action-btn primary" id="randomizeBtn">새 지형 생성</button><button class="action-btn danger" id="resetBtn">처음으로</button></div>
+            </section>
+
+            <div class="hint"><strong>조작 방법</strong><br>마우스 드래그: 지형 회전 · 휠: 확대/축소 · Shift+드래그 또는 지형 클릭: 선택한 지형 형성 작용 적용</div>
+        </aside>
+
+        <section class="viewport">
+            <canvas id="terrainCanvas" aria-label="실감형 3D 지형 시뮬레이터"></canvas>
+            <div class="loading" id="loading">3D 지형을 준비하는 중입니다...</div>
+            <div class="legend">
+                <h2>고도 색상 범례</h2>
+                <div class="legend-row"><span class="swatch" style="background:#0ea5e9"></span><span>해양·호수</span></div>
+                <div class="legend-row"><span class="swatch" style="background:#f7d37a"></span><span>해안·퇴적 평야</span></div>
+                <div class="legend-row"><span class="swatch" style="background:#5fbf69"></span><span>초지·완만한 구릉</span></div>
+                <div class="legend-row"><span class="swatch" style="background:#8b735f"></span><span>암석 산지</span></div>
+                <div class="legend-row"><span class="swatch" style="background:#f8fafc"></span><span>고산 설원</span></div>
             </div>
-            <div class="slider-group"><label>브러시 크기 (영향 범위)</label><input type="range" id="brush-size" min="1" max="8" value="3"></div>
-            <div class="slider-group"><label>작용 강도 (변화량)</label><input type="range" id="brush-strength" min="1" max="10" value="5"></div>
-            <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5; padding: 10px; background: #0f172a; border-radius: 8px;">
-                <strong>💡 조작 방법</strong><br>• 우측 지형을 클릭하거나 드래그하세요.<br>• 물 ➔ 모래 ➔ 평야 ➔ 암석 ➔ 만년설
+            <div class="hud">
+                <div class="hud-card"><b id="statusTool">하천 침식</b><span>현재 작용</span></div>
+                <div class="hud-card"><b id="avgHeight">0m</b><span>평균 고도</span></div>
+                <div class="hud-card"><b id="peakHeight">0m</b><span>최고 고도</span></div>
+                <div class="hud-card"><b id="waterRatio">0%</b><span>수면 비율</span></div>
             </div>
-            <button id="reset-btn">지형 초기화</button>
-        </div>
+        </section>
+    </main>
+</div>
 
-        <div id="canvas-container">
-            <canvas id="gameCanvas"></canvas>
-            <div id="status-bar">준비 완료. 마우스로 드래그해보세요.</div>
-        </div>
-    </div>
+<script type="importmap">
+{
+    "imports": {
+        "three": "https://unpkg.com/three@0.160.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.1/examples/jsm/"
+    }
+}
+</script>
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-    <script>
-        const canvas = document.getElementById('gameCanvas'); const ctx = canvas.getContext('2d', { alpha: false });
-        let width, height; const GRID_SIZE = 60; const TILE_W = 16; const TILE_H = 8; const Z_SCALE = 3;
-        let elevation = []; let offsetX, offsetY;
-        let currentTool = 'erosion'; let brushSize = 3; let brushStrength = 5; let isDrawing = false;
+    const canvas = document.getElementById('terrainCanvas');
+    const loading = document.getElementById('loading');
+    const sizeInput = document.getElementById('brushSize');
+    const powerInput = document.getElementById('brushPower');
+    const seaInput = document.getElementById('seaLevel');
+    const reliefInput = document.getElementById('reliefScale');
+    const statusTool = document.getElementById('statusTool');
+    const avgHeight = document.getElementById('avgHeight');
+    const peakHeight = document.getElementById('peakHeight');
+    const waterRatio = document.getElementById('waterRatio');
 
-        function initTerrain() {
-            elevation = [];
-            for (let i = 0; i < GRID_SIZE; i++) {
-                elevation[i] = [];
-                for (let j = 0; j < GRID_SIZE; j++) {
-                    let h = Math.sin(i * 0.1) * Math.cos(j * 0.1) * 5 + Math.sin(i * 0.05) * Math.cos(j * 0.08) * 8 + Math.sin(i * 0.2 + j * 0.1) * 2;
-                    elevation[i][j] = Math.max(-5, h);
-                }
+    const segments = 160;
+    const worldSize = 240;
+    const vertexCount = segments + 1;
+    let preset = 'alpine';
+    let activeTool = 'erosion';
+    let seed = Math.random() * 1000;
+    let heights = [];
+    let baseHeights = [];
+    let seaLevel = Number(seaInput.value);
+    let reliefScale = Number(reliefInput.value) / 100;
+    let isSculpting = false;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb);
+    scene.fog = new THREE.Fog(0x8fc7df, 180, 430);
+
+    const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 900);
+    camera.position.set(118, 104, 150);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.maxPolarAngle = Math.PI * 0.48;
+    controls.minDistance = 70;
+    controls.maxDistance = 330;
+    controls.target.set(0, 8, 0);
+
+    scene.add(new THREE.HemisphereLight(0xdff7ff, 0x385144, 1.18));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.15);
+    sun.position.set(-90, 140, 76);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.left = -180;
+    sun.shadow.camera.right = 180;
+    sun.shadow.camera.top = 180;
+    sun.shadow.camera.bottom = -180;
+    scene.add(sun);
+
+    const terrainGeometry = new THREE.PlaneGeometry(worldSize, worldSize, segments, segments);
+    const terrainMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.88, metalness: 0.02, flatShading: false });
+    const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+    terrain.rotation.x = -Math.PI / 2;
+    terrain.receiveShadow = true;
+    terrain.castShadow = true;
+    scene.add(terrain);
+
+    const contourGeometry = new THREE.PlaneGeometry(worldSize, worldSize, segments, segments);
+    const contourMaterial = new THREE.MeshBasicMaterial({ color: 0x0f172a, wireframe: true, transparent: true, opacity: 0.08, depthWrite: false });
+    const contours = new THREE.Mesh(contourGeometry, contourMaterial);
+    contours.rotation.x = -Math.PI / 2;
+    contours.position.y = 0.2;
+    scene.add(contours);
+
+    const waterGeometry = new THREE.PlaneGeometry(worldSize * 1.08, worldSize * 1.08, 1, 1);
+    const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x0ea5e9, transparent: true, opacity: 0.58, roughness: 0.18, metalness: 0.02, transmission: 0.08 });
+    const water = new THREE.Mesh(waterGeometry, waterMaterial);
+    water.rotation.x = -Math.PI / 2;
+    water.position.y = seaLevel;
+    scene.add(water);
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    const sculptPoint = new THREE.Vector3();
+
+    function random2(x, y) {
+        const value = Math.sin(x * 127.1 + y * 311.7 + seed * 17.13) * 43758.5453123;
+        return value - Math.floor(value);
+    }
+
+    function smoothstep(t) { return t * t * (3 - 2 * t); }
+
+    function valueNoise(x, y) {
+        const xi = Math.floor(x);
+        const yi = Math.floor(y);
+        const xf = x - xi;
+        const yf = y - yi;
+        const u = smoothstep(xf);
+        const v = smoothstep(yf);
+        const a = random2(xi, yi);
+        const b = random2(xi + 1, yi);
+        const c = random2(xi, yi + 1);
+        const d = random2(xi + 1, yi + 1);
+        return THREE.MathUtils.lerp(THREE.MathUtils.lerp(a, b, u), THREE.MathUtils.lerp(c, d, u), v);
+    }
+
+    function fbm(x, y) {
+        let sum = 0;
+        let amplitude = 0.58;
+        let frequency = 1;
+        let total = 0;
+        for (let octave = 0; octave < 6; octave++) {
+            sum += valueNoise(x * frequency, y * frequency) * amplitude;
+            total += amplitude;
+            amplitude *= 0.52;
+            frequency *= 2.03;
+        }
+        return sum / total;
+    }
+
+    function getHeightAt(i, j) {
+        const nx = (i / segments - 0.5) * 2;
+        const nz = (j / segments - 0.5) * 2;
+        const distance = Math.hypot(nx, nz);
+        const ridge = Math.pow(1 - Math.abs(nx * 0.72 + nz * 0.24), 2.2);
+        const noise = fbm(nx * 2.3 + 8, nz * 2.3 - 3);
+        const detail = fbm(nx * 9.4 - 1, nz * 9.4 + 2) - 0.5;
+
+        if (preset === 'coast') {
+            const coastline = nx * 18 + Math.sin(nz * 5.4) * 7;
+            return coastline + noise * 24 + detail * 5 - Math.max(0, -nx) * 22;
+        }
+        if (preset === 'volcanic') {
+            const cone = Math.max(0, 1 - distance) * 52;
+            const crater = Math.exp(-distance * distance * 34) * 22;
+            const flank = noise * 18 + detail * 5 - distance * 14;
+            return cone - crater + flank - 6;
+        }
+        return ridge * 46 + noise * 24 + detail * 7 - distance * 15 - 5;
+    }
+
+    function makeTerrain() {
+        heights = [];
+        for (let j = 0; j < vertexCount; j++) {
+            for (let i = 0; i < vertexCount; i++) {
+                heights.push(getHeightAt(i, j));
             }
-            resize();
         }
+        baseHeights = [...heights];
+        updateGeometry();
+        updateStats();
+    }
 
-        function resize() {
-            width = canvas.parentElement.clientWidth; height = canvas.parentElement.clientHeight;
-            canvas.width = width; canvas.height = height;
-            offsetX = width / 2; offsetY = height * 0.3; drawMap();
+    function colorForHeight(height) {
+        const h = height - seaLevel;
+        if (h < -1.2) return new THREE.Color(0x0ea5e9);
+        if (h < 1.8) return new THREE.Color(0xf7d37a);
+        if (h < 13) return new THREE.Color(0x5fbf69);
+        if (h < 28) return new THREE.Color(0x8b735f);
+        return new THREE.Color(0xf8fafc);
+    }
+
+    function updateGeometry() {
+        const positions = terrainGeometry.attributes.position;
+        const contourPositions = contourGeometry.attributes.position;
+        const colors = [];
+        for (let index = 0; index < positions.count; index++) {
+            const displayHeight = heights[index] * reliefScale;
+            positions.setZ(index, displayHeight);
+            contourPositions.setZ(index, displayHeight + 0.18);
+            const color = colorForHeight(displayHeight);
+            colors.push(color.r, color.g, color.b);
         }
-        window.addEventListener('resize', resize);
+        terrainGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        positions.needsUpdate = true;
+        contourPositions.needsUpdate = true;
+        terrainGeometry.computeVertexNormals();
+        terrainGeometry.attributes.color.needsUpdate = true;
+        contourGeometry.computeVertexNormals();
+        water.position.y = seaLevel;
+    }
 
-        function getColor(h) {
-            if (h < 0) return { top: '#0ea5e9', left: '#0284c7', right: '#0369a1' };
-            if (h < 2) return { top: '#38bdf8', left: '#0ea5e9', right: '#0284c7' };
-            if (h < 4) return { top: '#fcd34d', left: '#fbbf24', right: '#f59e0b' };
-            if (h < 12) return { top: '#4ade80', left: '#22c55e', right: '#16a34a' };
-            if (h < 20) return { top: '#a3a8b4', left: '#838a97', right: '#666d7a' };
-            return { top: '#f8fafc', left: '#e2e8f0', right: '#cbd5e1' };
-        }
+    function updateStats() {
+        const displayHeights = heights.map((height) => height * reliefScale);
+        const average = displayHeights.reduce((sum, height) => sum + height, 0) / displayHeights.length;
+        const peak = Math.max(...displayHeights);
+        const waterCells = displayHeights.filter((height) => height <= seaLevel).length;
+        avgHeight.textContent = `${Math.round(average * 42)}m`;
+        peakHeight.textContent = `${Math.round(peak * 42)}m`;
+        waterRatio.textContent = `${Math.round((waterCells / displayHeights.length) * 100)}%`;
+        document.getElementById('seaLevelValue').textContent = `${Math.round(seaLevel * 42)}m`;
+        document.getElementById('reliefScaleValue').textContent = `${reliefScale.toFixed(1)}x`;
+    }
 
-        function drawMap() {
-            ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, width, height);
-            for (let i = 0; i < GRID_SIZE; i++) {
-                for (let j = 0; j < GRID_SIZE; j++) {
-                    let h = elevation[i][j]; let cx = offsetX + (i - j) * TILE_W; let cy = offsetY + (i + j) * TILE_H - (h * Z_SCALE);
-                    let colors = getColor(h);
-                    ctx.fillStyle = colors.top; ctx.beginPath(); ctx.moveTo(cx, cy - TILE_H); ctx.lineTo(cx + TILE_W, cy); ctx.lineTo(cx, cy + TILE_H); ctx.lineTo(cx - TILE_W, cy); ctx.closePath(); ctx.fill();
-                    let baseCy = offsetY + (i + j) * TILE_H - (-5 * Z_SCALE);
-                    ctx.fillStyle = colors.left; ctx.beginPath(); ctx.moveTo(cx - TILE_W, cy); ctx.lineTo(cx, cy + TILE_H); ctx.lineTo(cx, baseCy + TILE_H); ctx.lineTo(cx - TILE_W, baseCy); ctx.closePath(); ctx.fill();
-                    ctx.fillStyle = colors.right; ctx.beginPath(); ctx.moveTo(cx, cy + TILE_H); ctx.lineTo(cx + TILE_W, cy); ctx.lineTo(cx + TILE_W, baseCy); ctx.lineTo(cx, baseCy + TILE_H); ctx.closePath(); ctx.fill();
-                    ctx.strokeStyle = 'rgba(0,0,0,0.1)'; ctx.lineWidth = 0.5; ctx.stroke();
-                }
+    function setPointer(event) {
+        const rect = canvas.getBoundingClientRect();
+        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    function pickTerrain(event) {
+        setPointer(event);
+        raycaster.setFromCamera(pointer, camera);
+        const hit = raycaster.intersectObject(terrain, false)[0];
+        if (!hit) return null;
+        sculptPoint.copy(hit.point);
+        terrain.worldToLocal(sculptPoint);
+        return sculptPoint;
+    }
+
+    function sculpt(event) {
+        const point = pickTerrain(event);
+        if (!point) return;
+        const gridX = Math.round(((point.x / worldSize) + 0.5) * segments);
+        const gridZ = Math.round(((point.y / worldSize) + 0.5) * segments);
+        const radius = Number(sizeInput.value);
+        const power = Number(powerInput.value) * 0.13;
+
+        for (let j = Math.max(0, gridZ - radius); j <= Math.min(segments, gridZ + radius); j++) {
+            for (let i = Math.max(0, gridX - radius); i <= Math.min(segments, gridX + radius); i++) {
+                const distance = Math.hypot(i - gridX, j - gridZ);
+                if (distance > radius) continue;
+                const falloff = Math.pow(1 - distance / radius, 2);
+                const index = j * vertexCount + i;
+                if (activeTool === 'erosion') heights[index] -= power * falloff;
+                if (activeTool === 'deposition') heights[index] += power * falloff * 0.8;
+                if (activeTool === 'uplift') heights[index] += power * falloff * 1.65;
+                heights[index] = THREE.MathUtils.clamp(heights[index], -38, 68);
             }
         }
+        updateGeometry();
+        updateStats();
+    }
 
-        function applyTool(clientX, clientY) {
-            const rect = canvas.getBoundingClientRect(); const mx = clientX - rect.left; const my = clientY - rect.top;
-            let closestI = -1, closestJ = -1; let minDist = Infinity;
-            for (let i = 0; i < GRID_SIZE; i++) {
-                for (let j = 0; j < GRID_SIZE; j++) {
-                    let dist = Math.hypot(offsetX + (i - j) * TILE_W - mx, offsetY + (i + j) * TILE_H - (elevation[i][j] * Z_SCALE) - my);
-                    if (dist < minDist) { minDist = dist; closestI = i; closestJ = j; }
-                }
-            }
-            if (minDist > 50) return;
-            let modified = false;
-            for (let i = Math.max(0, closestI - brushSize); i <= Math.min(GRID_SIZE - 1, closestI + brushSize); i++) {
-                for (let j = Math.max(0, closestJ - brushSize); j <= Math.min(GRID_SIZE - 1, closestJ + brushSize); j++) {
-                    let distGrid = Math.hypot(i - closestI, j - closestJ);
-                    if (distGrid <= brushSize) {
-                        let force = (1 - (distGrid / (brushSize + 1))) * (brushStrength * 0.2);
-                        if (currentTool === 'erosion') elevation[i][j] -= force;
-                        else if (currentTool === 'deposition') elevation[i][j] += force;
-                        else if (currentTool === 'tectonic') elevation[i][j] += force * 2;
-                        elevation[i][j] = Math.max(-10, Math.min(30, elevation[i][j]));
-                        modified = true;
-                    }
-                }
-            }
-            if (modified) drawMap();
-        }
+    function resize() {
+        const { clientWidth, clientHeight } = canvas.parentElement;
+        camera.aspect = clientWidth / clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(clientWidth, clientHeight, false);
+    }
 
-        canvas.addEventListener('mousedown', (e) => { isDrawing = true; applyTool(e.clientX, e.clientY); });
-        canvas.addEventListener('mousemove', (e) => { if (isDrawing) applyTool(e.clientX, e.clientY); });
-        window.addEventListener('mouseup', () => { isDrawing = false; }); window.addEventListener('mouseleave', () => { isDrawing = false; });
+    function animate(time) {
+        water.material.opacity = 0.54 + Math.sin(time * 0.0015) * 0.035;
+        controls.update();
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+    }
 
-        document.querySelectorAll('.tool-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); e.currentTarget.classList.add('active'); currentTool = e.currentTarget.dataset.tool;
-                let text = "";
-                if(currentTool === 'erosion') text = "침식 작용: 고도가 낮아집니다."; if(currentTool === 'deposition') text = "퇴적 작용: 고도가 높아집니다."; if(currentTool === 'tectonic') text = "융기 작용: 지각이 강하게 솟아오릅니다.";
-                document.getElementById('status-bar').innerText = text;
-            });
+    document.querySelectorAll('.preset-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.preset-btn').forEach((item) => item.classList.remove('active'));
+            button.classList.add('active');
+            preset = button.dataset.preset;
+            seed = Math.random() * 1000;
+            makeTerrain();
         });
-        document.getElementById('brush-size').addEventListener('input', (e) => brushSize = parseInt(e.target.value));
-        document.getElementById('brush-strength').addEventListener('input', (e) => brushStrength = parseInt(e.target.value));
-        document.getElementById('reset-btn').addEventListener('click', () => { initTerrain(); document.getElementById('status-bar').innerText = "지형이 초기화되었습니다."; });
-        initTerrain();
-    </script>
+    });
+
+    const toolLabels = { erosion: '하천 침식', deposition: '퇴적 작용', uplift: '지각 융기' };
+    document.querySelectorAll('.tool-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.tool-btn').forEach((item) => item.classList.remove('active'));
+            button.classList.add('active');
+            activeTool = button.dataset.tool;
+            statusTool.textContent = toolLabels[activeTool];
+        });
+    });
+
+    sizeInput.addEventListener('input', () => { document.getElementById('brushSizeValue').textContent = sizeInput.value; });
+    powerInput.addEventListener('input', () => { document.getElementById('brushPowerValue').textContent = powerInput.value; });
+    seaInput.addEventListener('input', () => { seaLevel = Number(seaInput.value); updateGeometry(); updateStats(); });
+    reliefInput.addEventListener('input', () => { reliefScale = Number(reliefInput.value) / 100; updateGeometry(); updateStats(); });
+    document.getElementById('randomizeBtn').addEventListener('click', () => { seed = Math.random() * 1000; makeTerrain(); });
+    document.getElementById('resetBtn').addEventListener('click', () => { heights = [...baseHeights]; updateGeometry(); updateStats(); });
+
+    canvas.addEventListener('pointerdown', (event) => {
+        if (event.shiftKey) {
+            isSculpting = true;
+            controls.enabled = false;
+            sculpt(event);
+        }
+    });
+    canvas.addEventListener('pointermove', (event) => { if (isSculpting) sculpt(event); });
+    window.addEventListener('pointerup', () => { isSculpting = false; controls.enabled = true; });
+    canvas.addEventListener('click', (event) => { if (!event.shiftKey) sculpt(event); });
+    window.addEventListener('resize', resize);
+
+    resize();
+    makeTerrain();
+    updateStats();
+    loading.classList.add('hidden');
+    requestAnimationFrame(animate);
+</script>
 </body>
 </html>

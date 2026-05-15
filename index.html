@@ -3,205 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Society - C </title>
+<title>경기여고 통합사회 C</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <style>
     :root {
-        --primary: #2563eb;
-        --primary-light: #eff6ff;
-        --text-main: #0f172a;
-        --text-sub: #64748b;
-        --bg-color: #f8fafc;
-        --card-bg: #ffffff;
-        --radius: 24px;
+        --ink: #0f172a;
+        --muted: #667085;
+        --soft: #f5f7fb;
+        --line: rgba(15, 23, 42, 0.09);
+        --card: rgba(255, 255, 255, 0.82);
+        --blue: #2563eb;
+        --cyan: #06b6d4;
+        --green: #16a34a;
+        --violet: #7c3aed;
+        --orange: #f97316;
+        --shadow: 0 24px 80px rgba(15, 23, 42, 0.12);
+        --radius-lg: 32px;
+        --radius-md: 22px;
     }
 
-    body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); line-height: 1.6; }
-    a { text-decoration: none; color: inherit; }
-    ul { list-style: none; padding: 0; margin: 0; }
-
-    /* 글래스모피즘 네비게이션 바 */
-    .navbar { 
-        background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        display: flex; justify-content: space-between; align-items: center; 
-        padding: 16px 40px; position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(0,0,0,0.05);
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+        margin: 0;
+        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        color: var(--ink);
+        background:
+            radial-gradient(circle at 12% 4%, rgba(37, 99, 235, 0.16), transparent 30rem),
+            radial-gradient(circle at 86% 12%, rgba(6, 182, 212, 0.15), transparent 26rem),
+            linear-gradient(180deg, #eef6ff 0%, #f8fafc 42%, #ffffff 100%);
+        min-height: 100vh;
+        line-height: 1.55;
     }
-    .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
-    .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 1rem; }
-    .menu { display: flex; gap: 24px; }
-    .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
-    .menu a:hover, .menu a.active { background: var(--primary-light); color: var(--primary); }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; margin: 0; padding: 0; }
 
-    /* 메인 히어로 섹션 */
-    .hero { max-width: 1200px; margin: 60px auto 40px; padding: 0 20px; text-align: center; }
-    .badge { display: inline-block; padding: 6px 14px; background: #e2e8f0; color: #475569; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-bottom: 16px; letter-spacing: 0.5px; }
-    .hero h1 { font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin: 0 0 16px 0; line-height: 1.3; }
-    .hero h1 span { background: linear-gradient(135deg, #2563eb, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero p { font-size: 1.1rem; color: var(--text-sub); max-width: 600px; margin: 0 auto; word-break: keep-all; }
-
-    /* Bento 그리드 레이아웃 */
-    .container { max-width: 1200px; margin: 0 auto 80px; padding: 0 20px; }
-    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
-    
-    /* 공통 카드 스타일 */
-    .card { 
-        background: var(--card-bg); border-radius: var(--radius); padding: 32px; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
-        display: flex; flex-direction: column; position: relative; overflow: hidden;
+    .navbar {
+        width: min(1180px, calc(100% - 32px));
+        margin: 18px auto 0;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        position: sticky;
+        top: 14px;
+        z-index: 20;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-radius: 999px;
+        box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
     }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
-    
-    .card-tag { position: absolute; top: 24px; right: 24px; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: var(--bg-color); color: var(--text-sub); }
-    .card-icon-wrap { width: 56px; height: 56px; border-radius: 16px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 20px; }
-    .card h3 { font-size: 1.3rem; font-weight: 700; margin: 0 0 8px 0; letter-spacing: -0.5px; }
-    .card p { font-size: 0.95rem; color: var(--text-sub); margin: 0; flex-grow: 1; }
-    .card-action { margin-top: 24px; font-size: 0.9rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; }
-    .card-action::after { content: '→'; transition: transform 0.2s; }
-    .card:hover .card-action::after { transform: translateX(4px); }
+    .logo { display: inline-flex; align-items: center; gap: 10px; font-weight: 900; letter-spacing: -0.03em; }
+    .logo-mark {
+        width: 40px; height: 40px; display: grid; place-items: center;
+        border-radius: 16px; color: white;
+        background: linear-gradient(135deg, var(--blue), var(--cyan));
+        box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28);
+    }
+    .menu { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .menu a { padding: 10px 14px; border-radius: 999px; color: #475467; font-size: 0.94rem; font-weight: 750; transition: 0.2s ease; }
+    .menu a:hover, .menu a.active { color: var(--blue); background: rgba(37, 99, 235, 0.1); }
 
-    /* 그리드 배치 (데스크탑 기준) */
-    .col-span-8 { grid-column: span 8; }
-    .col-span-4 { grid-column: span 4; }
-    .col-span-6 { grid-column: span 6; }
-    .col-span-12 { grid-column: span 12; }
+    .hero {
+        width: min(1180px, calc(100% - 32px));
+        margin: 54px auto 34px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+        gap: 28px;
+        align-items: stretch;
+    }
+    .hero-copy, .hero-panel, .card, .resource-bar {
+        border: 1px solid var(--line);
+        background: var(--card);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+    }
+    .hero-copy { border-radius: var(--radius-lg); padding: clamp(32px, 5vw, 58px); position: relative; overflow: hidden; }
+    .hero-copy::after {
+        content: ""; position: absolute; inset: auto -16% -42% 46%; height: 260px;
+        background: radial-gradient(circle, rgba(37, 99, 235, 0.2), transparent 68%);
+        pointer-events: none;
+    }
+    .eyebrow { display: inline-flex; gap: 8px; align-items: center; padding: 8px 13px; border-radius: 999px; background: rgba(37, 99, 235, 0.1); color: #1d4ed8; font-weight: 850; font-size: 0.88rem; }
+    h1 { margin: 18px 0 18px; font-size: clamp(2.7rem, 7vw, 5.9rem); line-height: 0.95; letter-spacing: -0.085em; }
+    h1 span { display: block; background: linear-gradient(135deg, #1d4ed8 0%, #0891b2 48%, #16a34a 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero-copy p { max-width: 620px; margin: 0; color: var(--muted); font-size: clamp(1rem, 2vw, 1.2rem); word-break: keep-all; }
+    .hero-actions { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 16px; padding: 13px 18px; font-weight: 850; transition: 0.2s ease; }
+    .btn.primary { color: white; background: linear-gradient(135deg, var(--blue), var(--cyan)); box-shadow: 0 16px 32px rgba(37, 99, 235, 0.24); }
+    .btn.secondary { color: #1e293b; background: rgba(255, 255, 255, 0.72); border: 1px solid var(--line); }
+    .btn:hover { transform: translateY(-2px); }
 
-    /* 특정 카드 커스텀 (QnA 하이라이트) */
-    .card-primary { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; }
-    .card-primary h3, .card-primary p, .card-primary .card-tag { color: white; }
-    .card-primary .card-tag { background: rgba(255,255,255,0.2); }
-    .card-primary .card-icon-wrap { background: rgba(255,255,255,0.1); }
-    .card-primary .card-action { color: #bfdbfe; }
+    .hero-panel { border-radius: var(--radius-lg); padding: 24px; min-height: 420px; position: relative; overflow: hidden; background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(30, 64, 175, 0.82)); color: white; }
+    .terrain-visual { position: absolute; inset: 86px -42px -48px 28px; transform: rotateX(58deg) rotateZ(-35deg); transform-style: preserve-3d; }
+    .tile { position: absolute; width: 112px; height: 112px; border-radius: 28px; background: linear-gradient(145deg, rgba(20, 184, 166, 0.95), rgba(22, 163, 74, 0.95)); box-shadow: 0 30px 0 rgba(21, 128, 61, 0.85), 0 50px 40px rgba(0,0,0,0.35); }
+    .tile:nth-child(1) { left: 40px; top: 40px; }
+    .tile:nth-child(2) { left: 154px; top: 40px; background: linear-gradient(145deg, #a3e635, #22c55e); box-shadow: 0 54px 0 #15803d, 0 70px 40px rgba(0,0,0,0.35); }
+    .tile:nth-child(3) { left: 268px; top: 40px; background: linear-gradient(145deg, #e2e8f0, #94a3b8); box-shadow: 0 82px 0 #64748b, 0 92px 45px rgba(0,0,0,0.4); }
+    .tile:nth-child(4) { left: 96px; top: 154px; background: linear-gradient(145deg, #38bdf8, #0284c7); box-shadow: 0 18px 0 #0369a1, 0 44px 35px rgba(0,0,0,0.32); }
+    .tile:nth-child(5) { left: 210px; top: 154px; background: linear-gradient(145deg, #fef3c7, #f59e0b); box-shadow: 0 30px 0 #b45309, 0 54px 35px rgba(0,0,0,0.34); }
+    .panel-top { position: relative; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .panel-top h2 { margin: 0; font-size: 1.55rem; letter-spacing: -0.04em; }
+    .panel-top p { margin: 8px 0 0; color: rgba(255,255,255,0.68); }
+    .live-badge { padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.16); font-size: 0.82rem; font-weight: 850; white-space: nowrap; }
+    .metric-row { position: absolute; z-index: 3; left: 24px; right: 24px; bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .metric { padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.14); }
+    .metric b { display: block; font-size: 1.25rem; }
+    .metric span { color: rgba(255,255,255,0.65); font-size: 0.78rem; }
 
-    /* 컴팩트 리스트형 카드 (학습지, 수행평가용) */
-    .list-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .list-item { display: flex; align-items: center; padding: 16px; border-radius: 16px; transition: background 0.2s; border: 1px solid transparent; }
-    .list-item:hover { background: var(--bg-color); border-color: rgba(0,0,0,0.05); }
-    .list-icon { font-size: 1.5rem; margin-right: 16px; background: white; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .list-content h4 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 700; color: var(--text-main); }
-    .list-content p { margin: 0; font-size: 0.85rem; color: var(--text-sub); }
+    .section { width: min(1180px, calc(100% - 32px)); margin: 0 auto 34px; }
+    .section-title { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin: 34px 0 16px; }
+    .section-title h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.25rem); letter-spacing: -0.055em; }
+    .section-title p { margin: 0; color: var(--muted); word-break: keep-all; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .card { border-radius: var(--radius-md); padding: 24px; display: flex; min-height: 210px; flex-direction: column; position: relative; overflow: hidden; transition: 0.22s ease; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 28px 90px rgba(15, 23, 42, 0.16); }
+    .card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 5px; background: var(--accent, linear-gradient(90deg, var(--blue), var(--cyan))); }
+    .span-8 { grid-column: span 8; } .span-6 { grid-column: span 6; } .span-4 { grid-column: span 4; } .span-12 { grid-column: span 12; }
+    .icon { width: 54px; height: 54px; border-radius: 18px; display: grid; place-items: center; background: rgba(37,99,235,0.09); font-size: 1.6rem; margin-bottom: 18px; }
+    .tag { position: absolute; top: 22px; right: 22px; padding: 7px 10px; border-radius: 999px; background: rgba(15,23,42,0.06); color: #475467; font-size: 0.78rem; font-weight: 850; }
+    .card h3 { margin: 0 0 9px; font-size: 1.28rem; letter-spacing: -0.035em; }
+    .card p { margin: 0; color: var(--muted); word-break: keep-all; }
+    .action { margin-top: auto; padding-top: 22px; color: var(--blue); font-weight: 900; display: inline-flex; gap: 5px; align-items: center; }
+    .action::after { content: "→"; transition: 0.2s ease; } .card:hover .action::after { transform: translateX(5px); }
+    .featured { color: white; background: linear-gradient(135deg, #172554, #2563eb 55%, #06b6d4); }
+    .featured p, .featured .action { color: rgba(255,255,255,0.78); }
+    .featured .tag, .featured .icon { background: rgba(255,255,255,0.13); color: white; }
+    .list-card { gap: 12px; }
+    .mini-link { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 18px; background: rgba(248,250,252,0.74); border: 1px solid var(--line); transition: 0.2s ease; }
+    .mini-link:hover { background: white; transform: translateX(3px); }
+    .mini-link b { display: block; } .mini-link span { color: var(--muted); font-size: 0.88rem; }
+    .mini-icon { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 14px; background: white; box-shadow: 0 10px 24px rgba(15,23,42,0.08); }
+    .resource-bar { border-radius: var(--radius-md); padding: 24px; display: flex; justify-content: space-between; align-items: center; gap: 18px; }
+    .resource-bar h3 { margin: 0 0 4px; letter-spacing: -0.035em; }
+    .resource-bar p { margin: 0; color: var(--muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+    .chip { padding: 10px 12px; border-radius: 999px; background: rgba(37,99,235,0.09); color: #1d4ed8; font-weight: 850; border: 1px solid rgba(37,99,235,0.12); }
 
-    /* 모바일 반응형 */
-    @media (max-width: 900px) {
-        .bento-grid { display: flex; flex-direction: column; }
-        .hero h1 { font-size: 2.2rem; }
-        .navbar { padding: 16px 20px; }
+    @media (max-width: 920px) {
+        .navbar { border-radius: 24px; align-items: flex-start; flex-direction: column; }
+        .hero { grid-template-columns: 1fr; margin-top: 28px; }
+        .hero-panel { min-height: 360px; }
+        .grid { grid-template-columns: 1fr; }
+        .span-8, .span-6, .span-4, .span-12 { grid-column: auto; }
+        .section-title, .resource-bar { align-items: flex-start; flex-direction: column; }
+        .chips { justify-content: flex-start; }
+    }
+    @media (max-width: 560px) {
+        .menu a { padding: 8px 10px; font-size: 0.86rem; }
+        .hero-copy, .hero-panel, .card, .resource-bar { border-radius: 24px; }
+        .metric-row { grid-template-columns: 1fr; }
+        .hero-panel { min-height: 470px; }
     }
 </style>
 </head>
 <body>
-
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon">🌍</div>
-            경기여고 통합사회
-        </a>
+    <nav class="navbar" aria-label="주요 메뉴">
+        <a href="index.html" class="logo"><span class="logo-mark">🌍</span><span>경기여고 통합사회 C</span></a>
         <div class="menu">
             <a href="index.html" class="active">홈</a>
-            <a href="qna.html">Q&A 게시판</a>
+            <a href="#simulators">시뮬레이터</a>
+            <a href="#resources">자료</a>
+            <a href="qna.html">Q&A</a>
         </div>
     </nav>
 
     <header class="hero">
-        <div class="badge">2026학년도 1학기</div>
-        <h1>KGGHS<br><span>Society - C</span></h1>
-        <p>Made by Taehyun Lee.</p>
+        <section class="hero-copy">
+            <span class="eyebrow">✨ 2026학년도 1학기 · Society C v2.0</span>
+            <h1>KGGHS<br><span>Social Lab</span></h1>
+            <p>통합사회 C 수업 자료, 질문, 지도, 기후·지형 시뮬레이터를 한 화면에서 탐색하는 인터랙티브 학습 허브입니다.</p>
+            <div class="hero-actions">
+                <a class="btn primary" href="terrain.html">실감형 지형 보기</a>
+                <a class="btn secondary" href="qna.html">질문 남기기</a>
+            </div>
+        </section>
+        <aside class="hero-panel" aria-label="지형 시뮬레이터 미리보기">
+            <div class="panel-top">
+                <div><h2>실시간 사회 탐구 도구</h2><p>지도·기후·지형을 클릭하고 돌려보며 개념을 확인합니다.</p></div>
+                <span class="live-badge">Interactive</span>
+            </div>
+            <div class="terrain-visual" aria-hidden="true"><span class="tile"></span><span class="tile"></span><span class="tile"></span><span class="tile"></span><span class="tile"></span></div>
+            <div class="metric-row">
+                <div class="metric"><b>3D</b><span>공전·지형 모델</span></div>
+                <div class="metric"><b>GIS</b><span>서울권 지도</span></div>
+                <div class="metric"><b>Q&A</b><span>수업 질문 기록</span></div>
+            </div>
+        </aside>
     </header>
 
-    <main class="container">
-        <div class="bento-grid">
-            
-            <a href="qna.html" class="card card-primary col-span-8">
-                <span class="card-tag">Communication</span>
-                <div class="card-icon-wrap">💬</div>
-                <h3>통합사회 C Q&A</h3>
-                <p>여러가지 질문 환영.</p>
-                <div class="card-action">게시판 바로가기</div>
-            </a>
-
-            <div class="card col-span-4">
-                <div class="list-header"> 수행평가 </div>
-                <ul>
-                    <a href="https://forms.gle/WLknpMYbkpMuhsmz9" target="_blank">
-                        <li class="list-item">
-                            <div class="list-icon"></div>
-                            <div class="list-content">
-                                <h4>질문 아카이브 </h4>
-                            </div>
-                        </li>
-                    </a>
-                    <a href="https://forms.gle/wZofWasghD87F75A6" target="_blank">
-                        <li class="list-item">
-                            <div class="list-icon">🔍</div>
-                            <div class="list-content">
-                                <h4>지역 탐구 프로젝트</h4>
-                            </div>
-                        </li>
-                    </a>
-                </ul>
-            </div>
-
-            <div class="col-span-12" style="margin-top: 20px;">
-                <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    시뮬레이터 <span style="font-size: 0.8rem; font-weight: 600; padding: 4px 8px; background: #e2e8f0; border-radius: 6px; color: var(--text-sub);">Interactive</span>
-                </h2>
-            </div>
-
-            <a href="climate_3d.html" class="card col-span-6">
-                <span class="card-tag">3D WebGL</span>
-                <div class="card-icon-wrap" style="background: #fef3c7; color: #d97706;"></div>
-                <h3>지구 공전과 계절 변화</h3>
-                <p>자전축 23.5도 기울어짐에 따른 일사량의 3D 공간 시각화 시뮬레이션.</p>
-                <div class="card-action">시뮬레이터 실행</div>
-            </a>
-
-            <a href="terrain.html" class="card col-span-6">
-                <span class="card-tag">Isometric</span>
-                <div class="card-icon-wrap" style="background: #dcfce7; color: #15803d;"></div>
-                <h3>지형 변화 시뮬레이터</h3>
-                <p>브러시를 활용하여 침식, 퇴적, 융기 작용을 실시간으로 그려내는 시뮬레이터.</p>
-                <div class="card-action">시뮬레이터 실행</div>
-            </a>
-
-            <a href="seoul.html" class="card col-span-4">
-                <span class="card-tag">Leaflet GIS</span>
-                <div class="card-icon-wrap" style="background: #e0e7ff; color: #4338ca;"></div>
-                <h3>서울 대도시권 팽창</h3>
-                <p>1~3기 신도시 및 광역 교통망(GTX) 확장 지도</p>
-                <div class="card-action">지도 보기</div>
-            </a>
-
-            <a href="climate_itcz.html" class="card col-span-4">
-                <span class="card-tag">2D Logic</span>
-                <div class="card-icon-wrap" style="background: #ffedd5; color: #b45309;"></div>
-                <h3>적도 수렴대 이동</h3>
-                <p>월별 태양 직사광선 이동에 따른 비구름(우기)의 남북 이동 관찰</p>
-                <div class="card-action">실행하기</div>
-            </a>
-
-            <a href="climate_solar.html" class="card col-span-4">
-                <span class="card-tag">Geometry</span>
-                <div class="card-icon-wrap" style="background: #fce7f3; color: #be185d;"></div>
-                <h3>태양 고도와 입사각</h3>
-                <p>위도 변화에 따른 태양 고도각과 지표면 입사각의 원리</p>
-                <div class="card-action">실행하기</div>
-            </a>
-
-            <div class="card col-span-12" style="flex-direction: row; align-items: center; justify-content: space-between; padding: 24px 40px; margin-top: 20px;">
-                <div>
-                    <h3 style="margin-bottom: 4px;"> 2026학년도 통합사회 C 학습지 다운로드</h3>
-                    <p>기후 및 지형 단원 PDF 자료</p>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <a href="https://drive.google.com/open?id=130XifHz-DPzWSbrY368n_wTIHJcC8coB" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: var(--primary-light); color: var(--primary); font-size: 0.9rem;">학습지 1</a>
-                    <a href="https://drive.google.com/open?id=1MDdnongTqP2WeNVNV6_ge86tWPxnneMX" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: var(--primary-light); color: var(--primary); font-size: 0.9rem;">학습지 2</a>
-                    <a href="https://drive.google.com/open?id=1k-Z082RDck1CRtO9YTdQgQlNSYIlvbWu" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: var(--primary-light); color: var(--primary); font-size: 0.9rem;">학습지 3</a>
-                    <a href="https://drive.google.com/open?id=1kBUfaXQCZwgPIPOI51uiSZhefrJy80fx" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: #f1f5f9; color: var(--text-sub); font-size: 0.9rem;">보충 자료</a>
+    <main>
+        <section class="section">
+            <div class="grid">
+                <a href="qna.html" class="card featured span-8" style="--accent: linear-gradient(90deg, #60a5fa, #22d3ee);">
+                    <span class="tag">Communication</span>
+                    <div class="icon">💬</div>
+                    <h3>통합사회 C Q&A</h3>
+                    <p>수업 중 생긴 질문, 탐구 아이디어, 수행평가 관련 확인 사항을 빠르게 남기고 공유합니다.</p>
+                    <div class="action">게시판 바로가기</div>
+                </a>
+                <div class="card list-card span-4" style="--accent: linear-gradient(90deg, #f59e0b, #ef4444);">
+                    <span class="tag">Assessment</span>
+                    <h3>수행평가</h3>
+                    <a class="mini-link" href="https://forms.gle/WLknpMYbkpMuhsmz9" target="_blank" rel="noopener"><span class="mini-icon">🗂️</span><span><b>질문 아카이브</b><span>탐구 질문 제출</span></span></a>
+                    <a class="mini-link" href="https://forms.gle/wZofWasghD87F75A6" target="_blank" rel="noopener"><span class="mini-icon">🔍</span><span><b>지역 탐구 프로젝트</b><span>지역 이슈 조사</span></span></a>
                 </div>
             </div>
+        </section>
 
-        </div>
+        <section class="section" id="simulators">
+            <div class="section-title">
+                <div><h2>시뮬레이터</h2><p>추상적인 사회·지리 개념을 직접 조작하면서 확인하는 실험실입니다.</p></div>
+            </div>
+            <div class="grid">
+                <a href="terrain.html" class="card span-6" style="--accent: linear-gradient(90deg, #16a34a, #06b6d4);">
+                    <span class="tag">Realistic 3D</span><div class="icon">🏔️</div><h3>지형 변화 시뮬레이터</h3><p>광원, 물, 고도별 색, 3D 카메라를 적용해 실제 지형처럼 산지·해안·분지를 관찰합니다.</p><div class="action">업그레이드 버전 실행</div>
+                </a>
+                <a href="climate_3d.html" class="card span-6" style="--accent: linear-gradient(90deg, #f59e0b, #7c3aed);">
+                    <span class="tag">3D WebGL</span><div class="icon">☀️</div><h3>지구 공전과 계절 변화</h3><p>자전축 23.5도 기울어짐과 공전 위치에 따른 계절 변화를 3D로 확인합니다.</p><div class="action">시뮬레이터 실행</div>
+                </a>
+                <a href="seoul.html" class="card span-4" style="--accent: linear-gradient(90deg, #6366f1, #2563eb);"><span class="tag">Leaflet GIS</span><div class="icon">🗺️</div><h3>서울 대도시권 팽창</h3><p>신도시와 광역 교통망 확장을 지도 위에서 비교합니다.</p><div class="action">지도 보기</div></a>
+                <a href="climate_itcz.html" class="card span-4" style="--accent: linear-gradient(90deg, #fb923c, #ef4444);"><span class="tag">2D Logic</span><div class="icon">🌧️</div><h3>적도 수렴대 이동</h3><p>월별 태양 직사광선 이동에 따른 우기대의 남북 이동을 관찰합니다.</p><div class="action">실행하기</div></a>
+                <a href="climate_solar.html" class="card span-4" style="--accent: linear-gradient(90deg, #ec4899, #f97316);"><span class="tag">Geometry</span><div class="icon">📐</div><h3>태양 고도와 입사각</h3><p>위도 변화에 따른 태양 고도각과 지표면 입사각의 원리를 시각화합니다.</p><div class="action">실행하기</div></a>
+            </div>
+        </section>
+
+        <section class="section" id="resources">
+            <div class="resource-bar">
+                <div><h3>2026학년도 통합사회 C 학습지 다운로드</h3><p>기후 및 지형 단원 PDF 자료와 보충 자료를 바로 열 수 있습니다.</p></div>
+                <div class="chips">
+                    <a href="https://drive.google.com/open?id=130XifHz-DPzWSbrY368n_wTIHJcC8coB" target="_blank" rel="noopener" class="chip">학습지 1</a>
+                    <a href="https://drive.google.com/open?id=1MDdnongTqP2WeNVNV6_ge86tWPxnneMX" target="_blank" rel="noopener" class="chip">학습지 2</a>
+                    <a href="https://drive.google.com/open?id=1k-Z082RDck1CRtO9YTdQgQlNSYIlvbWu" target="_blank" rel="noopener" class="chip">학습지 3</a>
+                    <a href="https://drive.google.com/open?id=1kBUfaXQCZwgPIPOI51uiSZhefrJy80fx" target="_blank" rel="noopener" class="chip">보충 자료</a>
+                </div>
+            </div>
+        </section>
     </main>
-
 </body>
 </html>
