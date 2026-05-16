@@ -3,81 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>태양 고도와 입사각 시뮬레이터</title>
-    <style>
-        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; display: flex; flex-direction: column; align-items: center; background-color: #f4f7f6; margin: 0; min-height: 100vh; }
-        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; width: 100%; box-sizing: border-box; margin-bottom: 20px; }
-        .logo { font-size: 20px; font-weight: bold; color: #1a73e8; text-decoration: none; }
-        .menu { display: flex; gap: 20px; }
-        .menu a { font-size: 15px; font-weight: 500; color: #5f6368; text-decoration: none; transition: 0.2s; }
-        .menu a:hover { color: #1a73e8; font-weight: bold; }
+    <title>태양 고도와 입사각 시뮬레이터 - 통합사회 C</title>
+    
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-        .container { background-color: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 700px; width: 90%; }
-        h1 { color: #333; font-size: 24px; margin-bottom: 10px; }
-        p.description { color: #666; margin-bottom: 20px; }
-        .controls { margin-bottom: 20px; padding: 15px; background-color: #f0f4f8; border-radius: 8px; }
-        input[type="range"] { width: 80%; margin: 10px 0; }
-        .equation { font-size: 20px; font-weight: bold; margin-top: 20px; color: #2c3e50; background-color: #e8f4f8; padding: 15px; border-radius: 8px; display: inline-block; }
-        .text-alt { color: #e74c3c; } .text-inc { color: #3498db; }
-        canvas { border: 1px solid #ddd; border-radius: 8px; background-color: #fafafa; margin-top: 10px; max-width: 100%; height: auto; }
-        @media (max-width: 600px) { .navbar { flex-direction: column; padding: 15px; gap: 10px; } }
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: rgba(0,0,0,0.06);
+            --radius: 20px;
+        }
+
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* 글래스모피즘 네비게이션 */
+        .navbar { 
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+        }
+        .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+        .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .logo-icon i { width: 18px; height: 18px; stroke-width: 2.5px; }
+        .menu { display: flex; gap: 24px; }
+        .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
+        .menu a:hover { background: var(--primary-light); color: var(--primary); }
+
+        /* 대시보드 레이아웃 */
+        .dashboard-container { display: flex; flex: 1; padding: 24px; gap: 24px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
+        
+        /* 왼쪽 캔버스 영역 */
+        .canvas-wrapper { flex: 2; background: #ffffff; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center; background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 20px 20px; }
+        canvas { width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* 오른쪽 컨트롤 패널 영역 */
+        .controls-wrapper { flex: 1; min-width: 340px; max-width: 450px; background: var(--card-bg); border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 25px; overflow-y: auto; }
+        
+        .panel-header { margin-bottom: 5px; }
+        .panel-header h2 { margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+        .panel-header p { margin: 0; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
+
+        /* 슬라이더 컨트롤 */
+        .timeline-box { background: var(--primary-light); border: 1px solid #bfdbfe; border-radius: 16px; padding: 25px 20px; display: flex; flex-direction: column; gap: 15px; }
+        .alt-display { font-size: 1.2rem; font-weight: 800; color: var(--text-main); text-align: center; margin-bottom: 5px; }
+        .alt-display span { color: #e74c3c; font-size: 2rem; letter-spacing: -1px; }
+        
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #cbd5e1; border-radius: 5px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #e74c3c; cursor: pointer; box-shadow: 0 0 0 4px white, 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+
+        /* 공식 패널 (디자인 하이라이트) */
+        .equation-box { background: #f8fafc; border: 1px solid var(--border-color); padding: 25px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; gap: 15px; }
+        .eq-title { font-size: 0.9rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; }
+        .eq-formula { font-size: 1.6rem; font-weight: 800; color: var(--text-main); display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .badge-alt { background: #fee2e2; color: #dc2626; padding: 6px 12px; border-radius: 8px; }
+        .badge-inc { background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 8px; }
+
+        @media (max-width: 900px) {
+            .dashboard-container { flex-direction: column; overflow-y: auto; }
+            .canvas-wrapper { min-height: 40vh; flex: none; }
+            .controls-wrapper { max-width: 100%; flex: none; }
+            .navbar { padding: 16px 20px; }
+            .eq-formula { font-size: 1.3rem; }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
-        <div class="menu"><a href="index.html">홈</a><a href="qna.html">Q&A 게시판</a></div>
+        <a href="index.html" class="logo">
+            <div class="logo-icon"><i data-lucide="globe"></i></div>
+            Society - C - Geography
+        </a>
+        <div class="menu">
+            <a href="index.html">홈</a>
+            <a href="qna.html">Q&A 게시판</a>
+        </div>
     </nav>
 
-    <div class="container">
-        <h1>태양 고도와 입사각</h1>
-        <p class="description">슬라이더를 통해 태양의 위치를 조절.</p>
-        <div class="controls">
-            <label for="sunSlider" style="font-weight:bold; font-size: 18px;">태양 위치 (고도): <span id="altValue" class="text-alt">45°</span></label><br>
-            <input type="range" id="sunSlider" min="0" max="90" value="45">
+    <div class="dashboard-container">
+        
+        <div class="canvas-wrapper">
+            <canvas id="simCanvas" width="600" height="400"></canvas>
         </div>
-        <canvas id="simCanvas" width="600" height="400"></canvas>
-        <div class="equation">
-            <span class="text-alt">태양 고도 (<span id="eqAlt">45</span>°)</span> + <span class="text-inc">입사각 (<span id="eqInc">45</span>°)</span> = 90°
+
+        <div class="controls-wrapper">
+            <div class="panel-header">
+                <h2><i data-lucide="triangle-right" style="color:var(--primary);"></i> 태양 고도와 입사각</h2>
+                <p>슬라이더를 조절하여 태양의 높이(고도)와 지표면 입사각의 상호 삼각비 원리를 확인하세요.</p>
+            </div>
+
+            <div class="timeline-box">
+                <div class="alt-display">현재 태양 고도: <span id="altValue">45°</span></div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: -5px;">
+                    <span>0° (지평선)</span>
+                    <span>90° (수직)</span>
+                </div>
+                <input type="range" id="sunSlider" min="0" max="90" value="45">
+            </div>
+
+            <div class="equation-box">
+                <div class="eq-title"><i data-lucide="calculator" style="width:14px; height:14px; display:inline-block; vertical-align:middle;"></i> 공간 기하학 공식</div>
+                <div class="eq-formula">
+                    <span class="badge-alt">고도 <span id="eqAlt">45</span>°</span> 
+                    <span>+</span> 
+                    <span class="badge-inc">입사각 <span id="eqInc">45</span>°</span> 
+                    <span>=</span> 
+                    <span>90°</span>
+                </div>
+                <p style="margin:0; font-size:0.9rem; color:var(--text-sub); line-height:1.5;">
+                    고도가 높아질수록 입사각은 작아지며, 이는 단위 면적당 <strong>태양 에너지(일사량) 집중도</strong>가 높아짐을 의미합니다.
+                </p>
+            </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('simCanvas'); const ctx = canvas.getContext('2d');
-        const slider = document.getElementById('sunSlider'); const altValueTxt = document.getElementById('altValue');
-        const eqAltTxt = document.getElementById('eqAlt'); const eqIncTxt = document.getElementById('eqInc');
-        const cx = 300; const cy = 350; const rayLength = 280;
+        lucide.createIcons();
+
+        const canvas = document.getElementById('simCanvas'); 
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('sunSlider'); 
+        const altValueTxt = document.getElementById('altValue');
+        const eqAltTxt = document.getElementById('eqAlt'); 
+        const eqIncTxt = document.getElementById('eqInc');
+        
+        const cx = 300; const cy = 350; const rayLength = 260;
 
         function drawSimulation() {
-            const altitude = parseInt(slider.value, 10); const incidence = 90 - altitude;
-            altValueTxt.innerText = altitude + "°"; eqAltTxt.innerText = altitude; eqIncTxt.innerText = incidence;
+            const altitude = parseInt(slider.value, 10); 
+            const incidence = 90 - altitude;
+            
+            // 텍스트 패널 업데이트
+            altValueTxt.innerText = altitude + "°"; 
+            eqAltTxt.innerText = altitude; 
+            eqIncTxt.innerText = incidence;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.beginPath(); ctx.moveTo(50, cy); ctx.lineTo(550, cy); ctx.lineWidth = 4; ctx.strokeStyle = '#2c3e50'; ctx.stroke();
-            ctx.fillStyle = '#2c3e50'; ctx.font = '16px "Malgun Gothic"'; ctx.fillText("지표면", 500, cy + 25);
             
-            ctx.beginPath(); ctx.setLineDash([10, 10]); ctx.moveTo(cx, cy); ctx.lineTo(cx, 40); ctx.lineWidth = 2; ctx.strokeStyle = '#7f8c8d'; ctx.stroke();
-            ctx.setLineDash([]); ctx.fillStyle = '#7f8c8d'; ctx.fillText("법선 (수직선)", cx - 45, 30);
+            // 지표면 선
+            ctx.beginPath(); ctx.moveTo(40, cy); ctx.lineTo(560, cy); 
+            ctx.lineWidth = 5; ctx.strokeStyle = '#0f172a'; ctx.stroke();
+            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 16px "Pretendard"'; ctx.fillText("지표면", 500, cy + 25);
+            
+            // 법선 (수직 점선)
+            ctx.beginPath(); ctx.setLineDash([8, 8]); ctx.moveTo(cx, cy); ctx.lineTo(cx, 50); 
+            ctx.lineWidth = 2; ctx.strokeStyle = '#94a3b8'; ctx.stroke();
+            ctx.setLineDash([]); ctx.fillStyle = '#64748b'; ctx.font = 'bold 14px "Pretendard"'; ctx.fillText("법선 (수직선)", cx - 45, 35);
 
+            // 태양광선 벡터 계산
             const radAlt = altitude * (Math.PI / 180);
-            const sunX = cx + rayLength * Math.cos(radAlt); const sunY = cy - rayLength * Math.sin(radAlt);
+            const sunX = cx + rayLength * Math.cos(radAlt); 
+            const sunY = cy - rayLength * Math.sin(radAlt);
             
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(sunX, sunY); ctx.lineWidth = 3; ctx.strokeStyle = '#f1c40f'; ctx.stroke();
-            ctx.font = '40px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('☀️', sunX, sunY);
+            // 태양광선 그리기
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(sunX, sunY); 
+            ctx.lineWidth = 4; ctx.strokeStyle = '#f59e0b'; ctx.stroke();
+            
+            // 화살표 머리 (빛이 들어오는 방향 표시)
+            const headlen = 15;
+            const angle = Math.atan2(cy - sunY, cx - sunX);
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(cx - headlen * Math.cos(angle - Math.PI / 6), cy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.lineTo(cx - headlen * Math.cos(angle + Math.PI / 6), cy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.fillStyle = '#f59e0b';
+            ctx.fill();
 
+            // 태양 이모지
+            ctx.font = '45px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; 
+            ctx.fillText('☀️', sunX + 10, sunY - 10);
+
+            // 고도각 (빨간색 호)
             if (altitude > 0) {
-                ctx.beginPath(); ctx.arc(cx, cy, 100, 0, -radAlt, true); ctx.lineWidth = 3; ctx.strokeStyle = '#e74c3c'; ctx.stroke();
-                const altMidRad = radAlt / 2; ctx.fillStyle = '#e74c3c'; ctx.font = 'bold 16px "Malgun Gothic"';
-                ctx.fillText(`고도 ${altitude}°`, cx + 130 * Math.cos(altMidRad), cy - 130 * Math.sin(altMidRad));
+                ctx.beginPath(); ctx.arc(cx, cy, 100, 0, -radAlt, true); 
+                ctx.lineWidth = 4; ctx.strokeStyle = '#ef4444'; ctx.stroke();
+                
+                // 호 내부 반투명 채우기
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 100, 0, -radAlt, true); ctx.lineTo(cx, cy);
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.1)'; ctx.fill();
+
+                const altMidRad = radAlt / 2; ctx.fillStyle = '#dc2626'; ctx.font = 'bold 18px "Pretendard"';
+                ctx.fillText(`고도 ${altitude}°`, cx + 135 * Math.cos(altMidRad), cy - 135 * Math.sin(altMidRad));
             }
+            
+            // 입사각 (파란색 호)
             if (incidence > 0) {
-                ctx.beginPath(); ctx.arc(cx, cy, 140, -Math.PI / 2, -radAlt, false); ctx.lineWidth = 3; ctx.strokeStyle = '#3498db'; ctx.stroke();
-                const incMidRad = (Math.PI / 2 + radAlt) / 2; ctx.fillStyle = '#3498db'; ctx.font = 'bold 16px "Malgun Gothic"';
-                ctx.fillText(`입사각 ${incidence}°`, cx + 170 * Math.cos(incMidRad), cy - 170 * Math.sin(incMidRad));
+                ctx.beginPath(); ctx.arc(cx, cy, 150, -Math.PI / 2, -radAlt, false); 
+                ctx.lineWidth = 4; ctx.strokeStyle = '#0ea5e9'; ctx.stroke();
+                
+                // 호 내부 반투명 채우기
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 150, -Math.PI / 2, -radAlt, false); ctx.lineTo(cx, cy);
+                ctx.fillStyle = 'rgba(14, 165, 233, 0.1)'; ctx.fill();
+
+                const incMidRad = (Math.PI / 2 + radAlt) / 2; ctx.fillStyle = '#0284c7'; ctx.font = 'bold 18px "Pretendard"';
+                ctx.fillText(`입사각 ${incidence}°`, cx + 185 * Math.cos(incMidRad), cy - 185 * Math.sin(incMidRad));
             }
-            ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fillStyle = '#2c3e50'; ctx.fill();
+
+            // 중심점
+            ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 2 * Math.PI); ctx.fillStyle = '#0f172a'; ctx.fill();
         }
-        slider.addEventListener('input', drawSimulation); drawSimulation();
+        
+        slider.addEventListener('input', drawSimulation); 
+        drawSimulation();
     </script>
 </body>
 </html>
