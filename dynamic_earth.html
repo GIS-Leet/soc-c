@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>다이내믹 어스: 지형 형성 작용 - 통합사회 C</title>
+    <title>지형 형성 작용 - 통합사회 C</title>
     
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -50,7 +50,6 @@
         .control-group { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; position: relative; }
         .control-group h3 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px; }
         
-        /* 시네마틱 액션 버튼 */
         .action-btn { background: white; border: 1px solid #cbd5e1; padding: 15px; border-radius: 12px; cursor: pointer; font-size: 0.95rem; font-weight: 700; color: var(--text-main); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; font-family: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .action-btn:hover { background: #f1f5f9; border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37,99,235,0.1); }
         .action-btn .btn-icon { background: var(--primary-light); color: var(--primary); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
@@ -58,7 +57,6 @@
         .action-btn:hover .play-icon { color: var(--primary); }
         .action-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* 모드 탭 (향후 업데이트용) */
         .tab-container { display: flex; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 10px;}
         .tab-btn { flex: 1; text-align: center; padding: 10px 0; font-size: 0.9rem; font-weight: 700; color: var(--text-sub); cursor: pointer; border-radius: 8px; transition: 0.3s; }
         .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
@@ -158,14 +156,10 @@
     <script>
         lucide.createIcons();
 
-        // ----------------------------------------------------
-        // ★ Three.js 엔진 세팅 (지각 단면도 시점) ★
-        // ----------------------------------------------------
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0f172a); // 깊은 지하 배경색
+        scene.background = new THREE.Color(0x0f172a); 
         
-        // 카메라: 지형의 '단면'을 잘 볼 수 있도록 세팅
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
         camera.position.set(0, 100, 350); 
         
@@ -177,46 +171,37 @@
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true; controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2; // 지평선 아래로 내려가지 않게
+        controls.maxPolarAngle = Math.PI / 2; 
 
-        // 조명
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
         dirLight.position.set(100, 200, 100);
         dirLight.castShadow = true;
         scene.add(dirLight);
         scene.add(new THREE.AmbientLight(0x404040, 0.8));
 
-        // 마그마(맨틀) 광원 (아래에서 붉게 쏘아올림)
         const magmaLight = new THREE.PointLight(0xff3300, 0, 300);
         magmaLight.position.set(0, -50, 0);
         scene.add(magmaLight);
 
-        // ----------------------------------------------------
-        // ★ 판(Plates)과 지형 메쉬 생성 ★
-        // ----------------------------------------------------
         const simplex = new SimplexNoise();
         const plateWidth = 150; const plateDepth = 150; const segments = 64;
         
-        // 지각 재질
         const crustMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x8B4513, roughness: 0.9, flatShading: true, side: THREE.DoubleSide 
         });
 
-        // 왼쪽 판
         const leftGeo = new THREE.PlaneGeometry(plateWidth, plateDepth, segments, segments);
         leftGeo.rotateX(-Math.PI / 2);
         const leftPlate = new THREE.Mesh(leftGeo, crustMaterial);
-        leftPlate.position.set(-plateWidth/2 - 2, 0, 0); // 가운데 약간의 틈(2)
+        leftPlate.position.set(-plateWidth/2 - 2, 0, 0); 
         scene.add(leftPlate);
 
-        // 오른쪽 판
         const rightGeo = new THREE.PlaneGeometry(plateWidth, plateDepth, segments, segments);
         rightGeo.rotateX(-Math.PI / 2);
         const rightPlate = new THREE.Mesh(rightGeo, crustMaterial);
         rightPlate.position.set(plateWidth/2 + 2, 0, 0);
         scene.add(rightPlate);
 
-        // 기본 노이즈 지형 입히기
         function applyNoise(geometry, offset) {
             const pos = geometry.attributes.position;
             for(let i=0; i<pos.count; i++) {
@@ -230,7 +215,6 @@
         applyNoise(leftGeo, -plateWidth/2);
         applyNoise(rightGeo, plateWidth/2);
 
-        // 하단 마그마 바다 (맨틀)
         const magmaGeo = new THREE.PlaneGeometry(400, 400);
         magmaGeo.rotateX(-Math.PI / 2);
         const magmaMat = new THREE.MeshBasicMaterial({ color: 0xff3300, transparent: true, opacity: 0 });
@@ -238,9 +222,20 @@
         magma.position.y = -10;
         scene.add(magma);
 
-        // ----------------------------------------------------
-        // ★ 시네마틱 애니메이션 시스템 ★
-        // ----------------------------------------------------
+        // ★ 버그 픽스: 파티클 시스템 재정비 ★
+        const particleGeo = new THREE.BufferGeometry();
+        const particleMat = new THREE.PointsMaterial({ color: 0xff5500, size: 3, transparent: true, opacity: 0 });
+        const particleCount = 1000;
+        const particlesPos = new Float32Array(particleCount * 3);
+        const particlesVel = [];
+        for(let i=0; i<particleCount; i++) {
+            particlesPos[i*3] = 0; particlesPos[i*3+1] = -50; particlesPos[i*3+2] = 0;
+            particlesVel.push({ x: 0, y: 0, z: 0 });
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlesPos, 3));
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
+
         let currentAnimation = null;
         let animProgress = 0;
         const overlay = document.getElementById('cinematicOverlay');
@@ -257,30 +252,13 @@
             currentAnimation = null; animProgress = 0;
             leftPlate.position.set(-plateWidth/2 - 2, 0, 0);
             rightPlate.position.set(plateWidth/2 + 2, 0, 0);
-            magmaMat.opacity = 0; magmaLight.intensity = 0;
+            magmaMat.opacity = 0; magmaLight.intensity = 0; particleMat.opacity = 0;
             applyNoise(leftGeo, -plateWidth/2); applyNoise(rightGeo, plateWidth/2);
             hideSubtitle();
             camera.position.set(0, 100, 350); controls.target.set(0,0,0);
             document.querySelectorAll('.action-btn').forEach(b => b.disabled = false);
         }
 
-        // 파티클(화산재/용암) 시스템 준비
-        const particleGeo = new THREE.BufferGeometry();
-        const particleMat = new THREE.PointsMaterial({ color: 0xff5500, size: 3, transparent: true, opacity: 0 });
-        const particleCount = 1000;
-        const particlesPos = new Float32Array(particleCount * 3);
-        const particlesVel = [];
-        for(let i=0; i<particleCount; i++) {
-            particlesPos[i*3] = 0; particlesPos[i*3+1] = -50; particlesPos[i*3+2] = 0;
-            particlesVel.push({
-                x: (Math.random() - 0.5) * 2, y: Math.random() * 5 + 2, z: (Math.random() - 0.5) * 2
-            });
-        }
-        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlesPos, 3));
-        const particles = new THREE.Points(particleGeo, particleMat);
-        scene.add(particles);
-
-        // 시나리오 실행 함수
         function playScenario(type) {
             resetScene();
             document.querySelectorAll('.action-btn').forEach(b => b.disabled = true);
@@ -292,8 +270,16 @@
                 showSubtitle('발산형 경계 (해령 형성)', '두 판이 양쪽으로 멀어지면서 틈이 생깁니다.<br>이 틈을 뚫고 맨틀 물질(마그마)이 솟아올라 <b>새로운 지각(해령)</b>을 만듭니다.');
             } else if(type === 'volcano') {
                 showSubtitle('화산 폭발 (내적 작용)', '지하 깊은 곳의 마그마가 얇아진 지각의 틈을 뚫고 격렬하게 분출합니다.');
-                // 카메라 클로즈업
                 camera.position.set(0, 80, 200);
+                
+                // 파티클 초기화 (화산 폭발 준비)
+                for(let i=0; i<particleCount; i++) {
+                    particlesPos[i*3] = (Math.random() - 0.5) * 10;
+                    particlesPos[i*3+1] = 0;
+                    particlesPos[i*3+2] = (Math.random() - 0.5) * 10;
+                    particlesVel[i] = { x: (Math.random() - 0.5) * 3, y: Math.random() * 6 + 3, z: (Math.random() - 0.5) * 3 };
+                }
+                particleGeo.attributes.position.needsUpdate = true;
             }
         }
 
@@ -302,81 +288,94 @@
             controls.update();
 
             if(currentAnimation) {
-                animProgress += 0.005;
-                if(animProgress > 1) animProgress = 1;
+                // 애니메이션 진행 중일 때만 업데이트
+                if (animProgress < 1) {
+                    animProgress += 0.005; 
+                    if(animProgress > 1) animProgress = 1;
+                    
+                    if(currentAnimation === 'convergent') {
+                        const move = Math.min(animProgress * 10, 2);
+                        leftPlate.position.x = -plateWidth/2 - 2 + move;
+                        rightPlate.position.x = plateWidth/2 + 2 - move;
 
-                if(currentAnimation === 'convergent') {
-                    // 1. 판이 서서히 다가옴
-                    const move = Math.min(animProgress * 10, 2);
-                    leftPlate.position.x = -plateWidth/2 - 2 + move;
-                    rightPlate.position.x = plateWidth/2 + 2 - move;
-
-                    // 2. 경계면(가운데)이 솟아오름 (습곡산맥 형성)
-                    if(animProgress > 0.2) {
-                        const uplift = (animProgress - 0.2) * 50; // 과학적 과장 적용
-                        const leftPos = leftGeo.attributes.position;
-                        for(let i=0; i<leftPos.count; i++) {
-                            const x = leftPos.getX(i);
-                            if(x > plateWidth/2 - 30) { // 경계 근처 30만큼만 융기
-                                const factor = (x - (plateWidth/2 - 30)) / 30; // 0~1
-                                leftPos.setY(i, leftPos.getY(i) + factor * uplift * 0.05); // 서서히 올라감
+                        if(animProgress > 0.2) {
+                            const upliftRate = 0.4; // ★ 수정됨: 1프레임당 일정량만 융기하도록
+                            const leftPos = leftGeo.attributes.position;
+                            for(let i=0; i<leftPos.count; i++) {
+                                const x = leftPos.getX(i);
+                                if(x > plateWidth/2 - 30) {
+                                    const factor = (x - (plateWidth/2 - 30)) / 30; 
+                                    leftPos.setY(i, leftPos.getY(i) + factor * upliftRate); 
+                                }
                             }
-                        }
-                        leftPos.needsUpdate = true; leftGeo.computeVertexNormals();
+                            leftPos.needsUpdate = true; leftGeo.computeVertexNormals();
 
-                        const rightPos = rightGeo.attributes.position;
-                        for(let i=0; i<rightPos.count; i++) {
-                            const x = rightPos.getX(i);
-                            if(x < -plateWidth/2 + 30) { 
-                                const factor = (-(plateWidth/2) + 30 - x) / 30; 
-                                rightPos.setY(i, rightPos.getY(i) + factor * uplift * 0.05); 
+                            const rightPos = rightGeo.attributes.position;
+                            for(let i=0; i<rightPos.count; i++) {
+                                const x = rightPos.getX(i);
+                                if(x < -plateWidth/2 + 30) { 
+                                    const factor = (-(plateWidth/2) + 30 - x) / 30; 
+                                    rightPos.setY(i, rightPos.getY(i) + factor * upliftRate); 
+                                }
                             }
+                            rightPos.needsUpdate = true; rightGeo.computeVertexNormals();
+                            
+                            if(Math.random() > 0.8) camera.position.y += (Math.random() - 0.5) * 0.8;
                         }
-                        rightPos.needsUpdate = true; rightGeo.computeVertexNormals();
-                        
-                        // 지진 효과 (카메라 흔들림)
-                        if(animProgress < 0.8 && Math.random() > 0.7) {
-                            camera.position.x += (Math.random() - 0.5) * 2;
-                        }
+                    } 
+                    else if(currentAnimation === 'divergent') {
+                        const move = animProgress * 30;
+                        leftPlate.position.x = -plateWidth/2 - 2 - move;
+                        rightPlate.position.x = plateWidth/2 + 2 + move;
+                        magmaMat.opacity = animProgress;
+                        magmaLight.intensity = animProgress * 2;
                     }
-                } 
-                else if(currentAnimation === 'divergent') {
-                    // 1. 판이 벌어짐
-                    const move = animProgress * 30;
-                    leftPlate.position.x = -plateWidth/2 - 2 - move;
-                    rightPlate.position.x = plateWidth/2 + 2 + move;
-
-                    // 2. 지하 마그마 노출 및 융기
-                    magmaMat.opacity = animProgress;
-                    magmaLight.intensity = animProgress * 2;
                 }
-                else if(currentAnimation === 'volcano') {
-                    // 가운데 마그마 폭발 파티클 애니메이션
-                    magmaLight.intensity = 3;
-                    particleMat.opacity = 1;
+
+                // 화산 애니메이션은 진행도에 따라 페이드아웃 적용
+                if(currentAnimation === 'volcano') {
                     const positions = particleGeo.attributes.position.array;
                     
-                    for(let i=0; i<particleCount; i++) {
-                        positions[i*3] += particlesVel[i].x; // x
-                        positions[i*3+1] += particlesVel[i].y; // y
-                        positions[i*3+2] += particlesVel[i].z; // z
-                        particlesVel[i].y -= 0.1; // 중력
+                    if (animProgress < 0.7) {
+                        // 폭발 중
+                        magmaLight.intensity = 3;
+                        particleMat.opacity = 1;
+                        for(let i=0; i<particleCount; i++) {
+                            positions[i*3] += particlesVel[i].x; 
+                            positions[i*3+1] += particlesVel[i].y; 
+                            positions[i*3+2] += particlesVel[i].z; 
+                            particlesVel[i].y -= 0.15; // 중력
+                            
+                            // 튕겨 오르기
+                            if(positions[i*3+1] < 0) {
+                                positions[i*3] = (Math.random() - 0.5) * 10;
+                                positions[i*3+1] = 0;
+                                positions[i*3+2] = (Math.random() - 0.5) * 10;
+                                particlesVel[i].y = Math.random() * 6 + 3;
+                            }
+                        }
+                        if(Math.random() > 0.6) camera.position.y += (Math.random() - 0.5) * 1.5;
+                    } else {
+                        // ★ 수정됨: 70% 이후 페이드아웃 (점점 사그라듦)
+                        const fade = (1 - animProgress) / 0.3; 
+                        magmaLight.intensity = 3 * fade;
+                        particleMat.opacity = fade;
                         
-                        // 바닥에 닿으면 다시 분화구로
-                        if(positions[i*3+1] < 0) {
-                            positions[i*3] = (Math.random() - 0.5) * 10;
-                            positions[i*3+1] = 0;
-                            positions[i*3+2] = (Math.random() - 0.5) * 10;
-                            particlesVel[i].y = Math.random() * 5 + 3;
+                        for(let i=0; i<particleCount; i++) {
+                            positions[i*3] += particlesVel[i].x; 
+                            positions[i*3+1] += particlesVel[i].y; 
+                            positions[i*3+2] += particlesVel[i].z; 
+                            particlesVel[i].y -= 0.15; 
+                            if(positions[i*3+1] < 0) positions[i*3+1] = -50; // 바닥에 닿으면 숨김
                         }
                     }
                     particleGeo.attributes.position.needsUpdate = true;
-                    if(Math.random() > 0.5) camera.position.y += (Math.random() - 0.5) * 1; // 화산 폭발 진동
                 }
-                
-                // 애니메이션 종료 처리
-                if(animProgress === 1 && currentAnimation !== 'volcano') {
-                    setTimeout(() => { document.querySelectorAll('.action-btn').forEach(b => b.disabled = false); }, 1000);
+
+                // 모든 애니메이션 종료 시
+                if(animProgress === 1) {
+                    document.querySelectorAll('.action-btn').forEach(b => b.disabled = false);
+                    currentAnimation = null; // 루프 중지
                 }
             }
             renderer.render(scene, camera);
