@@ -277,17 +277,17 @@
             </div>
 
             <div class="card col-span-12" style="flex-direction: column; padding: 24px 40px; margin-top: 20px;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
                     <div>
-                        <h3 style="margin-bottom: 4px; display:flex; align-items:center; gap:8px;"><i data-lucide="library"></i> 통합사회 C 자동 자료실</h3>
-                        <p style="margin:0;">깃허브에 업로드된 학습 자료(.pdf, .ppt 등)를 자동으로 불러옵니다.</p>
+                        <h3 style="margin-bottom: 4px; display:flex; align-items:center; gap:8px;"><i data-lucide="library"></i> 통합사회 C 카테고리 자료실</h3>
+                        <p style="margin:0;">깃허브 폴더에 업로드된 자료를 카테고리별로 자동 분류하여 가져옵니다.</p>
                     </div>
                     <span style="font-size:0.8rem; background:#f1f5f9; padding:4px 10px; border-radius:12px; color:var(--text-sub); font-weight:bold;">
-                        <i data-lucide="refresh-cw" style="width:12px; height:12px; display:inline-block; margin-right:2px;"></i> Auto-Sync
+                        <i data-lucide="folder-tree" style="width:12px; height:12px; display:inline-block; margin-right:2px;"></i> Auto-Sync
                     </span>
                 </div>
                 
-                <div id="material-list" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <div id="material-list" style="display: flex; flex-direction: column; gap: 24px;">
                     <span style="color: var(--text-sub); font-size: 0.95rem;">자료를 불러오는 중입니다...</span>
                 </div>
             </div>
@@ -426,58 +426,67 @@
         const GITHUB_ID = "GIS-Leet"; 
         const REPO_NAME = "kgghs-soc-c"; 
 
+     // 📁 깃허브에 만들 '폴더 이름'과 홈페이지에 보일 '디자인' 설정
+        const folders = [
+            { path: "학습지", title: "📝 수업 학습지", icon: "book-open", bgColor: "var(--primary-light)", textColor: "var(--primary)" },
+            { path: "PPT", title: "🖥️ 수업 PPT 자료", icon: "presentation", bgColor: "#fef2f2", textColor: "#db2777" },
+            { path: "참고자료", title: "🔗 기타 참고 자료", icon: "link", bgColor: "#f1f5f9", textColor: "var(--text-sub)" }
+        ];
+
         const container = document.getElementById('material-list');
+        container.innerHTML = ''; // 로딩 텍스트 지우기
 
-        try {
-            // 깃허브 API를 통해 파일 목록 가져오기
-            const response = await fetch(`https://api.github.com/repos/${GITHUB_ID}/${REPO_NAME}/contents/`);
-            if (!response.ok) throw new Error('API 연동 실패');
-            const files = await response.json();
-
-            // 확장자가 pdf, ppt, pptx, hwp 인 파일만 걸러내기
-            const materials = files.filter(file => 
-                file.name.endsWith('.pdf') || 
-                file.name.endsWith('.ppt') || 
-                file.name.endsWith('.pptx') || 
-                file.name.endsWith('.hwp')
-            );
-
-            container.innerHTML = ''; // 로딩 텍스트 지우기
-
-            if (materials.length === 0) {
-                container.innerHTML = '<span style="color: #64748b; font-size: 0.95rem;">업로드된 수업 자료가 없습니다.</span>';
-                return;
-            }
-
-            // 파일마다 자동으로 예쁜 버튼 그려주기
-            materials.forEach(file => {
-                let icon = 'link';
-                let bgColor = '#f1f5f9';
-                let textColor = 'var(--text-sub)';
-
-                // 파일 종류에 따라 색상과 아이콘 다르게 적용
-                if (file.name.endsWith('.pdf')) {
-                    icon = 'book-open'; bgColor = 'var(--primary-light)'; textColor = 'var(--primary)';
-                } else if (file.name.includes('.ppt')) {
-                    icon = 'presentation'; bgColor = '#fef2f2'; textColor = '#db2777';
-                }
-
-                const btnHtml = `
-                    <a href="${file.download_url}" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: ${bgColor}; color: ${textColor}; font-size: 0.95rem; padding: 10px 16px; display:flex; align-items:center; gap:6px; border: 1px solid rgba(0,0,0,0.05); text-decoration: none; border-radius: 8px; transition: 0.2s;">
-                        <i data-lucide="${icon}" style="width:18px; height:18px;"></i> ${file.name}
-                    </a>
-                `;
-                container.insertAdjacentHTML('beforeend', btnHtml);
-            });
+        for (const folder of folders) {
+            // 카테고리(폴더)별 구역(UI) 만들기
+            const sectionDiv = document.createElement('div');
             
-            lucide.createIcons(); // 새로 만들어진 버튼의 아이콘 렌더링
+            const titleHtml = `<h4 style="margin: 0 0 12px 0; font-size: 1.05rem; color: var(--text-main); border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px;">
+                ${folder.title}
+            </h4>`;
+            
+            const btnContainer = document.createElement('div');
+            btnContainer.style.display = 'flex';
+            btnContainer.style.gap = '10px';
+            btnContainer.style.flexWrap = 'wrap';
 
-        } catch (error) {
-            container.innerHTML = '<span style="color: #ef4444; font-size: 0.95rem;">⚠️ 자료를 불러오는 데 실패했습니다. 코드의 깃허브 아이디를 확인해 주세요.</span>';
+            sectionDiv.innerHTML = titleHtml;
+            sectionDiv.appendChild(btnContainer);
+            container.appendChild(sectionDiv);
+
+            try {
+                // 해당 폴더 안의 파일들만 가져오기
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_ID}/${REPO_NAME}/contents/${folder.path}`);
+                if (!response.ok) throw new Error('폴더 없음');
+                const files = await response.json();
+
+                // 문서 파일만 필터링
+                const materials = files.filter(file => 
+                    file.name.endsWith('.pdf') || file.name.endsWith('.ppt') || 
+                    file.name.endsWith('.pptx') || file.name.endsWith('.hwp')
+                );
+
+                if (materials.length === 0) {
+                    btnContainer.innerHTML = `<span style="color: #94a3b8; font-size: 0.9rem;">업로드된 파일이 없습니다.</span>`;
+                } else {
+                    materials.forEach(file => {
+                        const btnHtml = `
+                            <a href="${file.download_url}" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: ${folder.bgColor}; color: ${folder.textColor}; font-size: 0.9rem; padding: 8px 14px; display:flex; align-items:center; gap:6px; border: 1px solid rgba(0,0,0,0.05); text-decoration: none; border-radius: 8px; transition: 0.2s;">
+                                <i data-lucide="${folder.icon}" style="width:16px; height:16px;"></i> ${file.name}
+                            </a>
+                        `;
+                        btnContainer.insertAdjacentHTML('beforeend', btnHtml);
+                    });
+                }
+            } catch (error) {
+                // 깃허브에 아직 해당 이름의 폴더가 없는 경우
+                btnContainer.innerHTML = `<span style="color: #94a3b8; font-size: 0.9rem;">아직 '${folder.path}' 폴더가 생성되지 않았습니다.</span>`;
+            }
         }
+        
+        lucide.createIcons(); // 아이콘 렌더링 적용
     }
 
-    // 페이지가 열리자마자 파일 목록을 자동으로 불러옵니다.
+    // 페이지가 로드되면 함수 실행
     document.addEventListener('DOMContentLoaded', loadMaterials);
     </script>
 </body>
