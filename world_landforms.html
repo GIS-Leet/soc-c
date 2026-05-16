@@ -22,27 +22,21 @@
 
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* 메인 헤더 */
         .main-header { background: #1e293b; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
         .header-title { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
         .header-title span { color: #38bdf8; font-size: 1rem; border: 1px solid #38bdf8; padding: 4px 10px; border-radius: 8px; }
 
         .dashboard-container { display: flex; flex: 1; padding: 20px; gap: 20px; box-sizing: border-box; overflow: hidden; }
         
-        /* 메인 3D 스테이지 */
         .canvas-wrapper { flex: 3; border-radius: var(--radius); position: relative; overflow: hidden; background: #000; box-shadow: 0 20px 50px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); }
-        
-        /* 컨테이너 높이 강제 고정으로 캔버스 붕괴 방지 */
         #webgl-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; outline: none; }
         
-        /* 자막 패널 */
         .scenario-caption { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 85%; z-index: 20; opacity: 1; transition: all 0.5s; pointer-events: none; }
         .caption-box { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); color: white; padding: 25px 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: left; }
         .caption-category { color: #38bdf8; font-size: 0.95rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: block; letter-spacing: 1px;}
         .caption-main { font-size: 1.35rem; font-weight: 700; line-height: 1.6; word-break: keep-all; }
         .caption-sub { font-size: 1.1rem; color: #94a3b8; font-weight: 500; margin-top: 5px; }
 
-        /* 우측 탐구 커리큘럼 패널 */
         .curriculum-wrapper { flex: 1; min-width: 380px; max-width: 450px; background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 15px; overflow-y: auto; border: 1px solid var(--border-color); }
         .curriculum-wrapper::-webkit-scrollbar { width: 8px; }
         .curriculum-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -60,9 +54,6 @@
             .dashboard-container { flex-direction: column; }
             .curriculum-wrapper { max-width: 100%; flex: none; max-height: 40vh; }
             .canvas-wrapper { min-height: 40vh; }
-            .caption-box { padding: 15px 20px; }
-            .caption-main { font-size: 1.1rem; }
-            .caption-sub { font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -92,7 +83,7 @@
                 <i data-lucide="play-circle" style="color:var(--primary);"></i>
                 <h3 style="margin:0; color: var(--text-main);">지형 탐구 시나리오</h3>
             </div>
-            <p class="panel-desc">버튼을 눌러 각 지형의 형성 과정과 특징을 시각적으로 확인해 보세요.</p>
+            <p class="panel-desc">버튼을 눌러 각 지형이 <b>맨땅에서부터 어떻게 형성되는지</b> 관찰하세요.</p>
 
             <div class="scenario-card" onclick="setPreset('intro')">
                 <div class="step-num">1</div>
@@ -106,7 +97,7 @@
                 <div class="step-num">2</div>
                 <div class="step-info">
                     <b>세계의 대지형 분포</b>
-                    <span>신기 습곡 산지 및 고기 습곡 산지의 특징</span>
+                    <span>신기 습곡 산지 및 고기 습곡 산지</span>
                 </div>
             </div>
 
@@ -122,7 +113,7 @@
                 <div class="step-num">4</div>
                 <div class="step-info">
                     <b>빙하 지형 (U자곡)</b>
-                    <span>빙하가 깎고 지나간 거대한 흔적</span>
+                    <span>얼음이 계곡을 깎아내는 거대한 흔적</span>
                 </div>
             </div>
 
@@ -130,7 +121,7 @@
                 <div class="step-num">5</div>
                 <div class="step-info">
                     <b>카르스트 지형 (돌리네)</b>
-                    <span>석회암이 빗물에 녹는 화학적 용식 작용</span>
+                    <span>석회암이 빗물에 녹는 용식 작용</span>
                 </div>
             </div>
 
@@ -138,7 +129,7 @@
                 <div class="step-num">6</div>
                 <div class="step-info">
                     <b>해안 침식 지형</b>
-                    <span>해식애, 파식대, 해식 동굴의 원리</span>
+                    <span>해식애와 파식대의 원리</span>
                 </div>
             </div>
 
@@ -169,37 +160,48 @@
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
         controls.maxPolarAngle = Math.PI / 2 - 0.05; 
-        controls.autoRotate = true; // 은은한 자동 회전으로 시네마틱 연출
+        controls.autoRotate = true; 
         controls.autoRotateSpeed = 0.5;
 
         // 환경광 및 태양광
         const sun = new THREE.DirectionalLight(0xffffff, 1.3);
         sun.position.set(100, 200, 100); 
         sun.castShadow = true; 
-        // 그림자 품질 향상
-        sun.shadow.mapSize.width = 2048;
-        sun.shadow.mapSize.height = 2048;
+        sun.shadow.mapSize.width = 2048; sun.shadow.mapSize.height = 2048;
         sun.shadow.camera.left = -150; sun.shadow.camera.right = 150;
         sun.shadow.camera.top = 150; sun.shadow.camera.bottom = -150;
         scene.add(sun);
         scene.add(new THREE.AmbientLight(0x404040, 0.7));
 
-        // 하늘/대기
         const sky = new THREE.Sky(); sky.scale.setScalar(10000); scene.add(sky);
         sky.material.uniforms['sunPosition'].value.copy(new THREE.Vector3(1, 0.2, 1));
 
         // ----------------------------------------------------
-        // ★ 지형 지오메트리 & 재질 (버그 픽스 핵심 구간) ★
+        // ★ 지형 지오메트리 & 애니메이션을 위한 메모리 준비 ★
         // ----------------------------------------------------
         const simplex = new SimplexNoise();
         const resolution = 128; const size = 250;
         const geometry = new THREE.PlaneGeometry(size, size, resolution, resolution);
         geometry.rotateX(-Math.PI / 2);
         
-        // ★ 그래픽 버그 해결: 컬러 배열을 처음에 한 번만 명확히 할당
+        // 에러 방지: 색상 버퍼와 좌표 속성을 미리 확정
         const pos = geometry.attributes.position;
-        const colors = new Float32Array(pos.count * 3);
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        const colorAttr = new THREE.BufferAttribute(new Float32Array(pos.count * 3), 3);
+        geometry.setAttribute('color', colorAttr);
+
+        // ★ 애니메이션(점진적 융기)을 위한 타겟 배열 생성
+        const targetHeights = new Float32Array(pos.count);
+        const currentColors = [];
+        const targetColors = [];
+        
+        // 초기에는 완전히 평탄한 맨땅(y=0)으로 설정
+        for(let i = 0; i < pos.count; i++) {
+            pos.setY(i, 0);
+            targetHeights[i] = 0;
+            currentColors.push(new THREE.Color(0x22c55e)); // 초록색 평야
+            targetColors.push(new THREE.Color(0x22c55e));
+            colorAttr.setXYZ(i, 0.13, 0.77, 0.36);
+        }
         
         const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, flatShading: true });
         const terrain = new THREE.Mesh(geometry, material);
@@ -213,13 +215,8 @@
         });
         water.rotation.x = -Math.PI / 2; water.position.y = -100; scene.add(water);
 
-        // 지형 색상 팔레트
         const palette = {
-            sand: new THREE.Color(0xeab308),
-            grass: new THREE.Color(0x22c55e),
-            forest: new THREE.Color(0x15803d),
-            rock: new THREE.Color(0x64748b),
-            snow: new THREE.Color(0xf8fafc)
+            sand: new THREE.Color(0xeab308), grass: new THREE.Color(0x22c55e), forest: new THREE.Color(0x15803d), rock: new THREE.Color(0x64748b), snow: new THREE.Color(0xf8fafc)
         };
 
         // ----------------------------------------------------
@@ -227,27 +224,27 @@
         // ----------------------------------------------------
         const presets = {
             intro: {
-                cat: 'SECTION 01. 지형 형성 작용', main: '내적 작용(융기)과 외적 작용(침식)의 대결', sub: '지구 내부 에너지와 태양 에너지의 상호작용으로 땅의 모양이 끊임없이 바뀝니다.',
+                cat: 'SECTION 01. 지형 형성 작용', main: '맨땅에서 산맥이 솟아오르는 과정', sub: '지구 내부 에너지가 밋밋한 땅을 밀어 올려 험준한 산맥을 형성합니다.',
                 cam: [200, 150, 200], sea: -50, type: 'mountain'
             },
             world: {
-                cat: 'SECTION 02. 세계의 대지형', main: '신기 습곡 산지 vs 고기 습곡 산지', sub: '험준하고 높은 산맥(신기)과 오랜 시간 깎여 완만한 산지(고기)의 차이를 관찰해 보세요.',
+                cat: 'SECTION 02. 세계의 대지형', main: '신기 습곡 산지 vs 고기 습곡 산지', sub: '중앙의 험준한 신기 습곡 산지와 주변의 완만한 고기 습곡 산지가 만들어집니다.',
                 cam: [0, 180, 350], sea: -20, type: 'folds'
             },
             volcano: {
-                cat: 'SECTION 03. 화산 지형', main: '화산 활동과 칼데라호의 형성', sub: '대규모 폭발 후 분화구가 함몰되어 만들어진 거대한 호수, 백두산 천지의 모습입니다.',
+                cat: 'SECTION 03. 화산 지형', main: '화산 폭발과 칼데라호 (백두산 천지)', sub: '산 꼭대기 분화구가 거대하게 함몰되면서 호수(천지)가 차오르는 과정을 봅니다.',
                 cam: [0, 100, 200], sea: 28, type: 'baekdu'
             },
             glacier: {
-                cat: 'SECTION 04. 빙하 지형', main: '빙하가 깎고 지나간 거대한 U자곡', sub: 'V자 모양의 계곡을 따라 흐르던 거대한 얼음 덩어리가 골짜기를 넓고 둥글게 파내려갑니다.',
+                cat: 'SECTION 04. 빙하 지형', main: '얼음이 깎고 지나간 거대한 U자곡', sub: '뾰족했던 골짜기가 거대한 빙하에 의해 넓고 둥근 U자 모양으로 깎입니다.',
                 cam: [0, 80, 250], sea: -50, type: 'glacier'
             },
             karst: {
-                cat: 'SECTION 05. 카르스트 지형', main: '석회암의 화학적 용식 작용 (돌리네)', sub: '빗물과 지하수가 석회암을 녹이면서, 평원 곳곳에 원형의 웅덩이가 만들어집니다.',
+                cat: 'SECTION 05. 카르스트 지형', main: '석회암 평원의 화학적 용식 작용', sub: '평평하던 지표면 곳곳이 빗물에 녹아내려 원형 웅덩이(돌리네)가 패입니다.',
                 cam: [0, 150, 150], sea: -50, type: 'karst'
             },
             coast: {
-                cat: 'SECTION 06. 해안 침식 지형', main: '해식애와 파식대의 형성 과정', sub: '끊임없이 밀려드는 파랑의 에너지가 육지를 깎아 해안 절벽과 평탄한 바닥을 만듭니다.',
+                cat: 'SECTION 06. 해안 침식 지형', main: '해식애와 파식대의 형성 과정', sub: '평범한 해안가가 파랑 에너지에 깎이면서 깎아지른 절벽(해식애)으로 변합니다.',
                 cam: [150, 50, 150], sea: 5, type: 'coast'
             }
         };
@@ -258,7 +255,6 @@
 
         function setPreset(key) {
             const p = presets[key];
-            const colorAttr = geometry.attributes.color;
 
             document.getElementById('capCat').innerText = p.cat;
             document.getElementById('capMain').innerText = p.main;
@@ -269,7 +265,7 @@
                 if (Object.keys(presets)[idx] === key) c.classList.add('active');
             });
 
-            // 지형 알고리즘
+            // ★ 즉시 형태를 바꾸지 않고 '목표치(Target)'만 계산하여 저장합니다.
             for (let i = 0; i < pos.count; i++) {
                 const x = pos.getX(i); const z = pos.getZ(i);
                 let y = 0;
@@ -283,74 +279,88 @@
                     y = (d < 80) ? Math.cos((d/80)*(Math.PI/2))*55 : 0;
                     if (d < 25) y -= (25-d)*2.2;
                 } else if (p.type === 'glacier') {
-                    y = 40 - Math.abs(x)*0.6; // V-valley
-                    if (Math.abs(x) < 20) y -= (20 - Math.abs(x)); // U-shape
+                    y = 40 - Math.abs(x)*0.6; // V자곡 베이스
+                    if (Math.abs(x) < 20) y -= (20 - Math.abs(x)); // U자곡 침식
                 } else if (p.type === 'karst') {
                     y = 15 + simplex.noise2D(x/30, z/30)*3;
-                    const d1 = Math.sqrt((x-30)**2 + (z-20)**2);
-                    const d2 = Math.sqrt((x+40)**2 + (z+30)**2);
+                    const d1 = Math.sqrt((x-30)**2 + (z-20)**2); const d2 = Math.sqrt((x+40)**2 + (z+30)**2);
                     if (d1 < 15) y -= Math.cos((d1/15)*(Math.PI/2))*12;
                     if (d2 < 18) y -= Math.cos((d2/18)*(Math.PI/2))*15;
                 } else if (p.type === 'coast') {
-                    y = (x + 100) * 0.3; if(x > 0) y = 15; // Cliff
+                    y = (x + 100) * 0.3; if(x > 0) y = 15; 
                 }
                 
-                pos.setY(i, y);
+                targetHeights[i] = y; // 목표 높이 저장
                 
-                // ★ 자연스러운 그라데이션 컬러 적용
-                let c = new THREE.Color();
-                if (y < 2) c.copy(palette.sand);
-                else if (y < 12) c.copy(palette.grass).lerp(palette.forest, (y - 2) / 10);
-                else if (y < 25) c.copy(palette.forest).lerp(palette.rock, (y - 12) / 13);
-                else c.copy(palette.rock).lerp(palette.snow, Math.min((y - 25) / 10, 1));
-                
-                colorAttr.setXYZ(i, c.r, c.g, c.b);
+                // 목표 고도에 따른 색상 목표치 계산
+                if (y < 2) targetColors[i].copy(palette.sand);
+                else if (y < 12) targetColors[i].copy(palette.grass).lerp(palette.forest, (y - 2) / 10);
+                else if (y < 25) targetColors[i].copy(palette.forest).lerp(palette.rock, (y - 12) / 13);
+                else targetColors[i].copy(palette.rock).lerp(palette.snow, Math.min((y - 25) / 10, 1));
             }
 
-            // GPU 메모리에 업데이트 알림
-            pos.needsUpdate = true;
-            colorAttr.needsUpdate = true;
-            geometry.computeVertexNormals();
-
-            // 카메라/해수면 부드러운 이동 설정
             targetCamPos.set(...p.cam);
             targetWaterY = p.sea;
             isMovingCamera = true;
         }
 
+        // ----------------------------------------------------
+        // ★ 실시간 모핑 애니메이션 루프 ★
+        // ----------------------------------------------------
         function animate() {
             requestAnimationFrame(animate);
             
-            // 카메라 스무스 이동 (사용자 조작 방해 방지)
+            // 1. 카메라 스무스 이동
             if (isMovingCamera) {
                 camera.position.lerp(targetCamPos, 0.05);
                 controls.target.lerp(new THREE.Vector3(0, 0, 0), 0.05);
-                // 목표지점에 도달하면 자동이동 해제 -> 사용자 자유 조작 가능
                 if (camera.position.distanceTo(targetCamPos) < 1) isMovingCamera = false;
             }
 
-            // 해수면을 부드럽게 상승/하강
+            // 2. 해수면 스무스 상승/하강
             if (Math.abs(water.position.y - targetWaterY) > 0.1) {
-                water.position.y += (targetWaterY - water.position.y) * 0.05;
+                water.position.y += (targetWaterY - water.position.y) * 0.03;
+            }
+
+            // 3. ★ 지형 모핑(형성) 과정 계산 ★
+            let isTerrainUpdating = false;
+            for (let i = 0; i < pos.count; i++) {
+                // 고도(Y축) 서서히 변환
+                const curY = pos.getY(i);
+                const tarY = targetHeights[i];
+                if (Math.abs(tarY - curY) > 0.05) {
+                    pos.setY(i, curY + (tarY - curY) * 0.04); // 0.04의 속도로 부드럽게 융기/침식
+                    isTerrainUpdating = true;
+                }
+
+                // 색상 서서히 변환 (그라데이션)
+                currentColors[i].lerp(targetColors[i], 0.04);
+                colorAttr.setXYZ(i, currentColors[i].r, currentColors[i].g, currentColors[i].b);
+            }
+
+            // 변경된 점이 있을 때만 그래픽 렌더링(과부하 방지)
+            if (isTerrainUpdating) {
+                pos.needsUpdate = true;
+                colorAttr.needsUpdate = true;
+                geometry.computeVertexNormals(); // 빛 반사율 재계산
             }
 
             water.material.uniforms['time'].value += 1.0 / 60.0;
-            controls.update(); // 자동 회전 처리
+            controls.update();
             renderer.render(scene, camera);
         }
 
         window.addEventListener('resize', () => {
             const width = container.clientWidth;
             const height = container.clientHeight;
-            if(width === 0 || height === 0) return; // 높이 0 버그 방지
-            
+            if(width === 0 || height === 0) return; 
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
         });
 
-        // 초기 시작
-        setTimeout(() => setPreset('intro'), 100);
+        // 초기 시작: 플레인(맨땅)에서 서서히 1번 시나리오로 변형 시작
+        setTimeout(() => setPreset('intro'), 500);
         animate();
     </script>
 </body>
