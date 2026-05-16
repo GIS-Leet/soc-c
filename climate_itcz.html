@@ -3,86 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>적도 수렴대 이동 시뮬레이터</title>
+    <title>적도 수렴대 이동 시뮬레이터 - 통합사회 C</title>
+    
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; background-color: #f8f9fa; display: flex; flex-direction: column; align-items: center; margin: 0; min-height: 100vh; }
-        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; width: 100%; box-sizing: border-box; margin-bottom: 20px; }
-        .logo { font-size: 20px; font-weight: bold; color: #1a73e8; text-decoration: none; }
-        .menu { display: flex; gap: 20px; }
-        .menu a { font-size: 15px; font-weight: 500; color: #5f6368; text-decoration: none; transition: 0.2s; }
-        .menu a:hover { color: #1a73e8; font-weight: bold; }
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: rgba(0,0,0,0.06);
+            --radius: 20px;
+        }
+
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* 글래스모피즘 네비게이션 */
+        .navbar { 
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+        }
+        .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+        .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .logo-icon i { width: 18px; height: 18px; stroke-width: 2.5px; }
+        .menu { display: flex; gap: 24px; }
+        .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
+        .menu a:hover { background: var(--primary-light); color: var(--primary); }
+
+        /* 대시보드 레이아웃 */
+        .dashboard-container { display: flex; flex: 1; padding: 24px; gap: 24px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
         
-        .container { background-color: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 800px; width: 90%; text-align: center; }
-        canvas { background-color: #0d1b2a; border-radius: 8px; margin-bottom: 20px; max-width: 100%; height: auto; }
-        .controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        input[type="range"] { width: 300px; cursor: pointer; }
-        .month-display { font-size: 1.2rem; font-weight: bold; color: #1e3a8a; width: 60px; }
-        .info-panel { background-color: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; font-size: 1.1rem; line-height: 1.5; min-height: 60px; }
-        @media (max-width: 600px) { .navbar { flex-direction: column; padding: 15px; gap: 10px; } input[type="range"] { width: 150px; } }
+        /* 왼쪽 캔버스 영역 */
+        .canvas-wrapper { flex: 2; background: #0f172a; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center; }
+        canvas { width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* 오른쪽 컨트롤 패널 영역 */
+        .controls-wrapper { flex: 1; min-width: 340px; max-width: 450px; background: var(--card-bg); border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 25px; overflow-y: auto; }
+        
+        .panel-header { margin-bottom: 5px; }
+        .panel-header h2 { margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+        .panel-header p { margin: 0; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
+
+        /* 슬라이더 및 재생 컨트롤 */
+        .timeline-box { background: var(--primary-light); border: 1px solid #bfdbfe; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .month-display { font-size: 2rem; font-weight: 800; color: var(--primary); text-align: center; letter-spacing: -1px; }
+        
+        .slider-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text-sub); font-size: 0.9rem; }
+        input[type="range"] { -webkit-appearance: none; flex: 1; height: 6px; background: #cbd5e1; border-radius: 5px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 0 0 4px white, 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        
+        .play-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.2s; font-family: inherit; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+        .play-btn:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3); }
+        .play-btn.playing { background: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+        .play-btn.playing:hover { background: #dc2626; }
+
+        /* 설명 패널 */
+        .info-panel { background: #f8fafc; border: 1px solid var(--border-color); padding: 20px; border-radius: 16px; font-size: 0.95rem; color: #334155; line-height: 1.6; display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center; }
+        .info-panel strong { color: var(--text-main); font-size: 1.05rem; }
+
+        @media (max-width: 900px) {
+            .dashboard-container { flex-direction: column; overflow-y: auto; }
+            .canvas-wrapper { min-height: 40vh; flex: none; }
+            .controls-wrapper { max-width: 100%; flex: none; }
+            .navbar { padding: 16px 20px; }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
-        <div class="menu"><a href="index.html">홈</a><a href="qna.html">Q&A 게시판</a></div>
+        <a href="index.html" class="logo">
+            <div class="logo-icon"><i data-lucide="globe"></i></div>
+            Society - C - Geography
+        </a>
+        <div class="menu">
+            <a href="index.html">홈</a>
+            <a href="qna.html">Q&A 게시판</a>
+        </div>
     </nav>
 
-    <div class="container">
-        <h2>적도 수렴대의 이동</h2>
-        <canvas id="simCanvas" width="700" height="400"></canvas>
-        <div class="controls">
-            <span>1월</span><input type="range" id="monthSlider" min="1" max="12" step="1" value="6"><span>12월</span>
-            <div class="month-display" id="monthLabel">6월</div>
+    <div class="dashboard-container">
+        
+        <div class="canvas-wrapper">
+            <canvas id="simCanvas" width="700" height="400"></canvas>
         </div>
-        <div class="info-panel" id="infoText"></div>
+
+        <div class="controls-wrapper">
+            <div class="panel-header">
+                <h2><i data-lucide="move-vertical" style="color:var(--primary);"></i> 적도 수렴대 이동</h2>
+                <p>월별 태양 직사광선 이동에 따른 비구름(우기)의 남북 이동을 관찰합니다.</p>
+            </div>
+
+            <div class="timeline-box">
+                <div class="month-display" id="monthLabel">6월</div>
+                <div class="slider-wrap">
+                    <span>1월</span>
+                    <input type="range" id="monthSlider" min="1" max="12.99" step="0.05" value="6">
+                    <span>12월</span>
+                </div>
+                <button class="play-btn" id="playBtn">
+                    <i data-lucide="play" id="playIcon"></i> <span id="playText">자동 재생</span>
+                </button>
+            </div>
+
+            <div class="info-panel">
+                <div style="display:flex; align-items:center; gap:6px; color:var(--primary); font-weight:800; margin-bottom:4px;">
+                    <i data-lucide="cloud-rain" style="width:16px;height:16px;"></i> 기후 리포트
+                </div>
+                <div id="infoText">데이터 로딩 중...</div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('simCanvas'); const ctx = canvas.getContext('2d');
-        const slider = document.getElementById('monthSlider'); const monthLabel = document.getElementById('monthLabel'); const infoText = document.getElementById('infoText');
+        lucide.createIcons();
+
+        const canvas = document.getElementById('simCanvas'); 
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('monthSlider'); 
+        const monthLabel = document.getElementById('monthLabel'); 
+        const infoText = document.getElementById('infoText');
+        const playBtn = document.getElementById('playBtn');
+        const playIcon = document.getElementById('playIcon');
+        const playText = document.getElementById('playText');
+        
         const cx = 500; const cy = 200; const R = 120;
+        let isPlaying = false;
+
+        // 자동 재생 토글 로직
+        playBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            playBtn.classList.toggle('playing');
+            if (isPlaying) {
+                playText.innerText = '일시 정지';
+                playIcon.setAttribute('data-lucide', 'pause');
+            } else {
+                playText.innerText = '자동 재생';
+                playIcon.setAttribute('data-lucide', 'play');
+            }
+            lucide.createIcons();
+        });
+
+        // 애니메이션 루프
+        function animate() {
+            requestAnimationFrame(animate);
+            if (isPlaying) {
+                let currentMonth = parseFloat(slider.value);
+                currentMonth += 0.02; // 재생 속도
+                if (currentMonth >= 13) currentMonth = 1; 
+                slider.value = currentMonth; 
+                drawSimulation();
+            }
+        }
 
         function drawSimulation() {
-            const month = parseInt(slider.value); monthLabel.textContent = month + '월';
-            const maxTilt = 23.5; const tiltFactor = Math.cos((month - 6) * Math.PI / 6);
+            const rawMonth = parseFloat(slider.value);
+            const displayMonth = Math.floor(rawMonth) > 12 ? 1 : Math.floor(rawMonth);
+            monthLabel.textContent = displayMonth + '월';
+
+            const maxTilt = 23.5; 
+            const tiltFactor = Math.cos((rawMonth - 6) * Math.PI / 6);
             const tiltRad = -maxTilt * tiltFactor * Math.PI / 180;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // 캔버스 초기화 (모던한 다크블루 색상)
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 태양광선 그리기
             ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2;
             for (let y = 80; y <= 320; y += 30) {
                 ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(320, y); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(310, y - 5); ctx.lineTo(320, y); ctx.lineTo(310, y + 5); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(310, y - 6); ctx.lineTo(320, y); ctx.lineTo(310, y + 6); ctx.stroke();
             }
+            // 태양 본체
             ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(-20, cy, 150, 0, Math.PI * 2); ctx.fill();
 
             ctx.save(); ctx.translate(cx, cy);
+            
+            // 지구 본체
             ctx.fillStyle = '#3b82f6'; ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill();
             ctx.rotate(tiltRad);
+            
+            // 자전축
             ctx.strokeStyle = '#94a3b8'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
             ctx.beginPath(); ctx.moveTo(0, -R - 30); ctx.lineTo(0, R + 30); ctx.stroke();
 
+            // 위도선 그리기 함수
             function drawLat(lat, label, color, isDashed) {
                 const y = -R * Math.sin(lat * Math.PI / 180); const rLat = R * Math.cos(lat * Math.PI / 180);
-                ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.setLineDash(isDashed ? [4, 4] : []);
+                ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash(isDashed ? [4, 4] : []);
                 ctx.beginPath(); ctx.moveTo(-rLat, y); ctx.lineTo(rLat, y); ctx.stroke();
-                ctx.fillStyle = color; ctx.font = '12px "Malgun Gothic"'; ctx.textAlign = 'left'; ctx.fillText(label, rLat + 5, y + 4);
+                ctx.fillStyle = color; ctx.font = 'bold 12px "Pretendard", "Malgun Gothic"'; ctx.textAlign = 'left'; ctx.fillText(label, rLat + 8, y + 4);
             }
-            drawLat(0, "적도 (0°)", "#ef4444", false); drawLat(23.5, "북위 20도 근처", "#fcd34d", true); drawLat(-23.5, "남위 20도 근처", "#fcd34d", true);
+            drawLat(0, "적도 (0°)", "#ef4444", false); 
+            drawLat(23.5, "북회귀선 (23.5°)", "#fcd34d", true); 
+            drawLat(-23.5, "남회귀선 (-23.5°)", "#fcd34d", true);
             
-            ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.fillText("북극", 0, -R - 10); ctx.fillText("남극", 0, R + 20);
+            // 극지방 텍스트
+            ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.font = 'bold 14px "Pretendard"'; 
+            ctx.fillText("북극", 0, -R - 10); ctx.fillText("남극", 0, R + 25);
 
-            const itczLat = maxTilt * tiltFactor; const itczY = -R * Math.sin(itczLat * Math.PI / 180); const itczWidth = R * Math.cos(itczLat * Math.PI / 180);
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; ctx.fillRect(-itczWidth, itczY - 15, itczWidth * 2, 30);
-            ctx.fillStyle = 'white'; ctx.font = 'bold 14px "Malgun Gothic"'; ctx.fillText("적도 수렴대 (상승기류/우기)", 0, itczY + 5);
+            // 적도 수렴대 (빨간 띠)
+            const itczLat = maxTilt * tiltFactor; 
+            const itczY = -R * Math.sin(itczLat * Math.PI / 180); 
+            const itczWidth = R * Math.cos(itczLat * Math.PI / 180);
+            
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; 
+            ctx.fillRect(-itczWidth, itczY - 15, itczWidth * 2, 30);
+            
+            // 수렴대 텍스트
+            ctx.fillStyle = 'white'; ctx.font = 'bold 14px "Pretendard"'; 
+            // 텍스트에 그림자 주어 가독성 향상
+            ctx.shadowColor="black"; ctx.shadowBlur=4; ctx.shadowOffsetX=1; ctx.shadowOffsetY=1;
+            ctx.fillText("적도 수렴대 (비구름 띠)", 0, itczY + 5);
+            ctx.shadowBlur=0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0; // 그림자 초기화
             ctx.restore();
 
+            // 설명 패널 텍스트 분기
             let text = "";
-            if (month >= 5 && month <= 7) text = `<strong> 북반구 여름 (${month}월):</strong> 직사광선이 북반구를 비추며, <strong>비구름을 만드는 적도 수렴대가 북상</strong>.`;
-            else if (month >= 11 || month <= 1) text = `<strong> 북반구 겨울 (${month}월):</strong> 직사광선이 남반구를 비추며, <strong>적도 수렴대가 남하</strong>. 북반구는 건조해짐.`;
-            else text = `<strong> 봄/가을 부근 (${month}월):</strong> 직사광선이 <strong>적도</strong>를 수직으로 비추며, 적도 수렴대가 중앙에 위치.`;
+            if (displayMonth >= 5 && displayMonth <= 7) {
+                text = `<strong>[북반구 여름 (${displayMonth}월)]</strong><br>태양의 직사광선이 북반구를 비추며, 강한 상승기류로 <strong>비구름을 만드는 '적도 수렴대'가 북반구로 올라옵니다.</strong> (북반구 우기 발생)`;
+            } else if (displayMonth >= 11 || displayMonth === 1) {
+                text = `<strong>[북반구 겨울 (${displayMonth}월)]</strong><br>태양의 직사광선이 남반구를 비추며, <strong>적도 수렴대가 남반구로 내려갑니다.</strong> (북반구는 건조해짐)`;
+            } else {
+                text = `<strong>[봄/가을 부근 (${displayMonth}월)]</strong><br>태양의 직사광선이 <strong>정확히 적도</strong>를 수직으로 비추며, 적도 수렴대가 지구의 중앙(적도선)에 위치합니다.`;
+            }
             infoText.innerHTML = text;
         }
-        slider.addEventListener('input', drawSimulation); drawSimulation();
+
+        slider.addEventListener('input', drawSimulation); 
+        drawSimulation();
+        animate(); // 애니메이션 루프 시작
     </script>
 </body>
 </html>
