@@ -132,7 +132,6 @@
                     <span>해식애와 파식대의 원리</span>
                 </div>
             </div>
-
         </aside>
     </div>
 
@@ -163,7 +162,6 @@
         controls.autoRotate = true; 
         controls.autoRotateSpeed = 0.5;
 
-        // 환경광 및 태양광
         const sun = new THREE.DirectionalLight(0xffffff, 1.3);
         sun.position.set(100, 200, 100); 
         sun.castShadow = true; 
@@ -177,28 +175,26 @@
         sky.material.uniforms['sunPosition'].value.copy(new THREE.Vector3(1, 0.2, 1));
 
         // ----------------------------------------------------
-        // ★ 지형 지오메트리 & 애니메이션을 위한 메모리 준비 ★
+        // ★ 지형 애니메이션용 메모리 세팅 ★
         // ----------------------------------------------------
         const simplex = new SimplexNoise();
         const resolution = 128; const size = 250;
         const geometry = new THREE.PlaneGeometry(size, size, resolution, resolution);
         geometry.rotateX(-Math.PI / 2);
         
-        // 에러 방지: 색상 버퍼와 좌표 속성을 미리 확정
         const pos = geometry.attributes.position;
         const colorAttr = new THREE.BufferAttribute(new Float32Array(pos.count * 3), 3);
         geometry.setAttribute('color', colorAttr);
 
-        // ★ 애니메이션(점진적 융기)을 위한 타겟 배열 생성
         const targetHeights = new Float32Array(pos.count);
         const currentColors = [];
         const targetColors = [];
         
-        // 초기에는 완전히 평탄한 맨땅(y=0)으로 설정
+        // 초기 셋업: 완전 평탄한 0m 땅
         for(let i = 0; i < pos.count; i++) {
             pos.setY(i, 0);
             targetHeights[i] = 0;
-            currentColors.push(new THREE.Color(0x22c55e)); // 초록색 평야
+            currentColors.push(new THREE.Color(0x22c55e));
             targetColors.push(new THREE.Color(0x22c55e));
             colorAttr.setXYZ(i, 0.13, 0.77, 0.36);
         }
@@ -219,9 +215,6 @@
             sand: new THREE.Color(0xeab308), grass: new THREE.Color(0x22c55e), forest: new THREE.Color(0x15803d), rock: new THREE.Color(0x64748b), snow: new THREE.Color(0xf8fafc)
         };
 
-        // ----------------------------------------------------
-        // ★ 지형 탐구 프리셋 데이터 ★
-        // ----------------------------------------------------
         const presets = {
             intro: {
                 cat: 'SECTION 01. 지형 형성 작용', main: '맨땅에서 산맥이 솟아오르는 과정', sub: '지구 내부 에너지가 밋밋한 땅을 밀어 올려 험준한 산맥을 형성합니다.',
@@ -252,6 +245,7 @@
         let targetCamPos = new THREE.Vector3(0, 150, 400);
         let targetWaterY = -100;
         let isMovingCamera = false;
+        let isMorphing = false; // ★ 애니메이션 최적화 트리거
 
         function setPreset(key) {
             const p = presets[key];
@@ -265,7 +259,7 @@
                 if (Object.keys(presets)[idx] === key) c.classList.add('active');
             });
 
-            // ★ 즉시 형태를 바꾸지 않고 '목표치(Target)'만 계산하여 저장합니다.
+            // ★ 버그 픽스: pos.setY() 제거. 오직 목표(target)값만 설정합니다.
             for (let i = 0; i < pos.count; i++) {
                 const x = pos.getX(i); const z = pos.getZ(i);
                 let y = 0;
@@ -279,8 +273,8 @@
                     y = (d < 80) ? Math.cos((d/80)*(Math.PI/2))*55 : 0;
                     if (d < 25) y -= (25-d)*2.2;
                 } else if (p.type === 'glacier') {
-                    y = 40 - Math.abs(x)*0.6; // V자곡 베이스
-                    if (Math.abs(x) < 20) y -= (20 - Math.abs(x)); // U자곡 침식
+                    y = 40 - Math.abs(x)*0.6; 
+                    if (Math.abs(x) < 20) y -= (20 - Math.abs(x)); 
                 } else if (p.type === 'karst') {
                     y = 15 + simplex.noise2D(x/30, z/30)*3;
                     const d1 = Math.sqrt((x-30)**2 + (z-20)**2); const d2 = Math.sqrt((x+40)**2 + (z+30)**2);
@@ -290,9 +284,8 @@
                     y = (x + 100) * 0.3; if(x > 0) y = 15; 
                 }
                 
-                targetHeights[i] = y; // 목표 높이 저장
+                targetHeights[i] = y;
                 
-                // 목표 고도에 따른 색상 목표치 계산
                 if (y < 2) targetColors[i].copy(palette.sand);
                 else if (y < 12) targetColors[i].copy(palette.grass).lerp(palette.forest, (y - 2) / 10);
                 else if (y < 25) targetColors[i].copy(palette.forest).lerp(palette.rock, (y - 12) / 13);
@@ -302,47 +295,49 @@
             targetCamPos.set(...p.cam);
             targetWaterY = p.sea;
             isMovingCamera = true;
+            isMorphing = true; // 모핑 애니메이션 시작!
         }
 
         // ----------------------------------------------------
-        // ★ 실시간 모핑 애니메이션 루프 ★
+        // ★ 지형 모핑(Morphing) 및 렌더링 루프 ★
         // ----------------------------------------------------
         function animate() {
             requestAnimationFrame(animate);
             
-            // 1. 카메라 스무스 이동
             if (isMovingCamera) {
                 camera.position.lerp(targetCamPos, 0.05);
                 controls.target.lerp(new THREE.Vector3(0, 0, 0), 0.05);
                 if (camera.position.distanceTo(targetCamPos) < 1) isMovingCamera = false;
             }
 
-            // 2. 해수면 스무스 상승/하강
             if (Math.abs(water.position.y - targetWaterY) > 0.1) {
                 water.position.y += (targetWaterY - water.position.y) * 0.03;
             }
 
-            // 3. ★ 지형 모핑(형성) 과정 계산 ★
-            let isTerrainUpdating = false;
-            for (let i = 0; i < pos.count; i++) {
-                // 고도(Y축) 서서히 변환
-                const curY = pos.getY(i);
-                const tarY = targetHeights[i];
-                if (Math.abs(tarY - curY) > 0.05) {
-                    pos.setY(i, curY + (tarY - curY) * 0.04); // 0.04의 속도로 부드럽게 융기/침식
-                    isTerrainUpdating = true;
+            // ★ 지형이 서서히 변하는 애니메이션
+            if (isMorphing) {
+                let stillMorphing = false;
+                for (let i = 0; i < pos.count; i++) {
+                    const curY = pos.getY(i);
+                    const tarY = targetHeights[i];
+                    
+                    if (Math.abs(tarY - curY) > 0.1) {
+                        pos.setY(i, curY + (tarY - curY) * 0.05); // 서서히 이동
+                        stillMorphing = true;
+                    } else {
+                        pos.setY(i, tarY); // 목표 도달 시 스냅
+                    }
+
+                    // 색상도 부드럽게 전환
+                    currentColors[i].lerp(targetColors[i], 0.05);
+                    colorAttr.setXYZ(i, currentColors[i].r, currentColors[i].g, currentColors[i].b);
                 }
 
-                // 색상 서서히 변환 (그라데이션)
-                currentColors[i].lerp(targetColors[i], 0.04);
-                colorAttr.setXYZ(i, currentColors[i].r, currentColors[i].g, currentColors[i].b);
-            }
-
-            // 변경된 점이 있을 때만 그래픽 렌더링(과부하 방지)
-            if (isTerrainUpdating) {
                 pos.needsUpdate = true;
                 colorAttr.needsUpdate = true;
-                geometry.computeVertexNormals(); // 빛 반사율 재계산
+                geometry.computeVertexNormals();
+
+                if (!stillMorphing) isMorphing = false; // 변형이 완료되면 엔진 휴식
             }
 
             water.material.uniforms['time'].value += 1.0 / 60.0;
@@ -359,7 +354,7 @@
             renderer.setSize(width, height);
         });
 
-        // 초기 시작: 플레인(맨땅)에서 서서히 1번 시나리오로 변형 시작
+        // 초기 시작: 0.5초 대기 후 첫 시나리오 자동 실행
         setTimeout(() => setPreset('intro'), 500);
         animate();
     </script>
