@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>세계의 대지형과 특수 지형 - 통합사회 C</title>
+    
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Sky.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Water.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb; --primary-light: #eff6ff; --text-main: #0f172a; --text-sub: #64748b;
+            --bg-color: #f1f5f9; --card-bg: #ffffff; --border-color: rgba(0,0,0,0.1); --radius: 24px;
+        }
+
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* 메인 헤더 */
+        .main-header { background: #1e293b; color: white; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .header-title { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
+        .header-title span { color: #38bdf8; font-size: 1rem; border: 1px solid #38bdf8; padding: 4px 10px; border-radius: 8px; }
+
+        .dashboard-container { display: flex; flex: 1; padding: 20px; gap: 20px; box-sizing: border-box; overflow: hidden; }
+        
+        /* 메인 3D 스테이지 */
+        .canvas-wrapper { flex: 3; border-radius: var(--radius); position: relative; overflow: hidden; background: #000; box-shadow: 0 20px 50px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); }
+        #webgl-container { width: 100%; height: 100%; outline: none; }
+        
+        /* 자막 패널 */
+        .scenario-caption { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 85%; z-index: 20; opacity: 1; transition: all 0.5s; }
+        .caption-box { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); color: white; padding: 25px 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: left; }
+        .caption-category { color: #38bdf8; font-size: 0.95rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: block; letter-spacing: 1px;}
+        .caption-main { font-size: 1.35rem; font-weight: 700; line-height: 1.6; word-break: keep-all; }
+        .caption-sub { font-size: 1.1rem; color: #94a3b8; font-weight: 500; margin-top: 5px; }
+
+        /* 우측 탐구 커리큘럼 패널 */
+        .curriculum-wrapper { flex: 1; min-width: 380px; max-width: 450px; background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 15px; overflow-y: auto; border: 1px solid var(--border-color); }
+        .curriculum-wrapper::-webkit-scrollbar { width: 8px; }
+        .curriculum-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .panel-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; margin-bottom: 10px; }
+
+        .scenario-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 18px; padding: 18px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; }
+        .scenario-card:hover { border-color: var(--primary); background: var(--primary-light); transform: scale(1.02); }
+        .scenario-card.active { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 10px 20px rgba(37,99,235,0.1); }
+        .step-num { background: #1e293b; color: white; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; flex-shrink: 0; }
+        .scenario-card.active .step-num { background: var(--primary); }
+        .step-info b { display: block; font-size: 1.05rem; margin-bottom: 3px; color: var(--text-main); }
+        .step-info span { font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
+
+        @media (max-width: 1200px) {
+            .dashboard-container { flex-direction: column; }
+            .curriculum-wrapper { max-width: 100%; flex: none; max-height: 40vh; }
+            .canvas-wrapper { min-height: 40vh; }
+            .caption-box { padding: 15px 20px; }
+            .caption-main { font-size: 1.1rem; }
+            .caption-sub { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-title">
+            <i data-lucide="mountain"></i> 2. 세계의 대지형과 특수 지형 <span>통합사회 C</span>
+        </div>
+        <div style="font-weight: 600; color: #94a3b8;"><i data-lucide="compass" style="width:16px; display:inline-block; vertical-align:middle;"></i> 지형 탐구 시뮬레이터</div>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="canvas-wrapper">
+            <div id="webgl-container"></div>
+            
+            <div class="scenario-caption" id="captionPanel">
+                <div class="caption-box">
+                    <span class="caption-category" id="capCat">INTERACTIVE MODE</span>
+                    <div class="caption-main" id="capMain">오른쪽 패널의 버튼을 눌러 탐구 시나리오를 시작해 주세요.</div>
+                    <div class="caption-sub" id="capSub">지구의 경이로운 지형 변화를 3D로 직접 관찰해 봅시다.</div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="curriculum-wrapper">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom: 5px;">
+                <i data-lucide="play-circle" style="color:var(--primary);"></i>
+                <h3 style="margin:0; color: var(--text-main);">지형 탐구 시나리오</h3>
+            </div>
+            <p class="panel-desc">버튼을 눌러 각 지형의 형성 과정과 특징을 시각적으로 확인해 보세요.</p>
+
+            <div class="scenario-card" onclick="setPreset('intro')">
+                <div class="step-num">1</div>
+                <div class="step-info">
+                    <b>지형 형성 작용의 원리</b>
+                    <span>내적 작용(융기) vs 외적 작용(침식)</span>
+                </div>
+            </div>
+
+            <div class="scenario-card" onclick="setPreset('world')">
+                <div class="step-num">2</div>
+                <div class="step-info">
+                    <b>세계의 대지형 분포</b>
+                    <span>신기 습곡 산지 및 고기 습곡 산지의 특징</span>
+                </div>
+            </div>
+
+            <div class="scenario-card" onclick="setPreset('volcano')">
+                <div class="step-num">3</div>
+                <div class="step-info">
+                    <b>화산 지형 (백두산 천지)</b>
+                    <span>칼데라호의 형성 과정 관찰</span>
+                </div>
+            </div>
+
+            <div class="scenario-card" onclick="setPreset('glacier')">
+                <div class="step-num">4</div>
+                <div class="step-info">
+                    <b>빙하 지형 (U자곡)</b>
+                    <span>빙하가 깎고 지나간 거대한 흔적</span>
+                </div>
+            </div>
+
+            <div class="scenario-card" onclick="setPreset('karst')">
+                <div class="step-num">5</div>
+                <div class="step-info">
+                    <b>카르스트 지형 (돌리네)</b>
+                    <span>석회암이 빗물에 녹는 화학적 용식 작용</span>
+                </div>
+            </div>
+
+            <div class="scenario-card" onclick="setPreset('coast')">
+                <div class="step-num">6</div>
+                <div class="step-info">
+                    <b>해안 침식 지형</b>
+                    <span>해식애, 파식대, 해식 동굴의 원리</span>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // ----------------------------------------------------
+        // ★ Three.js 렌더링 엔진 세팅 ★
+        // ----------------------------------------------------
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a192f);
+        
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
+        camera.position.set(0, 150, 400);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.maxPolarAngle = Math.PI / 2 - 0.05; // 땅 밑으로 내려가지 않도록
+
+        // 환경광 및 태양광
+        const sun = new THREE.DirectionalLight(0xffffff, 1.3);
+        sun.position.set(100, 200, 100); sun.castShadow = true; scene.add(sun);
+        scene.add(new THREE.AmbientLight(0x404040, 0.7));
+
+        // 하늘/대기
+        const sky = new THREE.Sky(); sky.scale.setScalar(10000); scene.add(sky);
+        sky.material.uniforms['sunPosition'].value.copy(new THREE.Vector3(1, 0.2, 1));
+
+        // ----------------------------------------------------
+        // ★ 지형 지오메트리 & 재질 ★
+        // ----------------------------------------------------
+        const simplex = new SimplexNoise();
+        const resolution = 128; const size = 250;
+        const geometry = new THREE.PlaneGeometry(size, size, resolution, resolution);
+        geometry.rotateX(-Math.PI / 2);
+        
+        const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, flatShading: true });
+        const terrain = new THREE.Mesh(geometry, material);
+        terrain.castShadow = true; terrain.receiveShadow = true; scene.add(terrain);
+
+        const waterGeo = new THREE.PlaneGeometry(1000, 1000);
+        const water = new THREE.Water(waterGeo, {
+            textureWidth: 512, textureHeight: 512,
+            waterNormals: new THREE.TextureLoader().load('https://unpkg.com/three@0.128.0/examples/textures/waternormals.jpg', t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; }),
+            sunDirection: new THREE.Vector3(), sunColor: 0xffffff, waterColor: 0x001e3f, distortionScale: 3.7
+        });
+        water.rotation.x = -Math.PI / 2; water.position.y = -100; scene.add(water);
+
+        // ----------------------------------------------------
+        // ★ 지형 탐구 프리셋 데이터 ★
+        // ----------------------------------------------------
+        const presets = {
+            intro: {
+                cat: 'SECTION 01. 지형 형성 작용',
+                main: '내적 작용(융기)과 외적 작용(침식)의 대결',
+                sub: '지구 내부 에너지와 태양 에너지의 상호작용으로 땅의 모양이 끊임없이 바뀝니다.',
+                cam: [200, 150, 200], sea: -50, type: 'mountain'
+            },
+            world: {
+                cat: 'SECTION 02. 세계의 대지형',
+                main: '신기 습곡 산지 vs 고기 습곡 산지',
+                sub: '험준하고 높은 산맥(신기)과 오랜 시간 깎여 완만한 산지(고기)의 차이를 관찰해 보세요.',
+                cam: [0, 180, 350], sea: -20, type: 'folds'
+            },
+            volcano: {
+                cat: 'SECTION 03. 화산 지형',
+                main: '화산 활동과 칼데라호의 형성',
+                sub: '대규모 폭발 후 분화구가 함몰되어 만들어진 거대한 호수, 백두산 천지의 모습입니다.',
+                cam: [0, 100, 200], sea: 28, type: 'baekdu'
+            },
+            glacier: {
+                cat: 'SECTION 04. 빙하 지형',
+                main: '빙하가 깎고 지나간 거대한 U자곡',
+                sub: 'V자 모양의 계곡을 따라 흐르던 거대한 얼음 덩어리가 골짜기를 넓고 둥글게 파내려갑니다.',
+                cam: [0, 80, 250], sea: -50, type: 'glacier'
+            },
+            karst: {
+                cat: 'SECTION 05. 카르스트 지형',
+                main: '석회암의 화학적 용식 작용 (돌리네)',
+                sub: '빗물과 지하수가 석회암을 녹이면서, 평원 곳곳에 원형의 웅덩이가 만들어집니다.',
+                cam: [0, 150, 150], sea: -50, type: 'karst'
+            },
+            coast: {
+                cat: 'SECTION 06. 해안 침식 지형',
+                main: '해식애와 파식대의 형성 과정',
+                sub: '끊임없이 밀려드는 파랑의 에너지가 육지를 깎아 해안 절벽과 평탄한 바닥을 만듭니다.',
+                cam: [150, 50, 150], sea: 5, type: 'coast'
+            }
+        };
+
+        function setPreset(key) {
+            const p = presets[key];
+            const pos = geometry.attributes.position;
+            const colors = [];
+            const seed = Math.random() * 10;
+
+            // 자막 업데이트
+            document.getElementById('capCat').innerText = p.cat;
+            document.getElementById('capMain').innerText = p.main;
+            document.getElementById('capSub').innerText = p.sub;
+
+            // 메뉴 활성화 표시
+            document.querySelectorAll('.scenario-card').forEach((c, idx) => {
+                c.classList.remove('active');
+                if (Object.keys(presets)[idx] === key) c.classList.add('active');
+            });
+
+            // 지형 형태 생성 로직
+            for (let i = 0; i < pos.count; i++) {
+                const x = pos.getX(i); const z = pos.getZ(i);
+                let y = 0;
+
+                if (p.type === 'mountain') {
+                    y = simplex.noise2D(x/50, z/50) * 40 + simplex.noise2D(x/20, z/20) * 10;
+                } else if (p.type === 'folds') {
+                    y = (Math.abs(x) < 50) ? Math.cos(x/30)*60 + simplex.noise2D(x/10, z/10)*5 : simplex.noise2D(x/40, z/40)*5;
+                } else if (p.type === 'baekdu') {
+                    const d = Math.sqrt(x*x + z*z);
+                    y = (d < 80) ? Math.cos((d/80)*(Math.PI/2))*55 : 0;
+                    if (d < 25) y -= (25-d)*2.2;
+                } else if (p.type === 'glacier') {
+                    y = 40 - Math.abs(x)*0.6; // V-valley
+                    if (Math.abs(x) < 20) y -= (20 - Math.abs(x)); // U-shape erosion
+                } else if (p.type === 'karst') {
+                    y = 15 + simplex.noise2D(x/30, z/30)*3;
+                    const d1 = Math.sqrt((x-30)**2 + (z-20)**2);
+                    const d2 = Math.sqrt((x+40)**2 + (z+30)**2);
+                    if (d1 < 15) y -= Math.cos((d1/15)*(Math.PI/2))*12;
+                    if (d2 < 18) y -= Math.cos((d2/18)*(Math.PI/2))*15;
+                } else if (p.type === 'coast') {
+                    y = (x + 100) * 0.3; if(x > 0) y = 15; // Cliff
+                }
+                
+                pos.setY(i, y);
+                
+                // 고도에 따른 색상 맵핑
+                let c = new THREE.Color();
+                if (y < 2) c.setHex(0xeab308); // 모래
+                else if (y < 15) c.setHex(0x22c55e); // 초지
+                else if (y < 35) c.setHex(0x64748b); // 바위
+                else c.setHex(0xf8fafc); // 눈
+                colors.push(c.r, c.g, c.b);
+            }
+
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            pos.needsUpdate = true;
+            geometry.computeVertexNormals();
+
+            // 카메라 위치와 해수면 타겟 갱신
+            targetCamPos = new THREE.Vector3(...p.cam);
+            targetWaterY = p.sea;
+        }
+
+        let targetCamPos = new THREE.Vector3(0, 150, 400);
+        let targetWaterY = -100;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // 시점을 부드럽게 이동 (Lerp)
+            camera.position.lerp(targetCamPos, 0.05);
+            controls.update();
+
+            // 해수면을 부드럽게 상승/하강
+            if (Math.abs(water.position.y - targetWaterY) > 0.1) {
+                water.position.y += (targetWaterY - water.position.y) * 0.05;
+            }
+
+            water.material.uniforms['time'].value += 1.0 / 60.0;
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+
+        // 초기 시작 시 첫 번째 프리셋 로드
+        setPreset('intro');
+        animate();
+    </script>
+</body>
+</html>
