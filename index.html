@@ -6,10 +6,6 @@
 <title>경기여고 통합사회 - C</title>
 
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
@@ -83,6 +79,14 @@
     .card-primary .card-icon-wrap { background: rgba(255,255,255,0.1); color: white; }
     .card-primary .card-action { color: #bfdbfe; }
 
+    /* 사이버네틱 대시보드 배너 카드 */
+    .card-cyber { background: radial-gradient(circle at 100% 100%, #1e293b, #020617); color: white; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .card-cyber h3 { color: white; }
+    .card-cyber p { color: #94a3b8; }
+    .card-cyber .card-icon-wrap { background: rgba(56, 189, 248, 0.15); color: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
+    .card-cyber .card-tag { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
+    .card-cyber .card-action { color: #38bdf8; }
+
     /* 리스트형 카드 (수행평가) */
     .list-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
     .list-item { display: flex; align-items: center; padding: 16px; border-radius: 16px; transition: background 0.2s; border: 1px solid transparent; }
@@ -92,7 +96,7 @@
     .list-content h4 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 700; color: var(--text-main); }
     .list-content p { margin: 0; font-size: 0.85rem; color: var(--text-sub); }
 
-    /* ★ 아코디언 (접기/펴기) UI 스타일 ★ */
+    /* 아코디언 (접기/펴기) UI 스타일 */
     details.sim-group { background: var(--bg-color); border-radius: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.04); transition: background 0.3s; }
     details.sim-group:hover { background: #f1f5f9; }
     details.sim-group summary { padding: 20px 24px; font-size: 1.15rem; font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
@@ -107,12 +111,6 @@
     .sim-item:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
     .sim-item h4 { margin: 0 0 8px 0; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; color: var(--primary); }
     .sim-item p { margin: 0; font-size: 0.85rem; color: var(--text-sub); }
-
-    /* 입력 폼 공통 스타일 */
-    .input-group { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
-    .input-group input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-family: inherit; font-size: 0.95rem; min-width: 80px; }
-    .input-group button { color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
-    .result-box { background: white; padding: 15px; border-radius: 8px; font-size: 0.9rem; min-height: 40px; color: #334155; margin-top: 15px; border: 1px solid rgba(0,0,0,0.05); }
 
     @media (max-width: 900px) {
         .bento-grid { display: flex; flex-direction: column; }
@@ -177,48 +175,23 @@
 
             <div class="col-span-12" style="margin-top: 20px;">
                 <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="cpu" style="width:28px; height:28px; color:var(--text-main);"></i> AI & 빅데이터 분석 API 
-                    <span style="font-size: 0.8rem; font-weight: 600; padding: 4px 8px; background: #e2e8f0; border-radius: 6px; color: var(--text-sub);">Python Backend</span>
+                    <i data-lucide="cpu" style="width:28px; height:28px; color:var(--text-main);"></i> AI & 빅데이터 분석 시스템
                 </h2>
             </div>
 
-            <div class="card col-span-6" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0;">
-                <span class="card-tag" style="background: #16a34a; color: white;">GIS Satellite</span>
-                <div class="card-icon-wrap" style="background: #bbf7d0; color: #15803d;"><i data-lucide="satellite"></i></div>
-                <h3 style="color: #166534;">위성 데이터 식생/도시화 분석</h3>
-                
-                <div id="satMap" style="height: 220px; width: 100%; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); z-index: 1;"></div>
-                
-                <p style="margin-bottom: 15px; font-size: 0.9rem; color: #15803d;">지역과 연도를 입력하여 위성 데이터를 바탕으로 식생지수(NDVI)와 열섬 강도를 도출합니다.</p>
-                
-                <div class="input-group">
-                    <input type="text" id="satRegion" placeholder="지역명 (예: 서울, 화성)">
-                    <input type="number" id="satYear" placeholder="목표 연도">
-                    <button onclick="fetchSatellite()" style="background: #16a34a;"><i data-lucide="scan-line" style="width:18px; height:18px;"></i> 스캔</button>
+            <a href="ai_dashboard.html" class="card card-cyber col-span-12" style="flex-direction: row; align-items: center; justify-content: space-between; padding: 40px; flex-wrap: wrap; gap: 20px;">
+                <span class="card-tag">Python Backend</span>
+                <div style="display: flex; gap: 24px; align-items: center;">
+                    <div class="card-icon-wrap" style="margin: 0; width: 70px; height: 70px;"><i data-lucide="satellite" style="width: 36px; height: 36px;"></i></div>
+                    <div>
+                        <h3 style="font-size: 1.6rem;">AI 공간·인구 분석 대시보드</h3>
+                        <p style="font-size: 1.05rem; margin-top: 5px;">위성 데이터 기반 식생/열섬 분석 및 파라미터 기반 인구 예측 모델링 시스템</p>
+                    </div>
                 </div>
-                <div id="satResult" class="result-box">대기 중...</div>
-            </div>
-
-            <div class="card col-span-6" style="background: linear-gradient(135deg, #fdf4ff, #fce7f3); border: 1px solid #fbcfe8;">
-                <span class="card-tag" style="background: #db2777; color: white;">Demographics AI</span>
-                <div class="card-icon-wrap" style="background: #fbcfe8; color: #be185d;"><i data-lucide="users"></i></div>
-                <h3 style="color: #9d174d;">미래 인구 예측 모델링</h3>
-                
-                <div style="background: white; border-radius: 12px; padding: 10px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05); height: 220px; display: flex; justify-content: center; align-items: center;">
-                    <canvas id="popChart"></canvas>
+                <div class="card-action" style="font-size: 1.1rem; background: rgba(56, 189, 248, 0.1); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    대시보드 시스템 열기 <i data-lucide="arrow-right"></i>
                 </div>
-
-                <p style="margin-bottom: 15px; font-size: 0.9rem; color: #9d174d;">머신러닝(선형회귀) 모델을 통해 특정 도시의 미래 인구 증감 추세를 시각화합니다.</p>
-                
-                <div class="input-group">
-                    <input type="text" id="popCity" placeholder="도시 (예: 화성)">
-                    <input type="number" id="popCurrent" placeholder="현재 인구(명)">
-                    <input type="number" id="popYear" placeholder="예측 연도">
-                    <button onclick="fetchPopulation()" style="background: #db2777;"><i data-lucide="line-chart" style="width:18px; height:18px;"></i> 예측</button>
-                </div>
-                <div id="popResult" class="result-box">대기 중...</div>
-            </div>
-
+            </a>
             <div class="col-span-12" style="margin-top: 20px;">
                 <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
                     <i data-lucide="layers" style="width:28px; height:28px; color:var(--text-main);"></i> 공간 데이터 시뮬레이터 
@@ -259,12 +232,12 @@
                             <p>브러시를 활용한 침식, 퇴적, 융기 작용 실시간 렌더링</p>
                         </a>
                         <a href="dynamic_earth.html" class="sim-item">
-                            <h4><i data-lucide="paintbrush"></i> 지형 시뮬레이터 </h4>
-                            <p>판구조론 & 화산</p>
+                            <h4><i data-lucide="activity"></i> 다이내믹 어스</h4>
+                            <p>판구조론, 화산 및 지구 내/외적 작용 시뮬레이션</p>
                         </a>
                          <a href="world_landforms.html" class="sim-item">
-                            <h4><i data-lucide="paintbrush"></i> 세계의 여러 지형 </h4>
-                            <p>대지형 및 특수 지형</p>
+                            <h4><i data-lucide="map"></i> 지형 탐구 시뮬레이터</h4>
+                            <p>빙하, 카르스트, 해안 등 특수 지형 형성 원리 관찰</p>
                         </a>
                     </div>
                 </details>
@@ -304,137 +277,16 @@
     </main>
 
     <script>
-    // ★ 아이콘 렌더링 실행 (필수) ★
+    // 아이콘 렌더링 실행
     lucide.createIcons();
 
     // -----------------------------------------
-    // 1. 위성 지도 (Leaflet) 초기화
-    // -----------------------------------------
-    const satMap = L.map('satMap', { zoomControl: false }).setView([36.5, 127.5], 6);
-    L.control.zoom({ position: 'bottomright' }).addTo(satMap);
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri',
-        maxZoom: 18
-    }).addTo(satMap);
-    let currentMarker = null;
-
-    // -----------------------------------------
-    // 2. 인구 그래프 (Chart.js) 초기화
-    // -----------------------------------------
-    let popChart = null;
-    const ctx = document.getElementById('popChart').getContext('2d');
-    popChart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: ['2000', '2010', '2020', '2030', '2040'], datasets: [{ label: '대기중', data: [0, 0, 0, 0, 0], borderColor: '#cbd5e1', borderDash: [5, 5] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false } } }
-    });
-
-    // -----------------------------------------
-    // 3. 통신 로직
-    // -----------------------------------------
-    const BACKEND_URL = "https://geo-backend-l1u4.onrender.com";
-    const dummyCoords = { "서울": [37.5665, 126.9780], "화성": [37.1995, 126.8311], "제주": [33.4996, 126.5312], "부산": [35.1796, 129.0756] };
-
-    async function fetchSatellite() {
-        const region = document.getElementById('satRegion').value;
-        const year = document.getElementById('satYear').value;
-        const display = document.getElementById('satResult');
-
-        if(!region || !year) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 정보 입력 필요</span>"; return; }
-        display.innerHTML = "⏳ 분석 중...";
-
-        try {
-            const response = await fetch(`${BACKEND_URL}/analyze-satellite?region=${region}&year=${year}`);
-            if(!response.ok) throw new Error("서버 연결 실패");
-            const data = await response.json();
-
-            if(data.coords) {
-                satMap.setView(data.coords, 12);
-                if(currentMarker) satMap.removeLayer(currentMarker);
-                currentMarker = L.marker(data.coords).addTo(satMap).bindPopup(`<b>${data.region}</b><br>${data.year}년`).openPopup();
-            }
-
-            display.innerHTML = `
-                <strong style="color: #15803d;">분석 완료:</strong><br>
-                • <b>NDVI:</b> ${data.ndvi} | <b>열섬:</b> +${data.heat_island}°C<br>
-                <span style="color: #64748b; font-size:0.85rem; margin-top: 5px; display: block;">💡 ${data.insight}</span>
-            `;
-        } catch (error) {
-            const coords = dummyCoords[region] || [36.5, 127.5];
-            satMap.setView(coords, dummyCoords[region] ? 12 : 7);
-            if(currentMarker) satMap.removeLayer(currentMarker);
-            if(dummyCoords[region]) currentMarker = L.marker(coords).addTo(satMap).bindPopup(`<b>${region}</b><br>${year}년 (테스트)`).openPopup();
-
-            const fakeNdvi = Math.max(0.2, (0.85 - ((year - 1990) * 0.015))).toFixed(2);
-            const fakeHeat = Math.min(5.5, (0.5 + ((year - 1990) * 0.12))).toFixed(1);
-            
-            display.innerHTML = `
-                <span style="color: #ea580c; font-weight:bold;">[로컬 테스트 모드]</span><br>
-                <strong style="color: #15803d;">${year}년 ${region}:</strong> NDVI ${fakeNdvi} | 열섬 +${fakeHeat}°C<br>
-            `;
-        }
-    }
-
-    async function fetchPopulation() {
-        const city = document.getElementById('popCity').value;
-        const currentPop = parseInt(document.getElementById('popCurrent').value);
-        const targetYear = parseInt(document.getElementById('popYear').value);
-        const display = document.getElementById('popResult');
-
-        if(!city || !currentPop || !targetYear) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 정보 입력 필요</span>"; return; }
-        display.innerHTML = "⏳ 연산 중...";
-
-        try {
-            const response = await fetch(`${BACKEND_URL}/predict-population?city=${city}&current_pop=${currentPop}&target_year=${targetYear}`);
-            if(!response.ok) throw new Error("서버 연결 실패");
-            const data = await response.json();
-
-            drawChart(data.years, data.population, city);
-
-            const color = data.percent_change > 0 ? '#db2777' : '#2563eb';
-            display.innerHTML = `
-                <strong style="color: #be185d;">예측 완료:</strong><br>
-                • <b>${data.target_year}년:</b> ${data.predicted_pop.toLocaleString()}명 (<span style="color:${color}; font-weight:bold;">${data.percent_change > 0 ? '+' : ''}${data.percent_change}%</span>)<br>
-                <span style="color: #64748b; font-size:0.85rem; margin-top: 5px; display: block;">💡 ${data.insight}</span>
-            `;
-        } catch (error) {
-            let growth = -0.008; if(city === '화성' || city === '평택') growth = 0.035;
-            const years = [2000, 2010, 2020, 2030, targetYear].sort((a,b)=>a-b);
-            const popData = years.map(y => Math.max(0, Math.floor(currentPop * Math.exp(growth * (y - 2026)))));
-            const fakePop = popData[popData.length - 1];
-            const fakeChange = (((fakePop - currentPop) / currentPop) * 100).toFixed(1);
-            const color = fakeChange > 0 ? '#db2777' : '#2563eb';
-            
-            drawChart(years, popData, city);
-            
-            display.innerHTML = `
-                <span style="color: #ea580c; font-weight:bold;">[로컬 테스트 모드]</span><br>
-                <strong style="color: #be185d;">${targetYear}년 ${city}:</strong> ${fakePop.toLocaleString()}명 (<span style="color:${color}; font-weight:bold;">${fakeChange > 0 ? '+' : ''}${fakeChange}%</span>)
-            `;
-        }
-    }
-
-    function drawChart(labels, dataArr, city) {
-        if(popChart) popChart.destroy();
-        const isIncreasing = dataArr[dataArr.length-1] > dataArr[0];
-        const lineColor = isIncreasing ? '#db2777' : '#2563eb';
-        const bgColor = isIncreasing ? 'rgba(219, 39, 119, 0.1)' : 'rgba(37, 99, 235, 0.1)';
-
-        popChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels: labels, datasets: [{ label: `${city} 예측`, data: dataArr, borderColor: lineColor, backgroundColor: bgColor, borderWidth: 3, fill: true, tension: 0.4 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } }
-        });
-    }
-    // -----------------------------------------
-    // ★ 4. 깃허브 자료실 자동 동기화 로직 ★
+    // ★ 깃허브 자료실 자동 동기화 로직 ★
     // -----------------------------------------
     async function loadMaterials() {
-        // 👇 선생님의 깃허브 아이디와 저장소 이름으로 꼭! 변경해주세요.
         const GITHUB_ID = "GIS-Leet"; 
         const REPO_NAME = "kgghs-soc-c"; 
 
-     // 📁 깃허브에 만들 '폴더 이름'과 홈페이지에 보일 '디자인' 설정
         const folders = [
             { path: "학습지", title: "📝 수업 학습지", icon: "book-open", bgColor: "var(--primary-light)", textColor: "var(--primary)" },
             { path: "PPT", title: "🖥️ 수업 PPT 자료", icon: "presentation", bgColor: "#fef2f2", textColor: "#db2777" },
@@ -442,12 +294,10 @@
         ];
 
         const container = document.getElementById('material-list');
-        container.innerHTML = ''; // 로딩 텍스트 지우기
+        container.innerHTML = ''; 
 
         for (const folder of folders) {
-            // 카테고리(폴더)별 구역(UI) 만들기
             const sectionDiv = document.createElement('div');
-            
             const titleHtml = `<h4 style="margin: 0 0 12px 0; font-size: 1.05rem; color: var(--text-main); border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 8px;">
                 ${folder.title}
             </h4>`;
@@ -462,12 +312,10 @@
             container.appendChild(sectionDiv);
 
             try {
-                // 해당 폴더 안의 파일들만 가져오기
                 const response = await fetch(`https://api.github.com/repos/${GITHUB_ID}/${REPO_NAME}/contents/${folder.path}`);
                 if (!response.ok) throw new Error('폴더 없음');
                 const files = await response.json();
 
-                // 문서 파일만 필터링
                 const materials = files.filter(file => 
                     file.name.endsWith('.pdf') || file.name.endsWith('.ppt') || 
                     file.name.endsWith('.pptx') || file.name.endsWith('.hwp')
@@ -486,15 +334,13 @@
                     });
                 }
             } catch (error) {
-                // 깃허브에 아직 해당 이름의 폴더가 없는 경우
                 btnContainer.innerHTML = `<span style="color: #94a3b8; font-size: 0.9rem;">아직 '${folder.path}' 폴더가 생성되지 않았습니다.</span>`;
             }
         }
         
-        lucide.createIcons(); // 아이콘 렌더링 적용
+        lucide.createIcons(); 
     }
 
-    // 페이지가 로드되면 함수 실행
     document.addEventListener('DOMContentLoaded', loadMaterials);
     </script>
 </body>
