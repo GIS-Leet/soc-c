@@ -425,5 +425,40 @@
             popChart.update();
         }
     </script>
+<script>
+        // 1. 마우스 우클릭 차단
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // 2. 텍스트 드래그 및 선택 차단
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+
+        // 3. F12 및 주요 개발자 도구 단축키 차단
+        document.addEventListener('keydown', function(e) {
+            // F12 차단
+            if (e.keyCode === 123) {
+                e.preventDefault();
+            }
+            // Ctrl + Shift + I (개발자 도구)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                e.preventDefault();
+            }
+            // Ctrl + Shift + C (요소 검사)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+                e.preventDefault();
+            }
+            // Ctrl + Shift + J (콘솔)
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+                e.preventDefault();
+            }
+            // Ctrl + U (페이지 소스 보기)
+            if (e.ctrlKey && e.keyCode === 85) {
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 </html>
