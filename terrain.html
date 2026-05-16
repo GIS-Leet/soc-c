@@ -35,10 +35,10 @@
         .dashboard-container { display: flex; flex: 1; padding: 24px; gap: 24px; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
         
         /* 왼쪽 3D 뷰어 */
-        .canvas-wrapper { flex: 2; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        .canvas-wrapper { flex: 2; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); background: #000; }
         #webgl-container { width: 100%; height: 100%; outline: none; }
-        .guide-badge { position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px); color: white; font-size: 0.85rem; padding: 8px 14px; border-radius: 12px; pointer-events: none; display: flex; align-items: center; gap: 6px; font-weight: 500; }
-        .crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.8); transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; }
+        .guide-badge { position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px); color: white; font-size: 0.85rem; padding: 8px 14px; border-radius: 12px; pointer-events: none; display: flex; align-items: center; gap: 6px; font-weight: 500; z-index: 10;}
+        .crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.8); transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; z-index: 10;}
 
         /* 오른쪽 컨트롤 패널 */
         .controls-wrapper { flex: 1; min-width: 350px; max-width: 400px; background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
@@ -186,8 +186,8 @@
         controls.enableDamping = true; controls.dampingFactor = 0.05;
         controls.maxPolarAngle = Math.PI / 2 - 0.01; // 땅 아래로 내려가지 않게
         
-        // 1. 대기 및 하늘 (Skybox)
-        const sky = new Sky();
+        // 1. 대기 및 하늘 (Skybox) - 오타 수정 (THREE.Sky)
+        const sky = new THREE.Sky();
         sky.scale.setScalar(10000);
         scene.add(sky);
         
@@ -197,6 +197,7 @@
         skyUniforms['mieCoefficient'].value = 0.005;
         skyUniforms['mieDirectionalG'].value = 0.8;
         
+        // 조명 설정
         const sun = new THREE.Vector3();
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
         dirLight.castShadow = true; // 태양 그림자 생성
@@ -211,22 +212,11 @@
         const ambientLight = new THREE.AmbientLight(0x404040, 0.6); // 부드러운 주변광
         scene.add(ambientLight);
 
-        function updateSun() {
-            const phi = THREE.MathUtils.degToRad(90 - sunInput.value);
-            const theta = THREE.MathUtils.degToRad(45); // 태양 방위각
-            sun.setFromSphericalCoords(1, phi, theta);
-            sky.material.uniforms['sunPosition'].value.copy(sun);
-            dirLight.position.copy(sun).multiplyScalar(200);
-            
-            // 수면에 비치는 태양광 업데이트
-            if(water) water.material.uniforms['sunDirection'].value.copy(sun).normalize();
-        }
-
-        // 2. 리얼타임 반사 물결 (Water.js)
+        // 2. 리얼타임 반사 물결 (Water.js) - 오타 수정 (THREE.Water) 및 링크 안정화
         const waterGeometry = new THREE.PlaneGeometry(1000, 1000);
-        const water = new Water(waterGeometry, {
+        const water = new THREE.Water(waterGeometry, {
             textureWidth: 512, textureHeight: 512,
-            waterNormals: new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/waternormals.jpg', function(texture) {
+            waterNormals: new THREE.TextureLoader().load('https://unpkg.com/three@0.128.0/examples/textures/waternormals.jpg', function(texture) {
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             }),
             sunDirection: new THREE.Vector3(),
@@ -239,7 +229,17 @@
         water.position.y = 5; // 초기 해수면
         scene.add(water);
 
+        // 환경변수 업데이트 함수
         function updateWater() { water.position.y = parseFloat(seaInput.value); }
+
+        function updateSun() {
+            const phi = THREE.MathUtils.degToRad(90 - sunInput.value);
+            const theta = THREE.MathUtils.degToRad(45); // 태양 방위각
+            sun.setFromSphericalCoords(1, phi, theta);
+            sky.material.uniforms['sunPosition'].value.copy(sun);
+            dirLight.position.copy(sun).multiplyScalar(200);
+            water.material.uniforms['sunDirection'].value.copy(sun).normalize();
+        }
 
         // 3. 지형 데이터 (PBR 메테리얼 & 노이즈 생성)
         const simplex = new SimplexNoise();
