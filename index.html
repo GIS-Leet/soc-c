@@ -3,12 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title> Society - Geography</title>
+<title>경기여고 통합사회 클래스</title>
 
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
     :root {
@@ -32,7 +34,9 @@
         padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid rgba(0,0,0,0.05);
     }
     .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
-    .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 1rem; }
+    .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+    .logo-icon i { width: 18px; height: 18px; stroke-width: 2.5px; }
+    
     .menu { display: flex; gap: 24px; }
     .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
     .menu a:hover, .menu a.active { background: var(--primary-light); color: var(--primary); }
@@ -57,36 +61,57 @@
     .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
     
     .card-tag { position: absolute; top: 24px; right: 24px; font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: var(--bg-color); color: var(--text-sub); z-index: 10;}
-    .card-icon-wrap { width: 56px; height: 56px; border-radius: 16px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 20px; }
-    .card h3 { font-size: 1.3rem; font-weight: 700; margin: 0 0 8px 0; letter-spacing: -0.5px; }
+    .card-icon-wrap { width: 56px; height: 56px; border-radius: 16px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; color: var(--primary); }
+    .card-icon-wrap i { width: 28px; height: 28px; stroke-width: 2px; }
+    
+    .card h3 { font-size: 1.3rem; font-weight: 700; margin: 0 0 8px 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
     .card p { font-size: 0.95rem; color: var(--text-sub); margin: 0; flex-grow: 1; }
+    
     .card-action { margin-top: 24px; font-size: 0.9rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; }
-    .card-action::after { content: '→'; transition: transform 0.2s; }
-    .card:hover .card-action::after { transform: translateX(4px); }
+    .card-action i { width: 16px; height: 16px; transition: transform 0.2s; }
+    .card:hover .card-action i { transform: translateX(4px); }
 
     .col-span-8 { grid-column: span 8; }
     .col-span-4 { grid-column: span 4; }
     .col-span-6 { grid-column: span 6; }
     .col-span-12 { grid-column: span 12; }
 
-    /* 커스텀 카드 색상 */
+    /* 메인 Q&A 커스텀 카드 */
     .card-primary { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; }
     .card-primary h3, .card-primary p, .card-primary .card-tag { color: white; }
     .card-primary .card-tag { background: rgba(255,255,255,0.2); }
-    .card-primary .card-icon-wrap { background: rgba(255,255,255,0.1); }
+    .card-primary .card-icon-wrap { background: rgba(255,255,255,0.1); color: white; }
     .card-primary .card-action { color: #bfdbfe; }
 
+    /* 리스트형 카드 (수행평가) */
     .list-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
     .list-item { display: flex; align-items: center; padding: 16px; border-radius: 16px; transition: background 0.2s; border: 1px solid transparent; }
     .list-item:hover { background: var(--bg-color); border-color: rgba(0,0,0,0.05); }
-    .list-icon { font-size: 1.5rem; margin-right: 16px; background: white; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .list-icon { margin-right: 16px; background: white; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); color: var(--text-main); }
+    .list-icon i { width: 22px; height: 22px; stroke-width: 2px; }
     .list-content h4 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 700; color: var(--text-main); }
     .list-content p { margin: 0; font-size: 0.85rem; color: var(--text-sub); }
+
+    /* ★ 아코디언 (접기/펴기) UI 스타일 ★ */
+    details.sim-group { background: var(--bg-color); border-radius: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.04); transition: background 0.3s; }
+    details.sim-group:hover { background: #f1f5f9; }
+    details.sim-group summary { padding: 20px 24px; font-size: 1.15rem; font-weight: 700; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); }
+    details.sim-group summary::-webkit-details-marker { display: none; }
+    details.sim-group summary .cat-title { display: flex; align-items: center; gap: 12px; }
+    details.sim-group summary .cat-title i { color: var(--primary); }
+    details.sim-group summary i.chevron { color: var(--text-sub); transition: transform 0.3s; }
+    details.sim-group[open] summary i.chevron { transform: rotate(180deg); }
+    
+    .sim-content { padding: 0 24px 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .sim-item { display: flex; flex-direction: column; background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.06); text-decoration: none; color: var(--text-main); transition: all 0.2s; }
+    .sim-item:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(37,99,235,0.1); }
+    .sim-item h4 { margin: 0 0 8px 0; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; color: var(--primary); }
+    .sim-item p { margin: 0; font-size: 0.85rem; color: var(--text-sub); }
 
     /* 입력 폼 공통 스타일 */
     .input-group { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
     .input-group input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-family: inherit; font-size: 0.95rem; min-width: 80px; }
-    .input-group button { color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; transition: 0.2s; }
+    .input-group button { color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
     .result-box { background: white; padding: 15px; border-radius: 8px; font-size: 0.9rem; min-height: 40px; color: #334155; margin-top: 15px; border: 1px solid rgba(0,0,0,0.05); }
 
     @media (max-width: 900px) {
@@ -101,7 +126,7 @@
 
     <nav class="navbar">
         <a href="index.html" class="logo">
-            <div class="logo-icon"></div>
+            <div class="logo-icon"><i data-lucide="globe"></i></div>
             Society - C - Geography
         </a>
         <div class="menu">
@@ -113,7 +138,7 @@
     <header class="hero">
         <div class="badge">2026학년도 1학기</div>
         <h1>KGGHS<br><span>Society-C-Class</span></h1>
-        
+        <p>단순한 암기를 넘어, 인터랙티브 3D 모델과 공간 데이터를 직접 조작하며 세상의 변화를 체험합니다.</p>
     </header>
 
     <main class="container">
@@ -121,30 +146,30 @@
             
             <a href="qna.html" class="card card-primary col-span-8">
                 <span class="card-tag">Communication</span>
-                <div class="card-icon-wrap">💬</div>
+                <div class="card-icon-wrap"><i data-lucide="message-square-text"></i></div>
                 <h3>통합사회 C 질문 아카이브</h3>
-                <p>여러가지 질문 환영.</p>
-                <div class="card-action">게시판 바로가기</div>
+                <p>수업 중 이해가 안 되는 부분, 교과 심화 질문, 오류 보고 등 자유롭게 질문을 남겨주세요. 실시간으로 선생님의 피드백을 받을 수 있습니다.</p>
+                <div class="card-action">게시판 바로가기 <i data-lucide="arrow-right"></i></div>
             </a>
 
             <div class="card col-span-4">
-                <div class="list-header">🎯 수행평가 </div>
+                <div class="list-header"><i data-lucide="target" style="color: var(--primary);"></i> 수행평가 센터</div>
                 <ul>
                     <a href="https://forms.gle/WLknpMYbkpMuhsmz9" target="_blank">
                         <li class="list-item">
-                            <div class="list-icon">📝</div>
+                            <div class="list-icon"><i data-lucide="clipboard-edit"></i></div>
                             <div class="list-content">
                                 <h4>질문 아카이브 접수</h4>
-                                <p>수행평가 질문 제출</p>
+                                <p>수업 중 발생한 공식 질문 제출</p>
                             </div>
                         </li>
                     </a>
                     <a href="https://forms.gle/wZofWasghD87F75A6" target="_blank">
                         <li class="list-item">
-                            <div class="list-icon">🔍</div>
+                            <div class="list-icon"><i data-lucide="search"></i></div>
                             <div class="list-content">
                                 <h4>지역 탐구 프로젝트</h4>
-                                <p>참고 자료</p>
+                                <p>주제 선정을 위한 사전 설문</p>
                             </div>
                         </li>
                     </a>
@@ -153,13 +178,14 @@
 
             <div class="col-span-12" style="margin-top: 20px;">
                 <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    🧠 AI & 빅데이터 분석 API <span style="font-size: 0.8rem; font-weight: 600; padding: 4px 8px; background: #e2e8f0; border-radius: 6px; color: var(--text-sub);">Python Backend</span>
+                    <i data-lucide="cpu" style="width:28px; height:28px; color:var(--text-main);"></i> AI & 빅데이터 분석 API 
+                    <span style="font-size: 0.8rem; font-weight: 600; padding: 4px 8px; background: #e2e8f0; border-radius: 6px; color: var(--text-sub);">Python Backend</span>
                 </h2>
             </div>
 
             <div class="card col-span-6" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0;">
                 <span class="card-tag" style="background: #16a34a; color: white;">GIS Satellite</span>
-                <div class="card-icon-wrap" style="background: #bbf7d0; color: #15803d;">🛰️</div>
+                <div class="card-icon-wrap" style="background: #bbf7d0; color: #15803d;"><i data-lucide="satellite"></i></div>
                 <h3 style="color: #166534;">위성 데이터 식생/도시화 분석</h3>
                 
                 <div id="satMap" style="height: 220px; width: 100%; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.1); z-index: 1;"></div>
@@ -167,16 +193,16 @@
                 <p style="margin-bottom: 15px; font-size: 0.9rem; color: #15803d;">지역과 연도를 입력하여 위성 데이터를 바탕으로 식생지수(NDVI)와 열섬 강도를 도출합니다.</p>
                 
                 <div class="input-group">
-                    <input type="text" id="satRegion" placeholder="지역명 (예: 서울, 화성, 제주)">
+                    <input type="text" id="satRegion" placeholder="지역명 (예: 서울, 화성)">
                     <input type="number" id="satYear" placeholder="목표 연도">
-                    <button onclick="fetchSatellite()" style="background: #16a34a;">위성 분석 스캔</button>
+                    <button onclick="fetchSatellite()" style="background: #16a34a;"><i data-lucide="scan-line" style="width:18px; height:18px;"></i> 스캔</button>
                 </div>
                 <div id="satResult" class="result-box">대기 중...</div>
             </div>
 
             <div class="card col-span-6" style="background: linear-gradient(135deg, #fdf4ff, #fce7f3); border: 1px solid #fbcfe8;">
                 <span class="card-tag" style="background: #db2777; color: white;">Demographics AI</span>
-                <div class="card-icon-wrap" style="background: #fbcfe8; color: #be185d;">👨‍👩‍👧‍👦</div>
+                <div class="card-icon-wrap" style="background: #fbcfe8; color: #be185d;"><i data-lucide="users"></i></div>
                 <h3 style="color: #9d174d;">미래 인구 예측 모델링</h3>
                 
                 <div style="background: white; border-radius: 12px; padding: 10px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.05); height: 220px; display: flex; justify-content: center; align-items: center;">
@@ -186,70 +212,86 @@
                 <p style="margin-bottom: 15px; font-size: 0.9rem; color: #9d174d;">머신러닝(선형회귀) 모델을 통해 특정 도시의 미래 인구 증감 추세를 시각화합니다.</p>
                 
                 <div class="input-group">
-                    <input type="text" id="popCity" placeholder="도시 (예: 서울, 화성, 부산)">
+                    <input type="text" id="popCity" placeholder="도시 (예: 화성)">
                     <input type="number" id="popCurrent" placeholder="현재 인구(명)">
                     <input type="number" id="popYear" placeholder="예측 연도">
-                    <button onclick="fetchPopulation()" style="background: #db2777;">인구 시뮬레이션 돌리기</button>
+                    <button onclick="fetchPopulation()" style="background: #db2777;"><i data-lucide="line-chart" style="width:18px; height:18px;"></i> 예측</button>
                 </div>
                 <div id="popResult" class="result-box">대기 중...</div>
             </div>
 
             <div class="col-span-12" style="margin-top: 20px;">
                 <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    🖥️ 공간 데이터 시뮬레이터 <span style="font-size: 0.8rem; font-weight: 600; padding: 4px 8px; background: #e2e8f0; border-radius: 6px; color: var(--text-sub);">Interactive</span>
+                    <i data-lucide="layers" style="width:28px; height:28px; color:var(--text-main);"></i> 공간 데이터 시뮬레이터 
+                    <span style="font-size: 0.8rem; font-weight: 600; padding: 4px 8px; background: #e2e8f0; border-radius: 6px; color: var(--text-sub);">Interactive</span>
                 </h2>
             </div>
 
-            <a href="climate_3d.html" class="card col-span-6">
-                <span class="card-tag">3D WebGL</span>
-                <div class="card-icon-wrap" style="background: #fef3c7; color: #d97706;">🌍</div>
-                <h3>지구 공전과 계절 변화</h3>
-                <p>자전축 23.5도 기울어짐에 따른 일사량의 3D 공간 시각화 시뮬레이션입니다.</p>
-                <div class="card-action">시뮬레이터 실행</div>
-            </a>
+            <div class="card col-span-12" style="padding: 24px;">
+                
+                <details class="sim-group" open> <summary>
+                        <div class="cat-title"><i data-lucide="cloud-sun"></i> 기후 환경 시뮬레이터</div>
+                        <i data-lucide="chevron-down" class="chevron"></i>
+                    </summary>
+                    <div class="sim-content">
+                        <a href="climate_3d.html" class="sim-item">
+                            <h4><i data-lucide="globe"></i> 3D 지구 공전과 계절</h4>
+                            <p>자전축 기울어짐에 따른 일사량의 3D 공간 시각화</p>
+                        </a>
+                        <a href="climate_itcz.html" class="sim-item">
+                            <h4><i data-lucide="move-vertical"></i> 적도 수렴대 이동</h4>
+                            <p>태양 직사광선 이동에 따른 비구름의 남북 이동 관찰</p>
+                        </a>
+                        <a href="climate_solar.html" class="sim-item">
+                            <h4><i data-lucide="sun-dim"></i> 태양 고도와 입사각</h4>
+                            <p>위도 변화에 따른 태양 고도각과 입사각의 삼각비 원리</p>
+                        </a>
+                    </div>
+                </details>
 
-            <a href="terrain.html" class="card col-span-6">
-                <span class="card-tag">Isometric</span>
-                <div class="card-icon-wrap" style="background: #dcfce7; color: #15803d;">⛰️</div>
-                <h3>지형 변화 알고리즘</h3>
-                <p>브러시를 활용하여 침식, 퇴적, 융기 작용을 실시간으로 그려내는 등각 투영 모델입니다.</p>
-                <div class="card-action">시뮬레이터 실행</div>
-            </a>
+                <details class="sim-group">
+                    <summary>
+                        <div class="cat-title"><i data-lucide="mountain"></i> 지형 변화 시뮬레이터</div>
+                        <i data-lucide="chevron-down" class="chevron"></i>
+                    </summary>
+                    <div class="sim-content">
+                        <a href="terrain.html" class="sim-item">
+                            <h4><i data-lucide="paintbrush"></i> 등각 투영 지형 알고리즘</h4>
+                            <p>브러시를 활용한 침식, 퇴적, 융기 작용 실시간 렌더링</p>
+                        </a>
+                    </div>
+                </details>
 
-            <a href="seoul.html" class="card col-span-4">
-                <span class="card-tag">Leaflet GIS</span>
-                <div class="card-icon-wrap" style="background: #e0e7ff; color: #4338ca;">🏙️</div>
-                <h3>서울 대도시권 팽창</h3>
-                <p>1~3기 신도시 및 광역 교통망(GTX) 확장 매핑 지도</p>
-                <div class="card-action">지도 보기</div>
-            </a>
+                <details class="sim-group">
+                    <summary>
+                        <div class="cat-title"><i data-lucide="building-2"></i> 도시 공간 시뮬레이터</div>
+                        <i data-lucide="chevron-down" class="chevron"></i>
+                    </summary>
+                    <div class="sim-content">
+                        <a href="seoul.html" class="sim-item">
+                            <h4><i data-lucide="map"></i> 서울 대도시권 팽창</h4>
+                            <p>1~3기 신도시 및 광역 교통망(GTX) 확장 매핑 지도</p>
+                        </a>
+                    </div>
+                </details>
 
-            <a href="climate_itcz.html" class="card col-span-4">
-                <span class="card-tag">2D Logic</span>
-                <div class="card-icon-wrap" style="background: #ffedd5; color: #b45309;">☀️</div>
-                <h3>적도 수렴대 이동</h3>
-                <p>월별 태양 직사광선 이동에 따른 비구름(우기)의 남북 이동 관찰</p>
-                <div class="card-action">실행하기</div>
-            </a>
-
-            <a href="climate_solar.html" class="card col-span-4">
-                <span class="card-tag">Geometry</span>
-                <div class="card-icon-wrap" style="background: #fce7f3; color: #be185d;">📐</div>
-                <h3>태양 고도와 입사각</h3>
-                <p>위도 변화에 따른 태양 고도각과 지표면 입사각의 삼각비 원리</p>
-                <div class="card-action">실행하기</div>
-            </a>
+            </div>
 
             <div class="card col-span-12" style="flex-direction: row; align-items: center; justify-content: space-between; padding: 24px 40px; margin-top: 20px; flex-wrap: wrap; gap: 15px;">
                 <div>
-                    <h3 style="margin-bottom: 4px;">📚 2026학년도 통합사회 C 학습지 다운로드</h3>
-                    <p>기후 및 지형 단원 PDF 자료 (Google Drive 연동)</p>
+                    <h3 style="margin-bottom: 4px; display:flex; align-items:center; gap:8px;"><i data-lucide="library"></i> 2026학년도 통합사회 C 자료실</h3>
+                    <p>학습에 필요한 공식 문서 및 수업 자료를 다운로드하세요.</p>
                 </div>
                 <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <a href="https://drive.google.com/open?id=130XifHz-DPzWSbrY368n_wTIHJcC8coB" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: var(--primary-light); color: var(--primary); font-size: 0.9rem;">학습지 1</a>
-                    <a href="https://drive.google.com/open?id=1MDdnongTqP2WeNVNV6_ge86tWPxnneMX" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: var(--primary-light); color: var(--primary); font-size: 0.9rem;">학습지 2</a>
-                    <a href="https://drive.google.com/open?id=1k-Z082RDck1CRtO9YTdQgQlNSYIlvbWu" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: var(--primary-light); color: var(--primary); font-size: 0.9rem;">학습지 3</a>
-                    <a href="https://drive.google.com/open?id=1kBUfaXQCZwgPIPOI51uiSZhefrJy80fx" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: #f1f5f9; color: var(--text-sub); font-size: 0.9rem;">보충 자료</a>
+                    <a href="https://drive.google.com/open?id=130XifHz-DPzWSbrY368n_wTIHJcC8coB" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: var(--primary-light); color: var(--primary); font-size: 0.95rem; padding: 10px 16px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="book-open" style="width:18px; height:18px;"></i> 학습 자료
+                    </a>
+                    <a href="https://drive.google.com/open?id=1MDdnongTqP2WeNVNV6_ge86tWPxnneMX" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: #fef2f2; color: #db2777; font-size: 0.95rem; padding: 10px 16px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="presentation" style="width:18px; height:18px;"></i> PPT 자료
+                    </a>
+                    <a href="https://drive.google.com/open?id=1kBUfaXQCZwgPIPOI51uiSZhefrJy80fx" target="_blank" class="card-tag" style="position: relative; top: 0; right: 0; background: #f1f5f9; color: var(--text-sub); font-size: 0.95rem; padding: 10px 16px; display:flex; align-items:center; gap:6px;">
+                        <i data-lucide="link" style="width:18px; height:18px;"></i> 참고 자료
+                    </a>
                 </div>
             </div>
 
@@ -257,18 +299,18 @@
     </main>
 
     <script>
+    // ★ 아이콘 렌더링 실행 (필수) ★
+    lucide.createIcons();
+
     // -----------------------------------------
     // 1. 위성 지도 (Leaflet) 초기화
     // -----------------------------------------
-    const satMap = L.map('satMap', { zoomControl: false }).setView([36.5, 127.5], 6); // 초기: 한반도 전체
+    const satMap = L.map('satMap', { zoomControl: false }).setView([36.5, 127.5], 6);
     L.control.zoom({ position: 'bottomright' }).addTo(satMap);
-    
-    // Esri 위성 레이어 로드
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        attribution: 'Tiles &copy; Esri',
         maxZoom: 18
     }).addTo(satMap);
-    
     let currentMarker = null;
 
     // -----------------------------------------
@@ -276,21 +318,16 @@
     // -----------------------------------------
     let popChart = null;
     const ctx = document.getElementById('popChart').getContext('2d');
-    
-    // 초기 빈 그래프 렌더링
     popChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: ['2000', '2010', '2020', '2030', '2040'], datasets: [{ label: '인구 예측 대기중', data: [0, 0, 0, 0, 0], borderColor: '#cbd5e1', borderDash: [5, 5] }] },
+        data: { labels: ['2000', '2010', '2020', '2030', '2040'], datasets: [{ label: '대기중', data: [0, 0, 0, 0, 0], borderColor: '#cbd5e1', borderDash: [5, 5] }] },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false } } }
     });
 
     // -----------------------------------------
-    // 3. 통신 로직 및 UI 제어
+    // 3. 통신 로직
     // -----------------------------------------
-    // [중요] 실제 서버를 띄우시면 아래 주소를 수정하세요!
     const BACKEND_URL = "https://geo-backend-l1u4.onrender.com";
-
-    // 지역별 더미 좌표 (서버 연결 전 테스트용)
     const dummyCoords = { "서울": [37.5665, 126.9780], "화성": [37.1995, 126.8311], "제주": [33.4996, 126.5312], "부산": [35.1796, 129.0756] };
 
     async function fetchSatellite() {
@@ -298,45 +335,37 @@
         const year = document.getElementById('satYear').value;
         const display = document.getElementById('satResult');
 
-        if(!region || !year) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 지역과 연도를 모두 입력해주세요.</span>"; return; }
-        display.innerHTML = "⏳ 🛰️ 위성 데이터를 스캔 중입니다...";
+        if(!region || !year) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 정보 입력 필요</span>"; return; }
+        display.innerHTML = "⏳ 분석 중...";
 
         try {
             const response = await fetch(`${BACKEND_URL}/analyze-satellite?region=${region}&year=${year}`);
-            if(!response.ok) throw new Error("서버 연동 전");
+            if(!response.ok) throw new Error("서버 연결 실패");
             const data = await response.json();
 
-            // 지도 이동 및 마커 생성 (진짜 서버 연결 시)
             if(data.coords) {
                 satMap.setView(data.coords, 12);
                 if(currentMarker) satMap.removeLayer(currentMarker);
-                currentMarker = L.marker(data.coords).addTo(satMap).bindPopup(`<b>${data.region}</b><br>${data.year}년 기준`).openPopup();
+                currentMarker = L.marker(data.coords).addTo(satMap).bindPopup(`<b>${data.region}</b><br>${data.year}년`).openPopup();
             }
 
             display.innerHTML = `
                 <strong style="color: #15803d;">분석 완료:</strong><br>
-                • <b>식생지수(NDVI):</b> ${data.ndvi} (1에 가까울수록 녹지 많음)<br>
-                • <b>열섬 강도:</b> +${data.heat_island}°C<br>
-                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 ${data.insight}</span>
+                • <b>NDVI:</b> ${data.ndvi} | <b>열섬:</b> +${data.heat_island}°C<br>
+                <span style="color: #64748b; font-size:0.85rem; margin-top: 5px; display: block;">💡 ${data.insight}</span>
             `;
         } catch (error) {
-            // [로컬 테스트 모드] 서버가 없어도 지도가 움직이도록 구현
             const coords = dummyCoords[region] || [36.5, 127.5];
-            const zoomLevel = dummyCoords[region] ? 12 : 7;
-            
-            satMap.setView(coords, zoomLevel);
+            satMap.setView(coords, dummyCoords[region] ? 12 : 7);
             if(currentMarker) satMap.removeLayer(currentMarker);
-            if(dummyCoords[region]) {
-                currentMarker = L.marker(coords).addTo(satMap).bindPopup(`<b>${region}</b><br>${year}년 스캔 (테스트)`).openPopup();
-            }
+            if(dummyCoords[region]) currentMarker = L.marker(coords).addTo(satMap).bindPopup(`<b>${region}</b><br>${year}년 (테스트)`).openPopup();
 
             const fakeNdvi = Math.max(0.2, (0.85 - ((year - 1990) * 0.015))).toFixed(2);
             const fakeHeat = Math.min(5.5, (0.5 + ((year - 1990) * 0.12))).toFixed(1);
             
             display.innerHTML = `
-                <span style="color: #ea580c; font-weight:bold;">[서버 미연결 - 로컬 지도 모드]</span><br>
-                <strong style="color: #15803d;">${year}년 ${region} 분석:</strong> 식생지수 ${fakeNdvi} | 열섬강도 +${fakeHeat}°C<br>
-                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 위성 지도가 성공적으로 해당 지역(${region})으로 이동했습니다!</span>
+                <span style="color: #ea580c; font-weight:bold;">[로컬 테스트 모드]</span><br>
+                <strong style="color: #15803d;">${year}년 ${region}:</strong> NDVI ${fakeNdvi} | 열섬 +${fakeHeat}°C<br>
             `;
         }
     }
@@ -347,28 +376,24 @@
         const targetYear = parseInt(document.getElementById('popYear').value);
         const display = document.getElementById('popResult');
 
-        if(!city || !currentPop || !targetYear) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 모든 값을 입력해주세요.</span>"; return; }
-        display.innerHTML = "⏳ 👨‍👩‍👧‍👦 인구 모델링 연산 중...";
+        if(!city || !currentPop || !targetYear) { display.innerHTML = "<span style='color:#ef4444; font-weight:bold;'>⚠️ 정보 입력 필요</span>"; return; }
+        display.innerHTML = "⏳ 연산 중...";
 
         try {
             const response = await fetch(`${BACKEND_URL}/predict-population?city=${city}&current_pop=${currentPop}&target_year=${targetYear}`);
-            if(!response.ok) throw new Error("서버 연동 전");
+            if(!response.ok) throw new Error("서버 연결 실패");
             const data = await response.json();
 
-            // 그래프 그리기 (진짜 서버 연결 시)
             drawChart(data.years, data.population, city);
 
             const color = data.percent_change > 0 ? '#db2777' : '#2563eb';
             display.innerHTML = `
                 <strong style="color: #be185d;">예측 완료:</strong><br>
-                • <b>${data.target_year}년 예상 인구:</b> ${data.predicted_pop.toLocaleString()}명<br>
-                • <b>증감률:</b> <span style="color:${color}; font-weight:bold;">${data.percent_change > 0 ? '+' : ''}${data.percent_change}%</span><br>
-                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 ${data.insight}</span>
+                • <b>${data.target_year}년:</b> ${data.predicted_pop.toLocaleString()}명 (<span style="color:${color}; font-weight:bold;">${data.percent_change > 0 ? '+' : ''}${data.percent_change}%</span>)<br>
+                <span style="color: #64748b; font-size:0.85rem; margin-top: 5px; display: block;">💡 ${data.insight}</span>
             `;
         } catch (error) {
-            // [로컬 테스트 모드] 서버가 없어도 그래프가 예쁘게 그려지도록 구현
             let growth = -0.008; if(city === '화성' || city === '평택') growth = 0.035;
-            
             const years = [2000, 2010, 2020, 2030, targetYear].sort((a,b)=>a-b);
             const popData = years.map(y => Math.max(0, Math.floor(currentPop * Math.exp(growth * (y - 2026)))));
             const fakePop = popData[popData.length - 1];
@@ -378,48 +403,22 @@
             drawChart(years, popData, city);
             
             display.innerHTML = `
-                <span style="color: #ea580c; font-weight:bold;">[서버 미연결 - 로컬 그래프 모드]</span><br>
-                <strong style="color: #be185d;">${targetYear}년 ${city} 인구 예측:</strong> ${fakePop.toLocaleString()}명 (<span style="color:${color}; font-weight:bold;">${fakeChange > 0 ? '+' : ''}${fakeChange}%</span>)<br>
-                <span style="color: #64748b; margin-top: 5px; display: inline-block;">💡 위 차트에 ${city}의 과거~미래 인구 추세선이 그려졌습니다!</span>
+                <span style="color: #ea580c; font-weight:bold;">[로컬 테스트 모드]</span><br>
+                <strong style="color: #be185d;">${targetYear}년 ${city}:</strong> ${fakePop.toLocaleString()}명 (<span style="color:${color}; font-weight:bold;">${fakeChange > 0 ? '+' : ''}${fakeChange}%</span>)
             `;
         }
     }
 
-    // Chart.js 그래프 다시 그리는 함수
     function drawChart(labels, dataArr, city) {
         if(popChart) popChart.destroy();
-        
-        // 데이터가 증가하는지 감소하는지에 따라 선 색상 변경
         const isIncreasing = dataArr[dataArr.length-1] > dataArr[0];
         const lineColor = isIncreasing ? '#db2777' : '#2563eb';
         const bgColor = isIncreasing ? 'rgba(219, 39, 119, 0.1)' : 'rgba(37, 99, 235, 0.1)';
 
         popChart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: `${city} 예측 인구`,
-                    data: dataArr,
-                    borderColor: lineColor,
-                    backgroundColor: bgColor,
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#ffffff',
-                    pointBorderColor: lineColor,
-                    pointRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { 
-                    y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.05)' } },
-                    x: { grid: { display: false } }
-                }
-            }
+            data: { labels: labels, datasets: [{ label: `${city} 예측`, data: dataArr, borderColor: lineColor, backgroundColor: bgColor, borderWidth: 3, fill: true, tension: 0.4 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.05)' } }, x: { grid: { display: false } } } }
         });
     }
     </script>
