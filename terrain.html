@@ -3,518 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>실감형 지형 변화 시뮬레이터</title>
+    <title>지형 변화 시뮬레이터 - 통합사회 C</title>
+    
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Sky.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Water.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
+
     <style>
         :root {
-            --ink: #e6f0ff;
-            --muted: #9fb3c8;
-            --panel: rgba(8, 16, 30, 0.78);
-            --panel-strong: rgba(6, 14, 26, 0.94);
-            --line: rgba(148, 163, 184, 0.2);
-            --blue: #38bdf8;
-            --green: #34d399;
-            --orange: #f59e0b;
-            --red: #f87171;
+            --primary: #2563eb; --primary-light: #eff6ff; --text-main: #0f172a; --text-sub: #64748b;
+            --bg-color: #f8fafc; --card-bg: #ffffff; --border-color: rgba(0,0,0,0.06); --radius: 20px;
         }
-        * { box-sizing: border-box; }
-        html, body { height: 100%; }
-        body {
-            margin: 0;
-            color: var(--ink);
-            font-family: 'Pretendard', 'Malgun Gothic', system-ui, sans-serif;
-            background: #020617;
-            overflow: hidden;
-        }
-        a { color: inherit; text-decoration: none; }
-        .app-shell { height: 100%; display: grid; grid-template-rows: auto 1fr; }
-        .navbar {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 14px 24px;
-            background: rgba(2, 6, 23, 0.78);
-            border-bottom: 1px solid var(--line);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-        }
-        .logo { display: inline-flex; align-items: center; gap: 10px; font-size: 1.05rem; font-weight: 900; letter-spacing: -0.03em; }
-        .logo span { width: 36px; height: 36px; border-radius: 14px; display: grid; place-items: center; background: linear-gradient(135deg, #2563eb, #06b6d4); box-shadow: 0 12px 28px rgba(37,99,235,0.35); }
-        .menu { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-        .menu a { padding: 9px 12px; border-radius: 999px; color: #cbd5e1; font-weight: 750; font-size: 0.9rem; }
-        .menu a:hover, .menu a.active { background: rgba(56,189,248,0.12); color: var(--blue); }
-        .stage { min-height: 0; position: relative; display: grid; grid-template-columns: 360px 1fr; }
-        .panel {
-            position: relative;
-            z-index: 5;
-            padding: 24px;
-            overflow-y: auto;
-            background: linear-gradient(180deg, var(--panel-strong), rgba(8, 16, 30, 0.84));
-            border-right: 1px solid var(--line);
-            box-shadow: 26px 0 70px rgba(0, 0, 0, 0.35);
-        }
-        .kicker { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border-radius: 999px; color: #bae6fd; background: rgba(14, 165, 233, 0.12); border: 1px solid rgba(56,189,248,0.22); font-size: 0.82rem; font-weight: 850; }
-        h1 { margin: 16px 0 10px; font-size: 1.85rem; line-height: 1.13; letter-spacing: -0.06em; }
-        .lead { margin: 0 0 22px; color: var(--muted); line-height: 1.65; word-break: keep-all; }
-        .control-card { margin-top: 14px; padding: 16px; border-radius: 22px; background: rgba(15, 23, 42, 0.68); border: 1px solid var(--line); }
-        .control-card h2 { display: flex; align-items: center; justify-content: space-between; margin: 0 0 12px; font-size: 0.98rem; letter-spacing: -0.02em; }
-        .pill { padding: 4px 8px; border-radius: 999px; background: rgba(148, 163, 184, 0.12); color: #cbd5e1; font-size: 0.72rem; font-weight: 800; }
-        .preset-grid, .tool-grid { display: grid; gap: 9px; }
-        .preset-grid { grid-template-columns: repeat(3, 1fr); }
-        button, select, input { font: inherit; }
-        button {
-            border: 0;
-            color: var(--ink);
-            cursor: pointer;
-            transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-        }
-        .preset-btn, .tool-btn, .action-btn {
-            min-height: 44px;
-            padding: 11px 12px;
-            border-radius: 15px;
-            background: rgba(30, 41, 59, 0.82);
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            color: #dbeafe;
-            font-weight: 820;
-        }
-        .preset-btn:hover, .tool-btn:hover, .action-btn:hover { transform: translateY(-1px); background: rgba(51,65,85,0.88); }
-        .preset-btn.active, .tool-btn.active { border-color: rgba(56,189,248,0.72); background: linear-gradient(135deg, rgba(37,99,235,0.9), rgba(6,182,212,0.72)); box-shadow: 0 14px 32px rgba(14,165,233,0.18); }
-        .tool-grid { grid-template-columns: 1fr; }
-        .tool-btn { display: flex; align-items: center; justify-content: space-between; text-align: left; }
-        .tool-btn small { display: block; margin-top: 2px; color: rgba(226,232,240,0.64); font-size: 0.75rem; font-weight: 600; }
-        .range-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; margin-top: 12px; }
-        .range-row label { color: #dbeafe; font-weight: 760; font-size: 0.9rem; }
-        .range-row output { color: #bae6fd; font-weight: 850; }
-        input[type="range"] { grid-column: 1 / -1; width: 100%; accent-color: var(--blue); cursor: pointer; }
-        .button-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
-        .action-btn.primary { background: linear-gradient(135deg, #16a34a, #0891b2); }
-        .action-btn.danger { background: linear-gradient(135deg, #7f1d1d, #ef4444); }
-        .hint { margin-top: 14px; padding: 14px; border-radius: 18px; background: rgba(56,189,248,0.09); border: 1px solid rgba(56,189,248,0.16); color: #cdeafe; font-size: 0.88rem; line-height: 1.55; }
-        .viewport { position: relative; min-width: 0; background: radial-gradient(circle at 50% 30%, #1e3a8a 0%, #0f172a 36%, #020617 100%); }
-        #terrainCanvas { display: block; width: 100%; height: 100%; outline: none; }
-        .hud {
-            position: absolute;
-            left: 22px;
-            right: 22px;
-            bottom: 22px;
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 10px;
-            pointer-events: none;
-        }
-        .hud-card { padding: 12px 14px; border-radius: 18px; background: rgba(2, 6, 23, 0.62); border: 1px solid rgba(226,232,240,0.14); backdrop-filter: blur(14px); }
-        .hud-card b { display: block; font-size: 1rem; }
-        .hud-card span { color: var(--muted); font-size: 0.78rem; }
-        .legend {
-            position: absolute;
-            right: 22px;
-            top: 22px;
-            width: min(260px, calc(100% - 44px));
-            padding: 14px;
-            border-radius: 20px;
-            background: rgba(2, 6, 23, 0.58);
-            border: 1px solid rgba(226,232,240,0.14);
-            backdrop-filter: blur(14px);
-            pointer-events: none;
-        }
-        .legend h2 { margin: 0 0 10px; font-size: 0.95rem; }
-        .legend-row { display: grid; grid-template-columns: 26px 1fr; gap: 9px; align-items: center; color: #cbd5e1; font-size: 0.82rem; margin-top: 7px; }
-        .swatch { width: 26px; height: 12px; border-radius: 999px; }
-        .loading {
-            position: absolute;
-            inset: 0;
-            display: grid;
-            place-items: center;
-            color: #dbeafe;
-            background: radial-gradient(circle, rgba(30,64,175,0.3), rgba(2,6,23,0.78));
-            z-index: 4;
-            pointer-events: none;
-            transition: opacity 0.4s ease;
-        }
-        .loading.hidden { opacity: 0; }
-        @media (max-width: 960px) {
-            body { overflow: auto; }
-            .app-shell { min-height: 100%; height: auto; }
-            .stage { grid-template-columns: 1fr; grid-template-rows: auto 70vh; }
-            .panel { border-right: 0; border-bottom: 1px solid var(--line); }
-            .hud { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-        @media (max-width: 560px) {
-            .navbar { align-items: flex-start; flex-direction: column; }
-            .preset-grid, .button-row { grid-template-columns: 1fr; }
-            .hud { display: none; }
-            .legend { top: 12px; right: 12px; left: 12px; width: auto; }
+
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        a { text-decoration: none; color: inherit; }
+
+        /* 네비게이션 */
+        .navbar { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .logo { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+        .menu { display: flex; gap: 24px; }
+        .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: 0.2s; }
+        .menu a:hover, .menu a.active { background: var(--primary-light); color: var(--primary); }
+
+        /* 대시보드 레이아웃 */
+        .dashboard-container { display: flex; flex: 1; padding: 24px; gap: 24px; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
+        
+        /* 왼쪽 3D 뷰어 */
+        .canvas-wrapper { flex: 2; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        #webgl-container { width: 100%; height: 100%; outline: none; }
+        .guide-badge { position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px); color: white; font-size: 0.85rem; padding: 8px 14px; border-radius: 12px; pointer-events: none; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        .crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.8); transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; }
+
+        /* 오른쪽 컨트롤 패널 */
+        .controls-wrapper { flex: 1; min-width: 350px; max-width: 400px; background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+        
+        .panel-header h2 { margin: 0 0 5px 0; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+        .panel-header p { margin: 0; font-size: 0.9rem; color: var(--text-sub); line-height: 1.4; }
+
+        /* 컨트롤 요소들 */
+        .control-group { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .control-group h3 { margin: 0; font-size: 0.95rem; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+        
+        /* 툴 선택 버튼 */
+        .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .tool-btn { background: white; border: 1px solid #cbd5e1; padding: 10px 5px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; font-family: inherit; }
+        .tool-btn:hover { background: #f1f5f9; border-color: var(--primary); }
+        .tool-btn.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+        
+        /* 슬라이더 */
+        .slider-row { display: flex; align-items: center; gap: 10px; }
+        .slider-label { width: 70px; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
+        .slider-value { width: 40px; font-size: 0.85rem; font-weight: 700; color: var(--primary); text-align: right; }
+        input[type="range"] { flex: 1; -webkit-appearance: none; height: 6px; background: #cbd5e1; border-radius: 3px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 0 0 3px white, 0 1px 3px rgba(0,0,0,0.2); }
+
+        .action-btns { display: flex; gap: 10px; margin-top: 10px; }
+        .action-btns button { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-family: inherit; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 6px; }
+        .btn-reset { background: #f1f5f9; color: var(--text-sub); }
+        .btn-reset:hover { background: #e2e8f0; color: var(--text-main); }
+        .btn-random { background: var(--primary); color: white; }
+        .btn-random:hover { background: #1d4ed8; }
+
+        @media (max-width: 900px) {
+            .dashboard-container { flex-direction: column; overflow-y: auto; }
+            .canvas-wrapper { min-height: 50vh; flex: none; }
+            .controls-wrapper { max-width: 100%; flex: none; }
         }
     </style>
 </head>
 <body>
-<div class="app-shell">
     <nav class="navbar">
-        <a href="index.html" class="logo"><span>🌍</span>경기여고 통합사회</a>
-        <div class="menu"><a href="index.html">홈</a><a href="index.html#simulators" class="active">시뮬레이터</a><a href="qna.html">Q&A</a></div>
+        <a href="index.html" class="logo">
+            <div class="logo-icon"><i data-lucide="globe"></i></div>
+            Society - C - Geography
+        </a>
+        <div class="menu">
+            <a href="index.html">홈</a>
+            <a href="qna.html">Q&A 게시판</a>
+        </div>
     </nav>
 
-    <main class="stage">
-        <aside class="panel">
-            <span class="kicker">🏔️ Terrain Lab v2.0</span>
-            <h1>실제 지형처럼 돌려보는 3D 지형 변화</h1>
-            <p class="lead">등고선 블록 대신 빛, 그림자, 물, 고도별 색을 입힌 연속 지형으로 산지·해안·화산 지형을 관찰합니다. 지형을 드래그해 침식·퇴적·융기를 직접 만들어 보세요.</p>
+    <div class="dashboard-container">
+        <div class="canvas-wrapper">
+            <div class="guide-badge"><i data-lucide="mouse-pointer-2" style="width:14px;height:14px;"></i> 좌클릭: 브러시 작동 / 우클릭: 시점 회전</div>
+            <div class="crosshair"></div>
+            <div id="webgl-container"></div>
+        </div>
 
-            <section class="control-card">
-                <h2>지형 프리셋 <span class="pill">Landscape</span></h2>
-                <div class="preset-grid">
-                    <button class="preset-btn active" data-preset="alpine">산악</button>
-                    <button class="preset-btn" data-preset="coast">해안</button>
-                    <button class="preset-btn" data-preset="volcanic">화산</button>
-                </div>
-            </section>
+        <div class="controls-wrapper">
+            <div class="panel-header">
+                <h2><i data-lucide="mountain" style="color:var(--primary);"></i> 지형 변화 시뮬레이터</h2>
+                <p>브러시를 활용해 융기/침식 작용을 그리며 사실적인 지형을 만듭니다.</p>
+            </div>
 
-            <section class="control-card">
-                <h2>지형 형성 작용 <span class="pill">Brush</span></h2>
+            <div class="control-group">
+                <h3><i data-lucide="pen-tool" style="width:16px;"></i> 작용 도구 (Brush)</h3>
                 <div class="tool-grid">
-                    <button class="tool-btn active" data-tool="erosion"><span>💧 하천 침식<small>V자곡·계곡처럼 깎아 내립니다.</small></span><strong>−</strong></button>
-                    <button class="tool-btn" data-tool="deposition"><span>🪨 퇴적 작용<small>모래톱·삼각주처럼 쌓습니다.</small></span><strong>+</strong></button>
-                    <button class="tool-btn" data-tool="uplift"><span>🌋 지각 융기<small>산맥·화산체를 크게 솟게 합니다.</small></span><strong>▲</strong></button>
+                    <button class="tool-btn active" data-tool="raise"><i data-lucide="arrow-up-circle"></i>융기 (올리기)</button>
+                    <button class="tool-btn" data-tool="lower"><i data-lucide="arrow-down-circle"></i>침식 (내리기)</button>
+                    <button class="tool-btn" data-tool="flatten"><i data-lucide="align-justify"></i>평탄화 (퇴적)</button>
                 </div>
-                <div class="range-row"><label for="brushSize">브러시 범위</label><output id="brushSizeValue">8</output><input type="range" id="brushSize" min="3" max="18" value="8"></div>
-                <div class="range-row"><label for="brushPower">작용 강도</label><output id="brushPowerValue">6</output><input type="range" id="brushPower" min="1" max="12" value="6"></div>
-            </section>
-
-            <section class="control-card">
-                <h2>환경 설정 <span class="pill">View</span></h2>
-                <div class="range-row"><label for="seaLevel">해수면</label><output id="seaLevelValue">0m</output><input type="range" id="seaLevel" min="-10" max="18" value="0"></div>
-                <div class="range-row"><label for="reliefScale">기복 강조</label><output id="reliefScaleValue">1.0x</output><input type="range" id="reliefScale" min="60" max="170" value="100"></div>
-                <div class="button-row"><button class="action-btn primary" id="randomizeBtn">새 지형 생성</button><button class="action-btn danger" id="resetBtn">처음으로</button></div>
-            </section>
-
-            <div class="hint"><strong>조작 방법</strong><br>마우스 드래그: 지형 회전 · 휠: 확대/축소 · Shift+드래그 또는 지형 클릭: 선택한 지형 형성 작용 적용</div>
-        </aside>
-
-        <section class="viewport">
-            <canvas id="terrainCanvas" aria-label="실감형 3D 지형 시뮬레이터"></canvas>
-            <div class="loading" id="loading">3D 지형을 준비하는 중입니다...</div>
-            <div class="legend">
-                <h2>고도 색상 범례</h2>
-                <div class="legend-row"><span class="swatch" style="background:#0ea5e9"></span><span>해양·호수</span></div>
-                <div class="legend-row"><span class="swatch" style="background:#f7d37a"></span><span>해안·퇴적 평야</span></div>
-                <div class="legend-row"><span class="swatch" style="background:#5fbf69"></span><span>초지·완만한 구릉</span></div>
-                <div class="legend-row"><span class="swatch" style="background:#8b735f"></span><span>암석 산지</span></div>
-                <div class="legend-row"><span class="swatch" style="background:#f8fafc"></span><span>고산 설원</span></div>
+                <div class="slider-row" style="margin-top: 10px;">
+                    <span class="slider-label">브러시 크기</span>
+                    <input type="range" id="brushSize" min="5" max="50" value="20">
+                    <span class="slider-value" id="sizeVal">20</span>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">작용 강도</span>
+                    <input type="range" id="brushPower" min="1" max="10" value="3">
+                    <span class="slider-value" id="powerVal">3</span>
+                </div>
             </div>
-            <div class="hud">
-                <div class="hud-card"><b id="statusTool">하천 침식</b><span>현재 작용</span></div>
-                <div class="hud-card"><b id="avgHeight">0m</b><span>평균 고도</span></div>
-                <div class="hud-card"><b id="peakHeight">0m</b><span>최고 고도</span></div>
-                <div class="hud-card"><b id="waterRatio">0%</b><span>수면 비율</span></div>
+
+            <div class="control-group">
+                <h3><i data-lucide="sun" style="width:16px;"></i> 환경 요소 (Environment)</h3>
+                <div class="slider-row">
+                    <span class="slider-label">해수면 높이</span>
+                    <input type="range" id="seaLevel" min="-20" max="50" value="5">
+                    <span class="slider-value" id="seaVal">5m</span>
+                </div>
+                <div class="slider-row">
+                    <span class="slider-label">태양 고도</span>
+                    <input type="range" id="sunElevation" min="0" max="90" value="30">
+                    <span class="slider-value" id="sunVal">30°</span>
+                </div>
             </div>
-        </section>
-    </main>
-</div>
 
-<script type="importmap">
-{
-    "imports": {
-        "three": "https://unpkg.com/three@0.160.1/build/three.module.js",
-        "three/addons/": "https://unpkg.com/three@0.160.1/examples/jsm/"
-    }
-}
-</script>
-<script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+            <div class="action-btns">
+                <button class="btn-reset" id="resetBtn"><i data-lucide="rotate-ccw" style="width:18px;"></i> 초기화</button>
+                <button class="btn-random" id="randomBtn"><i data-lucide="shuffle" style="width:18px;"></i> 새 지형 생성</button>
+            </div>
+        </div>
+    </div>
 
-    const canvas = document.getElementById('terrainCanvas');
-    const loading = document.getElementById('loading');
-    const sizeInput = document.getElementById('brushSize');
-    const powerInput = document.getElementById('brushPower');
-    const seaInput = document.getElementById('seaLevel');
-    const reliefInput = document.getElementById('reliefScale');
-    const statusTool = document.getElementById('statusTool');
-    const avgHeight = document.getElementById('avgHeight');
-    const peakHeight = document.getElementById('peakHeight');
-    const waterRatio = document.getElementById('waterRatio');
+    <script>
+        lucide.createIcons();
 
-    const segments = 160;
-    const worldSize = 240;
-    const vertexCount = segments + 1;
-    let preset = 'alpine';
-    let activeTool = 'erosion';
-    let seed = Math.random() * 1000;
-    let heights = [];
-    let baseHeights = [];
-    let seaLevel = Number(seaInput.value);
-    let reliefScale = Number(reliefInput.value) / 100;
-    let isSculpting = false;
+        // UI 요소 연결
+        const sizeInput = document.getElementById('brushSize'); const sizeVal = document.getElementById('sizeVal');
+        const powerInput = document.getElementById('brushPower'); const powerVal = document.getElementById('powerVal');
+        const seaInput = document.getElementById('seaLevel'); const seaVal = document.getElementById('seaVal');
+        const sunInput = document.getElementById('sunElevation'); const sunVal = document.getElementById('sunVal');
+        
+        sizeInput.oninput = () => sizeVal.innerText = sizeInput.value;
+        powerInput.oninput = () => powerVal.innerText = powerInput.value;
+        seaInput.oninput = () => { seaVal.innerText = seaInput.value + 'm'; updateWater(); };
+        sunInput.oninput = () => { sunVal.innerText = sunInput.value + '°'; updateSun(); };
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+        let currentTool = 'raise';
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTool = btn.dataset.tool;
+            };
+        });
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.Fog(0x8fc7df, 180, 430);
+        // ----------------------------------------------------
+        // ★ Three.js 그래픽 엔진 세팅 (환골탈태 영역) ★
+        // ----------------------------------------------------
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        
+        // 카메라 (원근감 극대화)
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
+        camera.position.set(200, 150, 200);
 
-    const camera = new THREE.PerspectiveCamera(52, 1, 0.1, 900);
-    camera.position.set(118, 104, 150);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true; // ★ 그림자 렌더링 활성화
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
 
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
-    controls.maxPolarAngle = Math.PI * 0.48;
-    controls.minDistance = 70;
-    controls.maxDistance = 330;
-    controls.target.set(0, 8, 0);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2 - 0.01; // 땅 아래로 내려가지 않게
+        
+        // 1. 대기 및 하늘 (Skybox)
+        const sky = new Sky();
+        sky.scale.setScalar(10000);
+        scene.add(sky);
+        
+        const skyUniforms = sky.material.uniforms;
+        skyUniforms['turbidity'].value = 10;
+        skyUniforms['rayleigh'].value = 2;
+        skyUniforms['mieCoefficient'].value = 0.005;
+        skyUniforms['mieDirectionalG'].value = 0.8;
+        
+        const sun = new THREE.Vector3();
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.castShadow = true; // 태양 그림자 생성
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.camera.near = 10;
+        dirLight.shadow.camera.far = 1000;
+        dirLight.shadow.camera.left = -150; dirLight.shadow.camera.right = 150;
+        dirLight.shadow.camera.top = 150; dirLight.shadow.camera.bottom = -150;
+        scene.add(dirLight);
 
-    scene.add(new THREE.HemisphereLight(0xdff7ff, 0x385144, 1.18));
-    const sun = new THREE.DirectionalLight(0xffffff, 2.15);
-    sun.position.set(-90, 140, 76);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
-    sun.shadow.camera.left = -180;
-    sun.shadow.camera.right = 180;
-    sun.shadow.camera.top = 180;
-    sun.shadow.camera.bottom = -180;
-    scene.add(sun);
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6); // 부드러운 주변광
+        scene.add(ambientLight);
 
-    const terrainGeometry = new THREE.PlaneGeometry(worldSize, worldSize, segments, segments);
-    const terrainMaterial = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.88, metalness: 0.02, flatShading: false });
-    const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
-    terrain.rotation.x = -Math.PI / 2;
-    terrain.receiveShadow = true;
-    terrain.castShadow = true;
-    scene.add(terrain);
-
-    const contourGeometry = new THREE.PlaneGeometry(worldSize, worldSize, segments, segments);
-    const contourMaterial = new THREE.MeshBasicMaterial({ color: 0x0f172a, wireframe: true, transparent: true, opacity: 0.08, depthWrite: false });
-    const contours = new THREE.Mesh(contourGeometry, contourMaterial);
-    contours.rotation.x = -Math.PI / 2;
-    contours.position.y = 0.2;
-    scene.add(contours);
-
-    const waterGeometry = new THREE.PlaneGeometry(worldSize * 1.08, worldSize * 1.08, 1, 1);
-    const waterMaterial = new THREE.MeshPhysicalMaterial({ color: 0x0ea5e9, transparent: true, opacity: 0.58, roughness: 0.18, metalness: 0.02, transmission: 0.08 });
-    const water = new THREE.Mesh(waterGeometry, waterMaterial);
-    water.rotation.x = -Math.PI / 2;
-    water.position.y = seaLevel;
-    scene.add(water);
-
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
-    const sculptPoint = new THREE.Vector3();
-
-    function random2(x, y) {
-        const value = Math.sin(x * 127.1 + y * 311.7 + seed * 17.13) * 43758.5453123;
-        return value - Math.floor(value);
-    }
-
-    function smoothstep(t) { return t * t * (3 - 2 * t); }
-
-    function valueNoise(x, y) {
-        const xi = Math.floor(x);
-        const yi = Math.floor(y);
-        const xf = x - xi;
-        const yf = y - yi;
-        const u = smoothstep(xf);
-        const v = smoothstep(yf);
-        const a = random2(xi, yi);
-        const b = random2(xi + 1, yi);
-        const c = random2(xi, yi + 1);
-        const d = random2(xi + 1, yi + 1);
-        return THREE.MathUtils.lerp(THREE.MathUtils.lerp(a, b, u), THREE.MathUtils.lerp(c, d, u), v);
-    }
-
-    function fbm(x, y) {
-        let sum = 0;
-        let amplitude = 0.58;
-        let frequency = 1;
-        let total = 0;
-        for (let octave = 0; octave < 6; octave++) {
-            sum += valueNoise(x * frequency, y * frequency) * amplitude;
-            total += amplitude;
-            amplitude *= 0.52;
-            frequency *= 2.03;
+        function updateSun() {
+            const phi = THREE.MathUtils.degToRad(90 - sunInput.value);
+            const theta = THREE.MathUtils.degToRad(45); // 태양 방위각
+            sun.setFromSphericalCoords(1, phi, theta);
+            sky.material.uniforms['sunPosition'].value.copy(sun);
+            dirLight.position.copy(sun).multiplyScalar(200);
+            
+            // 수면에 비치는 태양광 업데이트
+            if(water) water.material.uniforms['sunDirection'].value.copy(sun).normalize();
         }
-        return sum / total;
-    }
 
-    function getHeightAt(i, j) {
-        const nx = (i / segments - 0.5) * 2;
-        const nz = (j / segments - 0.5) * 2;
-        const distance = Math.hypot(nx, nz);
-        const ridge = Math.pow(1 - Math.abs(nx * 0.72 + nz * 0.24), 2.2);
-        const noise = fbm(nx * 2.3 + 8, nz * 2.3 - 3);
-        const detail = fbm(nx * 9.4 - 1, nz * 9.4 + 2) - 0.5;
+        // 2. 리얼타임 반사 물결 (Water.js)
+        const waterGeometry = new THREE.PlaneGeometry(1000, 1000);
+        const water = new Water(waterGeometry, {
+            textureWidth: 512, textureHeight: 512,
+            waterNormals: new THREE.TextureLoader().load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/waternormals.jpg', function(texture) {
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            }),
+            sunDirection: new THREE.Vector3(),
+            sunColor: 0xffffff,
+            waterColor: 0x0064b5, // 맑고 깊은 바다색
+            distortionScale: 3.7,
+            fog: scene.fog !== undefined
+        });
+        water.rotation.x = -Math.PI / 2;
+        water.position.y = 5; // 초기 해수면
+        scene.add(water);
 
-        if (preset === 'coast') {
-            const coastline = nx * 18 + Math.sin(nz * 5.4) * 7;
-            return coastline + noise * 24 + detail * 5 - Math.max(0, -nx) * 22;
+        function updateWater() { water.position.y = parseFloat(seaInput.value); }
+
+        // 3. 지형 데이터 (PBR 메테리얼 & 노이즈 생성)
+        const simplex = new SimplexNoise();
+        const terrainSize = 200; const resolution = 128;
+        const geometry = new THREE.PlaneGeometry(terrainSize, terrainSize, resolution, resolution);
+        geometry.rotateX(-Math.PI / 2);
+        
+        // 광원과 그림자에 반응하는 고급 재질 (MeshStandardMaterial)
+        const material = new THREE.MeshStandardMaterial({
+            vertexColors: true, // 고도에 따른 색상 적용
+            roughness: 0.8, // 거친 흙/바위 질감
+            metalness: 0.05,
+            flatShading: true // 지형의 각진 느낌을 살려 입체감 강조
+        });
+        
+        const terrain = new THREE.Mesh(geometry, material);
+        terrain.castShadow = true; terrain.receiveShadow = true;
+        scene.add(terrain);
+
+        const positionAttribute = geometry.attributes.position;
+        const colors = []; const baseHeights = [];
+
+        // 색상 팔레트 (심해 -> 바다 -> 모래 -> 숲 -> 바위 -> 눈)
+        const colorPalette = {
+            deepWater: new THREE.Color(0x1e3a8a), sand: new THREE.Color(0xeab308),
+            grass: new THREE.Color(0x22c55e), forest: new THREE.Color(0x15803d),
+            rock: new THREE.Color(0x64748b), snow: new THREE.Color(0xf8fafc)
+        };
+
+        function generateTerrain() {
+            const seed = Math.random() * 1000;
+            let colorObj = new THREE.Color();
+            colors.length = 0; baseHeights.length = 0;
+
+            for (let i = 0; i < positionAttribute.count; i++) {
+                const x = positionAttribute.getX(i);
+                const z = positionAttribute.getZ(i);
+                
+                // 프랙탈 노이즈 조합으로 자연스러운 산맥 생성
+                let y = simplex.noise2D(x/50 + seed, z/50 + seed) * 15;
+                y += simplex.noise2D(x/20 + seed, z/20 + seed) * 5;
+                if(y < 0) y *= 0.3; // 평야 형성
+                
+                positionAttribute.setY(i, y);
+                baseHeights.push(y);
+                colors.push(1, 1, 1); // 색상 배열 공간 미리 확보
+            }
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            geometry.computeVertexNormals();
+            updateTerrainColors();
         }
-        if (preset === 'volcanic') {
-            const cone = Math.max(0, 1 - distance) * 52;
-            const crater = Math.exp(-distance * distance * 34) * 22;
-            const flank = noise * 18 + detail * 5 - distance * 14;
-            return cone - crater + flank - 6;
-        }
-        return ridge * 46 + noise * 24 + detail * 7 - distance * 15 - 5;
-    }
 
-    function makeTerrain() {
-        heights = [];
-        for (let j = 0; j < vertexCount; j++) {
-            for (let i = 0; i < vertexCount; i++) {
-                heights.push(getHeightAt(i, j));
+        // 고도에 따라 현실적인 색상(Biome) 칠하기
+        function updateTerrainColors() {
+            const colorAttr = geometry.attributes.color;
+            let c = new THREE.Color();
+            
+            for (let i = 0; i < positionAttribute.count; i++) {
+                const y = positionAttribute.getY(i);
+                if (y < -2) c.copy(colorPalette.sand).lerp(colorPalette.deepWater, 0.5);
+                else if (y < 2) c.copy(colorPalette.sand);
+                else if (y < 12) c.copy(colorPalette.grass).lerp(colorPalette.forest, (y-2)/10);
+                else if (y < 22) c.copy(colorPalette.forest).lerp(colorPalette.rock, (y-12)/10);
+                else c.copy(colorPalette.rock).lerp(colorPalette.snow, Math.min((y-22)/5, 1));
+                
+                colorAttr.setXYZ(i, c.r, c.g, c.b);
+            }
+            colorAttr.needsUpdate = true;
+        }
+
+        // ----------------------------------------------------
+        // ★ 마우스 브러시 인터랙션 로직 ★
+        // ----------------------------------------------------
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let isSculpting = false;
+
+        function sculpt(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(terrain);
+
+            if (intersects.length > 0) {
+                const point = intersects[0].point;
+                const bSize = parseFloat(sizeInput.value);
+                const bPower = parseFloat(powerInput.value);
+                
+                for (let i = 0; i < positionAttribute.count; i++) {
+                    const vx = positionAttribute.getX(i);
+                    const vz = positionAttribute.getZ(i);
+                    const vy = positionAttribute.getY(i);
+                    
+                    const dist = Math.sqrt((vx - point.x)**2 + (vz - point.z)**2);
+                    if (dist < bSize) {
+                        // 부드러운 브러시 엣지 (가우스 곡선)
+                        const influence = Math.cos((dist / bSize) * (Math.PI / 2));
+                        let newY = vy;
+                        
+                        if (currentTool === 'raise') newY += influence * bPower * 0.2;
+                        else if (currentTool === 'lower') newY -= influence * bPower * 0.2;
+                        else if (currentTool === 'flatten') newY += (point.y - vy) * influence * 0.1;
+                        
+                        positionAttribute.setY(i, newY);
+                    }
+                }
+                positionAttribute.needsUpdate = true;
+                geometry.computeVertexNormals();
+                updateTerrainColors(); // 지형이 깎이면 색깔(바위->흙)도 바뀜
             }
         }
-        baseHeights = [...heights];
-        updateGeometry();
-        updateStats();
-    }
 
-    function colorForHeight(height) {
-        const h = height - seaLevel;
-        if (h < -1.2) return new THREE.Color(0x0ea5e9);
-        if (h < 1.8) return new THREE.Color(0xf7d37a);
-        if (h < 13) return new THREE.Color(0x5fbf69);
-        if (h < 28) return new THREE.Color(0x8b735f);
-        return new THREE.Color(0xf8fafc);
-    }
-
-    function updateGeometry() {
-        const positions = terrainGeometry.attributes.position;
-        const contourPositions = contourGeometry.attributes.position;
-        const colors = [];
-        for (let index = 0; index < positions.count; index++) {
-            const displayHeight = heights[index] * reliefScale;
-            positions.setZ(index, displayHeight);
-            contourPositions.setZ(index, displayHeight + 0.18);
-            const color = colorForHeight(displayHeight);
-            colors.push(color.r, color.g, color.b);
-        }
-        terrainGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        positions.needsUpdate = true;
-        contourPositions.needsUpdate = true;
-        terrainGeometry.computeVertexNormals();
-        terrainGeometry.attributes.color.needsUpdate = true;
-        contourGeometry.computeVertexNormals();
-        water.position.y = seaLevel;
-    }
-
-    function updateStats() {
-        const displayHeights = heights.map((height) => height * reliefScale);
-        const average = displayHeights.reduce((sum, height) => sum + height, 0) / displayHeights.length;
-        const peak = Math.max(...displayHeights);
-        const waterCells = displayHeights.filter((height) => height <= seaLevel).length;
-        avgHeight.textContent = `${Math.round(average * 42)}m`;
-        peakHeight.textContent = `${Math.round(peak * 42)}m`;
-        waterRatio.textContent = `${Math.round((waterCells / displayHeights.length) * 100)}%`;
-        document.getElementById('seaLevelValue').textContent = `${Math.round(seaLevel * 42)}m`;
-        document.getElementById('reliefScaleValue').textContent = `${reliefScale.toFixed(1)}x`;
-    }
-
-    function setPointer(event) {
-        const rect = canvas.getBoundingClientRect();
-        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    }
-
-    function pickTerrain(event) {
-        setPointer(event);
-        raycaster.setFromCamera(pointer, camera);
-        const hit = raycaster.intersectObject(terrain, false)[0];
-        if (!hit) return null;
-        sculptPoint.copy(hit.point);
-        terrain.worldToLocal(sculptPoint);
-        return sculptPoint;
-    }
-
-    function sculpt(event) {
-        const point = pickTerrain(event);
-        if (!point) return;
-        const gridX = Math.round(((point.x / worldSize) + 0.5) * segments);
-        const gridZ = Math.round(((point.y / worldSize) + 0.5) * segments);
-        const radius = Number(sizeInput.value);
-        const power = Number(powerInput.value) * 0.13;
-
-        for (let j = Math.max(0, gridZ - radius); j <= Math.min(segments, gridZ + radius); j++) {
-            for (let i = Math.max(0, gridX - radius); i <= Math.min(segments, gridX + radius); i++) {
-                const distance = Math.hypot(i - gridX, j - gridZ);
-                if (distance > radius) continue;
-                const falloff = Math.pow(1 - distance / radius, 2);
-                const index = j * vertexCount + i;
-                if (activeTool === 'erosion') heights[index] -= power * falloff;
-                if (activeTool === 'deposition') heights[index] += power * falloff * 0.8;
-                if (activeTool === 'uplift') heights[index] += power * falloff * 1.65;
-                heights[index] = THREE.MathUtils.clamp(heights[index], -38, 68);
+        container.addEventListener('pointerdown', (e) => {
+            if (e.button === 0) { // 좌클릭 브러시
+                isSculpting = true; controls.enabled = false; sculpt(e);
             }
-        }
-        updateGeometry();
-        updateStats();
-    }
-
-    function resize() {
-        const { clientWidth, clientHeight } = canvas.parentElement;
-        camera.aspect = clientWidth / clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(clientWidth, clientHeight, false);
-    }
-
-    function animate(time) {
-        water.material.opacity = 0.54 + Math.sin(time * 0.0015) * 0.035;
-        controls.update();
-        renderer.render(scene, camera);
-        requestAnimationFrame(animate);
-    }
-
-    document.querySelectorAll('.preset-btn').forEach((button) => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.preset-btn').forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
-            preset = button.dataset.preset;
-            seed = Math.random() * 1000;
-            makeTerrain();
         });
-    });
+        container.addEventListener('pointermove', (e) => { if (isSculpting) sculpt(e); });
+        window.addEventListener('pointerup', () => { isSculpting = false; controls.enabled = true; });
 
-    const toolLabels = { erosion: '하천 침식', deposition: '퇴적 작용', uplift: '지각 융기' };
-    document.querySelectorAll('.tool-btn').forEach((button) => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.tool-btn').forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
-            activeTool = button.dataset.tool;
-            statusTool.textContent = toolLabels[activeTool];
+        document.getElementById('randomBtn').onclick = generateTerrain;
+        document.getElementById('resetBtn').onclick = () => {
+            for (let i = 0; i < positionAttribute.count; i++) positionAttribute.setY(i, baseHeights[i]);
+            positionAttribute.needsUpdate = true;
+            geometry.computeVertexNormals();
+            updateTerrainColors();
+        };
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
         });
-    });
 
-    sizeInput.addEventListener('input', () => { document.getElementById('brushSizeValue').textContent = sizeInput.value; });
-    powerInput.addEventListener('input', () => { document.getElementById('brushPowerValue').textContent = powerInput.value; });
-    seaInput.addEventListener('input', () => { seaLevel = Number(seaInput.value); updateGeometry(); updateStats(); });
-    reliefInput.addEventListener('input', () => { reliefScale = Number(reliefInput.value) / 100; updateGeometry(); updateStats(); });
-    document.getElementById('randomizeBtn').addEventListener('click', () => { seed = Math.random() * 1000; makeTerrain(); });
-    document.getElementById('resetBtn').addEventListener('click', () => { heights = [...baseHeights]; updateGeometry(); updateStats(); });
-
-    canvas.addEventListener('pointerdown', (event) => {
-        if (event.shiftKey) {
-            isSculpting = true;
-            controls.enabled = false;
-            sculpt(event);
+        function animate() {
+            requestAnimationFrame(animate);
+            water.material.uniforms['time'].value += 1.0 / 60.0; // 물결 출렁임 애니메이션
+            controls.update();
+            renderer.render(scene, camera);
         }
-    });
-    canvas.addEventListener('pointermove', (event) => { if (isSculpting) sculpt(event); });
-    window.addEventListener('pointerup', () => { isSculpting = false; controls.enabled = true; });
-    canvas.addEventListener('click', (event) => { if (!event.shiftKey) sculpt(event); });
-    window.addEventListener('resize', resize);
 
-    resize();
-    makeTerrain();
-    updateStats();
-    loading.classList.add('hidden');
-    requestAnimationFrame(animate);
-</script>
+        // 초기화 실행
+        updateSun();
+        generateTerrain();
+        animate();
+    </script>
 </body>
 </html>
