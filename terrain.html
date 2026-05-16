@@ -23,7 +23,6 @@
         body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         a { text-decoration: none; color: inherit; }
 
-        /* 네비게이션 */
         .navbar { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
         .logo { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
         .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
@@ -31,32 +30,29 @@
         .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: 0.2s; }
         .menu a:hover, .menu a.active { background: var(--primary-light); color: var(--primary); }
 
-        /* 대시보드 레이아웃 */
         .dashboard-container { display: flex; flex: 1; padding: 24px; gap: 24px; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
         
-        /* 왼쪽 3D 뷰어 */
         .canvas-wrapper { flex: 2; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); background: #000; }
         #webgl-container { width: 100%; height: 100%; outline: none; }
         .guide-badge { position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px); color: white; font-size: 0.85rem; padding: 8px 14px; border-radius: 12px; pointer-events: none; display: flex; align-items: center; gap: 6px; font-weight: 500; z-index: 10;}
         .crosshair { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.8); transform: translate(-50%, -50%); pointer-events: none; mix-blend-mode: difference; z-index: 10;}
 
-        /* 오른쪽 컨트롤 패널 */
         .controls-wrapper { flex: 1; min-width: 350px; max-width: 400px; background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
         
         .panel-header h2 { margin: 0 0 5px 0; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
         .panel-header p { margin: 0; font-size: 0.9rem; color: var(--text-sub); line-height: 1.4; }
 
-        /* 컨트롤 요소들 */
         .control-group { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .control-group h3 { margin: 0; font-size: 0.95rem; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
         
-        /* 툴 선택 버튼 */
         .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .tool-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
         .tool-btn { background: white; border: 1px solid #cbd5e1; padding: 10px 5px; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); transition: 0.2s; display: flex; flex-direction: column; align-items: center; gap: 5px; font-family: inherit; }
         .tool-btn:hover { background: #f1f5f9; border-color: var(--primary); }
         .tool-btn.active { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+        .tool-btn.special { color: #15803d; border-color: #bbf7d0; background: #f0fdf4; }
+        .tool-btn.special:hover { background: #dcfce7; border-color: #16a34a; }
         
-        /* 슬라이더 */
         .slider-row { display: flex; align-items: center; gap: 10px; }
         .slider-label { width: 70px; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); }
         .slider-value { width: 40px; font-size: 0.85rem; font-weight: 700; color: var(--primary); text-align: right; }
@@ -103,6 +99,15 @@
             </div>
 
             <div class="control-group">
+                <h3><i data-lucide="map" style="width:16px;"></i> 실제 지형 모델링 (DEM)</h3>
+                <div class="tool-grid-2">
+                    <button class="tool-btn special" id="btnBaekdu"><i data-lucide="mountain-snow"></i>백두산 천지 (생성)</button>
+                    <button class="tool-btn" id="btnKorea"><i data-lucide="image"></i>한반도 (이미지 로드)</button>
+                </div>
+                <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-sub); line-height: 1.4;">※ 한반도 버튼은 깃허브에 <code>korea_dem.jpg</code> 파일이 업로드되어 있어야 작동합니다.</p>
+            </div>
+
+            <div class="control-group">
                 <h3><i data-lucide="pen-tool" style="width:16px;"></i> 작용 도구 (Brush)</h3>
                 <div class="tool-grid">
                     <button class="tool-btn active" data-tool="raise"><i data-lucide="arrow-up-circle"></i>융기 (올리기)</button>
@@ -137,7 +142,7 @@
 
             <div class="action-btns">
                 <button class="btn-reset" id="resetBtn"><i data-lucide="rotate-ccw" style="width:18px;"></i> 초기화</button>
-                <button class="btn-random" id="randomBtn"><i data-lucide="shuffle" style="width:18px;"></i> 새 지형 생성</button>
+                <button class="btn-random" id="randomBtn"><i data-lucide="shuffle" style="width:18px;"></i> 랜덤 지형 생성</button>
             </div>
         </div>
     </div>
@@ -157,36 +162,34 @@
         sunInput.oninput = () => { sunVal.innerText = sunInput.value + '°'; updateSun(); };
 
         let currentTool = 'raise';
-        document.querySelectorAll('.tool-btn').forEach(btn => {
+        document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
             btn.onclick = () => {
-                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentTool = btn.dataset.tool;
             };
         });
 
         // ----------------------------------------------------
-        // ★ Three.js 그래픽 엔진 세팅 (환골탈태 영역) ★
+        // ★ Three.js 그래픽 엔진 세팅 ★
         // ----------------------------------------------------
         const container = document.getElementById('webgl-container');
         const scene = new THREE.Scene();
         
-        // 카메라 (원근감 극대화)
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
         camera.position.set(200, 150, 200);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true; // ★ 그림자 렌더링 활성화
+        renderer.shadowMap.enabled = true; 
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderer.domElement);
 
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true; controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2 - 0.01; // 땅 아래로 내려가지 않게
+        controls.maxPolarAngle = Math.PI / 2 - 0.01; 
         
-        // 1. 대기 및 하늘 (Skybox) - 오타 수정 (THREE.Sky)
         const sky = new THREE.Sky();
         sky.scale.setScalar(10000);
         scene.add(sky);
@@ -197,10 +200,9 @@
         skyUniforms['mieCoefficient'].value = 0.005;
         skyUniforms['mieDirectionalG'].value = 0.8;
         
-        // 조명 설정
         const sun = new THREE.Vector3();
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        dirLight.castShadow = true; // 태양 그림자 생성
+        dirLight.castShadow = true; 
         dirLight.shadow.mapSize.width = 2048;
         dirLight.shadow.mapSize.height = 2048;
         dirLight.shadow.camera.near = 10;
@@ -209,10 +211,9 @@
         dirLight.shadow.camera.top = 150; dirLight.shadow.camera.bottom = -150;
         scene.add(dirLight);
 
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.6); // 부드러운 주변광
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6); 
         scene.add(ambientLight);
 
-        // 2. 리얼타임 반사 물결 (Water.js) - 오타 수정 (THREE.Water) 및 링크 안정화
         const waterGeometry = new THREE.PlaneGeometry(1000, 1000);
         const water = new THREE.Water(waterGeometry, {
             textureWidth: 512, textureHeight: 512,
@@ -221,38 +222,33 @@
             }),
             sunDirection: new THREE.Vector3(),
             sunColor: 0xffffff,
-            waterColor: 0x0064b5, // 맑고 깊은 바다색
+            waterColor: 0x0064b5, 
             distortionScale: 3.7,
             fog: scene.fog !== undefined
         });
         water.rotation.x = -Math.PI / 2;
-        water.position.y = 5; // 초기 해수면
+        water.position.y = 5; 
         scene.add(water);
 
-        // 환경변수 업데이트 함수
         function updateWater() { water.position.y = parseFloat(seaInput.value); }
 
         function updateSun() {
             const phi = THREE.MathUtils.degToRad(90 - sunInput.value);
-            const theta = THREE.MathUtils.degToRad(45); // 태양 방위각
+            const theta = THREE.MathUtils.degToRad(45);
             sun.setFromSphericalCoords(1, phi, theta);
             sky.material.uniforms['sunPosition'].value.copy(sun);
             dirLight.position.copy(sun).multiplyScalar(200);
             water.material.uniforms['sunDirection'].value.copy(sun).normalize();
         }
 
-        // 3. 지형 데이터 (PBR 메테리얼 & 노이즈 생성)
+        // 지형 지오메트리 
         const simplex = new SimplexNoise();
-        const terrainSize = 200; const resolution = 128;
+        const terrainSize = 200; const resolution = 128; // 해상도: 128x128 
         const geometry = new THREE.PlaneGeometry(terrainSize, terrainSize, resolution, resolution);
         geometry.rotateX(-Math.PI / 2);
         
-        // 광원과 그림자에 반응하는 고급 재질 (MeshStandardMaterial)
         const material = new THREE.MeshStandardMaterial({
-            vertexColors: true, // 고도에 따른 색상 적용
-            roughness: 0.8, // 거친 흙/바위 질감
-            metalness: 0.05,
-            flatShading: true // 지형의 각진 느낌을 살려 입체감 강조
+            vertexColors: true, roughness: 0.8, metalness: 0.05, flatShading: true 
         });
         
         const terrain = new THREE.Mesh(geometry, material);
@@ -262,37 +258,12 @@
         const positionAttribute = geometry.attributes.position;
         const colors = []; const baseHeights = [];
 
-        // 색상 팔레트 (심해 -> 바다 -> 모래 -> 숲 -> 바위 -> 눈)
         const colorPalette = {
             deepWater: new THREE.Color(0x1e3a8a), sand: new THREE.Color(0xeab308),
             grass: new THREE.Color(0x22c55e), forest: new THREE.Color(0x15803d),
             rock: new THREE.Color(0x64748b), snow: new THREE.Color(0xf8fafc)
         };
 
-        function generateTerrain() {
-            const seed = Math.random() * 1000;
-            let colorObj = new THREE.Color();
-            colors.length = 0; baseHeights.length = 0;
-
-            for (let i = 0; i < positionAttribute.count; i++) {
-                const x = positionAttribute.getX(i);
-                const z = positionAttribute.getZ(i);
-                
-                // 프랙탈 노이즈 조합으로 자연스러운 산맥 생성
-                let y = simplex.noise2D(x/50 + seed, z/50 + seed) * 15;
-                y += simplex.noise2D(x/20 + seed, z/20 + seed) * 5;
-                if(y < 0) y *= 0.3; // 평야 형성
-                
-                positionAttribute.setY(i, y);
-                baseHeights.push(y);
-                colors.push(1, 1, 1); // 색상 배열 공간 미리 확보
-            }
-            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-            geometry.computeVertexNormals();
-            updateTerrainColors();
-        }
-
-        // 고도에 따라 현실적인 색상(Biome) 칠하기
         function updateTerrainColors() {
             const colorAttr = geometry.attributes.color;
             let c = new THREE.Color();
@@ -311,7 +282,105 @@
         }
 
         // ----------------------------------------------------
-        // ★ 마우스 브러시 인터랙션 로직 ★
+        // ★ 마스터피스 2단계: 실제 지형 알고리즘 ★
+        // ----------------------------------------------------
+        
+        // 1. 랜덤 수학 지형 생성 (기본)
+        function generateTerrain() {
+            const seed = Math.random() * 1000;
+            colors.length = 0; baseHeights.length = 0;
+
+            for (let i = 0; i < positionAttribute.count; i++) {
+                const x = positionAttribute.getX(i); const z = positionAttribute.getZ(i);
+                let y = simplex.noise2D(x/50 + seed, z/50 + seed) * 15;
+                y += simplex.noise2D(x/20 + seed, z/20 + seed) * 5;
+                if(y < 0) y *= 0.3; 
+                
+                positionAttribute.setY(i, y); baseHeights.push(y); colors.push(1, 1, 1);
+            }
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            geometry.computeVertexNormals(); updateTerrainColors();
+            
+            // 해수면 높이 초기화
+            seaInput.value = 5; seaVal.innerText = '5m'; updateWater();
+        }
+
+        // 2. 백두산 천지 (칼데라 지형) 생성 알고리즘
+        function generateBaekdu() {
+            colors.length = 0; baseHeights.length = 0;
+
+            for (let i = 0; i < positionAttribute.count; i++) {
+                const x = positionAttribute.getX(i); const z = positionAttribute.getZ(i);
+                const distFromCenter = Math.sqrt(x*x + z*z);
+
+                let y = 0;
+                // 화산의 완만한 경사면 생성
+                if (distFromCenter < 80) {
+                    y = Math.cos((distFromCenter/80) * (Math.PI/2)) * 45;
+                }
+                // 중앙 분화구(칼데라) 파내기
+                if (distFromCenter < 25) {
+                    y -= (25 - distFromCenter) * 1.8; 
+                }
+                // 바위 질감을 위한 노이즈 추가
+                y += simplex.noise2D(x/10, z/10) * 2;
+                if (y < -5) y = -5; // 분화구 바닥 깊이 제한
+
+                positionAttribute.setY(i, y); baseHeights.push(y); colors.push(1, 1, 1);
+            }
+            if(!geometry.attributes.color) geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            positionAttribute.needsUpdate = true;
+            geometry.computeVertexNormals(); updateTerrainColors();
+            
+            // 백두산 천지에 물이 차오르게 하기 위해 해수면을 산꼭대기 높이로 강제 조정
+            seaInput.value = 28; seaVal.innerText = '28m'; updateWater();
+        }
+
+        // 3. DEM 이미지로 실제 지형(한반도) 로드하기
+        function loadDEM(imageUrl) {
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = function() {
+                // 이미지를 보이지 않는 캔버스에 그리고 픽셀 데이터를 뽑아냄
+                const imgCanvas = document.createElement('canvas');
+                // 해상도 128에 꼭지점(Vertex)은 129개이므로 129x129 크기로 매핑
+                imgCanvas.width = resolution + 1; imgCanvas.height = resolution + 1;
+                const imgCtx = imgCanvas.getContext('2d');
+                imgCtx.drawImage(img, 0, 0, imgCanvas.width, imgCanvas.height);
+                const data = imgCtx.getImageData(0, 0, imgCanvas.width, imgCanvas.height).data;
+
+                baseHeights.length = 0; colors.length = 0;
+                for (let i = 0; i < positionAttribute.count; i++) {
+                    const px = i * 4;
+                    // 픽셀의 밝기(흰색일수록 높음) 계산
+                    const brightness = (data[px] + data[px+1] + data[px+2]) / 3;
+                    const normalized = brightness / 255; // 0 ~ 1 사이 값
+
+                    // 픽셀 밝기를 3D 고도로 변환 (높이 조절 계수)
+                    let height = (normalized * 80) - 10; 
+                    
+                    positionAttribute.setY(i, height); baseHeights.push(height); colors.push(1,1,1);
+                }
+                if(!geometry.attributes.color) geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+                positionAttribute.needsUpdate = true;
+                geometry.computeVertexNormals(); updateTerrainColors();
+                
+                seaInput.value = 0; seaVal.innerText = '0m'; updateWater();
+            };
+            img.onerror = function() {
+                alert("이미지를 불러올 수 없습니다. 깃허브에 korea_dem.jpg 파일이 정확히 업로드되었는지 확인해주세요.");
+            };
+            img.src = imageUrl;
+        }
+
+        // 버튼 이벤트 연결
+        document.getElementById('btnBaekdu').onclick = generateBaekdu;
+        // 나중에 깃허브에 korea_dem.jpg를 올리시면 URL 부분만 './korea_dem.jpg' 로 바꾸시면 됩니다.
+        document.getElementById('btnKorea').onclick = () => loadDEM('./korea_dem.jpg'); 
+
+
+        // ----------------------------------------------------
+        // ★ 마우스 브러시 로직 (이전과 동일) ★
         // ----------------------------------------------------
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
@@ -331,33 +400,24 @@
                 const bPower = parseFloat(powerInput.value);
                 
                 for (let i = 0; i < positionAttribute.count; i++) {
-                    const vx = positionAttribute.getX(i);
-                    const vz = positionAttribute.getZ(i);
-                    const vy = positionAttribute.getY(i);
-                    
+                    const vx = positionAttribute.getX(i); const vz = positionAttribute.getZ(i); const vy = positionAttribute.getY(i);
                     const dist = Math.sqrt((vx - point.x)**2 + (vz - point.z)**2);
                     if (dist < bSize) {
-                        // 부드러운 브러시 엣지 (가우스 곡선)
                         const influence = Math.cos((dist / bSize) * (Math.PI / 2));
                         let newY = vy;
-                        
                         if (currentTool === 'raise') newY += influence * bPower * 0.2;
                         else if (currentTool === 'lower') newY -= influence * bPower * 0.2;
                         else if (currentTool === 'flatten') newY += (point.y - vy) * influence * 0.1;
-                        
                         positionAttribute.setY(i, newY);
                     }
                 }
                 positionAttribute.needsUpdate = true;
-                geometry.computeVertexNormals();
-                updateTerrainColors(); // 지형이 깎이면 색깔(바위->흙)도 바뀜
+                geometry.computeVertexNormals(); updateTerrainColors();
             }
         }
 
         container.addEventListener('pointerdown', (e) => {
-            if (e.button === 0) { // 좌클릭 브러시
-                isSculpting = true; controls.enabled = false; sculpt(e);
-            }
+            if (e.button === 0) { isSculpting = true; controls.enabled = false; sculpt(e); }
         });
         container.addEventListener('pointermove', (e) => { if (isSculpting) sculpt(e); });
         window.addEventListener('pointerup', () => { isSculpting = false; controls.enabled = true; });
@@ -365,28 +425,21 @@
         document.getElementById('randomBtn').onclick = generateTerrain;
         document.getElementById('resetBtn').onclick = () => {
             for (let i = 0; i < positionAttribute.count; i++) positionAttribute.setY(i, baseHeights[i]);
-            positionAttribute.needsUpdate = true;
-            geometry.computeVertexNormals();
-            updateTerrainColors();
+            positionAttribute.needsUpdate = true; geometry.computeVertexNormals(); updateTerrainColors();
         };
 
         window.addEventListener('resize', () => {
             camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
+            camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight);
         });
 
         function animate() {
             requestAnimationFrame(animate);
-            water.material.uniforms['time'].value += 1.0 / 60.0; // 물결 출렁임 애니메이션
-            controls.update();
-            renderer.render(scene, camera);
+            water.material.uniforms['time'].value += 1.0 / 60.0; 
+            controls.update(); renderer.render(scene, camera);
         }
 
-        // 초기화 실행
-        updateSun();
-        generateTerrain();
-        animate();
+        updateSun(); generateTerrain(); animate();
     </script>
 </body>
 </html>
