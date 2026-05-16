@@ -20,12 +20,9 @@
         --border-color: rgba(0,0,0,0.06);
     }
 
-    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); line-height: 1.6; }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); line-height: 1.6; }
     a { text-decoration: none; color: inherit; }
     
-    /* =========================================
-       글래스모피즘 네비게이션 바 (메인과 동일)
-       ========================================= */
     .navbar { 
         background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         display: flex; justify-content: space-between; align-items: center; 
@@ -38,15 +35,10 @@
     .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
     .menu a:hover, .menu a.active { background: var(--primary-light); color: var(--primary); }
 
-    /* =========================================
-       게시판 메인 레이아웃 및 카드 스타일
-       ========================================= */
     .qna-wrapper { padding: 40px 20px 80px; }
     .qna-container { max-width: 800px; margin: 0 auto; box-sizing: border-box; position: relative; display: flex; flex-direction: column; gap: 20px; }
-    
     .card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
 
-    /* 관리자 로그인 */
     .admin-header-row { display: flex; justify-content: flex-end; width: 100%; position: relative; margin-bottom: -10px; }
     #adminBtn { padding: 8px 16px; font-size: 0.85rem; cursor: pointer; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 6px; color: var(--text-sub); font-weight: 600; font-family: inherit; }
     #adminBtn i { width: 14px; height: 14px; }
@@ -57,7 +49,6 @@
     .admin-login-box input { width: 140px; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-family: inherit; }
     .admin-login-box button { padding: 8px 12px; font-size: 0.9rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; margin-left: 5px; }
 
-    /* 공지사항 (디자인 고급화) */
     .notice-box { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0; padding: 24px 30px; }
     .notice-box h2 { margin: 0 0 12px 0; color: #166534; font-size: 1.25rem; display: flex; align-items: center; gap: 8px; letter-spacing: -0.5px; }
     .notice-box h2 i { width: 22px; height: 22px; }
@@ -65,7 +56,7 @@
 
     /* 새 글 쓰기 폼 */
     .write-box { display: flex; flex-direction: column; gap: 12px; }
-    .write-box input, .write-box textarea { width: 100%; padding: 14px 16px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.95rem; outline: none; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s; background: #f8fafc; }
+    .write-box input[type="text"], .write-box input[type="password"], .write-box textarea { width: 100%; padding: 14px 16px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.95rem; outline: none; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s; background: #f8fafc; }
     .write-box input:focus, .write-box textarea:focus { border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px var(--primary-light); }
     .write-title-input { font-weight: 700; font-size: 1.1rem !important; color: var(--text-main); }
     
@@ -73,15 +64,23 @@
     .write-options { display: flex; gap: 12px; align-items: center; flex: 1; }
     .secret-label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: var(--text-sub); white-space: nowrap; padding: 0 10px; user-select: none; background: #f1f5f9; border-radius: 8px; height: 100%; box-sizing: border-box; transition: 0.2s; }
     .secret-label:hover { background: #e2e8f0; color: var(--text-main); }
-    .secret-label input { width: 16px; height: 16px; cursor: pointer; margin: 0; }
     
     .write-box textarea { height: 100px; resize: none; }
-    .write-actions { display: flex; justify-content: flex-end; margin-top: 5px; }
-    .write-actions button { background-color: var(--text-main); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px; }
-    .write-actions button:hover { background-color: #334155; }
-    .write-actions button i { width: 16px; height: 16px; }
+    
+    /* ★ 사진 첨부 UI 관련 스타일 ★ */
+    .write-actions-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+    .attach-btn { background: #f1f5f9; color: var(--text-main); border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; font-family: inherit; }
+    .attach-btn:hover { background: #e2e8f0; }
+    .submit-btn { background-color: var(--text-main); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px; }
+    .submit-btn:hover { background-color: #334155; }
+    .submit-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-    /* 게시판 리스트 디자인 */
+    .image-preview-wrapper { display: none; position: relative; margin-top: 10px; border-radius: 12px; overflow: hidden; width: max-content; border: 1px solid var(--border-color); }
+    .image-preview-wrapper img { max-height: 200px; display: block; }
+    .image-remove-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .image-remove-btn:hover { background: rgba(220, 38, 38, 0.9); }
+
+    /* 게시판 리스트 및 본문 */
     .board-wrapper { padding: 0; overflow: hidden; }
     .board-header { display: flex; padding: 16px 24px; background: #f8fafc; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; font-weight: 700; color: var(--text-sub); }
     .board-header .col-title { flex: 1; text-align: center; }
@@ -96,76 +95,63 @@
     .item-row:hover { background-color: #f8fafc; }
     
     .item-title-wrapper { flex: 1; display: flex; align-items: center; gap: 8px; overflow: hidden; padding-right: 15px; }
-    .item-title { font-size: 1rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-title { font-size: 1rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
     .reply-count { font-size: 0.85rem; font-weight: 700; color: var(--primary); flex-shrink: 0; background: var(--primary-light); padding: 2px 8px; border-radius: 20px; }
     
     .item-author { width: 90px; font-size: 0.9rem; color: var(--text-sub); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
     .item-time { width: 120px; font-size: 0.85rem; color: #94a3b8; text-align: center; white-space: nowrap; }
 
-    /* 펼쳐지는 본문 영역 */
     .item-content { display: none; background: #fcfcfd; border-top: 1px dashed var(--border-color); position: relative; box-shadow: inset 0 4px 6px -4px rgba(0,0,0,0.02); }
     .post-actions-inline { position: absolute; top: 20px; right: 24px; display: flex; gap: 8px; z-index: 5; }
     .action-btn { background: #ffffff; border: 1px solid #cbd5e1; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: 0.2s; font-family: inherit; }
     .action-btn:hover { background-color: #f1f5f9; color: var(--text-main); }
     .action-btn.delete:hover { background-color: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+    
     .post-body { padding: 40px 30px 30px; font-size: 0.95rem; color: #334155; line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
+    .post-image { max-width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid var(--border-color); display: block; } /* ★ 게시글 내 첨부사진 스타일 */
 
-    /* 댓글 디자인 */
+    /* 댓글 영역 */
     .comment-section { background-color: #ffffff; padding: 24px 30px; border-top: 1px solid var(--border-color); }
     .comment-header { font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
     .comment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
     .comment-item { display: flex; gap: 12px; width: 100%; box-sizing: border-box; }
     .comment-profile { width: 36px; height: 36px; background: var(--primary-light); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: bold; }
-    
     .comment-content { background: #f8fafc; padding: 16px; border-radius: 16px; border-top-left-radius: 4px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; }
     .comment-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .comment-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    
     .teacher-badge { font-size: 0.75rem; font-weight: 700; background: var(--primary); color: white; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
     .comment-text { font-size: 0.95rem; color: #334155; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
     .comment-time { font-size: 0.8rem; color: #94a3b8; }
-    
     .reply-actions { display: none; gap: 6px; }
     
     .reply-input-group { display: none; margin-top: 20px; gap: 10px; align-items: stretch; }
     .reply-input-group textarea { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.9rem; resize: none; outline: none; height: 45px; box-sizing: border-box; font-family: inherit; }
-    .reply-input-group textarea:focus { border-color: var(--primary); }
     .reply-input-group button { background-color: var(--primary); color: white; border: none; border-radius: 12px; padding: 0 20px; font-weight: bold; cursor: pointer; white-space: nowrap; font-family: inherit; transition: 0.2s; }
-    .reply-input-group button:hover { background-color: #1d4ed8; }
 
-    /* 커스텀 모달 (디자인 업그레이드) */
+    /* 커스텀 모달 */
     .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
     .custom-modal-box { background: white; padding: 30px; border-radius: 20px; width: 320px; max-width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 15px; border: 1px solid rgba(255,255,255,0.2); }
     .custom-modal-box h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); font-weight: 800; display: flex; align-items: center; gap: 8px; }
     .custom-modal-box p { margin: 0; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
     .custom-modal-box input { padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; display: none; box-sizing: border-box; font-family: inherit; background: #f8fafc; }
-    .custom-modal-box input:focus { border-color: var(--primary); background: white; }
     .custom-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 5px; }
     .custom-modal-actions button { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; font-family: inherit; transition: 0.2s; }
     .custom-modal-actions .cancel { background: #f1f5f9; color: var(--text-sub); }
-    .custom-modal-actions .cancel:hover { background: #e2e8f0; color: var(--text-main); }
     .custom-modal-actions .confirm { background: var(--primary); color: white; }
-    .custom-modal-actions .confirm:hover { background: #1d4ed8; }
     .custom-modal-actions .confirm.danger { background: #ef4444; }
-    .custom-modal-actions .confirm.danger:hover { background: #dc2626; }
 
-    /* 모바일 반응형 완벽 최적화 */
     @media screen and (max-width: 600px) {
         .navbar { padding: 16px 20px; }
         .qna-wrapper { padding: 20px 15px; }
-        
         .write-header { flex-direction: column; gap: 12px; }
         .write-header > input, .write-options { width: 100%; }
-        .write-actions button { width: 100%; padding: 14px; font-size: 1rem; justify-content: center; }
-
+        .write-actions-row { flex-direction: column; gap: 10px; align-items: stretch; }
         .board-header { display: none; }
         .item-row { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px; }
         .item-title-wrapper { width: 100%; padding-right: 0; }
-        
         .item-meta-mobile { display: flex; gap: 10px; align-items: center; width: 100%; }
         .item-author, .item-time { width: auto; text-align: left; display: inline-block; font-size: 0.85rem; color: #94a3b8; }
         .item-meta-mobile .item-author::after { content: "•"; margin-left: 10px; color: #cbd5e1; }
-
         .post-body { padding: 45px 20px 20px; }
         .comment-section { padding: 20px; }
         .post-actions-inline { top: 15px; right: 15px; }
@@ -205,6 +191,7 @@
                     <li>답변 속도는 상황에 따라 다를 수 있습니다.</li>
                     <li>공공의 이익을 위해 비공개글은 가급적 지양해 주세요.</li>
                     <li>급한 질문은 교무실로 찾아오시면 빠릅니다(8:00 ~ 16:00).</li>
+                    <li>사진 자료를 첨부하여 질문할 수 있습니다.</li>
                 </ol>
             </div>
             
@@ -220,9 +207,18 @@
                         </label>
                     </div>
                 </div>
-                <textarea id="questionInput" placeholder="궁금한 내용을 자유롭게 작성해주세요..."></textarea>
-                <div class="write-actions">
-                    <button onclick="window.addQuestion()"><i data-lucide="send"></i> 게시글 등록</button>
+                <textarea id="questionInput" placeholder="궁금한 내용이나 학습지 번호를 자유롭게 작성해주세요..."></textarea>
+                
+                <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
+                
+                <div id="imagePreviewContainer" class="image-preview-wrapper">
+                    <img id="imagePreview" src="">
+                    <button class="image-remove-btn" onclick="removeSelectedImage()"><i data-lucide="x" style="width:16px; height:16px;"></i></button>
+                </div>
+
+                <div class="write-actions-row">
+                    <button class="attach-btn" onclick="document.getElementById('imageInput').click()"><i data-lucide="camera"></i> 사진 첨부하기</button>
+                    <button class="submit-btn" id="submitBtn" onclick="window.addQuestion()"><i data-lucide="send"></i> 게시글 등록</button>
                 </div>
             </div>
 
@@ -252,7 +248,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, push, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref as dbRef, push, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        // ★ 파이어베이스 스토리지 도구 추가 로드
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
@@ -267,15 +265,42 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const questionsRef = ref(db, 'questions');
+        const storage = getStorage(app); // 스토리지 초기화
+        const questionsRef = dbRef(db, 'questions');
 
         const ADMIN_PW = "tkdkxkd1~"; 
         let isAdmin = false;
+        let selectedImageFile = null; // 사용자가 선택한 이미지 파일 저장용
 
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
         }
+
+        // 이미지 선택 및 미리보기 처리
+        window.handleImageSelection = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                if(file.size > 5 * 1024 * 1024) { // 5MB 제한
+                    window.AppModal.show({type: 'alert', msg: '사진 용량은 5MB를 초과할 수 없습니다.'});
+                    return;
+                }
+                selectedImageFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('imagePreviewContainer').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.removeSelectedImage = function() {
+            selectedImageFile = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            document.getElementById('imagePreview').src = '';
+        };
 
         window.AppModal = {
             overlay: document.getElementById('customModal'),
@@ -295,7 +320,7 @@
                 this.input.style.display = options.type === 'prompt' ? 'block' : 'none';
                 this.cancelBtn.style.display = options.type === 'alert' ? 'none' : 'inline-block';
                 this.overlay.style.display = 'flex';
-                lucide.createIcons(); // 모달 아이콘 렌더링
+                lucide.createIcons();
                 if(options.type === 'prompt') setTimeout(() => this.input.focus(), 100);
             },
             close() { this.overlay.style.display = 'none'; },
@@ -334,11 +359,7 @@
                 const btn = document.getElementById('adminBtn');
                 btn.innerHTML = `<i data-lucide="x-circle"></i> 비밀번호 오류`;
                 btn.style.color = "#dc2626";
-                setTimeout(() => { 
-                    btn.innerHTML = `<i data-lucide="settings"></i> 선생님 모드`; 
-                    btn.style.color = ""; 
-                    lucide.createIcons();
-                }, 1500);
+                setTimeout(() => { btn.innerHTML = `<i data-lucide="settings"></i> 선생님 모드`; btn.style.color = ""; lucide.createIcons(); }, 1500);
                 input.value = '';
                 lucide.createIcons();
             }
@@ -350,7 +371,8 @@
             document.querySelectorAll('.reply-actions').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
         }
 
-        window.addQuestion = function() {
+        // ★ 글 등록 로직 (사진 업로드 포함) ★
+        window.addQuestion = async function() {
             const title = document.getElementById('titleInput').value.trim();
             const text = document.getElementById('questionInput').value.trim();
             const author = document.getElementById('authorInput').value.trim() || '익명'; 
@@ -361,12 +383,51 @@
                 window.AppModal.show({type: 'alert', msg: '제목, 비밀번호, 내용을 모두 입력해주세요.'});
                 return;
             }
-            push(questionsRef, { title, author, password, text, isSecret, time: getCurrentTime(), timestamp: Date.now() });
-            document.getElementById('titleInput').value = '';
-            document.getElementById('questionInput').value = '';
-            document.getElementById('authorInput').value = '';
-            document.getElementById('pwInput').value = '';
-            document.getElementById('secretInput').checked = false;
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = `<i data-lucide="loader" class="spin"></i> 업로드 중...`;
+            submitBtn.disabled = true;
+            lucide.createIcons();
+
+            try {
+                let imageUrl = null;
+                
+                // 사진 파일이 선택되어 있다면 파이어베이스 스토리지에 먼저 업로드
+                if (selectedImageFile) {
+                    const fileName = `images/${Date.now()}_${selectedImageFile.name}`;
+                    const imgRef = storageRef(storage, fileName);
+                    await uploadBytes(imgRef, selectedImageFile);
+                    imageUrl = await getDownloadURL(imgRef); // 업로드 후 웹 링크 받아오기
+                }
+
+                // 사진 링크(있는 경우만)와 함께 기존 DB에 게시글 등록
+                await push(questionsRef, { 
+                    title, 
+                    author, 
+                    password, 
+                    text, 
+                    isSecret, 
+                    imageUrl: imageUrl || '', // 사진 링크 저장 (없으면 빈 문자열)
+                    time: getCurrentTime(), 
+                    timestamp: Date.now() 
+                });
+
+                // 초기화
+                document.getElementById('titleInput').value = '';
+                document.getElementById('questionInput').value = '';
+                document.getElementById('authorInput').value = '';
+                document.getElementById('pwInput').value = '';
+                document.getElementById('secretInput').checked = false;
+                window.removeSelectedImage();
+                
+            } catch (error) {
+                window.AppModal.show({type: 'alert', msg: '업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'});
+                console.error(error);
+            } finally {
+                submitBtn.innerHTML = `<i data-lucide="send"></i> 게시글 등록`;
+                submitBtn.disabled = false;
+                lucide.createIcons();
+            }
         };
 
         window.togglePost = (id) => {
@@ -376,17 +437,13 @@
             const correctPw = li.dataset.pw;
 
             if (content.style.display === 'block') {
-                content.style.display = 'none';
-                return;
+                content.style.display = 'none'; return;
             }
 
             if (isSecret && !isAdmin) {
                 window.AppModal.show({type: 'prompt', title: '비밀글 열람', msg: '작성 시 설정한 비밀번호를 입력해주세요.'}, (pw) => {
-                    if (pw === correctPw) {
-                        content.style.display = 'block';
-                    } else if (pw !== null) {
-                        window.AppModal.show({type: 'alert', msg: '비밀번호가 일치하지 않습니다.'});
-                    }
+                    if (pw === correctPw) { content.style.display = 'block'; } 
+                    else if (pw !== null) { window.AppModal.show({type: 'alert', msg: '비밀번호가 일치하지 않습니다.'}); }
                 });
             } else {
                 content.style.display = 'block';
@@ -408,6 +465,7 @@
             const bodyDiv = document.getElementById(`post-body-${id}`);
             const currentText = bodyDiv.dataset.text;
             const currentTitle = bodyDiv.dataset.title;
+            // 참고: 수정 모드에서는 사진 교체 기능은 제외하고 글/제목만 수정하도록 단순화 (기존 로직 유지)
             bodyDiv.innerHTML = `
                 <input type="text" id="edit-title-${id}" value="${escapeHTML(currentTitle)}" style="width:100%; padding:12px 16px; margin-bottom:12px; border:1px solid var(--primary); border-radius:10px; font-weight:700; font-family:inherit; outline:none; box-sizing:border-box;">
                 <textarea id="edit-textarea-${id}" style="width:100%; height:100px; padding:12px 16px; border:1px solid var(--primary); border-radius:10px; outline:none; font-family:inherit; resize:none; box-sizing:border-box;">${escapeHTML(currentText)}</textarea>
@@ -419,24 +477,35 @@
 
         window.cancelEdit = (id) => {
             const bodyDiv = document.getElementById(`post-body-${id}`);
-            bodyDiv.textContent = bodyDiv.dataset.text;
+            // 수정 취소 시 기존 텍스트와 이미지 태그 복구
+            const imageUrl = bodyDiv.dataset.image;
+            let contentHtml = escapeHTML(bodyDiv.dataset.text);
+            if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" alt="첨부 이미지">`;
+            contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${bodyDiv.dataset.time}</div>`;
+            bodyDiv.innerHTML = contentHtml;
         };
 
         window.saveEdit = (id) => {
             const newTitle = document.getElementById(`edit-title-${id}`).value.trim();
             const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
             if (newTitle && newText) {
-                update(ref(db, `questions/${id}`), { title: newTitle, text: newText });
+                update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText });
                 
                 const bodyDiv = document.getElementById(`post-body-${id}`);
                 bodyDiv.dataset.text = newText;
                 bodyDiv.dataset.title = newTitle;
-                bodyDiv.textContent = newText;
+                
+                // 저장 완료 후 텍스트와 이미지 태그 재렌더링
+                const imageUrl = bodyDiv.dataset.image;
+                let contentHtml = escapeHTML(newText);
+                if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" alt="첨부 이미지">`;
+                contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${bodyDiv.dataset.time}</div>`;
+                bodyDiv.innerHTML = contentHtml;
                 
                 const li = document.getElementById(`post-${id}`);
                 const isSecret = li.dataset.secret === 'true';
-                document.getElementById(`title-text-${id}`).textContent = (isSecret ? '🔒 ' : '') + newTitle;
-                
+                document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(newTitle);
+                lucide.createIcons();
             } else {
                 window.AppModal.show({type: 'alert', msg: '제목과 내용을 모두 입력해주세요.'});
             }
@@ -446,10 +515,10 @@
             const li = document.getElementById(`post-${id}`);
             const correctPw = li.dataset.pw;
             if (isAdmin) {
-                window.AppModal.show({type: 'confirm', title:'게시글 삭제', msg: '선생님 권한으로 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(ref(db, `questions/${id}`)); });
+                window.AppModal.show({type: 'confirm', title:'게시글 삭제', msg: '선생님 권한으로 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); });
             } else {
                 window.AppModal.show({type: 'prompt', title:'게시글 삭제', msg: '비밀번호를 입력하세요.'}, (pw) => {
-                    if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '정말 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(ref(db, `questions/${id}`)); });
+                    if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '정말 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); });
                     else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'});
                 });
             }
@@ -459,15 +528,9 @@
             const id = snapshot.key;
             renderPost(id, snapshot.val());
             
-            const repliesRef = ref(db, `questions/${id}/replies`);
-            onChildAdded(repliesRef, (rep) => { 
-                renderComment(id, rep.key, rep.val()); 
-                updateReplyCount(id, 1); 
-            });
-            onChildRemoved(repliesRef, (rep) => {
-                document.getElementById(`reply-${id}-${rep.key}`)?.remove();
-                updateReplyCount(id, -1);
-            });
+            const repliesRef = dbRef(db, `questions/${id}/replies`);
+            onChildAdded(repliesRef, (rep) => { renderComment(id, rep.key, rep.val()); updateReplyCount(id, 1); });
+            onChildRemoved(repliesRef, (rep) => { document.getElementById(`reply-${id}-${rep.key}`)?.remove(); updateReplyCount(id, -1); });
             onChildChanged(repliesRef, (rep) => {
                 const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`);
                 if (textContainer && !textContainer.querySelector('textarea')) {
@@ -485,14 +548,20 @@
             const titleSpan = document.getElementById(`title-text-${id}`);
             const bodyDiv = document.getElementById(`post-body-${id}`);
             
-            const displayTitle = (data.isSecret ? '🔒 ' : '') + (data.title || data.text.substring(0, 20) + '...');
-            if (titleSpan) titleSpan.textContent = displayTitle;
+            if (titleSpan) {
+                titleSpan.innerHTML = (data.isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
+            }
             
             if (bodyDiv && !bodyDiv.querySelector('textarea')) {
-                bodyDiv.textContent = data.text;
+                let contentHtml = escapeHTML(data.text);
+                if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" alt="첨부 이미지">`;
+                contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>`;
+                
+                bodyDiv.innerHTML = contentHtml;
                 bodyDiv.dataset.text = data.text;
                 bodyDiv.dataset.title = data.title;
             }
+            lucide.createIcons();
         });
 
         function renderPost(id, data) {
@@ -505,13 +574,25 @@
             
             const author = data.author || '익명';
             const rawTitle = data.title || data.text.substring(0, 20) + '...';
-            const displayTitle = (data.isSecret ? '🔒 ' : '') + rawTitle;
+            // 비밀글 아이콘 및 사진 첨부 아이콘(이미지가 있을 경우) 표시
+            let displayTitleHtml = (data.isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(rawTitle);
+            if (data.imageUrl) {
+                displayTitleHtml += ` <i data-lucide="image" style="width:14px; height:14px; color:var(--primary); margin-left:4px;"></i>`;
+            }
+
             const listTime = data.time.split(' ')[0].substring(5) + ' ' + data.time.split(' ')[1];
+
+            // 본문 및 이미지 태그 렌더링
+            let bodyContentHtml = escapeHTML(data.text);
+            if (data.imageUrl) {
+                bodyContentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" alt="첨부 이미지">`;
+            }
+            bodyContentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>`;
 
             li.innerHTML = `
                 <div class="item-row" onclick="window.togglePost('${id}')">
                     <div class="item-title-wrapper">
-                        <span class="item-title" id="title-text-${id}">${escapeHTML(displayTitle)}</span>
+                        <span class="item-title" id="title-text-${id}">${displayTitleHtml}</span>
                         <span class="reply-count" id="reply-count-${id}" style="display:none;">[0]</span>
                     </div>
                     <div class="item-meta-mobile">
@@ -524,8 +605,8 @@
                         <button class="action-btn" onclick="window.handleEdit('${id}')">수정</button>
                         <button class="action-btn delete" onclick="window.handleDelete('${id}')">삭제</button>
                     </div>
-                    <div id="post-body-${id}" class="post-body" data-text="${escapeHTML(data.text)}" data-title="${escapeHTML(rawTitle)}">${escapeHTML(data.text)}
-                    <div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>
+                    <div id="post-body-${id}" class="post-body" data-text="${escapeHTML(data.text)}" data-title="${escapeHTML(rawTitle)}" data-image="${escapeHTML(data.imageUrl || '')}" data-time="${escapeHTML(data.time)}">
+                        ${bodyContentHtml}
                     </div>
                     <div class="comment-section">
                         <div class="comment-header"><i data-lucide="message-circle" style="width:18px; height:18px; color:var(--primary);"></i> 코멘트</div>
@@ -538,7 +619,7 @@
                 </div>`;
             list.prepend(li);
             refreshAdminUI();
-            lucide.createIcons(); // 아이콘 렌더링
+            lucide.createIcons();
         }
 
         function updateReplyCount(qId, change) {
@@ -554,7 +635,7 @@
             if (!isAdmin) return;
             const input = document.getElementById(`reply-input-${id}`);
             const text = input.value.trim();
-            if (text) push(ref(db, `questions/${id}/replies`), { text, time: getCurrentTime(), isTeacher: true });
+            if (text) push(dbRef(db, `questions/${id}/replies`), { text, time: getCurrentTime(), isTeacher: true });
             input.value = '';
         };
 
@@ -608,7 +689,7 @@
         window.saveEditReply = (qId, replyId) => {
             const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim();
             if (newText) {
-                update(ref(db, `questions/${qId}/replies/${replyId}`), { text: newText });
+                update(dbRef(db, `questions/${qId}/replies/${replyId}`), { text: newText });
                 
                 const li = document.getElementById(`reply-${qId}-${replyId}`);
                 li.dataset.text = newText;
@@ -623,7 +704,7 @@
         window.deleteReply = (qId, replyId) => {
             if (!isAdmin) return;
             window.AppModal.show({type: 'confirm', title:'답변 삭제', msg: '이 답변을 완전히 삭제하시겠습니까?', confirmText: '삭제'}, (res) => {
-                if(res) remove(ref(db, `questions/${qId}/replies/${replyId}`));
+                if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}`));
             });
         };
 
