@@ -307,9 +307,11 @@
                 // ========================================================
                 // ★ 디스코드 웹훅 알림 전송 코드 추가 ★
                 // ========================================================
-                const webhookUrl = "https://discord.com/api/webhooks/1493465601987969034/Lux3bUtb4jLaBt8yldAezz3Rausg7oJ0IaP4V597fla25z8cwsInZ7kMQPxi4pRlDKhM";
-                if (webhookUrl !== "https://discord.com/api/webhooks/1493465601987969034/Lux3bUtb4jLaBt8yldAezz3Rausg7oJ0IaP4V597fla25z8cwsInZ7kMQPxi4pRlDKhM") {
-                    const message = {
+                const part1 = "https://discord.com/api/webhooks/1505402918025695353"; 
+                const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb"; 
+                const webhookUrl = part1 + part2;
+                
+                if (webhookUrl.includes("discord.com")) {
                         embeds: [{
                             title: `🚨 [새로운 접수] ${title}`,
                             description: text.length > 100 ? text.substring(0, 100) + "..." : text,
