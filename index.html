@@ -54,10 +54,10 @@
 
     /* Bento 그리드 레이아웃 */
     .container { max-width: 1200px; margin: 0 auto 80px; padding: 0 20px; }
-    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 24px; }
+    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; }
     
     .card { 
-        background: var(--card-bg); border-radius: var(--radius); padding: 32px; 
+        background: var(--card-bg); border-radius: var(--radius); padding: 24px; 
         box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04);
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s;
         display: flex; flex-direction: column; position: relative; overflow: hidden;
@@ -71,20 +71,21 @@
     .card h3 { font-size: 1.3rem; font-weight: 700; margin: 0 0 8px 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; }
     .card p { font-size: 0.95rem; color: var(--text-sub); margin: 0; flex-grow: 1; }
     
-    .card-action { margin-top: 24px; font-size: 0.9rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; }
+    .card-action { margin-top: auto; padding-top: 20px; font-size: 0.9rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 4px; }
     .card-action i { width: 16px; height: 16px; transition: transform 0.2s; }
     .card:hover .card-action i { transform: translateX(4px); }
 
-    .col-span-8 { grid-column: span 8; }
+    /* 그리드 열 비율 CSS */
+    .col-span-3 { grid-column: span 3; }
     .col-span-4 { grid-column: span 4; }
-    .col-span-6 { grid-column: span 6; }
+    .col-span-5 { grid-column: span 5; }
     .col-span-12 { grid-column: span 12; }
 
     /* 메인 Q&A 커스텀 카드 */
     .card-primary { background: linear-gradient(135deg, #1e3a8a, #2563eb); color: white; }
     .card-primary h3, .card-primary p, .card-primary .card-tag { color: white; }
     .card-primary .card-tag { background: rgba(255,255,255,0.2); }
-    .card-primary .card-icon-wrap { background: rgba(255,255,255,0.1); color: white; }
+    .card-primary .card-icon-wrap { background: rgba(255,255,255,0.1); color: white; width: 48px; height: 48px; margin-bottom: 16px; }
     .card-primary .card-action { color: #bfdbfe; }
 
     /* 사이버네틱 대시보드 배너 카드 */
@@ -95,14 +96,15 @@
     .card-cyber .card-tag { background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.3); }
     .card-cyber .card-action { color: #38bdf8; }
 
-    /* 리스트형 카드 (수행평가) */
-    .list-header { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .list-item { display: flex; align-items: center; padding: 16px; border-radius: 16px; transition: background 0.2s; border: 1px solid transparent; }
+    /* 리스트형 카드 (게시판/수행평가) */
+    .list-header { font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .list-item { display: flex; align-items: center; padding: 12px; border-radius: 14px; transition: background 0.2s; border: 1px solid transparent; gap: 12px; margin-bottom: 8px; }
     .list-item:hover { background: var(--bg-color); border-color: rgba(0,0,0,0.05); }
-    .list-icon { margin-right: 16px; background: white; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); color: var(--text-main); }
-    .list-icon i { width: 22px; height: 22px; stroke-width: 2px; }
-    .list-content h4 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 700; color: var(--text-main); }
-    .list-content p { margin: 0; font-size: 0.85rem; color: var(--text-sub); }
+    .list-icon { background: white; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); color: var(--text-main); flex-shrink: 0; }
+    .list-icon i { width: 20px; height: 20px; stroke-width: 2px; }
+    .list-content { overflow: hidden; }
+    .list-content h4 { margin: 0 0 2px 0; font-size: 0.95rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-content p { margin: 0; font-size: 0.8rem; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     /* 아코디언 (접기/펴기) UI 스타일 */
     details.sim-group { background: var(--bg-color); border-radius: 16px; margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.04); transition: background 0.3s; }
@@ -124,7 +126,7 @@
         .bento-grid { display: flex; flex-direction: column; }
         .hero h1 { font-size: 2.2rem; }
         .navbar { padding: 16px 20px; }
-        .col-span-12, .col-span-8, .col-span-6, .col-span-4 { grid-column: span 12; }
+        .col-span-12, .col-span-5, .col-span-4, .col-span-3 { grid-column: span 12; }
     }
 </style>
 </head>
@@ -143,46 +145,69 @@
 
     <header class="hero">
         <div class="badge">Since 2026</div>
-        <h1>Mundus<br><span>Geographia-Class</span></h1>
+        <h1>KGGHS<br><span>Taehyun's Geographia-Class</span></h1>
     </header>
 
     <main class="container">
         <div class="bento-grid">
             
-            <a href="qna.html" class="card card-primary col-span-8">
+            <a href="qna.html" class="card card-primary col-span-5">
                 <span class="card-tag">Communication</span>
                 <div class="card-icon-wrap"><i data-lucide="message-square-text"></i></div>
                 <h3>통합사회 C QnA</h3>
-                <p> 자유로운 질문 환영 </p>
+                <p>수업 내용에 대한 자유로운 질문 환영</p>
                 <div class="card-action">게시판 바로가기 <i data-lucide="arrow-right"></i></div>
             </a>
 
             <div class="card col-span-4">
-                <div class="list-header"><i data-lucide="target" style="color: var(--primary);"></i> 수행평가 센터</div>
-                <ul>
-                    <a href="https://forms.gle/WLknpMYbkpMuhsmz9" target="_blank">
+                <div class="list-header"><i data-lucide="headphones" style="color: var(--primary);"></i> 학생 지원 센터</div>
+                <ul style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                    <a href="#" target="_blank">
                         <li class="list-item">
-                            <div class="list-icon"><i data-lucide="clipboard-edit"></i></div>
+                            <div class="list-icon"><i data-lucide="laptop"></i></div>
                             <div class="list-content">
-                                <h4>질문 아카이브 접수</h4>
-                                <p>수행평가 질문 제출</p>
+                                <h4>정보화 기기 문의</h4>
+                                <p>기기 및 기술 지원 요청</p>
                             </div>
                         </li>
                     </a>
-                
-                    <a href="project_guide.html">
+                    <a href="#" target="_blank">
                         <li class="list-item">
-                            <div class="list-icon"><i data-lucide="search"></i></div>
+                            <div class="list-icon"><i data-lucide="lightbulb"></i></div>
                             <div class="list-content">
-                                <h4>지역 탐구 프로젝트</h4>
-                                <p>프로젝트 가이드 및 예시</p>
+                                <h4>학생 건의사항</h4>
+                                <p>여러가지 자유로운 의견 제안</p>
                             </div>
                         </li>
                     </a>
                 </ul>
             </div>
 
-            <div class="card col-span-12" style="flex-direction: column; padding: 24px 40px; margin-top: 20px;">
+            <div class="card col-span-3">
+                <div class="list-header"><i data-lucide="target" style="color: var(--primary);"></i> 수행평가</div>
+                <ul style="display:flex; flex-direction:column; justify-content:space-between; height:100%;">
+                    <a href="https://forms.gle/WLknpMYbkpMuhsmz9" target="_blank">
+                        <li class="list-item">
+                            <div class="list-icon"><i data-lucide="clipboard-edit"></i></div>
+                            <div class="list-content">
+                                <h4>질문 아카이브</h4>
+                                <p>수업 공식 질문 제출</p>
+                            </div>
+                        </li>
+                    </a>
+                    <a href="project_guide.html">
+                        <li class="list-item">
+                            <div class="list-icon"><i data-lucide="search"></i></div>
+                            <div class="list-content">
+                                <h4>지역 탐구</h4>
+                                <p>프로젝트 가이드</p>
+                            </div>
+                        </li>
+                    </a>
+                </ul>
+            </div>
+
+            <div class="card col-span-12" style="flex-direction: column; padding: 24px 40px; margin-top: 10px;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
                     <div>
                         <h3 style="margin-bottom: 4px; display:flex; align-items:center; gap:8px;"><i data-lucide="library"></i> 2026 통합사회 자료실</h3>
@@ -197,7 +222,7 @@
                 </div>
             </div>
 
-            <div class="col-span-12" style="margin-top: 20px;">
+            <div class="col-span-12" style="margin-top: 10px;">
                 <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
                     <i data-lucide="layers" style="width:28px; height:28px; color:var(--text-main);"></i> 공간 데이터 시뮬레이터 
                     <span style="font-size: 0.8rem; font-weight: 600; padding: 4px 8px; background: #e2e8f0; border-radius: 6px; color: var(--text-sub);">Interactive</span>
@@ -205,8 +230,8 @@
             </div>
 
             <div class="card col-span-12" style="padding: 24px;">
-                
-                <details class="sim-group" open> <summary>
+                <details class="sim-group" open> 
+                    <summary>
                         <div class="cat-title"><i data-lucide="cloud-sun"></i> 기후 환경 시뮬레이터</div>
                         <i data-lucide="chevron-down" class="chevron"></i>
                     </summary>
@@ -217,11 +242,11 @@
                         </a>
                         <a href="climate_itcz.html" class="sim-item">
                             <h4><i data-lucide="move-vertical"></i> 적도 수렴대 이동</h4>
-                            <p>태양의 직사광선 이동에 따른 적도 수렴대의 남북 이동 관찰</p>
+                            <p>태양의 직사광선 이동에 따른 강수대 이동</p>
                         </a>
                         <a href="climate_solar.html" class="sim-item">
                             <h4><i data-lucide="sun-dim"></i> 태양 고도와 입사각</h4>
-                            <p>위도 변화에 따른 태양 고도각과 입사각의 차이</p>
+                            <p>위도 변화에 따른 태양 일사량의 기하학</p>
                         </a>
                     </div>
                 </details>
@@ -242,7 +267,7 @@
                         </a>
                          <a href="world_landforms.html" class="sim-item">
                             <h4><i data-lucide="map"></i> 지형 탐구 시뮬레이터</h4>
-                            <p>빙하, 카르스트, 해안 등 특수 지형 형성 원리 관찰</p>
+                            <p>빙하, 카르스트, 해안 등 특수 지형 원리 관찰</p>
                         </a>
                     </div>
                 </details>
@@ -259,10 +284,9 @@
                         </a>
                     </div>
                 </details>
-
             </div>
 
-            <div class="col-span-12" style="margin-top: 20px;">
+            <div class="col-span-12" style="margin-top: 10px;">
                 <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
                     <i data-lucide="cpu" style="width:28px; height:28px; color:var(--text-main);"></i> AI & 빅데이터 분석 시스템
                 </h2>
@@ -274,7 +298,7 @@
                     <div class="card-icon-wrap" style="margin: 0; width: 70px; height: 70px;"><i data-lucide="satellite" style="width: 36px; height: 36px;"></i></div>
                     <div>
                         <h3 style="font-size: 1.6rem;">AI 공간·인구 분석 대시보드</h3>
-                        <p style="font-size: 1.05rem; margin-top: 5px;">위성 데이터 기반 식생/열섬 분석 및 파라미터 기반 인구 예측 모델링 시스템</p>
+                        <p style="font-size: 1.05rem; margin-top: 5px;">위성 데이터 기반 식생/열섬 분석 및 파라미터 기반 미래 인구 예측 모델</p>
                     </div>
                 </div>
                 <div class="card-action" style="font-size: 1.1rem; background: rgba(56, 189, 248, 0.1); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
@@ -286,7 +310,6 @@
     </main>
 
     <script>
-    // 아이콘 렌더링 실행
     lucide.createIcons();
 
     // -----------------------------------------
@@ -365,26 +388,11 @@
 
         // 3. F12 및 주요 개발자 도구 단축키 차단
         document.addEventListener('keydown', function(e) {
-            // F12 차단
-            if (e.keyCode === 123) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + I (개발자 도구)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + C (요소 검사)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + J (콘솔)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-            }
-            // Ctrl + U (페이지 소스 보기)
-            if (e.ctrlKey && e.keyCode === 85) {
-                e.preventDefault();
-            }
+            if (e.keyCode === 123) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
+            if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
         });
     </script>
 </body>
