@@ -10,7 +10,7 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>통합사회 C QA — Geographia Archive</title>
+<title>통합사회 C QA </title>
 
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -163,6 +163,9 @@
     .item-title { font-family: var(--sans); font-size: 0.98rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; display:flex; align-items:center; }
     .item-title .ico { color: var(--ink-3); margin-right: 6px; }
     
+    /* ★ 복구된 댓글 수 (Reply Count) 스타일 - 에디토리얼 컨셉에 맞게 붉은 잉크톤 세리프 폰트로 조정 */
+    .reply-count { font-family: var(--serif); font-size: 0.85rem; font-weight: 600; font-style: italic; color: var(--terra); margin-left: 8px; flex-shrink: 0; }
+    
     .item-author { width: 100px; font-size: 0.85rem; color: var(--ink-2); text-align: center; font-weight: 500; }
     .item-time { width: 120px; font-size: 0.8rem; color: var(--ink-3); text-align: center; font-family: var(--serif); font-style: italic; }
 
@@ -283,7 +286,6 @@
         <div class="sheet-head">
             <span class="sheet-num">§ Form III</span>
             <h2 class="sheet-title">통합사회 C QA</h2>
-            <span class="sheet-meta">Q&amp;A Repository</span>
             
             <div class="admin-header-row">
                 <button id="adminBtn" class="btn-outline" onclick="window.toggleAdminPanel()">Admin</button>
@@ -299,7 +301,7 @@
         <div class="notice-box">
             <h2>Administrative Notice</h2>
             <ol>
-                <li>이곳은 공식 질문 아카이브(수행평가용)와 <b>별개로 운영되는 Q&A</b>입니다.</li>
+                <li>이곳은 질문 아카이브(수행평가)와 <b>별개로 운영되는 Q&A</b>입니다.</li>
                 <li>답변 속도는 상황에 따라 다를 수 있습니다.</li>
                 <li>공공의 이익을 위해 비공개글은 가급적 지양해 주세요.</li>
                 <li>급한 질문은 교무실로 방문해 주시기 바랍니다 (08:00 ~ 16:00).</li>
@@ -319,7 +321,7 @@
                     </label>
                 </div>
             </div>
-            <textarea id="questionInput" class="form-input" placeholder="질문을 자유롭게 작성해 주십시오."></textarea>
+            <textarea id="questionInput" class="form-input" placeholder="질문을 자유롭게 작성해 주세요."></textarea>
             
             <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
             
@@ -500,7 +502,19 @@
             if (newTitle && newText) { update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText }); const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">Log Entry: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(newTitle); } else { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); }
         };
 
-        window.handleDelete = (id) => { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (isAdmin) { window.AppModal.show({type: 'confirm', title:'Delete Entry', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); } else { window.AppModal.show({type: 'prompt', title:'Delete Entry', msg: '삭제 암호를 입력하십시오.'}, (pw) => { if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호 불일치'}); }); } };
+        window.handleDelete = (id) => { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (isAdmin) { window.AppModal.show({type: 'confirm', title:'Delete Entry', msg: '기록을 말소하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); } else { window.AppModal.show({type: 'prompt', title:'Delete Entry', msg: '삭제 암호를 입력하십시오.'}, (pw) => { if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '기록을 말소하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호 불일치'}); }); } };
+
+        // ==========================================
+        // ★ 댓글 수 표시 업데이트 함수 ★
+        // ==========================================
+        function updateReplyCount(qId, change) { 
+            const span = document.getElementById(`reply-count-${qId}`); 
+            if (!span) return; 
+            let current = parseInt(span.dataset.count || '0') + change; 
+            span.dataset.count = current; 
+            span.style.display = current > 0 ? 'inline-block' : 'none'; 
+            span.textContent = `[${current}]`; 
+        }
 
         // ==========================================
         // ★ 파이어베이스 리스너 감지기 ★
@@ -511,13 +525,25 @@
             
             onChildAdded(repliesRef, (rep) => { 
                 renderComment(id, rep.key, rep.val());
+                updateReplyCount(id, 1); // 메인 댓글 추가 시 카운트 +1
+                
                 const subRepliesRef = dbRef(db, `questions/${id}/replies/${rep.key}/subReplies`);
-                onChildAdded(subRepliesRef, (sub) => { renderSubComment(id, rep.key, sub.key, sub.val()); });
-                onChildRemoved(subRepliesRef, (sub) => { document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`)?.remove(); });
+                onChildAdded(subRepliesRef, (sub) => { 
+                    renderSubComment(id, rep.key, sub.key, sub.val()); 
+                    updateReplyCount(id, 1); // 대댓글 추가 시 카운트 +1
+                });
+                onChildRemoved(subRepliesRef, (sub) => { 
+                    document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`)?.remove(); 
+                    updateReplyCount(id, -1); // 대댓글 삭제 시 카운트 -1
+                });
             });
-            onChildRemoved(repliesRef, (rep) => { document.getElementById(`reply-${id}-${rep.key}`)?.remove(); });
+            onChildRemoved(repliesRef, (rep) => { 
+                document.getElementById(`reply-${id}-${rep.key}`)?.remove(); 
+                updateReplyCount(id, -1); // 메인 댓글 삭제 시 카운트 -1
+            });
             onChildChanged(repliesRef, (rep) => { const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`); if (textContainer && !textContainer.querySelector('textarea')) { textContainer.textContent = rep.val().text; document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text; } });
         });
+        
         onChildRemoved(questionsRef, (snapshot) => document.getElementById(`post-${snapshot.key}`)?.remove());
         onChildChanged(questionsRef, (snapshot) => {
             const id = snapshot.key; const data = snapshot.val(); const titleSpan = document.getElementById(`title-text-${id}`); const bodyDiv = document.getElementById(`post-body-${id}`);
@@ -543,7 +569,10 @@
             
             li.innerHTML = `
                 <div class="item-row" onclick="window.togglePost('${id}')">
-                    <div class="item-title-wrapper"><span class="item-title" id="title-text-${id}">${displayTitleHtml}</span></div>
+                    <div class="item-title-wrapper">
+                        <span class="item-title" id="title-text-${id}">${displayTitleHtml}</span>
+                        <span class="reply-count" id="reply-count-${id}" style="display:none;" data-count="0">[0]</span>
+                    </div>
                     <div class="item-author">${escapeHTML(author)}</div><div class="item-time">${listTime}</div>
                 </div>
                 <div class="item-content" id="content-${id}">
@@ -654,7 +683,7 @@
         window.editReply = (qId, replyId) => { if (!isAdmin) return; const li = document.getElementById(`reply-${qId}-${replyId}`); const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`); const currentText = li.dataset.text; textContainer.innerHTML = `<textarea id="edit-reply-input-${qId}-${replyId}" style="width:100%; height:60px; padding:10px; border:1px solid var(--ink); background:var(--surface); font-family:var(--sans); resize:none; outline:none; box-sizing:border-box; margin-top:8px;">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;"><button onclick="window.cancelEditReply('${qId}', '${replyId}')" class="btn-sub">Cancel</button><button onclick="window.saveEditReply('${qId}', '${replyId}')" class="btn-solid" style="padding:10px 18px;">Save</button></div>`; };
         window.cancelEditReply = (qId, replyId) => { const li = document.getElementById(`reply-${qId}-${replyId}`); document.getElementById(`reply-text-${qId}-${replyId}`).textContent = li.dataset.text; };
         window.saveEditReply = (qId, replyId) => { const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim(); if (newText) { update(dbRef(db, `questions/${qId}/replies/${replyId}`), { text: newText }); const li = document.getElementById(`reply-${qId}-${replyId}`); li.dataset.text = newText; document.getElementById(`reply-text-${qId}-${replyId}`).textContent = newText; } else { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); } };
-        window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'Delete', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}`)); }); };
+        window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'Delete', msg: '말소하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}`)); }); };
 
         // ==========================================
         // ★ 2차 댓글 (대댓글 + 사진) 로직 ★
@@ -732,7 +761,7 @@
 
         window.deleteSubReply = (qId, replyId, subId) => {
             if (!isAdmin) return;
-            window.AppModal.show({type: 'confirm', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies/${subId}`)); });
+            window.AppModal.show({type: 'confirm', msg: '이 기록을 말소하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies/${subId}`)); });
         };
 
         function getCurrentTime() { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const date = String(now.getDate()).padStart(2, '0'); const ampm = now.getHours() >= 12 ? 'PM' : 'AM'; let hour = now.getHours() % 12; hour = hour ? hour : 12; const minutes = String(now.getMinutes()).padStart(2, '0'); return `${year}/${month}/${date} ${ampm} ${hour}:${minutes}`; }
