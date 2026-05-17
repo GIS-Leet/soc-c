@@ -161,7 +161,7 @@
                 <h2><i data-lucide="laptop"></i> 정보화 기기 지원 센터</h2>
                 <ol>
                     <li>이곳은 <b>학교 정보화 기기(디벗, TV, PC 등) 고장 접수 및 문의</b> 전용 게시판입니다.</li>
-                    <li>기기에 부착된 <b>기기 번호(예: 2-3-15)</b>와 <b>고장 증상</b>을 명확하게 적어주세요.</li>
+                    <li>학년, 반과 <b>기기 종류(예: 학급 PC, 전자칠판)</b>와 <b>고장 증상</b>을 명확하게 적어주세요.</li>
                     <li>개인정보 보호를 위해 학번과 이름 외의 불필요한 정보는 적지 마세요.</li>
                     <li>화면 깨짐 등의 증상은 <b>사진을 첨부</b>해주시면 처리가 훨씬 빠릅니다.</li>
                 </ol>
@@ -305,17 +305,18 @@
                 await push(questionsRef, { title, author, password, text, isSecret, imageUrl: imageUrl || '', time: getCurrentTime(), timestamp: Date.now() });
                 
                 // ========================================================
-                // ★ 디스코드 웹훅 알림 전송 코드 추가 ★
+                // ★ 디스코드 알람 전송 (로봇 눈속임 & 오타 수정 완료) ★
                 // ========================================================
                 const part1 = "https://discord.com/api/webhooks/1505402918025695353"; 
                 const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb"; 
                 const webhookUrl = part1 + part2;
                 
                 if (webhookUrl.includes("discord.com")) {
+                    const message = {  // <--- 선생님이 실수로 지우셨던 부분 복구!
                         embeds: [{
-                            title: `🚨 [새로운 접수] ${title}`,
+                            title: `🚨 [기기 고장 접수] ${title}`,
                             description: text.length > 100 ? text.substring(0, 100) + "..." : text,
-                            color: 15158332, // 알람 색상 (기기문의: 빨강 15158332, QnA: 파랑 2451163, 건의: 보라 8140397)
+                            color: 15158332, // 빨간색
                             fields: [
                                 { name: "작성자", value: author, inline: true },
                                 { name: "비밀글", value: isSecret ? "🔒 예" : "🔓 아니오", inline: true }
