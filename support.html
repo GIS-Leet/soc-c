@@ -257,8 +257,7 @@
     <main class="sheet">
         <div class="sheet-head">
             <span class="sheet-num">§ Form I</span>
-            <h2 class="sheet-title">정보화 기기 지원 센터</h2>
-            <span class="sheet-meta">Technical Support</span>
+            <h2 class="sheet-title">정보화 기기 문의</h2>
             
             <div class="admin-header-row">
                 <button id="adminBtn" class="btn-outline" onclick="window.toggleAdminPanel()">Admin</button>
@@ -274,17 +273,17 @@
         <div class="notice-box">
             <h2>Administrative Notice</h2>
             <ol>
-                <li>이곳은 <b>학교 정보화 기기(디벗, TV, PC 등) 고장 접수 및 문의</b> 전용 문서입니다.</li>
-                <li>학년, 반과 <b>기기 종류(예: 학급 PC, 전자칠판)</b> 및 <b>고장 증상</b>을 명확하게 기록해 주십시오.</li>
+                <li>이곳은 <b>학교 정보화 기기(디벗, TV, PC 등) 고장 접수 및 문의</b> 페이지입니다.</li>
+                <li>학년, 반과 <b>기기 종류(예: 학급 PC, 전자칠판)</b> 및 <b>고장 증상</b>을 명확하게 작성해 주십시오.</li>
                 <li>보안을 위해 학번과 이름 외의 불필요한 개인정보 기재를 금합니다.</li>
-                <li>화면 파손 등의 물리적 증상은 <b>사진 자료를 첨부</b>하시면 처리가 신속합니다.</li>
+                <li>증상에 대한 <b>사진 자료를 첨부</b>하시면 처리가 신속합니다.</li>
             </ol>
         </div>
         
         <div class="ledger-panel write-box">
             <input type="text" id="titleInput" class="form-input write-title-input" placeholder="사유 요약 (예: 1학년 X반 X번 디벗 전원 불량)" maxlength="50">
             <div class="write-header">
-                <input type="text" id="authorInput" class="form-input" placeholder="신고자 학번/성명" maxlength="10">
+                <input type="text" id="authorInput" class="form-input" placeholder="학번/성명" maxlength="10">
                 <div class="write-options">
                     <input type="password" id="pwInput" class="form-input" placeholder="비밀번호 (수정/삭제용)" maxlength="20">
                     <label class="secret-label">
@@ -293,7 +292,7 @@
                     </label>
                 </div>
             </div>
-            <textarea id="questionInput" class="form-input" placeholder="상세한 기기 상태 및 고장 증상을 기재하십시오."></textarea>
+            <textarea id="questionInput" class="form-input" placeholder="상세한 기기 상태 및 고장 증상을 작성하세요."></textarea>
             
             <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
             
