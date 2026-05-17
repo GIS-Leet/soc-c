@@ -1,132 +1,215 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-E1W226W5M4');
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지구 공전과 계절 변화 3D - 통합사회 C</title>
+    <title>지구 공전과 계절 변화 3D — Geographia Archive</title>
     
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
     <style>
+        /* ============================================================
+           GEOGRAPHIA — Academic Archival Editorial Concept
+        ============================================================ */
         :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --text-main: #0f172a;
-            --text-sub: #64748b;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --border-color: rgba(0,0,0,0.06);
-            --radius: 20px;
+            --ink:        #1a1714;
+            --ink-2:      #4a443c;
+            --ink-3:      #8c8479;
+            --ink-faint:  #b8b0a3;
+
+            --paper:      #f4f0e8;
+            --paper-2:    #efe9dd;
+            --surface:    #fbf9f3;
+
+            --line:       #d8d0c0;
+            --line-soft:  #e6dfd0;
+
+            --terra:      #b4502e;
+            --terra-soft: #f0e0d4;
+            --sea:        #2f5d50;
+            --gold:       #9a7b3f;
+            --gold-soft:  #f3ebd8;
+
+            --serif: 'Fraunces', Georgia, serif;
+            --sans:  'Pretendard', -apple-system, sans-serif;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background-color: var(--paper);
+            margin: 0; padding: 0;
+            color: var(--ink);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Paper Grain Overlay */
+        body::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.5;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+        body > * { position: relative; z-index: 2; }
         a { text-decoration: none; color: inherit; }
+        .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
-        /* 글래스모피즘 네비게이션 (공통) */
-        .navbar { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+        /* MASTHEAD */
+        .masthead {
+            background: rgba(244,240,232,0.82); backdrop-filter: blur(14px) saturate(1.2); border-bottom: 1px solid var(--line); position: relative; z-index: 9999; flex-shrink: 0;
         }
-        .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-        .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .logo-icon i { width: 18px; height: 18px; stroke-width: 2.5px; }
-        .menu { display: flex; gap: 24px; }
-        .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
-        .menu a:hover { background: var(--primary-light); color: var(--primary); }
+        .masthead-inner {
+            max-width: 1600px; margin: 0 auto; padding: 0 40px; height: 66px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand { display: flex; align-items: center; gap: 13px; }
+        .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+        .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+        .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+        .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+        .nav { display: flex; align-items: center; gap: 2px; }
+        .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
+        .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
 
-        /* 대시보드 레이아웃 */
-        .dashboard-container { display: flex; flex: 1; padding: 24px; gap: 24px; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
+        /* LAYOUT WRAPPER */
+        .dashboard-container {
+            display: flex; flex: 1; padding: 30px 40px; gap: 30px; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden;
+        }
         
-        /* 왼쪽 3D 캔버스 영역 */
-        .canvas-wrapper { flex: 2; background: #020617; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); display: flex; flex-direction: column; }
-        #simulation-container { flex: 1; width: 100%; height: 100%; }
+        /* 3D CANVAS (Map Frame) */
+        .canvas-wrapper {
+            flex: 2; position: relative; border: 1px solid var(--ink); background: var(--ink); padding: 4px; box-shadow: inset 0 0 0 1px var(--line), 6px 6px 0 rgba(26,23,20,0.06);
+            /* 고지도 / 천문 기구 필터 적용 */
+            filter: sepia(0.2) contrast(0.95);
+            display: flex; flex-direction: column;
+        }
+        #simulation-container { flex: 1; width: 100%; height: 100%; outline: none; background: #1a1714; }
         
-        .guide-badge { position: absolute; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.9); font-size: 0.85rem; padding: 8px 14px; border-radius: 12px; pointer-events: none; z-index: 10; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+        /* GUIDE BADGE (Paper Label) */
+        .guide-badge {
+            position: absolute; top: 20px; left: 20px; background: rgba(244,240,232,0.9); border: 1px solid var(--ink); color: var(--ink);
+            font-family: var(--serif); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; padding: 8px 14px; pointer-events: none; display: flex; align-items: center; gap: 8px; z-index: 10; box-shadow: 2px 2px 0 rgba(26,23,20,0.1);
+        }
+        .guide-badge .ico { color: var(--terra); }
 
-        /* 오른쪽 컨트롤 패널 영역 */
-        .controls-wrapper { flex: 1; min-width: 340px; max-width: 450px; background: var(--card-bg); border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 25px; overflow-y: auto; }
+        /* LEDGER PANEL (Controls) */
+        .controls-wrapper {
+            flex: 1; min-width: 360px; max-width: 450px; background: var(--surface); border: 1px solid var(--line); padding: 35px; position: relative; display: flex; flex-direction: column; gap: 25px; overflow-y: auto;
+        }
+        .controls-wrapper::before, .controls-wrapper::after { content: ''; position: absolute; width: 8px; height: 8px; border-color: var(--ink-faint); opacity: 0.6; pointer-events: none; }
+        .controls-wrapper::before { top: 8px; left: 8px; border-left: 1px solid; border-top: 1px solid; }
+        .controls-wrapper::after  { bottom: 8px; right: 8px; border-right: 1px solid; border-bottom: 1px solid; }
         
-        .panel-header { margin-bottom: 5px; }
-        .panel-header h2 { margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-        .panel-header p { margin: 0; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
+        .controls-wrapper::-webkit-scrollbar { width: 6px; }
+        .controls-wrapper::-webkit-scrollbar-track { background: var(--surface); }
+        .controls-wrapper::-webkit-scrollbar-thumb { background: var(--line); }
+        
+        .panel-header { border-bottom: 1px solid var(--ink); padding-bottom: 15px; margin-bottom: 5px; }
+        .panel-header h2 { margin: 0 0 5px 0; font-family: var(--serif); font-size: 1.35rem; font-weight: 500; display: flex; align-items: center; gap: 8px; color: var(--ink); letter-spacing: -0.01em; }
+        .panel-header p { margin: 0; font-family: var(--sans); font-size: 0.9rem; color: var(--ink-2); line-height: 1.5; word-break: keep-all; }
 
-        /* 세그먼트 컨트롤 (라디오 버튼 대체) */
-        .segment-control { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; position: relative; }
-        .segment-control label { flex: 1; text-align: center; font-size: 0.95rem; font-weight: 700; color: var(--text-sub); padding: 10px 0; cursor: pointer; position: relative; z-index: 2; transition: color 0.3s; }
+        /* 세그먼트 컨트롤 (빈티지 스위치 스타일) */
+        .segment-control { display: flex; border: 1px solid var(--ink); border-radius: 2px; position: relative; background: var(--paper-2); padding: 2px; }
+        .segment-control label { flex: 1; text-align: center; font-family: var(--serif); font-size: 0.85rem; font-weight: 600; color: var(--ink-3); padding: 10px 0; cursor: pointer; position: relative; z-index: 2; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.1em; }
         .segment-control input[type="radio"] { display: none; }
-        .segment-control input[type="radio"]:checked + label { color: var(--primary); }
-        .segment-highlight { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; }
+        .segment-control input[type="radio"]:checked + label { color: var(--paper); }
+        .segment-highlight { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); background: var(--ink); transition: transform 0.3s var(--ease); z-index: 1; }
         #tilt0:checked ~ .segment-highlight { transform: translateX(100%); }
 
-        /* 슬라이더 및 재생 컨트롤 */
-        .timeline-box { background: var(--primary-light); border: 1px solid #bfdbfe; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .month-display { font-size: 2rem; font-weight: 800; color: var(--primary); text-align: center; letter-spacing: -1px; }
+        /* 슬라이더 및 재생 컨트롤 (Instrument Style) */
+        .timeline-box { background: var(--paper-2); border: 1px solid var(--line); padding: 25px; display: flex; flex-direction: column; gap: 15px; position: relative; }
+        .month-display { font-family: var(--serif); font-size: 2.2rem; font-weight: 400; color: var(--terra); text-align: center; font-style: italic; letter-spacing: -0.02em; margin-bottom: 5px; }
         
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #cbd5e1; border-radius: 5px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 0 0 4px white, 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 2px; background: var(--ink-faint); outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--terra); border: 2px solid var(--paper); cursor: pointer; box-shadow: 0 2px 4px rgba(26,23,20,0.2); transition: transform 0.1s; margin-top: -7px; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
         
-        .play-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.2s; font-family: inherit; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .play-btn:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3); }
-        .play-btn.playing { background: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
-        .play-btn.playing:hover { background: #dc2626; }
+        .play-btn { 
+            background: transparent; color: var(--ink); border: 1px solid var(--ink); padding: 12px; cursor: pointer; 
+            font-family: var(--serif); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; 
+            transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 5px;
+        }
+        .play-btn:hover { background: var(--ink); color: var(--paper); }
+        .play-btn.playing { background: var(--terra); color: var(--paper); border-color: var(--terra); }
 
-        /* 설명 패널 */
-        .info-panel { background: #f8fafc; border: 1px solid var(--border-color); padding: 20px; border-radius: 16px; font-size: 0.95rem; color: #334155; line-height: 1.6; display: flex; flex-direction: column; gap: 10px; flex: 1; }
-        .info-panel strong { color: var(--text-main); font-size: 1.05rem; }
+        /* 설명 패널 (Academic Note) */
+        .info-panel { background: var(--surface); border: 1px dashed var(--ink-faint); padding: 25px; display: flex; flex-direction: column; gap: 15px; }
+        .info-header { font-family: var(--serif); font-size: 0.8rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--line-soft); padding-bottom: 10px; }
+        .info-content { font-family: var(--sans); font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; word-break: keep-all; }
+        .info-content strong { color: var(--ink); font-weight: 700; font-size: 0.95rem; }
 
         @media (max-width: 900px) {
-            .dashboard-container { flex-direction: column; overflow-y: auto; }
+            .dashboard-container { flex-direction: column; overflow-y: auto; padding: 20px; }
             .canvas-wrapper { min-height: 50vh; flex: none; }
             .controls-wrapper { max-width: 100%; flex: none; }
-            .navbar { padding: 16px 20px; }
+            .masthead-inner { padding: 0 20px; }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon"><i data-lucide="globe"></i></div>
-            Society - C - Geography
-        </a>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <a href="qna.html">Q&A 게시판</a>
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html">홈</a>
+                <a href="qna.html">Q&amp;A 게시판</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <div class="dashboard-container">
         
         <div class="canvas-wrapper">
-            <div class="guide-badge"><i data-lucide="mouse-pointer-click" style="width:14px;height:14px;"></i> 화면 드래그로 시점 회전 가능</div>
+            <div class="guide-badge">
+                <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+                <span>화면 드래그로 시점 회전 가능</span>
+            </div>
             <div id="simulation-container"></div>
         </div>
 
         <div class="controls-wrapper">
             <div class="panel-header">
-                <h2><i data-lucide="sun-dim" style="color:var(--primary);"></i> 계절 변화 원리</h2>
-                <p>지구 자전축의 기울기와 공전 궤도에 따른 태양 일사량의 변화를 관찰해 보세요.</p>
+                <h2>
+                    <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
+                    계절 변화 원리
+                </h2>
+                <p>지구 자전축의 기울기와 공전 궤도에 따른 태양 일사량의 변화를 관찰하세요.</p>
             </div>
 
             <div class="segment-control">
                 <input type="radio" name="tilt" id="tilt23" value="23.5" checked>
-                <label for="tilt23">실제 (23.5°)</label>
+                <label for="tilt23">실제 궤도 (23.5°)</label>
                 <input type="radio" name="tilt" id="tilt0" value="0">
-                <label for="tilt0">가상 (0°)</label>
+                <label for="tilt0">가상 궤도 (0°)</label>
                 <div class="segment-highlight"></div>
             </div>
 
@@ -134,52 +217,54 @@
                 <div class="month-display" id="monthLabel">6월</div>
                 <input type="range" id="monthSlider" min="1" max="12.99" step="0.05" value="6">
                 <button class="play-btn" id="playBtn">
-                    <i data-lucide="play" id="playIcon"></i> <span id="playText">자동 재생</span>
+                    <span id="playIconSpan">
+                        <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </span>
+                    <span id="playText">AUTO PLAY</span>
                 </button>
             </div>
 
             <div class="info-panel">
-                <div style="display:flex; align-items:center; gap:6px; color:var(--primary); font-weight:800; margin-bottom:4px;">
-                    <i data-lucide="info" style="width:16px;height:16px;"></i> 분석 리포트
+                <div class="info-header">
+                    <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>
+                    관측 리포트
                 </div>
-                <div id="infoText">데이터 로딩 중...</div>
+                <div class="info-content" id="infoText">데이터 로딩 중...</div>
             </div>
         </div>
     </div>
 
     <script>
-        lucide.createIcons(); // 아이콘 렌더링
-
         // --- Three.js 초기화 ---
         const container = document.getElementById('simulation-container');
         const scene = new THREE.Scene();
+        // 앤틱 오러리(천문 모형) 느낌의 짙은 먹색 우주 배경
+        scene.background = new THREE.Color(0x1a1714); 
         
-        // 카메라 설정 (대시보드 레이아웃에 맞춰 시야각 조정)
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
         camera.position.set(0, 150, 400); 
         
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha: true 로 배경 투명도 지원
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); // 레티나 디스플레이 선명도 향상
+        renderer.setPixelRatio(window.devicePixelRatio); 
         container.appendChild(renderer.domElement);
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true; controls.dampingFactor = 0.05;
-        controls.minDistance = 100; controls.maxDistance = 800; // 줌 제한
+        controls.minDistance = 100; controls.maxDistance = 800;
 
         // --- 조명 설정 ---
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.15); scene.add(ambientLight);
         const sunLight = new THREE.PointLight(0xffffff, 2, 2000); sunLight.position.set(0, 0, 0); scene.add(sunLight);
 
-        // --- 배경 우주(별) 추가 ---
+        // --- 배경 우주(별) 추가 (조금 따뜻한 색감으로 변경) ---
         const starsGeometry = new THREE.BufferGeometry();
-        const starsMaterial = new THREE.PointsMaterial({color: 0xffffff, size: 1.5, opacity: 0.8, transparent: true});
+        const starsMaterial = new THREE.PointsMaterial({color: 0xe6dfd0, size: 1.5, opacity: 0.6, transparent: true});
         const starVertices = [];
         for(let i=0; i<1500; i++) {
             const x = THREE.MathUtils.randFloatSpread(1500);
             const y = THREE.MathUtils.randFloatSpread(1500);
             const z = THREE.MathUtils.randFloatSpread(1500);
-            // 너무 가까운 별은 안 보이게 밀어내기
             if(Math.abs(x) > 200 || Math.abs(y) > 200 || Math.abs(z) > 200) {
                 starVertices.push(x, y, z);
             }
@@ -188,37 +273,37 @@
         const starField = new THREE.Points(starsGeometry, starsMaterial);
         scene.add(starField);
 
-        // --- 오브젝트 생성 ---
-        // 1. 태양 (발광 효과)
+        // --- 오브젝트 생성 (빈티지 컬러 팔레트 적용) ---
+        // 1. 태양 (Gold)
         const sunGeometry = new THREE.SphereGeometry(30, 32, 32);
-        const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xfcd34d }); 
+        const sunMaterial = new THREE.MeshBasicMaterial({ color: 0x9a7b3f }); 
         const sun = new THREE.Mesh(sunGeometry, sunMaterial); scene.add(sun);
 
-        // 2. 공전 궤도선
+        // 2. 공전 궤도선 (Ink-3)
         const R = 200;
         const orbitGeometry = new THREE.RingGeometry(R - 0.5, R + 0.5, 128);
-        const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0x334155, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
+        const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0x8c8479, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
         const orbitPath = new THREE.Mesh(orbitGeometry, orbitMaterial); orbitPath.rotation.x = Math.PI / 2; scene.add(orbitPath);
 
-        // 3. 지구 모델 그룹화
+        // 3. 지구 (Sea / Muted Blue-Green)
         const earthGroup = new THREE.Group(); scene.add(earthGroup);
         const earthRadius = 16;
         const earthGeometry = new THREE.SphereGeometry(earthRadius, 32, 32);
-        const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x3b82f6, shininess: 15 }); // 조금 더 선명한 파란색
+        const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x3a5a5e, shininess: 15 }); 
         const earth = new THREE.Mesh(earthGeometry, earthMaterial); earthGroup.add(earth); 
 
-        // 4. 적도선 (빨간 링)
+        // 4. 적도선 (Terra)
         const equatorGeometry = new THREE.TorusGeometry(earthRadius + 1.5, 0.6, 16, 64);
-        const equatorMaterial = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+        const equatorMaterial = new THREE.MeshBasicMaterial({ color: 0xb4502e });
         const equator = new THREE.Mesh(equatorGeometry, equatorMaterial); equator.rotation.x = Math.PI / 2; earthGroup.add(equator);
 
-        // 5. 자전축 (흰 선)
-        const axisMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+        // 5. 자전축 (Line)
+        const axisMaterial = new THREE.LineBasicMaterial({ color: 0xd8d0c0, linewidth: 2 });
         const axisGeometry = new THREE.BufferGeometry().setFromPoints([ new THREE.Vector3(0, earthRadius + 18, 0), new THREE.Vector3(0, -earthRadius - 18, 0) ]);
         const axisLine = new THREE.Line(axisGeometry, axisMaterial); earthGroup.add(axisLine);
 
-        // 6. 태양 광선 벡터 화살표
-        const sunRay = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,0), R - earthRadius, 0xfef08a, 15, 8);
+        // 6. 태양 광선 벡터 화살표 (Gold)
+        const sunRay = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(0,0,0), R - earthRadius, 0x9a7b3f, 15, 8);
         scene.add(sunRay);
 
         // --- UI 컨트롤 및 로직 연동 ---
@@ -226,24 +311,26 @@
         const monthLabel = document.getElementById('monthLabel');
         const infoText = document.getElementById('infoText');
         const playBtn = document.getElementById('playBtn');
-        const playIcon = document.getElementById('playIcon');
+        const playIconSpan = document.getElementById('playIconSpan');
         const playText = document.getElementById('playText');
         
         let isPlaying = false; 
         let tiltAngle = 23.5;
+
+        const svgPlay = `<svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+        const svgPause = `<svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
 
         // 재생 버튼 이벤트
         playBtn.addEventListener('click', () => {
             isPlaying = !isPlaying;
             playBtn.classList.toggle('playing');
             if (isPlaying) {
-                playText.innerText = '일시 정지';
-                playIcon.setAttribute('data-lucide', 'pause');
+                playText.innerText = 'PAUSE';
+                playIconSpan.innerHTML = svgPause;
             } else {
-                playText.innerText = '자동 재생';
-                playIcon.setAttribute('data-lucide', 'play');
+                playText.innerText = 'AUTO PLAY';
+                playIconSpan.innerHTML = svgPlay;
             }
-            lucide.createIcons();
         });
 
         // 슬라이더 이벤트
@@ -254,7 +341,7 @@
             radio.addEventListener('change', (e) => { tiltAngle = parseFloat(e.target.value); updateSimulation(); });
         });
 
-        // 윈도우 리사이즈 처리 (대시보드 영역 기준)
+        // 윈도우 리사이즈 처리
         window.addEventListener('resize', () => {
             const width = container.clientWidth;
             const height = container.clientHeight;
@@ -280,7 +367,7 @@
             // 상태별 정보 텍스트 분기
             let text = "";
             if (tiltAngle === 0) {
-                text = `<strong>[자전축 0° 수직 상태]</strong><br>지구가 기울어지지 않은 채 꼿꼿하게 공전합니다. 태양의 직사광선이 1년 내내 <strong>적도선(빨간 링)</strong>에만 수직으로 떨어지므로, 위치에 상관없이 <strong>계절의 변화가 발생하지 않습니다.</strong>`;
+                text = `<strong>[자전축 0° 수직 상태]</strong><br>지구가 기울어지지 않은 채 공전합니다. 태양의 직사광선이 1년 내내 <strong>적도선(붉은 띠)</strong>에만 수직으로 떨어지므로, 위치에 상관없이 <strong>계절의 변화가 발생하지 않습니다.</strong>`;
             } else {
                 if (displayMonth >= 5 && displayMonth <= 7) {
                     text = `<strong>[${displayMonth}월: 북반구 여름 / 남반구 겨울]</strong><br>지구의 북반구가 태양을 향해 기울어져 있습니다. 태양 직사광선이 북반구(북회귀선 부근)를 강하게 비추어 북반구는 <strong>여름</strong>이 됩니다.`;
@@ -289,10 +376,10 @@
                     text = `<strong>[${displayMonth}월: 북반구 겨울 / 남반구 여름]</strong><br>지구의 북반구가 태양을 등지고 기울어져 있습니다. 태양 직사광선이 남반구(남회귀선 부근)를 비추어 북반구는 <strong>겨울</strong>이 됩니다.`;
                 }
                 else if (displayMonth >= 2 && displayMonth <= 4) {
-                    text = `<strong>[${displayMonth}월: 춘분 부근]</strong><br>지구가 태양의 옆면을 지나가고 있습니다. 태양 직사광선이 정확히 <strong>적도 부근</strong>을 비추며, 낮과 밤의 길이가 거의 같아집니다.`;
+                    text = `<strong>[${displayMonth}월: 춘분기]</strong><br>지구가 태양의 측면을 지나갑니다. 태양 직사광선이 정확히 <strong>적도 부근</strong>을 비추며, 낮과 밤의 길이가 거의 같아집니다.`;
                 }
                 else {
-                    text = `<strong>[${displayMonth}월: 추분 부근]</strong><br>지구가 태양의 반대쪽 옆면을 지나가고 있습니다. 다시 한번 태양 직사광선이 <strong>적도 부근</strong>을 비춥니다.`;
+                    text = `<strong>[${displayMonth}월: 추분기]</strong><br>지구가 태양의 반대쪽 측면을 지나갑니다. 다시 한번 태양 직사광선이 <strong>적도 부근</strong>을 수직으로 비춥니다.`;
                 }
             }
             infoText.innerHTML = text;
@@ -309,7 +396,7 @@
             // 자전 효과
             earth.rotation.y += 0.05;
             
-            // 별가루(우주) 천천히 회전
+            // 우주 천천히 회전
             starField.rotation.y += 0.0005;
 
             controls.update(); 
@@ -322,37 +409,16 @@
     </script>
 <script>
         // 1. 마우스 우클릭 차단
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
         // 2. 텍스트 드래그 및 선택 차단
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-        });
-
+        document.addEventListener('selectstart', function(e) { e.preventDefault(); });
         // 3. F12 및 주요 개발자 도구 단축키 차단
         document.addEventListener('keydown', function(e) {
-            // F12 차단
-            if (e.keyCode === 123) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + I (개발자 도구)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + C (요소 검사)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + J (콘솔)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-            }
-            // Ctrl + U (페이지 소스 보기)
-            if (e.ctrlKey && e.keyCode === 85) {
-                e.preventDefault();
-            }
+            if (e.keyCode === 123) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
+            if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
         });
     </script>
 </body>
