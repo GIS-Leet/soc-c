@@ -1,162 +1,258 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-E1W226W5M4');
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>적도 수렴대 이동 시뮬레이터 - 통합사회 C</title>
+    <title>적도 수렴대 이동 시뮬레이터 — Geographia Archive</title>
     
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
 
     <style>
+        /* ============================================================
+           GEOGRAPHIA — Academic Archival Editorial Concept
+        ============================================================ */
         :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --text-main: #0f172a;
-            --text-sub: #64748b;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --border-color: rgba(0,0,0,0.06);
-            --radius: 20px;
+            --ink:        #1a1714;
+            --ink-2:      #4a443c;
+            --ink-3:      #8c8479;
+            --ink-faint:  #b8b0a3;
+
+            --paper:      #f4f0e8;
+            --paper-2:    #efe9dd;
+            --surface:    #fbf9f3;
+
+            --line:       #d8d0c0;
+            --line-soft:  #e6dfd0;
+
+            --terra:      #b4502e;
+            --terra-soft: #f0e0d4;
+            --sea:        #2f5d50;
+            --sea-soft:   #dde8e2;
+            --gold:       #9a7b3f;
+            --gold-soft:  #f3ebd8;
+
+            --serif: 'Fraunces', Georgia, serif;
+            --sans:  'Pretendard', -apple-system, sans-serif;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background-color: var(--paper);
+            margin: 0; padding: 0;
+            color: var(--ink);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Paper Grain Overlay */
+        body::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.5;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+        body > * { position: relative; z-index: 2; }
         a { text-decoration: none; color: inherit; }
+        .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
-        /* 글래스모피즘 네비게이션 */
-        .navbar { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+        /* MASTHEAD */
+        .masthead {
+            background: rgba(244,240,232,0.82); backdrop-filter: blur(14px) saturate(1.2); border-bottom: 1px solid var(--line); position: relative; z-index: 9999; flex-shrink: 0;
         }
-        .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-        .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .logo-icon i { width: 18px; height: 18px; stroke-width: 2.5px; }
-        .menu { display: flex; gap: 24px; }
-        .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
-        .menu a:hover { background: var(--primary-light); color: var(--primary); }
+        .masthead-inner {
+            max-width: 1400px; margin: 0 auto; padding: 0 40px; height: 66px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand { display: flex; align-items: center; gap: 13px; }
+        .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+        .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+        .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+        .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+        .nav { display: flex; align-items: center; gap: 2px; }
+        .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
+        .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
 
-        /* 대시보드 레이아웃 */
-        .dashboard-container { display: flex; flex: 1; padding: 24px; gap: 24px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
+        /* LAYOUT WRAPPER */
+        .dashboard-container {
+            display: flex; flex: 1; padding: 30px 40px; gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden;
+        }
         
-        /* 왼쪽 캔버스 영역 */
-        .canvas-wrapper { flex: 2; background: #0f172a; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center; }
-        canvas { width: 100%; max-height: 100%; object-fit: contain; }
+        /* 2D CANVAS (Geometry Frame) */
+        .canvas-wrapper {
+            flex: 2; position: relative; border: 1px solid var(--ink); background: var(--paper); padding: 4px; box-shadow: inset 0 0 0 1px var(--line), 6px 6px 0 rgba(26,23,20,0.06);
+            display: flex; justify-content: center; align-items: center;
+            background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 24px 24px;
+        }
+        .canvas-inner {
+            position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid var(--line-soft); background: transparent; display: flex; justify-content: center; align-items: center;
+        }
+        canvas { width: 100%; max-height: 100%; object-fit: contain; z-index: 5; }
 
-        /* 오른쪽 컨트롤 패널 영역 */
-        .controls-wrapper { flex: 1; min-width: 340px; max-width: 450px; background: var(--card-bg); border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 25px; overflow-y: auto; }
-        
-        .panel-header { margin-bottom: 5px; }
-        .panel-header h2 { margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-        .panel-header p { margin: 0; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
+        /* GUIDE BADGE (Paper Label) */
+        .guide-badge {
+            position: absolute; top: 20px; left: 20px; background: var(--paper); border: 1px solid var(--ink); color: var(--ink);
+            font-family: var(--serif); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; padding: 8px 14px; pointer-events: none; display: flex; align-items: center; gap: 8px; z-index: 10; box-shadow: 2px 2px 0 rgba(26,23,20,0.1);
+        }
+        .guide-badge .ico { color: var(--terra); }
 
-        /* 슬라이더 및 재생 컨트롤 */
-        .timeline-box { background: var(--primary-light); border: 1px solid #bfdbfe; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .month-display { font-size: 2rem; font-weight: 800; color: var(--primary); text-align: center; letter-spacing: -1px; }
+        /* LEDGER PANEL (Controls) */
+        .controls-wrapper {
+            flex: 1; min-width: 360px; max-width: 450px; background: var(--surface); border: 1px solid var(--line); padding: 35px; position: relative; display: flex; flex-direction: column; gap: 25px; overflow-y: auto;
+        }
+        .controls-wrapper::before, .controls-wrapper::after { content: ''; position: absolute; width: 8px; height: 8px; border-color: var(--ink-faint); opacity: 0.6; pointer-events: none; }
+        .controls-wrapper::before { top: 8px; left: 8px; border-left: 1px solid; border-top: 1px solid; }
+        .controls-wrapper::after  { bottom: 8px; right: 8px; border-right: 1px solid; border-bottom: 1px solid; }
         
-        .slider-wrap { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text-sub); font-size: 0.9rem; }
-        input[type="range"] { -webkit-appearance: none; flex: 1; height: 6px; background: #cbd5e1; border-radius: 5px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 0 0 4px white, 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        .controls-wrapper::-webkit-scrollbar { width: 6px; }
+        .controls-wrapper::-webkit-scrollbar-track { background: var(--surface); }
+        .controls-wrapper::-webkit-scrollbar-thumb { background: var(--line); }
         
-        .play-btn { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; font-size: 1rem; transition: 0.2s; font-family: inherit; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-        .play-btn:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3); }
-        .play-btn.playing { background: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
-        .play-btn.playing:hover { background: #dc2626; }
+        .panel-header { border-bottom: 1px solid var(--ink); padding-bottom: 15px; margin-bottom: 5px; }
+        .panel-header h2 { margin: 0 0 5px 0; font-family: var(--serif); font-size: 1.35rem; font-weight: 500; display: flex; align-items: center; gap: 8px; color: var(--ink); letter-spacing: -0.01em; }
+        .panel-header p { margin: 0; font-family: var(--sans); font-size: 0.9rem; color: var(--ink-2); line-height: 1.5; word-break: keep-all; }
 
-        /* 설명 패널 */
-        .info-panel { background: #f8fafc; border: 1px solid var(--border-color); padding: 20px; border-radius: 16px; font-size: 0.95rem; color: #334155; line-height: 1.6; display: flex; flex-direction: column; gap: 10px; flex: 1; justify-content: center; }
-        .info-panel strong { color: var(--text-main); font-size: 1.05rem; }
+        /* SLIDER & PLAY (Instrument Style) */
+        .timeline-box { background: var(--paper-2); border: 1px solid var(--line); padding: 25px; display: flex; flex-direction: column; gap: 15px; position: relative; }
+        .month-display { font-family: var(--serif); font-size: 2.2rem; font-weight: 400; color: var(--terra); text-align: center; font-style: italic; letter-spacing: -0.02em; margin-bottom: 5px; }
+        
+        .slider-wrap { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-family: var(--serif); font-size: 0.75rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        input[type="range"] { -webkit-appearance: none; flex: 1; height: 2px; background: var(--ink-faint); outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--terra); border: 2px solid var(--paper); cursor: pointer; box-shadow: 0 2px 4px rgba(26,23,20,0.2); transition: transform 0.1s; margin-top: -7px;}
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        
+        .play-btn { 
+            background: transparent; color: var(--ink); border: 1px solid var(--ink); padding: 12px; cursor: pointer; 
+            font-family: var(--serif); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; 
+            transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 5px;
+        }
+        .play-btn:hover { background: var(--ink); color: var(--paper); }
+        .play-btn.playing { background: var(--terra); color: var(--paper); border-color: var(--terra); }
+
+        /* INFO PANEL (Academic Note) */
+        .info-panel { background: var(--surface); border: 1px dashed var(--ink-faint); padding: 25px; display: flex; flex-direction: column; gap: 15px; }
+        .info-header { font-family: var(--serif); font-size: 0.8rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--line-soft); padding-bottom: 10px; }
+        .info-content { font-family: var(--sans); font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; word-break: keep-all; }
+        .info-content strong { color: var(--ink); font-weight: 700; font-size: 0.95rem; }
 
         @media (max-width: 900px) {
-            .dashboard-container { flex-direction: column; overflow-y: auto; }
-            .canvas-wrapper { min-height: 40vh; flex: none; }
+            .dashboard-container { flex-direction: column; overflow-y: auto; padding: 20px; }
+            .canvas-wrapper { min-height: 45vh; flex: none; }
             .controls-wrapper { max-width: 100%; flex: none; }
-            .navbar { padding: 16px 20px; }
+            .masthead-inner { padding: 0 20px; }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon"><i data-lucide="globe"></i></div>
-            Society - C - Geography
-        </a>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <a href="qna.html">Q&A 게시판</a>
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html">홈</a>
+                <a href="qna.html">Q&amp;A 게시판</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <div class="dashboard-container">
         
         <div class="canvas-wrapper">
-            <canvas id="simCanvas" width="700" height="400"></canvas>
+            <div class="guide-badge">
+                <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                <span>ITCZ Movement</span>
+            </div>
+            <div class="canvas-inner">
+                <canvas id="simCanvas" width="700" height="450"></canvas>
+            </div>
         </div>
 
         <div class="controls-wrapper">
             <div class="panel-header">
-                <h2><i data-lucide="move-vertical" style="color:var(--primary);"></i> 적도 수렴대 이동</h2>
-                <p>월별 태양 직사광선 이동에 따른 비구름(우기)의 남북 이동을 관찰합니다.</p>
+                <h2>
+                    <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="7 15 12 20 17 15"/><polyline points="7 9 12 4 17 9"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                    적도 수렴대 이동
+                </h2>
+                <p>월별 태양 직사광선 궤도에 따른 강수대(우기)의 남북 이동을 관찰하세요.</p>
             </div>
 
             <div class="timeline-box">
-                <div class="month-display" id="monthLabel">6월</div>
+                <div class="month-display" id="monthLabel">Month 6</div>
                 <div class="slider-wrap">
-                    <span>1월</span>
+                    <span>Jan</span>
                     <input type="range" id="monthSlider" min="1" max="12.99" step="0.05" value="6">
-                    <span>12월</span>
+                    <span>Dec</span>
                 </div>
                 <button class="play-btn" id="playBtn">
-                    <i data-lucide="play" id="playIcon"></i> <span id="playText">자동 재생</span>
+                    <span id="playIconSpan">
+                        <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </span>
+                    <span id="playText">AUTO PLAY</span>
                 </button>
             </div>
 
             <div class="info-panel">
-                <div style="display:flex; align-items:center; gap:6px; color:var(--primary); font-weight:800; margin-bottom:4px;">
-                    <i data-lucide="cloud-rain" style="width:16px;height:16px;"></i> 기후 리포트
+                <div class="info-header">
+                    <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>
+                    기후 리포트
                 </div>
-                <div id="infoText">데이터 로딩 중...</div>
+                <div class="info-content" id="infoText">데이터 로딩 중...</div>
             </div>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
-
         const canvas = document.getElementById('simCanvas'); 
         const ctx = canvas.getContext('2d');
         const slider = document.getElementById('monthSlider'); 
         const monthLabel = document.getElementById('monthLabel'); 
         const infoText = document.getElementById('infoText');
         const playBtn = document.getElementById('playBtn');
-        const playIcon = document.getElementById('playIcon');
+        const playIconSpan = document.getElementById('playIconSpan');
         const playText = document.getElementById('playText');
         
-        const cx = 500; const cy = 200; const R = 120;
+        const cx = 500; const cy = 225; const R = 130;
         let isPlaying = false;
+
+        const svgPlay = `<svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+        const svgPause = `<svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
 
         // 자동 재생 토글 로직
         playBtn.addEventListener('click', () => {
             isPlaying = !isPlaying;
             playBtn.classList.toggle('playing');
             if (isPlaying) {
-                playText.innerText = '일시 정지';
-                playIcon.setAttribute('data-lucide', 'pause');
+                playText.innerText = 'PAUSE';
+                playIconSpan.innerHTML = svgPause;
             } else {
-                playText.innerText = '자동 재생';
-                playIcon.setAttribute('data-lucide', 'play');
+                playText.innerText = 'AUTO PLAY';
+                playIconSpan.innerHTML = svgPlay;
             }
-            lucide.createIcons();
         });
 
         // 애니메이션 루프
@@ -174,64 +270,75 @@
         function drawSimulation() {
             const rawMonth = parseFloat(slider.value);
             const displayMonth = Math.floor(rawMonth) > 12 ? 1 : Math.floor(rawMonth);
-            monthLabel.textContent = displayMonth + '월';
+            monthLabel.textContent = `Month ${displayMonth}`;
 
             const maxTilt = 23.5; 
             const tiltFactor = Math.cos((rawMonth - 6) * Math.PI / 6);
             const tiltRad = -maxTilt * tiltFactor * Math.PI / 180;
 
-            // 캔버스 초기화 (모던한 다크블루 색상)
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // 캔버스 초기화 (투명하게 지워 뒷 배경 격자가 보이게 함)
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // 태양광선 그리기
-            ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 2;
-            for (let y = 80; y <= 320; y += 30) {
-                ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(320, y); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(310, y - 6); ctx.lineTo(320, y); ctx.lineTo(310, y + 6); ctx.stroke();
+            ctx.strokeStyle = '#d8d0c0'; ctx.lineWidth = 2;
+            for (let y = 80; y <= 370; y += 30) {
+                ctx.beginPath(); ctx.moveTo(20, y); ctx.lineTo(330, y); ctx.stroke();
+                // 화살표 머리
+                ctx.beginPath(); ctx.moveTo(320, y - 6); ctx.lineTo(330, y); ctx.lineTo(320, y + 6); ctx.stroke();
             }
-            // 태양 본체
-            ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(-20, cy, 150, 0, Math.PI * 2); ctx.fill();
+            
+            // 태양 본체 (왼쪽 끄트머리)
+            ctx.fillStyle = '#fbf9f3'; 
+            ctx.beginPath(); ctx.arc(-20, cy, 150, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#9a7b3f'; ctx.lineWidth = 2; ctx.stroke();
+            
+            ctx.fillStyle = '#9a7b3f'; ctx.font = 'italic 16px "Fraunces", serif';
+            ctx.fillText("Sunlight", 20, cy);
 
             ctx.save(); ctx.translate(cx, cy);
             
             // 지구 본체
-            ctx.fillStyle = '#3b82f6'; ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#fbf9f3'; ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#1a1714'; ctx.lineWidth = 2; ctx.stroke();
             ctx.rotate(tiltRad);
             
             // 자전축
-            ctx.strokeStyle = '#94a3b8'; ctx.setLineDash([5, 5]); ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(0, -R - 30); ctx.lineTo(0, R + 30); ctx.stroke();
+            ctx.strokeStyle = '#8c8479'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(0, -R - 40); ctx.lineTo(0, R + 40); ctx.stroke();
 
             // 위도선 그리기 함수
             function drawLat(lat, label, color, isDashed) {
                 const y = -R * Math.sin(lat * Math.PI / 180); const rLat = R * Math.cos(lat * Math.PI / 180);
-                ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash(isDashed ? [4, 4] : []);
+                ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.setLineDash(isDashed ? [4, 4] : []);
                 ctx.beginPath(); ctx.moveTo(-rLat, y); ctx.lineTo(rLat, y); ctx.stroke();
-                ctx.fillStyle = color; ctx.font = 'bold 12px "Pretendard", "Malgun Gothic"'; ctx.textAlign = 'left'; ctx.fillText(label, rLat + 8, y + 4);
+                ctx.setLineDash([]);
+                ctx.fillStyle = '#4a443c'; ctx.font = '500 12px "Pretendard", sans-serif'; ctx.textAlign = 'left'; 
+                ctx.fillText(label, rLat + 10, y + 4);
             }
-            drawLat(0, "적도 (0°)", "#ef4444", false); 
-            drawLat(23.5, "북회귀선 (23.5°)", "#fcd34d", true); 
-            drawLat(-23.5, "남회귀선 (-23.5°)", "#fcd34d", true);
+            drawLat(0, "Equator (0°)", "#b4502e", false); 
+            drawLat(23.5, "Cancer (23.5° N)", "#9a7b3f", true); 
+            drawLat(-23.5, "Capricorn (23.5° S)", "#9a7b3f", true);
             
             // 극지방 텍스트
-            ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.font = 'bold 14px "Pretendard"'; 
-            ctx.fillText("북극", 0, -R - 10); ctx.fillText("남극", 0, R + 25);
+            ctx.fillStyle = '#8c8479'; ctx.textAlign = 'center'; ctx.font = 'italic 13px "Fraunces", serif'; 
+            ctx.fillText("North Pole", 0, -R - 15); ctx.fillText("South Pole", 0, R + 25);
 
-            // 적도 수렴대 (빨간 띠)
+            // 적도 수렴대 (테라 톤 반투명 띠)
             const itczLat = maxTilt * tiltFactor; 
             const itczY = -R * Math.sin(itczLat * Math.PI / 180); 
             const itczWidth = R * Math.cos(itczLat * Math.PI / 180);
             
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.4)'; 
+            ctx.fillStyle = 'rgba(180, 80, 46, 0.15)'; 
             ctx.fillRect(-itczWidth, itczY - 15, itczWidth * 2, 30);
             
+            // 수렴대 경계선
+            ctx.strokeStyle = 'rgba(180, 80, 46, 0.6)'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(-itczWidth, itczY - 15); ctx.lineTo(itczWidth, itczY - 15); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-itczWidth, itczY + 15); ctx.lineTo(itczWidth, itczY + 15); ctx.stroke();
+            
             // 수렴대 텍스트
-            ctx.fillStyle = 'white'; ctx.font = 'bold 14px "Pretendard"'; 
-            // 텍스트에 그림자 주어 가독성 향상
-            ctx.shadowColor="black"; ctx.shadowBlur=4; ctx.shadowOffsetX=1; ctx.shadowOffsetY=1;
-            ctx.fillText("적도 수렴대 (비구름 띠)", 0, itczY + 5);
-            ctx.shadowBlur=0; ctx.shadowOffsetX=0; ctx.shadowOffsetY=0; // 그림자 초기화
+            ctx.fillStyle = '#b4502e'; ctx.font = 'bold 13px "Pretendard"'; 
+            ctx.fillText("적도 수렴대 (ITCZ)", 0, itczY + 4);
             ctx.restore();
 
             // 설명 패널 텍스트 분기
@@ -239,7 +346,7 @@
             if (displayMonth >= 5 && displayMonth <= 7) {
                 text = `<strong>[북반구 여름 (${displayMonth}월)]</strong><br>태양의 직사광선이 북반구를 비추며, 강한 상승기류로 <strong>비구름을 만드는 '적도 수렴대'가 북반구로 올라옵니다.</strong> (북반구 우기 발생)`;
             } else if (displayMonth >= 11 || displayMonth === 1) {
-                text = `<strong>[북반구 겨울 (${displayMonth}월)]</strong><br>태양의 직사광선이 남반구를 비추며, <strong>적도 수렴대가 남반구로 내려갑니다.</strong> (북반구는 건조해짐)`;
+                text = `<strong>[북반구 겨울 (${displayMonth}월)]</strong><br>태양의 직사광선이 남반구를 비추며, <strong>적도 수렴대가 남반구로 내려갑니다.</strong> (북반구 건조기)`;
             } else {
                 text = `<strong>[봄/가을 부근 (${displayMonth}월)]</strong><br>태양의 직사광선이 <strong>정확히 적도</strong>를 수직으로 비추며, 적도 수렴대가 지구의 중앙(적도선)에 위치합니다.`;
             }
@@ -247,42 +354,23 @@
         }
 
         slider.addEventListener('input', drawSimulation); 
+        // 폰트 로드 대비 지연 렌더링
+        setTimeout(drawSimulation, 100);
         drawSimulation();
         animate(); // 애니메이션 루프 시작
     </script>
 <script>
         // 1. 마우스 우클릭 차단
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
         // 2. 텍스트 드래그 및 선택 차단
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-        });
-
+        document.addEventListener('selectstart', function(e) { e.preventDefault(); });
         // 3. F12 및 주요 개발자 도구 단축키 차단
         document.addEventListener('keydown', function(e) {
-            // F12 차단
-            if (e.keyCode === 123) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + I (개발자 도구)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + C (요소 검사)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + J (콘솔)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-            }
-            // Ctrl + U (페이지 소스 보기)
-            if (e.ctrlKey && e.keyCode === 85) {
-                e.preventDefault();
-            }
+            if (e.keyCode === 123) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
+            if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
         });
     </script>
 </body>
