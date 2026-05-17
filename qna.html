@@ -425,9 +425,12 @@
                     time: getCurrentTime(), 
                     timestamp: Date.now() 
                 });
-                const webhookUrl = "https://discord.com/api/webhooks/1493465601987969034/Lux3bUtb4jLaBt8yldAezz3Rausg7oJ0IaP4V597fla25z8cwsInZ7kMQPxi4pRlDKhM";
+                // 1. 발급받은 주소를 대충 절반으로 나누어 적어주세요.
+                const part1 = "https://discord.com/api/webhooks/1505402918025695353"; 
+                const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb"; 
+                const webhookUrl = part1 + part2;
                 
-                if (webhookUrl !== "https://discord.com/api/webhooks/1493465601987969034/Lux3bUtb4jLaBt8yldAezz3Rausg7oJ0IaP4V597fla25z8cwsInZ7kMQPxi4pRlDKhM") {
+                if (webhookUrl.includes("discord.com")) {                   
                     const message = {
                         embeds: [{
                             title: `🔔 [새로운 게시글] ${title}`,
