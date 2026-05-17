@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-E1W226W5M4');
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지형 형성 작용 - 통합사회 C</title>
+    <title>지형 형성 작용 — Geographia Archive</title>
     
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -23,84 +23,188 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
 
     <style>
+        /* ============================================================
+           GEOGRAPHIA — Academic Archival Editorial Concept
+        ============================================================ */
         :root {
-            --primary: #2563eb; --primary-light: #eff6ff; --text-main: #0f172a; --text-sub: #64748b;
-            --bg-color: #f8fafc; --card-bg: #ffffff; --border-color: rgba(0,0,0,0.06); --radius: 20px;
+            --ink:        #1a1714;
+            --ink-2:      #4a443c;
+            --ink-3:      #8c8479;
+            --ink-faint:  #b8b0a3;
+
+            --paper:      #f4f0e8;
+            --paper-2:    #efe9dd;
+            --surface:    #fbf9f3;
+
+            --line:       #d8d0c0;
+            --line-soft:  #e6dfd0;
+
+            --terra:      #b4502e;
+            --terra-soft: #f0e0d4;
+            --sea:        #2f5d50;
+            --gold:       #9a7b3f;
+
+            --serif: 'Fraunces', Georgia, serif;
+            --sans:  'Pretendard', -apple-system, sans-serif;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background-color: var(--paper);
+            margin: 0; padding: 0;
+            color: var(--ink);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Paper Grain Overlay */
+        body::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.5;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+        body > * { position: relative; z-index: 2; }
         a { text-decoration: none; color: inherit; }
+        .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
-        .navbar { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 1000;}
-        .logo { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-        .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .menu { display: flex; gap: 24px; }
-        .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: 0.2s; }
-        .menu a:hover, .menu a.active { background: var(--primary-light); color: var(--primary); }
+        /* MASTHEAD */
+        .masthead {
+            background: rgba(244,240,232,0.82); backdrop-filter: blur(14px) saturate(1.2); border-bottom: 1px solid var(--line); position: relative; z-index: 9999; flex-shrink: 0;
+        }
+        .masthead-inner {
+            max-width: 1600px; margin: 0 auto; padding: 0 40px; height: 66px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand { display: flex; align-items: center; gap: 13px; }
+        .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+        .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+        .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+        .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+        .nav { display: flex; align-items: center; gap: 2px; }
+        .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
+        .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
 
-        .dashboard-container { display: flex; flex: 1; padding: 20px; gap: 20px; max-width: 1800px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
+        /* LAYOUT WRAPPER */
+        .dashboard-container {
+            display: flex; flex: 1; padding: 30px 40px; gap: 30px; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden;
+        }
         
-        .canvas-wrapper { flex: 2; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border-color); background: #000; }
-        #webgl-container { width: 100%; height: 100%; outline: none; }
-        .guide-badge { position: absolute; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px); color: white; font-size: 0.85rem; padding: 8px 14px; border-radius: 12px; pointer-events: none; display: flex; align-items: center; gap: 6px; font-weight: 500; z-index: 10;}
-
-        /* 시네마틱 모드 오버레이 */
-        .cinematic-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: 80%; text-align: center; pointer-events: none; z-index: 20; opacity: 0; transition: opacity 0.5s; }
-        .cinematic-text { display: inline-block; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); color: white; padding: 18px 35px; border-radius: 20px; font-size: 1.1rem; line-height: 1.6; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        .cinematic-title { font-weight: 800; color: #fbbf24; font-size: 1.4rem; margin-bottom: 8px; display: block; }
-
-        .controls-wrapper { flex: 1; min-width: 380px; max-width: 450px; background: var(--card-bg); border-radius: var(--radius); padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
-        .controls-wrapper::-webkit-scrollbar { width: 8px; }
-        .controls-wrapper::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        /* 3D CANVAS (Map Frame) */
+        .canvas-wrapper {
+            flex: 2; position: relative; border: 1px solid var(--ink); background: var(--paper); padding: 4px; box-shadow: inset 0 0 0 1px var(--line), 6px 6px 0 rgba(26,23,20,0.06);
+            /* 세피아 필터 적용 (고지도 느낌) */
+            filter: sepia(0.15) contrast(0.95);
+        }
+        #webgl-container { width: 100%; height: 100%; outline: none; background: #000; }
         
-        .panel-header h2 { margin: 0 0 5px 0; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-        .panel-header p { margin: 0; font-size: 0.9rem; color: var(--text-sub); line-height: 1.4; }
+        /* GUIDE BADGE (Paper Label) */
+        .guide-badge {
+            position: absolute; top: 20px; left: 20px; background: var(--paper); border: 1px solid var(--ink); color: var(--ink);
+            font-family: var(--serif); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; padding: 8px 14px; pointer-events: none; display: flex; align-items: center; gap: 8px; z-index: 10; box-shadow: 2px 2px 0 rgba(26,23,20,0.1);
+        }
+        .guide-badge .ico { color: var(--terra); }
 
-        .tab-container { display: flex; background: #e2e8f0; padding: 5px; border-radius: 12px; margin-bottom: 5px;}
-        .tab-btn { flex: 1; text-align: center; padding: 12px 0; font-size: 0.95rem; font-weight: 800; color: var(--text-sub); cursor: pointer; border-radius: 10px; transition: 0.3s; }
-        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        /* 시네마틱 모드 오버레이 (Editorial Subtitle) */
+        .cinematic-overlay { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); width: auto; max-width: 80%; text-align: center; pointer-events: none; z-index: 20; opacity: 0; transition: opacity 0.5s; }
+        .cinematic-text { 
+            display: inline-block; background: var(--ink); color: var(--paper); padding: 20px 30px; border-radius: 4px; border: 1px solid var(--line);
+            font-family: var(--sans); font-size: 0.95rem; line-height: 1.6; box-shadow: 6px 6px 0 rgba(26,23,20,0.15); 
+        }
+        .cinematic-title { font-family: var(--serif); font-weight: 500; color: var(--terra-soft); font-size: 1.3rem; margin-bottom: 8px; display: block; letter-spacing: 0.02em; }
+        .cinematic-text b { color: var(--gold-soft); font-weight: 600; }
 
-        .tab-content { display: none; flex-direction: column; gap: 15px; }
+        /* LEDGER PANEL (Controls) */
+        .controls-wrapper {
+            flex: 1; min-width: 380px; max-width: 450px; background: var(--surface); border: 1px solid var(--line); padding: 30px; position: relative; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;
+        }
+        .controls-wrapper::before, .controls-wrapper::after { content: ''; position: absolute; width: 8px; height: 8px; border-color: var(--ink-faint); opacity: 0.6; pointer-events: none; }
+        .controls-wrapper::before { top: 8px; left: 8px; border-left: 1px solid; border-top: 1px solid; }
+        .controls-wrapper::after  { bottom: 8px; right: 8px; border-right: 1px solid; border-bottom: 1px solid; }
+        
+        .controls-wrapper::-webkit-scrollbar { width: 6px; }
+        .controls-wrapper::-webkit-scrollbar-track { background: var(--surface); }
+        .controls-wrapper::-webkit-scrollbar-thumb { background: var(--line); }
+        
+        .panel-header { border-bottom: 1px solid var(--ink); padding-bottom: 15px; margin-bottom: 5px; }
+        .panel-header h2 { margin: 0 0 5px 0; font-family: var(--serif); font-size: 1.4rem; font-weight: 500; display: flex; align-items: center; gap: 8px; color: var(--ink); letter-spacing: -0.01em; }
+        .panel-header p { margin: 0; font-family: var(--serif); font-style: italic; font-size: 0.85rem; color: var(--ink-3); }
+
+        /* 탭 버튼 (Ledger Tabs) */
+        .tab-container { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+        .tab-btn { 
+            flex: 1; text-align: center; padding: 12px 0; font-family: var(--serif); font-size: 0.85rem; font-weight: 600; color: var(--ink-faint); 
+            cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 3px solid transparent; 
+        }
+        .tab-btn.active { color: var(--ink); border-bottom-color: var(--ink); }
+
+        .tab-content { display: none; flex-direction: column; gap: 20px; }
         .tab-content.active { display: flex; }
 
-        .control-group { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; position: relative; }
-        .control-group h3 { margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 6px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 10px; }
+        .control-group { display: flex; flex-direction: column; gap: 12px; }
+        .control-group h3 { margin: 0 0 5px; font-family: var(--serif); font-size: 0.9rem; font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px dashed var(--line); padding-bottom: 8px; }
+        .control-group h3 .ico { color: var(--ink-2); }
         
-        /* 액션 버튼들 */
-        .action-btn { background: white; border: 1px solid #cbd5e1; padding: 15px; border-radius: 12px; cursor: pointer; font-size: 0.95rem; font-weight: 700; color: var(--text-main); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; font-family: inherit; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .action-btn:hover { background: #f1f5f9; border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(37,99,235,0.1); }
-        .action-btn .btn-icon { background: var(--primary-light); color: var(--primary); width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
-        .action-btn .play-icon { color: var(--text-sub); transition: 0.2s; }
-        .action-btn:hover .play-icon { color: var(--primary); }
-        .action-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        /* 액션 버튼들 (Editorial Cards) */
+        .action-btn { 
+            background: var(--paper); border: 1px solid var(--line); padding: 16px; cursor: pointer; color: var(--ink); transition: 0.2s; display: flex; justify-content: space-between; align-items: center; font-family: var(--sans); text-align: left;
+        }
+        .action-btn:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(4px); }
+        .btn-content { display: flex; align-items: center; gap: 14px; }
+        .btn-icon { width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; color: var(--ink); border: 1px solid var(--line-soft); background: var(--surface); }
+        .btn-title { display: block; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; margin-bottom: 2px; color: var(--ink); }
+        .btn-desc { display: block; font-size: 0.8rem; color: var(--ink-3); }
+        
+        .play-ico { color: var(--ink-faint); transition: 0.2s; width: 22px; height: 22px; }
+        .action-btn:hover .play-ico { color: var(--terra); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        /* 테마별 아이콘 색상 */
-        .icon-ice { background: #f0f9ff !important; color: #0284c7 !important; }
-        .icon-water { background: #e0e7ff !important; color: #4f46e5 !important; }
-        .icon-chem { background: #fdf4ff !important; color: #c026d3 !important; }
+        /* 초기화 버튼 */
+        .btn-reset { 
+            margin-top: auto; padding: 14px; background: transparent; border: 1px solid var(--ink); color: var(--ink); font-family: var(--serif); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; 
+        }
+        .btn-reset:hover { background: var(--ink); color: var(--paper); }
 
         @media (max-width: 900px) {
-            .dashboard-container { flex-direction: column; overflow-y: auto; }
+            .dashboard-container { flex-direction: column; overflow-y: auto; padding: 20px; }
             .canvas-wrapper { min-height: 50vh; flex: none; }
             .controls-wrapper { max-width: 100%; flex: none; }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon"><i data-lucide="globe"></i></div>
-            Society - C - Geography
-        </a>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <a href="qna.html">Q&A 게시판</a>
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html">홈</a>
+                <a href="qna.html">Q&amp;A 게시판</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <div class="dashboard-container">
         <div class="canvas-wrapper">
-            <div class="guide-badge"><i data-lucide="mouse-pointer-2" style="width:14px;height:14px;"></i> 마우스 우클릭으로 시점을 회전할 수 있습니다.</div>
+            <div class="guide-badge">
+                <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+                마우스 우클릭으로 시점을 회전할 수 있습니다.
+            </div>
             
             <div class="cinematic-overlay" id="cinematicOverlay">
                 <div class="cinematic-text">
@@ -114,8 +218,11 @@
 
         <div class="controls-wrapper">
             <div class="panel-header">
-                <h2><i data-lucide="activity" style="color:var(--primary);"></i> 다이내믹 어스</h2>
-                <p>지구의 내적/외적 작용이 만드는 지형 변화를 관찰합니다.</p>
+                <h2>
+                    <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 20h20"/><path d="M5 20l7-12 7 12"/></svg>
+                    다이내믹 어스 (Dynamic Earth)
+                </h2>
+                <p>Internal and External Earth Processes</p>
             </div>
 
             <div class="tab-container">
@@ -125,93 +232,113 @@
 
             <div class="tab-content active" id="tab-internal">
                 <div class="control-group">
-                    <h3><i data-lucide="layers" style="width:18px;"></i> 판구조론 (Plate Tectonics)</h3>
+                    <h3>
+                        <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
+                        판구조론 (Plate Tectonics)
+                    </h3>
                     <button class="action-btn" onclick="playScenario('convergent')">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="btn-icon"><i data-lucide="fold-horizontal"></i></div>
-                            <div style="text-align:left;">
-                                <div style="font-size:0.95rem;">수렴형 경계 (습곡 산맥)</div>
-                                <div style="font-size:0.8rem; color:var(--text-sub); font-weight:500;">두 대륙판이 충돌하여 솟아오릅니다.</div>
+                        <div class="btn-content">
+                            <div class="btn-icon">
+                                <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h6"/><path d="M22 12h-6"/><path d="M12 2v20"/><polyline points="6 8 10 12 6 16"/><polyline points="18 8 14 12 18 16"/></svg>
+                            </div>
+                            <div>
+                                <span class="btn-title">수렴형 경계 (습곡 산맥)</span>
+                                <span class="btn-desc">두 대륙판이 충돌하여 솟아오릅니다.</span>
                             </div>
                         </div>
-                        <i data-lucide="play-circle" class="play-icon"></i>
+                        <svg class="play-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
                     </button>
 
                     <button class="action-btn" onclick="playScenario('divergent')">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="btn-icon"><i data-lucide="split-square-horizontal"></i></div>
-                            <div style="text-align:left;">
-                                <div style="font-size:0.95rem;">발산형 경계 (해령)</div>
-                                <div style="font-size:0.8rem; color:var(--text-sub); font-weight:500;">판이 멀어지며 마그마가 솟습니다.</div>
+                        <div class="btn-content">
+                            <div class="btn-icon">
+                                <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 12H2"/><path d="M16 12h6"/><path d="M12 2v20"/><polyline points="4 8 0 12 4 16"/><polyline points="20 8 24 12 20 16"/></svg>
+                            </div>
+                            <div>
+                                <span class="btn-title">발산형 경계 (해령)</span>
+                                <span class="btn-desc">판이 멀어지며 마그마가 솟습니다.</span>
                             </div>
                         </div>
-                        <i data-lucide="play-circle" class="play-icon"></i>
+                        <svg class="play-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
                     </button>
                 </div>
 
                 <div class="control-group">
-                    <h3><i data-lucide="flame" style="width:18px;"></i> 화산 활동 (Volcanism)</h3>
+                    <h3>
+                        <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>
+                        화산 활동 (Volcanism)
+                    </h3>
                     <button class="action-btn" onclick="playScenario('volcano')">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="btn-icon" style="background:#fef2f2; color:#dc2626;"><i data-lucide="mountain-snow"></i></div>
-                            <div style="text-align:left;">
-                                <div style="font-size:0.95rem;">화산 폭발 및 용암 분출</div>
-                                <div style="font-size:0.8rem; color:var(--text-sub); font-weight:500;">지하의 마그마가 지표로 솟구칩니다.</div>
+                        <div class="btn-content">
+                            <div class="btn-icon" style="color: var(--terra);">
+                                <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3l4 8 5-5 5 15H2L8 3z"/></svg>
+                            </div>
+                            <div>
+                                <span class="btn-title">화산 폭발 및 용암 분출</span>
+                                <span class="btn-desc">지하의 마그마가 지표로 솟구칩니다.</span>
                             </div>
                         </div>
-                        <i data-lucide="play-circle" class="play-icon"></i>
+                        <svg class="play-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
                     </button>
                 </div>
             </div>
 
             <div class="tab-content" id="tab-external">
                 <div class="control-group">
-                    <h3><i data-lucide="cloud-rain" style="width:18px;"></i> 기후와 풍화/침식 (External Forces)</h3>
+                    <h3>
+                        <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>
+                        기후와 풍화/침식 (External Forces)
+                    </h3>
                     
                     <button class="action-btn" onclick="playScenario('glacier')">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="btn-icon icon-ice"><i data-lucide="snowflake"></i></div>
-                            <div style="text-align:left;">
-                                <div style="font-size:0.95rem;">빙하 작용 (U자곡)</div>
-                                <div style="font-size:0.8rem; color:var(--text-sub); font-weight:500;">거대한 얼음이 계곡을 넓게 깎아냅니다.</div>
+                        <div class="btn-content">
+                            <div class="btn-icon" style="color: var(--sea);">
+                                <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/><line x1="4.93" y1="19.07" x2="19.07" y2="4.93"/></svg>
+                            </div>
+                            <div>
+                                <span class="btn-title">빙하 작용 (U자곡)</span>
+                                <span class="btn-desc">거대한 얼음이 계곡을 넓게 깎아냅니다.</span>
                             </div>
                         </div>
-                        <i data-lucide="play-circle" class="play-icon"></i>
+                        <svg class="play-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
                     </button>
 
                     <button class="action-btn" onclick="playScenario('coast')">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="btn-icon icon-water"><i data-lucide="waves"></i></div>
-                            <div style="text-align:left;">
-                                <div style="font-size:0.95rem;">해안 작용 (해식애/파식대)</div>
-                                <div style="font-size:0.8rem; color:var(--text-sub); font-weight:500;">파도가 육지를 때리며 절벽을 만듭니다.</div>
+                        <div class="btn-content">
+                            <div class="btn-icon" style="color: #4f46e5;">
+                                <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6c.6.5 1.2 1 2.5 1S7 6.5 7.6 6 8.8 5 10 5s1.9.5 2.4 1 1.2 1 2.5 1 2.1-.5 2.6-1 1.2-1 2.5-1 1.9.5 2.4 1 1.2 1 2.5 1 2.1-.5 2.6-1 1.2-1 2.5-1 1.9.5 2.4 1-1.2 1-2.5 1-2.1-.5-2.6-1-1.2-1-2.5-1-1.9.5-2.4 1-1.2 1-2.5 1-2.1-.5-2.6-1-1.2-1-2.5-1c0 0-1.9.5-2.4 1-.6.5-1.2 1-2.5 1s-2.1-.5-2.6-1-1.2-1-2.5-1-1.9.5-2.4 1-1.2 1-2.5 1-2.1-.5-2.6-1-1.2-1-2.5-1-1.9.5-2.4 1-1.2 1-2.5 1z"/></svg>
+                            </div>
+                            <div>
+                                <span class="btn-title">해안 작용 (해식애/파식대)</span>
+                                <span class="btn-desc">파도가 육지를 때리며 절벽을 만듭니다.</span>
                             </div>
                         </div>
-                        <i data-lucide="play-circle" class="play-icon"></i>
+                        <svg class="play-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
                     </button>
 
                     <button class="action-btn" onclick="playScenario('karst')">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div class="btn-icon icon-chem"><i data-lucide="beaker"></i></div>
-                            <div style="text-align:left;">
-                                <div style="font-size:0.95rem;">카르스트 작용 (돌리네)</div>
-                                <div style="font-size:0.8rem; color:var(--text-sub); font-weight:500;">석회암이 빗물에 녹아 웅덩이가 패입니다.</div>
+                        <div class="btn-content">
+                            <div class="btn-icon" style="color: var(--gold);">
+                                <svg class="ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 3h15"/><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"/><path d="M6 14h12"/></svg>
+                            </div>
+                            <div>
+                                <span class="btn-title">카르스트 작용 (돌리네)</span>
+                                <span class="btn-desc">석회암이 빗물에 녹아 웅덩이가 패입니다.</span>
                             </div>
                         </div>
-                        <i data-lucide="play-circle" class="play-icon"></i>
+                        <svg class="play-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
                     </button>
                 </div>
             </div>
 
-            <button class="action-btn" style="justify-content:center; background:#f1f5f9; border-color:transparent; color:var(--text-sub);" onclick="resetScene()">
-                <i data-lucide="rotate-ccw" style="width:18px;"></i> 지형 초기화
+            <button class="btn-reset" onclick="resetScene()">
+                <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                초기화 및 시뮬레이션 중지
             </button>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
-
         // 탭 전환 로직
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -381,10 +508,8 @@
                 const dist = Math.sqrt((x-cx)**2 + (z-cz)**2);
                 if(dist < radius) {
                     if(shape === 'U') {
-                        // 넓게 깎이는 U자곡
                         if(y > 5) pos.setY(i, y - amount);
                     } else if(shape === 'bowl') {
-                        // 둥글게 파이는 돌리네
                         const factor = Math.cos((dist/radius) * (Math.PI/2));
                         pos.setY(i, y - amount * factor);
                     }
@@ -443,20 +568,15 @@
                 }
                 // 외적 작용
                 else if(currentAnimation === 'glacier') {
-                    // 빙하가 z축으로 이동
                     glacierMesh.position.z = -100 + (animProgress * 200);
-                    // 빙하 주변 땅 깎기 (U자곡)
                     erodeTerrain(leftGeo, -plateWidth/2, 0, glacierMesh.position.z, 25, 0.5, 'U');
                     erodeTerrain(rightGeo, plateWidth/2, 0, glacierMesh.position.z, 25, 0.5, 'U');
                 }
                 else if(currentAnimation === 'coast') {
-                    // 파랑 애니메이션 (물 출렁임)
                     seaMesh.position.x = Math.sin(Date.now() * 0.002) * 5;
-                    // 물 근처 육지 깎기 (파식대/해식애)
                     const lPos = leftGeo.attributes.position;
                     for(let i=0; i<lPos.count; i++) {
                         const x = lPos.getX(i) - plateWidth/2; const y = lPos.getY(i);
-                        // 수면(10) 근처 깎기
                         if(x > -30 && y > 9) lPos.setY(i, y - 0.15);
                     }
                     lPos.needsUpdate = true; leftGeo.computeVertexNormals();
@@ -469,7 +589,6 @@
                     rPos.needsUpdate = true; rightGeo.computeVertexNormals();
                 }
                 else if(currentAnimation === 'karst') {
-                    // 무작위 중심점들 주변 땅을 그릇 모양으로 파내기 (돌리네)
                     karstCenters.forEach(c => {
                         erodeTerrain(leftGeo, -plateWidth/2, c.x, c.z, c.r, 0.15, 'bowl');
                         erodeTerrain(rightGeo, plateWidth/2, c.x, c.z, c.r, 0.15, 'bowl');
@@ -489,6 +608,7 @@
             camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight);
         });
 
+        resetScene();
         animate();
     </script>
 <script>
@@ -528,3 +648,5 @@
     </script>
 </body>
 </html>
+
+}
