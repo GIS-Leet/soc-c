@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -183,25 +182,21 @@
                 </ul>
             </div>
 
-            <div class="col-span-12" style="margin-top: 20px;">
-                <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                    <i data-lucide="cpu" style="width:28px; height:28px; color:var(--text-main);"></i> AI & 빅데이터 분석 시스템
-                </h2>
+            <div class="card col-span-12" style="flex-direction: column; padding: 24px 40px; margin-top: 20px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="margin-bottom: 4px; display:flex; align-items:center; gap:8px;"><i data-lucide="library"></i> 2026 통합사회 자료실</h3>
+                    </div>
+                    <span style="font-size:0.8rem; background:#f1f5f9; padding:4px 10px; border-radius:12px; color:var(--text-sub); font-weight:bold;">
+                        <i data-lucide="folder-tree" style="width:12px; height:12px; display:inline-block; margin-right:2px;"></i> Auto-Sync
+                    </span>
+                </div>
+                
+                <div id="material-list" style="display: flex; flex-direction: column; gap: 24px;">
+                    <span style="color: var(--text-sub); font-size: 0.95rem;">자료를 불러오는 중입니다...</span>
+                </div>
             </div>
 
-            <a href="ai_dashboard.html" class="card card-cyber col-span-12" style="flex-direction: row; align-items: center; justify-content: space-between; padding: 40px; flex-wrap: wrap; gap: 20px;">
-                <span class="card-tag">Python Backend</span>
-                <div style="display: flex; gap: 24px; align-items: center;">
-                    <div class="card-icon-wrap" style="margin: 0; width: 70px; height: 70px;"><i data-lucide="satellite" style="width: 36px; height: 36px;"></i></div>
-                    <div>
-                        <h3 style="font-size: 1.6rem;">AI 공간·인구 분석 대시보드</h3>
-                        <p style="font-size: 1.05rem; margin-top: 5px;">위성 데이터 기반 식생/열섬 분석 및 파라미터 기반 인구 예측 모델링 시스템</p>
-                    </div>
-                </div>
-                <div class="card-action" style="font-size: 1.1rem; background: rgba(56, 189, 248, 0.1); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
-                    대시보드 시스템 열기 <i data-lucide="arrow-right"></i>
-                </div>
-            </a>
             <div class="col-span-12" style="margin-top: 20px;">
                 <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
                     <i data-lucide="layers" style="width:28px; height:28px; color:var(--text-main);"></i> 공간 데이터 시뮬레이터 
@@ -267,20 +262,25 @@
 
             </div>
 
-            <div class="card col-span-12" style="flex-direction: column; padding: 24px 40px; margin-top: 20px;">
-                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <h3 style="margin-bottom: 4px; display:flex; align-items:center; gap:8px;"><i data-lucide="library"></i> 2026 통합사회 자료실</h3>
-                    </div>
-                    <span style="font-size:0.8rem; background:#f1f5f9; padding:4px 10px; border-radius:12px; color:var(--text-sub); font-weight:bold;">
-                        <i data-lucide="folder-tree" style="width:12px; height:12px; display:inline-block; margin-right:2px;"></i> Auto-Sync
-                    </span>
-                </div>
-                
-                <div id="material-list" style="display: flex; flex-direction: column; gap: 24px;">
-                    <span style="color: var(--text-sub); font-size: 0.95rem;">자료를 불러오는 중입니다...</span>
-                </div>
+            <div class="col-span-12" style="margin-top: 20px;">
+                <h2 style="font-size: 1.4rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="cpu" style="width:28px; height:28px; color:var(--text-main);"></i> AI & 빅데이터 분석 시스템
+                </h2>
             </div>
+
+            <a href="ai_dashboard.html" class="card card-cyber col-span-12" style="flex-direction: row; align-items: center; justify-content: space-between; padding: 40px; flex-wrap: wrap; gap: 20px;">
+                <span class="card-tag">Python Backend</span>
+                <div style="display: flex; gap: 24px; align-items: center;">
+                    <div class="card-icon-wrap" style="margin: 0; width: 70px; height: 70px;"><i data-lucide="satellite" style="width: 36px; height: 36px;"></i></div>
+                    <div>
+                        <h3 style="font-size: 1.6rem;">AI 공간·인구 분석 대시보드</h3>
+                        <p style="font-size: 1.05rem; margin-top: 5px;">위성 데이터 기반 식생/열섬 분석 및 파라미터 기반 인구 예측 모델링 시스템</p>
+                    </div>
+                </div>
+                <div class="card-action" style="font-size: 1.1rem; background: rgba(56, 189, 248, 0.1); padding: 12px 24px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                    대시보드 시스템 열기 <i data-lucide="arrow-right"></i>
+                </div>
+            </a>
 
         </div>
     </main>
