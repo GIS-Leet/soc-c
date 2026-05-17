@@ -10,230 +10,351 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>통합사회 C QnA</title>
+<title>통합사회 C QA — Geographia Archive</title>
 
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
 
 <style>
-    /* 기존 CSS 완벽 동일 유지 (생략 없이 전부 포함) */
-    :root { --primary: #2563eb; --primary-light: #eff6ff; --text-main: #0f172a; --text-sub: #64748b; --bg-color: #f8fafc; --card-bg: #ffffff; --radius: 16px; --border-color: rgba(0,0,0,0.06); }
-    body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); line-height: 1.6; }
-    a { text-decoration: none; color: inherit; }
-    .navbar { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid var(--border-color); }
-    .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-    .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-    .logo-icon i { width: 18px; height: 18px; stroke-width: 2.5px; }
-    .menu { display: flex; gap: 24px; }
-    .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
-    .menu a:hover, .menu a.active { background: var(--primary-light); color: var(--primary); }
-    .qna-wrapper { padding: 40px 20px 80px; }
-    .qna-container { max-width: 800px; margin: 0 auto; box-sizing: border-box; position: relative; display: flex; flex-direction: column; gap: 20px; }
-    .card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
-    .admin-header-row { display: flex; justify-content: flex-end; width: 100%; position: relative; margin-bottom: -10px; }
-    #adminBtn { padding: 8px 16px; font-size: 0.85rem; cursor: pointer; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 6px; color: var(--text-sub); font-weight: 600; font-family: inherit; }
-    #adminBtn i { width: 14px; height: 14px; }
-    #adminBtn:hover { background: #f1f5f9; color: var(--text-main); }
-    #adminBtn.active { background: var(--primary-light); color: var(--primary); border-color: #bfdbfe; }
-    .admin-login-box { display: none; position: absolute; top: 40px; right: 0; background: #fff; border: 1px solid var(--border-color); padding: 12px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 50; }
-    .admin-login-box input { width: 140px; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-family: inherit; }
-    .admin-login-box button { padding: 8px 12px; font-size: 0.9rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; margin-left: 5px; }
-    .notice-box { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0; padding: 24px 30px; }
-    .notice-box h2 { margin: 0 0 12px 0; color: #166534; font-size: 1.25rem; display: flex; align-items: center; gap: 8px; letter-spacing: -0.5px; }
-    .notice-box h2 i { width: 22px; height: 22px; }
-    .notice-box ol { margin: 0; padding-left: 22px; color: #15803d; line-height: 1.7; font-size: 0.95rem; }
-    .write-box { display: flex; flex-direction: column; gap: 12px; }
-    .write-box input[type="text"], .write-box input[type="password"], .write-box textarea { width: 100%; padding: 14px 16px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.95rem; outline: none; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s; background: #f8fafc; }
-    .write-box input:focus, .write-box textarea:focus { border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px var(--primary-light); }
-    .write-title-input { font-weight: 700; font-size: 1.1rem !important; color: var(--text-main); }
-    .write-header { display: flex; gap: 12px; width: 100%; }
-    #authorInput { flex: 1; width: 100%; }
-    .write-options { display: flex; gap: 12px; align-items: center; flex: 1; width: 100%; }
-    #pwInput { flex: 1; width: 100%; }
-    .secret-label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: var(--text-sub); white-space: nowrap; padding: 0 14px; user-select: none; background: #f1f5f9; border-radius: 8px; height: 100%; box-sizing: border-box; transition: 0.2s; border: 1px solid transparent; }
-    .secret-label:hover { background: #e2e8f0; color: var(--text-main); border-color: #cbd5e1; }
-    .secret-label input { width: 16px; height: 16px; cursor: pointer; margin: 0; }
-    .write-box textarea { height: 100px; resize: none; }
-    .write-actions-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
-    .attach-btn { background: #f1f5f9; color: var(--text-main); border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; font-family: inherit; }
-    .attach-btn:hover { background: #e2e8f0; }
-    .submit-btn { background-color: var(--text-main); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px; }
-    .submit-btn:hover { background-color: #334155; }
-    .submit-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
-    .image-preview-wrapper { display: none; position: relative; margin-top: 10px; border-radius: 12px; overflow: hidden; width: max-content; border: 1px solid var(--border-color); }
-    .image-preview-wrapper img { max-height: 200px; display: block; }
-    .image-remove-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .image-remove-btn:hover { background: rgba(220, 38, 38, 0.9); }
-    .board-wrapper { padding: 0; overflow: hidden; }
-    .board-header { display: flex; padding: 16px 24px; background: #f8fafc; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; font-weight: 700; color: var(--text-sub); }
-    .board-header .col-title { flex: 1; text-align: center; }
-    .board-header .col-author { width: 90px; text-align: center; }
-    .board-header .col-time { width: 120px; text-align: center; }
-    .board-list { list-style: none; padding: 0; margin: 0; }
-    .board-item { border-bottom: 1px solid var(--border-color); }
-    .board-item:last-child { border-bottom: none; }
-    .item-row { display: flex; padding: 18px 24px; align-items: center; cursor: pointer; transition: 0.2s; }
-    .item-row:hover { background-color: #f8fafc; }
-    .item-title-wrapper { flex: 1; display: flex; align-items: center; gap: 8px; overflow: hidden; padding-right: 15px; }
-    .item-title { font-size: 1rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
-    .reply-count { font-size: 0.85rem; font-weight: 700; color: var(--primary); flex-shrink: 0; background: var(--primary-light); padding: 2px 8px; border-radius: 20px; }
-    .item-author { width: 90px; font-size: 0.9rem; color: var(--text-sub); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-    .item-time { width: 120px; font-size: 0.85rem; color: #94a3b8; text-align: center; white-space: nowrap; }
-    .item-content { display: none; background: #fcfcfd; border-top: 1px dashed var(--border-color); position: relative; box-shadow: inset 0 4px 6px -4px rgba(0,0,0,0.02); }
-    .post-actions-inline { position: absolute; top: 20px; right: 24px; display: flex; gap: 8px; z-index: 5; }
-    .action-btn { background: #ffffff; border: 1px solid #cbd5e1; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: 0.2s; font-family: inherit; }
-    .action-btn:hover { background-color: #f1f5f9; color: var(--text-main); }
-    .action-btn.delete:hover { background-color: #fef2f2; border-color: #fca5a5; color: #dc2626; }
-    .post-body { padding: 40px 30px 30px; font-size: 0.95rem; color: #334155; line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
-    .post-image { max-width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid var(--border-color); display: block; } 
-    .comment-section { background-color: #ffffff; padding: 24px 30px; border-top: 1px solid var(--border-color); }
-    .comment-header { font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-    .comment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
-    .comment-item { display: flex; gap: 12px; width: 100%; box-sizing: border-box; flex-direction: column; }
-    .comment-profile { width: 36px; height: 36px; background: var(--primary-light); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: bold; }
-    .comment-content { background: #f8fafc; padding: 16px; border-radius: 16px; border-top-left-radius: 4px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; }
-    .comment-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-    .comment-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .teacher-badge { font-size: 0.75rem; font-weight: 700; background: var(--primary); color: white; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; }
-    .comment-text { font-size: 0.95rem; color: #334155; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
-    .comment-time { font-size: 0.8rem; color: #94a3b8; }
-    .reply-actions { display: none; gap: 6px; }
-    .reply-input-group { display: none; margin-top: 20px; gap: 10px; align-items: stretch; }
-    .reply-input-group textarea { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.9rem; resize: none; outline: none; height: 45px; box-sizing: border-box; font-family: inherit; }
-    .reply-input-group button { background-color: var(--primary); color: white; border: none; border-radius: 12px; padding: 0 20px; font-weight: bold; cursor: pointer; white-space: nowrap; font-family: inherit; transition: 0.2s; }
-    .mini-preview-container { display: none; position: relative; margin-top: 8px; width: max-content; }
-    .mini-preview-container img { max-height: 80px; border-radius: 8px; border: 1px solid var(--border-color); }
-    .mini-preview-container .remove-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .sub-comment-list { list-style: none; padding-left: 30px; margin-top: 8px; display: flex; flex-direction: column; gap: 8px; border-left: 2px solid #e2e8f0; margin-left: 18px; }
-    .sub-comment-item { display: flex; gap: 10px; }
-    .sub-comment-profile { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; flex-shrink: 0; }
-    .sub-comment-content { background: #f1f5f9; padding: 12px; border-radius: 12px; border-top-left-radius: 4px; width: 100%; box-sizing: border-box; font-size: 0.9rem; border: 1px solid transparent; }
-    .student-badge { font-size: 0.7rem; font-weight: 700; background: #cbd5e1; color: #334155; padding: 2px 6px; border-radius: 4px; }
-    .sub-reply-toggle-btn { background: none; border: none; color: var(--text-sub); font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 4px 0; margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; transition: 0.2s; }
-    .sub-reply-toggle-btn:hover { color: var(--primary); }
-    .sub-reply-input-box { display: none; margin-top: 10px; margin-left: 48px; background: #ffffff; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-    .sub-reply-input-box input.author-in { width: 120px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; margin-bottom: 8px; outline: none; font-family: inherit; background: #f8fafc; }
-    .sub-reply-input-box textarea { width: 100%; height: 60px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; resize: none; outline: none; box-sizing: border-box; font-family: inherit; background: #f8fafc; }
-    .sub-reply-input-box input:focus, .sub-reply-input-box textarea:focus { border-color: var(--primary); background: #ffffff; }
-    .sub-reply-input-box .submit-btn-small { background: var(--text-main); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: inherit; transition: 0.2s; margin-top: 8px; float: right; }
-    .sub-reply-input-box .submit-btn-small:hover { background: #334155; }
-    .sub-reply-input-box::after { content: ""; display: table; clear: both; }
-    .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
-    .custom-modal-box { background: white; padding: 30px; border-radius: 20px; width: 320px; max-width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 15px; border: 1px solid rgba(255,255,255,0.2); }
-    .custom-modal-box h3 { margin: 0; font-size: 1.2rem; color: var(--text-main); font-weight: 800; display: flex; align-items: center; gap: 8px; }
-    .custom-modal-box p { margin: 0; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
-    .custom-modal-box input { padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none; display: none; box-sizing: border-box; font-family: inherit; background: #f8fafc; }
-    .custom-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 5px; }
-    .custom-modal-actions button { padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; font-family: inherit; transition: 0.2s; }
-    .custom-modal-actions .cancel { background: #f1f5f9; color: var(--text-sub); }
-    .custom-modal-actions .confirm { background: var(--primary); color: white; }
-    .custom-modal-actions .confirm.danger { background: #ef4444; }
+    /* ============================================================
+       GEOGRAPHIA — Academic Archival Editorial Concept
+    ============================================================ */
+    :root {
+        --ink:        #1a1714;
+        --ink-2:      #4a443c;
+        --ink-3:      #8c8479;
+        --ink-faint:  #b8b0a3;
 
-    @media screen and (max-width: 600px) {
-        .navbar { padding: 16px 20px; }
-        .qna-wrapper { padding: 20px 15px; }
-        .write-header { flex-direction: column; gap: 12px; }
-        .write-header > input, .write-options { width: 100%; }
-        .write-actions-row { flex-direction: column; gap: 10px; align-items: stretch; }
+        --paper:      #f4f0e8;
+        --paper-2:    #efe9dd;
+        --surface:    #fbf9f3;
+
+        --line:       #d8d0c0;
+        --line-soft:  #e6dfd0;
+
+        --terra:      #b4502e;
+        --terra-soft: #f0e0d4;
+
+        --serif: 'Fraunces', Georgia, serif;
+        --sans:  'Pretendard', -apple-system, sans-serif;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+        font-family: var(--sans);
+        background-color: var(--paper);
+        margin: 0; padding: 0;
+        color: var(--ink);
+        line-height: 1.62;
+        -webkit-font-smoothing: antialiased;
+        position: relative;
+    }
+    
+    /* Paper Grain Overlay */
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.5;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+        mix-blend-mode: multiply;
+    }
+    body > * { position: relative; z-index: 2; }
+
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+
+    /* MASTHEAD */
+    .masthead {
+        background: rgba(244,240,232,0.82);
+        backdrop-filter: blur(14px) saturate(1.2);
+        -webkit-backdrop-filter: blur(14px) saturate(1.2);
+        border-bottom: 1px solid var(--line);
+        position: sticky; top: 0; z-index: 9999;
+    }
+    .masthead-inner {
+        max-width: 1180px; margin: 0 auto; padding: 0 40px; height: 66px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+    .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+    .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+    .nav { display: flex; align-items: center; gap: 2px; }
+    .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
+    .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
+    .nav a.active { color: var(--paper); background: var(--ink); }
+
+    /* LAYOUT & CONTAINERS */
+    .sheet { max-width: 900px; margin: 0 auto; padding: 56px 40px 100px; }
+    .sheet-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 34px; position: relative; }
+    .sheet-num { font-family: var(--serif); font-size: 0.82rem; font-weight: 600; color: var(--terra); letter-spacing: 0.1em; }
+    .sheet-title { font-family: var(--serif); font-size: 1.7rem; font-weight: 500; letter-spacing: -0.015em; color: var(--ink); margin: 0; }
+    .sheet-meta { margin-left: auto; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); align-self: center; }
+
+    /* ADMIN ROW */
+    .admin-header-row { position: absolute; top: 0; right: 0; }
+    .btn-outline { background: transparent; border: 1px solid var(--line); color: var(--ink-2); font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding: 6px 14px; cursor: pointer; transition: 0.2s; }
+    .btn-outline:hover, .btn-outline.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .admin-login-box { display: none; position: absolute; top: 32px; right: 0; background: var(--surface); border: 1px solid var(--ink); padding: 10px; z-index: 50; box-shadow: 4px 4px 0 rgba(26,23,20,0.05); }
+    .admin-login-box input { width: 140px; padding: 6px 10px; font-size: 0.85rem; border: 1px solid var(--line); background: var(--paper); outline: none; font-family: var(--sans); }
+    .admin-login-box button { padding: 6px 12px; font-size: 0.75rem; background: var(--ink); color: var(--paper); border: none; cursor: pointer; font-family: var(--serif); text-transform: uppercase; }
+
+    /* NOTICE BOX (Editorial Note) */
+    .notice-box { background: var(--paper-2); border: 1px solid var(--line); padding: 30px; margin-bottom: 40px; position: relative; }
+    .notice-box::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--terra); }
+    .notice-box h2 { margin: 0 0 16px 0; color: var(--ink); font-family: var(--serif); font-size: 1.25rem; font-weight: 500; border-bottom: 1px solid var(--line-soft); padding-bottom: 12px; }
+    .notice-box ol { margin: 0; padding-left: 20px; color: var(--ink-2); font-size: 0.9rem; line-height: 1.8; }
+    .notice-box b { color: var(--ink); font-weight: 600; }
+
+    /* FORM (Ledger Entry) */
+    .ledger-panel { background: var(--surface); border: 1px solid var(--line); padding: 36px; position: relative; margin-bottom: 40px; }
+    .ledger-panel::before, .ledger-panel::after { content: ''; position: absolute; width: 8px; height: 8px; border-color: var(--ink-faint); opacity: 0.6; }
+    .ledger-panel::before { top: 8px; left: 8px; border-left: 1px solid; border-top: 1px solid; }
+    .ledger-panel::after  { bottom: 8px; right: 8px; border-right: 1px solid; border-bottom: 1px solid; }
+    
+    .form-group { display: flex; flex-direction: column; gap: 14px; }
+    .form-input { width: 100%; background: transparent; border: 1px solid var(--line); padding: 12px 16px; font-family: var(--sans); font-size: 0.95rem; color: var(--ink); border-radius: 0; transition: border-color 0.2s; }
+    .form-input:focus { border-color: var(--terra); outline: none; background: var(--paper); }
+    .form-input::placeholder { color: var(--ink-faint); font-style: italic; }
+    .write-title-input { font-family: var(--serif); font-size: 1.15rem; font-weight: 500; color: var(--ink); }
+    
+    .write-header { display: flex; gap: 14px; width: 100%; margin: 14px 0; }
+    .write-header .form-input { flex: 1; }
+    .secret-label { display: flex; align-items: center; gap: 8px; font-family: var(--serif); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-2); cursor: pointer; padding: 0 16px; border: 1px solid var(--line); background: var(--paper-2); transition: 0.2s; user-select: none; }
+    .secret-label:hover { background: var(--line-soft); color: var(--ink); }
+    .secret-label input { cursor: pointer; margin: 0; accent-color: var(--ink); }
+    
+    .ledger-panel textarea { height: 120px; resize: vertical; }
+
+    .form-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px dashed var(--line-soft); padding-top: 20px; }
+    .btn-solid { background: var(--ink); color: var(--paper); border: none; padding: 12px 28px; font-family: var(--serif); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-solid:hover { background: var(--terra); }
+    .btn-solid:disabled { background: var(--ink-faint); cursor: not-allowed; }
+    .btn-sub { background: var(--paper-2); color: var(--ink-2); border: 1px solid var(--line); padding: 10px 18px; font-family: var(--serif); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-sub:hover { background: var(--line-soft); color: var(--ink); }
+
+    .image-preview-wrapper { display: none; position: relative; margin-top: 10px; border: 1px solid var(--line); padding: 4px; background: var(--paper); width: max-content; }
+    .image-preview-wrapper img { max-height: 150px; display: block; filter: sepia(0.2) contrast(0.9); }
+    .image-remove-btn { position: absolute; top: -8px; right: -8px; background: var(--terra); color: var(--paper); border: none; width: 22px; height: 22px; border-radius: 50%; font-family: var(--sans); font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* BOARD LIST (Index) */
+    .board-wrapper { border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); margin-top: 20px; }
+    .board-header { display: flex; padding: 14px 20px; border-bottom: 1px solid var(--ink); font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-2); background: rgba(26,23,20,0.02); }
+    .board-header .col-title { flex: 1; text-align: left; padding-left: 10px; }
+    .board-header .col-author { width: 100px; text-align: center; }
+    .board-header .col-time { width: 120px; text-align: center; }
+
+    .board-list { margin: 0; padding: 0; }
+    .board-item { border-bottom: 1px solid var(--line); list-style: none; }
+    .board-item:last-child { border-bottom: none; }
+    
+    .item-row { display: flex; padding: 16px 20px; align-items: center; cursor: pointer; transition: background 0.2s; }
+    .item-row:hover { background: var(--surface); }
+    
+    .item-title-wrapper { flex: 1; display: flex; align-items: center; gap: 10px; padding-left: 10px; }
+    .item-title { font-family: var(--sans); font-size: 0.98rem; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; display:flex; align-items:center; }
+    .item-title .ico { color: var(--ink-3); margin-right: 6px; }
+    
+    .item-author { width: 100px; font-size: 0.85rem; color: var(--ink-2); text-align: center; font-weight: 500; }
+    .item-time { width: 120px; font-size: 0.8rem; color: var(--ink-3); text-align: center; font-family: var(--serif); font-style: italic; }
+
+    /* POST CONTENT (Editorial Body) */
+    .item-content { display: none; background: var(--surface); border-top: 1px solid var(--line-soft); padding: 36px 40px; position: relative; }
+    .post-actions-inline { position: absolute; top: 20px; right: 30px; display: flex; gap: 12px; }
+    .action-txt { font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-3); cursor: pointer; background: none; border: none; padding: 0; transition: color 0.2s; }
+    .action-txt:hover { color: var(--ink); }
+    .action-txt.delete:hover { color: var(--terra); }
+    
+    .post-body { font-size: 0.95rem; color: var(--ink); line-height: 1.8; white-space: pre-wrap; word-break: keep-all; padding-bottom: 20px; }
+    .post-image { max-width: 100%; border: 1px solid var(--line); margin-top: 20px; display: block; filter: sepia(0.1); }
+    .post-meta-foot { font-size: 0.75rem; font-family: var(--serif); font-style: italic; color: var(--ink-3); margin-top: 20px; border-top: 1px dashed var(--line); padding-top: 12px; }
+
+    /* COMMENTS (Annotations & Sub-replies) */
+    .comment-section { margin-top: 30px; padding-top: 30px; border-top: 1px solid var(--ink); }
+    .comment-header { font-family: var(--serif); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .comment-header::before { content: '§'; color: var(--terra); }
+    
+    .comment-list { display: flex; flex-direction: column; gap: 20px; }
+    .comment-item { display: flex; gap: 16px; background: var(--paper-2); padding: 20px; border: 1px solid var(--line); border-radius: 2px; flex-direction: column; }
+    
+    .comment-main-row { display: flex; gap: 16px; }
+    .comment-profile { width: 34px; height: 34px; background: var(--ink); color: var(--paper); border: 1px solid var(--ink); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-weight: 600; font-size: 1rem; flex-shrink: 0; }
+    .comment-content { flex: 1; }
+    .comment-header-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; border-bottom: 1px solid var(--line-soft); padding-bottom: 8px; }
+    .teacher-badge { font-family: var(--serif); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em; color: var(--terra); border: 1px solid var(--terra-soft); padding: 2px 6px; text-transform: uppercase; }
+    .comment-time { font-size: 0.75rem; font-family: var(--serif); font-style: italic; color: var(--ink-3); margin-left: 10px; }
+    .comment-text { font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; white-space: pre-wrap; }
+
+    /* Admin Reply Input */
+    .reply-input-group { display: none; margin-top: 20px; gap: 10px; align-items: flex-start; }
+    .reply-input-group textarea { flex: 1; padding: 12px; border: 1px solid var(--line); background: var(--paper); font-size: 0.9rem; font-family: var(--sans); resize: none; outline: none; height: 50px; }
+    .reply-input-group textarea:focus { border-color: var(--ink); }
+
+    /* SUB REPLIES */
+    .sub-reply-toggle-btn { background: none; border: none; color: var(--ink-3); font-family: var(--serif); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; padding: 0; margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s; }
+    .sub-reply-toggle-btn:hover { color: var(--terra); }
+    
+    .sub-comment-list { list-style: none; padding-left: 20px; margin-top: 15px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px; margin-left: 16px; }
+    .sub-comment-item { display: flex; gap: 12px; }
+    .sub-comment-profile { width: 26px; height: 26px; background: var(--surface); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 0.75rem; font-weight: bold; color: var(--ink-2); flex-shrink: 0; }
+    .sub-comment-profile.teacher { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .sub-comment-content { flex: 1; font-size: 0.85rem; color: var(--ink-2); line-height: 1.5; }
+    .student-badge { font-family: var(--serif); font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-3); text-transform: uppercase; border: 1px solid var(--line); padding: 1px 5px; }
+
+    .sub-reply-input-box { display: none; margin-top: 15px; margin-left: 50px; background: var(--surface); padding: 16px; border: 1px solid var(--line); }
+    .sub-reply-input-box input.author-in { width: 140px; padding: 8px 12px; border: 1px solid var(--line); font-size: 0.85rem; margin-bottom: 10px; outline: none; background: var(--paper); font-family: var(--sans); }
+    .sub-reply-input-box textarea { width: 100%; height: 60px; padding: 10px 12px; border: 1px solid var(--line); font-size: 0.85rem; resize: none; outline: none; background: var(--paper); font-family: var(--sans); }
+    .sub-reply-input-box input:focus, .sub-reply-input-box textarea:focus { border-color: var(--ink); }
+
+    .mini-preview-container { display: none; position: relative; margin-top: 8px; width: max-content; border: 1px solid var(--line); padding: 3px; background: var(--paper); }
+    .mini-preview-container img { max-height: 70px; display: block; filter: sepia(0.2); }
+    .mini-preview-container .remove-btn { position: absolute; top: -6px; right: -6px; background: var(--terra); color: var(--paper); border: none; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+
+    /* CUSTOM MODAL (Paper Slip) */
+    .custom-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(26,23,20,0.6); backdrop-filter: blur(2px); z-index: 9999; justify-content: center; align-items: center; }
+    .custom-modal-box { background: var(--paper); border: 1px solid var(--ink); padding: 34px; width: 340px; max-width: 90%; box-shadow: 8px 8px 0 rgba(26,23,20,0.1); display: flex; flex-direction: column; gap: 20px; }
+    .custom-modal-box h3 { margin: 0; font-family: var(--serif); font-size: 1.2rem; font-weight: 500; color: var(--ink); border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    .custom-modal-box p { margin: 0; font-size: 0.9rem; color: var(--ink-2); line-height: 1.5; word-break: keep-all; }
+    .custom-modal-box input { padding: 10px 14px; border: 1px solid var(--line); font-size: 0.95rem; outline: none; display: none; font-family: var(--sans); background: var(--surface); }
+    .custom-modal-box input:focus { border-color: var(--ink); }
+    .custom-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+    .custom-modal-actions button { padding: 8px 16px; border: 1px solid var(--ink); font-family: var(--serif); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; cursor: pointer; transition: 0.2s; }
+    .custom-modal-actions .cancel { background: transparent; color: var(--ink); }
+    .custom-modal-actions .cancel:hover { background: var(--line-soft); }
+    .custom-modal-actions .confirm { background: var(--ink); color: var(--paper); }
+    .custom-modal-actions .confirm:hover { background: var(--terra); border-color: var(--terra); }
+
+    /* EDIT MODE HTML CLASSES */
+    .edit-input-title { width:100%; padding:10px 14px; margin-bottom:12px; border:1px solid var(--ink); background:var(--surface); font-family:var(--sans); font-size:1rem; font-weight:600; outline:none; color:var(--ink); }
+    .edit-textarea-body { width:100%; height:120px; padding:12px 14px; border:1px solid var(--ink); background:var(--surface); font-family:var(--sans); font-size:0.95rem; line-height:1.6; outline:none; resize:none; color:var(--ink); }
+    
+    @media (max-width: 600px) {
+        .masthead-inner { padding: 0 20px; }
+        .sheet { padding: 40px 20px 80px; }
+        .write-header { flex-direction: column; gap: 14px; }
+        .write-actions-row { flex-direction: column; gap: 12px; align-items: stretch; }
         .board-header { display: none; }
-        .item-row { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px; }
-        .item-title-wrapper { width: 100%; padding-right: 0; }
-        .item-meta-mobile { display: flex; gap: 10px; align-items: center; width: 100%; }
-        .item-author, .item-time { width: auto; text-align: left; display: inline-block; font-size: 0.85rem; color: #94a3b8; }
-        .item-meta-mobile .item-author::after { content: "•"; margin-left: 10px; color: #cbd5e1; }
-        .post-body { padding: 45px 20px 20px; }
-        .comment-section { padding: 20px; }
+        .item-row { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px 15px; }
+        .item-title-wrapper { padding-left: 0; }
+        .item-author, .item-time { width: auto; text-align: left; display: inline-block; font-size: 0.8rem; color: var(--ink-3); }
+        .item-author::after { content: " | "; margin: 0 6px; color: var(--line); }
         .post-actions-inline { top: 15px; right: 15px; }
-        .sub-reply-input-box { margin-left: 10px; }
-        .sub-comment-list { margin-left: 5px; padding-left: 15px; }
+        .item-content { padding: 25px 20px; }
+        .sub-reply-input-box { margin-left: 0; }
+        .sub-comment-list { margin-left: 5px; padding-left: 12px; }
         .reply-input-group { flex-direction: column; }
-        .reply-input-group button { width: 100%; }
+        .reply-input-group button { width: 100%; padding: 12px; }
     }
 </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon"><i data-lucide="globe"></i></div>
-            Taehyun's Geographia-Class
-        </a>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <a href="qna.html" class="active">Q&A 게시판</a>
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html">홈</a>
+                <a href="qna.html" class="active">Q&amp;A 게시판</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
-    <div class="qna-wrapper">
-        <div class="qna-container">
+    <main class="sheet">
+        <div class="sheet-head">
+            <span class="sheet-num">§ Form III</span>
+            <h2 class="sheet-title">통합사회 C QA</h2>
+            <span class="sheet-meta">Q&amp;A Repository</span>
             
             <div class="admin-header-row">
-                <button id="adminBtn" onclick="window.toggleAdminPanel()"><i data-lucide="settings"></i> 선생님 모드</button>
+                <button id="adminBtn" class="btn-outline" onclick="window.toggleAdminPanel()">Admin</button>
                 <div class="admin-login-box" id="adminLoginBox">
                     <div style="display: flex;">
-                        <input type="password" id="adminPwInput" placeholder="비밀번호" onkeypress="window.handlePwKeyPress(event)">
-                        <button onclick="window.loginAdmin()">확인</button>
+                        <input type="password" id="adminPwInput" placeholder="Passcode" onkeypress="window.handlePwKeyPress(event)">
+                        <button onclick="window.loginAdmin()">Verify</button>
                     </div>
                 </div>
-            </div>
-
-            <div class="card notice-box">
-                <h2><i data-lucide="bell-ring"></i> 통합사회 C QA</h2>
-                <ol>
-                    <li>이곳은 공식 질문 아카이브(수행평가용)와 <b>별개로 운영되는 QnA</b>입니다.</li>
-                    <li>답변 속도는 상황에 따라 다를 수 있습니다.</li>
-                    <li>공공의 이익을 위해 비공개글은 가급적 지양해 주세요.</li>
-                    <li>급한 질문은 교무실로 찾아오시면 빠릅니다(8:00 ~ 16:00).</li>
-                    <li>사진 자료를 첨부하여 질문할 수 있습니다.</li>
-                </ol>
-            </div>
-            
-            <div class="card write-box">
-                <input type="text" id="titleInput" class="write-title-input" placeholder="게시글 제목을 입력하세요" maxlength="50">
-                <div class="write-header">
-                    <input type="text" id="authorInput" placeholder="닉네임 (선택)" maxlength="10">
-                    <div class="write-options">
-                        <input type="password" id="pwInput" placeholder="비밀번호 (수정/삭제용)" maxlength="20">
-                        <label class="secret-label">
-                            <input type="checkbox" id="secretInput"> 
-                            <i data-lucide="lock" style="width:14px; height:14px; margin-right:2px;"></i> 비밀글
-                        </label>
-                    </div>
-                </div>
-                <textarea id="questionInput" placeholder="궁금한 질문을 자유롭게 작성해주세요..."></textarea>
-                
-                <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
-                
-                <div id="imagePreviewContainer" class="image-preview-wrapper">
-                    <img id="imagePreview" src="">
-                    <button class="image-remove-btn" onclick="removeSelectedImage()"><i data-lucide="x" style="width:16px; height:16px;"></i></button>
-                </div>
-
-                <div class="write-actions-row">
-                    <button class="attach-btn" onclick="document.getElementById('imageInput').click()"><i data-lucide="camera"></i> 사진 첨부하기</button>
-                    <button class="submit-btn" id="submitBtn" onclick="window.addQuestion()"><i data-lucide="send"></i> 게시글 등록</button>
-                </div>
-            </div>
-
-            <div class="card board-wrapper">
-                <div class="board-header">
-                    <div class="col-title">게시글 제목</div>
-                    <div class="col-author">작성자</div>
-                    <div class="col-time">작성일</div>
-                </div>
-                <ul class="board-list" id="qnaList"></ul>
             </div>
         </div>
-    </div>
+
+        <div class="notice-box">
+            <h2>Administrative Notice</h2>
+            <ol>
+                <li>이곳은 공식 질문 아카이브(수행평가용)와 <b>별개로 운영되는 Q&A</b>입니다.</li>
+                <li>답변 속도는 상황에 따라 다를 수 있습니다.</li>
+                <li>공공의 이익을 위해 비공개글은 가급적 지양해 주세요.</li>
+                <li>급한 질문은 교무실로 방문해 주시기 바랍니다 (08:00 ~ 16:00).</li>
+                <li><b>사진 자료를 첨부</b>하여 질문하면 더 자세한 답변을 받을 수 있습니다.</li>
+            </ol>
+        </div>
+        
+        <div class="ledger-panel write-box">
+            <input type="text" id="titleInput" class="form-input write-title-input" placeholder="제목을 기재하십시오" maxlength="50">
+            <div class="write-header">
+                <input type="text" id="authorInput" class="form-input" placeholder="작성자 닉네임 (선택)" maxlength="10">
+                <div class="write-options">
+                    <input type="password" id="pwInput" class="form-input" placeholder="비밀번호 (수정/삭제용)" maxlength="20">
+                    <label class="secret-label">
+                        <input type="checkbox" id="secretInput"> 
+                        비밀글 설정
+                    </label>
+                </div>
+            </div>
+            <textarea id="questionInput" class="form-input" placeholder="질문을 자유롭게 작성해 주십시오."></textarea>
+            
+            <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
+            
+            <div id="imagePreviewContainer" class="image-preview-wrapper">
+                <img id="imagePreview" src="">
+                <button class="image-remove-btn" onclick="removeSelectedImage()">X</button>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-sub" onclick="document.getElementById('imageInput').click()">
+                    <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                    Attachment
+                </button>
+                <button class="btn-solid" id="submitBtn" onclick="window.addQuestion()">Submit Entry</button>
+            </div>
+        </div>
+
+        <div class="board-wrapper">
+            <div class="board-header">
+                <div class="col-title">Subject</div>
+                <div class="col-author">Author</div>
+                <div class="col-time">Date</div>
+            </div>
+            <ul class="board-list" id="qnaList"></ul>
+        </div>
+    </main>
 
     <div id="customModal" class="custom-modal-overlay">
         <div class="custom-modal-box">
-            <h3 id="modalTitle"><i data-lucide="alert-circle" style="color:var(--primary);"></i> 알림</h3>
-            <p id="modalMessage">메시지 내용</p>
-            <input type="password" id="modalInput" placeholder="비밀번호 입력">
+            <h3 id="modalTitle">Notice</h3>
+            <p id="modalMessage">Message content</p>
+            <input type="password" id="modalInput" placeholder="Passcode">
             <div class="custom-modal-actions">
-                <button id="modalCancelBtn" class="cancel">취소</button>
-                <button id="modalConfirmBtn" class="confirm">확인</button>
+                <button id="modalCancelBtn" class="cancel">Cancel</button>
+                <button id="modalConfirmBtn" class="confirm">Confirm</button>
             </div>
         </div>
     </div>
@@ -263,21 +384,19 @@
         let isAdmin = false;
         let selectedImageFile = null; 
 
-        // ==========================================
-        // ★ 속도 최적화: 아이콘 렌더링 디바운싱 ★
-        // ==========================================
-        let iconTimeout;
-        window.refreshIcons = function() {
-            clearTimeout(iconTimeout);
-            iconTimeout = setTimeout(() => { lucide.createIcons(); }, 50);
-        };
+        // SVG Icons Strings for pure editorial insertion (No AI lucide)
+        const SVG_LOCK = `<svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+        const SVG_IMAGE = `<svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+        const SVG_CORNER = `<svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>`;
 
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
         }
 
-        // --- 사진 미리보기 함수 ---
+        // ==========================================
+        // ★ 사진 미리보기 로직 ★
+        // ==========================================
         window.handleImageSelection = function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -300,10 +419,15 @@
         };
         window.removeDynamicImage = function(inputId, previewImgId, containerId) { document.getElementById(inputId).value = ''; document.getElementById(previewImgId).src = ''; document.getElementById(containerId).style.display = 'none'; };
 
-        // --- 모달 & 관리자 로직 ---
+        // ==========================================
+        // ★ 모달 & 관리자 로직 ★
+        // ==========================================
         window.AppModal = {
             overlay: document.getElementById('customModal'), title: document.getElementById('modalTitle'), msg: document.getElementById('modalMessage'), input: document.getElementById('modalInput'), cancelBtn: document.getElementById('modalCancelBtn'), confirmBtn: document.getElementById('modalConfirmBtn'), callback: null,
-            show(options, callback) { this.callback = callback; this.title.innerHTML = `<i data-lucide="alert-circle" style="color:var(--primary);"></i> ${options.title || '알림'}`; this.msg.innerText = options.msg || ''; this.input.value = ''; this.confirmBtn.innerText = options.confirmText || '확인'; this.confirmBtn.className = 'confirm' + (options.confirmText === '삭제' ? ' danger' : ''); this.input.style.display = options.type === 'prompt' ? 'block' : 'none'; this.cancelBtn.style.display = options.type === 'alert' ? 'none' : 'inline-block'; this.overlay.style.display = 'flex'; window.refreshIcons(); if(options.type === 'prompt') setTimeout(() => this.input.focus(), 100); },
+            show(options, callback) { 
+                this.callback = callback; this.title.innerHTML = options.title || 'Notification'; this.msg.innerText = options.msg || ''; this.input.value = ''; this.confirmBtn.innerText = options.confirmText || 'Confirm'; this.input.style.display = options.type === 'prompt' ? 'block' : 'none'; this.cancelBtn.style.display = options.type === 'alert' ? 'none' : 'inline-block'; this.overlay.style.display = 'flex'; 
+                if(options.type === 'prompt') setTimeout(() => this.input.focus(), 100); 
+            },
             close() { this.overlay.style.display = 'none'; }, submit() { this.close(); if (this.callback) this.callback(this.input.style.display === 'block' ? this.input.value : true); }, cancel() { this.close(); if (this.callback) this.callback(null); }
         };
         document.getElementById('modalConfirmBtn').onclick = () => window.AppModal.submit();
@@ -311,11 +435,13 @@
         document.getElementById('modalInput').onkeypress = (e) => { if(e.key === 'Enter') window.AppModal.submit(); };
 
         window.toggleAdminPanel = function() {
-            if (isAdmin) { isAdmin = false; document.getElementById('adminBtn').innerHTML = `<i data-lucide="settings"></i> 선생님 모드`; document.getElementById('adminBtn').classList.remove('active'); refreshAdminUI(); window.refreshIcons(); } else { const box = document.getElementById('adminLoginBox'); box.style.display = box.style.display === 'block' ? 'none' : 'block'; if(box.style.display === 'block') document.getElementById('adminPwInput').focus(); }
+            if (isAdmin) { isAdmin = false; document.getElementById('adminBtn').innerHTML = `Admin`; document.getElementById('adminBtn').classList.remove('active'); refreshAdminUI(); } 
+            else { const box = document.getElementById('adminLoginBox'); box.style.display = box.style.display === 'block' ? 'none' : 'block'; if(box.style.display === 'block') document.getElementById('adminPwInput').focus(); }
         };
         window.loginAdmin = function() {
             const input = document.getElementById('adminPwInput');
-            if (input.value === ADMIN_PW) { isAdmin = true; document.getElementById('adminBtn').innerHTML = `<i data-lucide="check-circle"></i> 관리자 활성`; document.getElementById('adminBtn').classList.add('active'); document.getElementById('adminLoginBox').style.display = 'none'; input.value = ''; refreshAdminUI(); window.refreshIcons(); } else { const btn = document.getElementById('adminBtn'); btn.innerHTML = `<i data-lucide="x-circle"></i> 비밀번호 오류`; btn.style.color = "#dc2626"; setTimeout(() => { btn.innerHTML = `<i data-lucide="settings"></i> 선생님 모드`; btn.style.color = ""; window.refreshIcons(); }, 1500); input.value = ''; window.refreshIcons(); }
+            if (input.value === ADMIN_PW) { isAdmin = true; document.getElementById('adminBtn').innerHTML = `Active`; document.getElementById('adminBtn').classList.add('active'); document.getElementById('adminLoginBox').style.display = 'none'; input.value = ''; refreshAdminUI(); } 
+            else { const btn = document.getElementById('adminBtn'); btn.innerHTML = `Error`; btn.style.color = "var(--terra)"; setTimeout(() => { btn.innerHTML = `Admin`; btn.style.color = ""; }, 1500); input.value = ''; }
         };
         window.handlePwKeyPress = (e) => { if (e.key === 'Enter') window.loginAdmin(); };
 
@@ -330,9 +456,9 @@
         window.addQuestion = async function() {
             const title = document.getElementById('titleInput').value.trim(); const text = document.getElementById('questionInput').value.trim(); const author = document.getElementById('authorInput').value.trim() || '익명'; const password = document.getElementById('pwInput').value.trim(); const isSecret = document.getElementById('secretInput').checked;
             
-            if (!title || !password || !text) { window.AppModal.show({type: 'alert', msg: '제목, 비밀번호, 내용을 모두 입력해주세요.'}); return; }
+            if (!title || !password || !text) { window.AppModal.show({type: 'alert', msg: '제목, 비밀번호, 내용을 모두 기재해 주십시오.'}); return; }
 
-            const submitBtn = document.getElementById('submitBtn'); submitBtn.innerHTML = `<i data-lucide="loader" class="spin"></i> 업로드 중...`; submitBtn.disabled = true; window.refreshIcons();
+            const submitBtn = document.getElementById('submitBtn'); submitBtn.innerHTML = `Processing...`; submitBtn.disabled = true;
 
             try {
                 let imageUrl = null;
@@ -340,7 +466,6 @@
                 
                 await push(questionsRef, { title, author, password, text, isSecret, imageUrl: imageUrl || '', time: getCurrentTime(), timestamp: Date.now() });
                 
-                // ⚠️ 새 질문 등록 디스코드 알람 주소 
                 const part1 = "https://discord.com/api/webhooks/1505402918025695353"; 
                 const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb"; 
                 const webhookUrl = part1 + part2;
@@ -352,30 +477,30 @@
                 
                 document.getElementById('titleInput').value = ''; document.getElementById('questionInput').value = ''; document.getElementById('authorInput').value = ''; document.getElementById('pwInput').value = ''; document.getElementById('secretInput').checked = false; window.removeSelectedImage();
                 
-            } catch (error) { window.AppModal.show({type: 'alert', msg: '오류가 발생했습니다.'}); } finally { submitBtn.innerHTML = `<i data-lucide="send"></i> 게시글 등록`; submitBtn.disabled = false; window.refreshIcons(); }
+            } catch (error) { window.AppModal.show({type: 'alert', msg: '네트워크 통신 오류가 발생했습니다.'}); } finally { submitBtn.innerHTML = `Submit Entry`; submitBtn.disabled = false; }
         };
 
         window.togglePost = (id) => {
             const li = document.getElementById(`post-${id}`); const content = document.getElementById(`content-${id}`); const isSecret = li.dataset.secret === 'true'; const correctPw = li.dataset.pw;
             if (content.style.display === 'block') { content.style.display = 'none'; return; }
-            if (isSecret && !isAdmin) { window.AppModal.show({type: 'prompt', title: '비밀글 열람', msg: '비밀번호를 입력해주세요.'}, (pw) => { if (pw === correctPw) { content.style.display = 'block'; } else if (pw !== null) { window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'}); } }); } else { content.style.display = 'block'; }
+            if (isSecret && !isAdmin) { window.AppModal.show({type: 'prompt', title: 'Security Check', msg: '열람 암호를 입력하십시오.'}, (pw) => { if (pw === correctPw) { content.style.display = 'block'; } else if (pw !== null) { window.AppModal.show({type: 'alert', msg: '암호가 일치하지 않습니다.'}); } }); } else { content.style.display = 'block'; }
         };
 
-        window.handleEdit = function(id) { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (!isAdmin) { window.AppModal.show({type: 'prompt', title: '게시글 수정', msg: '비밀번호 입력'}, (pw) => { if (pw === correctPw) enableEditMode(id); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'}); }); } else enableEditMode(id); };
+        window.handleEdit = function(id) { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (!isAdmin) { window.AppModal.show({type: 'prompt', title: 'Edit Entry', msg: '수정 암호를 입력하십시오.'}, (pw) => { if (pw === correctPw) enableEditMode(id); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호가 일치하지 않습니다.'}); }); } else enableEditMode(id); };
 
         function enableEditMode(id) {
             const bodyDiv = document.getElementById(`post-body-${id}`); const currentText = bodyDiv.dataset.text; const currentTitle = bodyDiv.dataset.title;
-            bodyDiv.innerHTML = `<input type="text" id="edit-title-${id}" value="${escapeHTML(currentTitle)}" style="width:100%; padding:12px 16px; margin-bottom:12px; border:1px solid var(--primary); border-radius:10px; font-weight:700; font-family:inherit; outline:none; box-sizing:border-box;"><textarea id="edit-textarea-${id}" style="width:100%; height:100px; padding:12px 16px; border:1px solid var(--primary); border-radius:10px; outline:none; font-family:inherit; resize:none; box-sizing:border-box;">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"><button onclick="window.cancelEdit('${id}')" style="padding:8px 16px; border:none; background:#f1f5f9; color:var(--text-sub); border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">취소</button><button onclick="window.saveEdit('${id}')" style="padding:8px 16px; border:none; background:var(--primary); color:white; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">저장</button></div>`;
+            bodyDiv.innerHTML = `<input type="text" id="edit-title-${id}" class="edit-input-title" value="${escapeHTML(currentTitle)}"><textarea id="edit-textarea-${id}" class="edit-textarea-body">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"><button onclick="window.cancelEdit('${id}')" class="btn-sub">Cancel</button><button onclick="window.saveEdit('${id}')" class="btn-solid" style="padding:10px 18px;">Save</button></div>`;
         }
 
-        window.cancelEdit = (id) => { const bodyDiv = document.getElementById(`post-body-${id}`); const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(bodyDiv.dataset.text); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; };
+        window.cancelEdit = (id) => { const bodyDiv = document.getElementById(`post-body-${id}`); const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(bodyDiv.dataset.text); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">Log Entry: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; };
 
         window.saveEdit = (id) => {
             const newTitle = document.getElementById(`edit-title-${id}`).value.trim(); const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
-            if (newTitle && newText) { update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText }); const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(newTitle); window.refreshIcons(); } else { window.AppModal.show({type: 'alert', msg: '제목과 내용을 모두 입력해주세요.'}); }
+            if (newTitle && newText) { update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText }); const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">Log Entry: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(newTitle); } else { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); }
         };
 
-        window.handleDelete = (id) => { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (isAdmin) { window.AppModal.show({type: 'confirm', title:'게시글 삭제', msg: '선생님 권한으로 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); } else { window.AppModal.show({type: 'prompt', title:'게시글 삭제', msg: '비밀번호를 입력하세요.'}, (pw) => { if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '정말 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'}); }); } };
+        window.handleDelete = (id) => { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (isAdmin) { window.AppModal.show({type: 'confirm', title:'Delete Entry', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); } else { window.AppModal.show({type: 'prompt', title:'Delete Entry', msg: '삭제 암호를 입력하십시오.'}, (pw) => { if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호 불일치'}); }); } };
 
         // ==========================================
         // ★ 파이어베이스 리스너 감지기 ★
@@ -385,19 +510,19 @@
             const repliesRef = dbRef(db, `questions/${id}/replies`);
             
             onChildAdded(repliesRef, (rep) => { 
-                renderComment(id, rep.key, rep.val()); updateReplyCount(id, 1); 
+                renderComment(id, rep.key, rep.val());
                 const subRepliesRef = dbRef(db, `questions/${id}/replies/${rep.key}/subReplies`);
                 onChildAdded(subRepliesRef, (sub) => { renderSubComment(id, rep.key, sub.key, sub.val()); });
                 onChildRemoved(subRepliesRef, (sub) => { document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`)?.remove(); });
             });
-            onChildRemoved(repliesRef, (rep) => { document.getElementById(`reply-${id}-${rep.key}`)?.remove(); updateReplyCount(id, -1); });
+            onChildRemoved(repliesRef, (rep) => { document.getElementById(`reply-${id}-${rep.key}`)?.remove(); });
             onChildChanged(repliesRef, (rep) => { const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`); if (textContainer && !textContainer.querySelector('textarea')) { textContainer.textContent = rep.val().text; document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text; } });
         });
         onChildRemoved(questionsRef, (snapshot) => document.getElementById(`post-${snapshot.key}`)?.remove());
         onChildChanged(questionsRef, (snapshot) => {
             const id = snapshot.key; const data = snapshot.val(); const titleSpan = document.getElementById(`title-text-${id}`); const bodyDiv = document.getElementById(`post-body-${id}`);
-            if (titleSpan) titleSpan.innerHTML = (data.isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
-            if (bodyDiv && !bodyDiv.querySelector('textarea')) { let contentHtml = escapeHTML(data.text); if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>`; bodyDiv.innerHTML = contentHtml; bodyDiv.dataset.text = data.text; bodyDiv.dataset.title = data.title; } window.refreshIcons();
+            if (titleSpan) titleSpan.innerHTML = (data.isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
+            if (bodyDiv && !bodyDiv.querySelector('textarea')) { let contentHtml = escapeHTML(data.text); if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">Log Entry: ${data.time}</div>`; bodyDiv.innerHTML = contentHtml; bodyDiv.dataset.text = data.text; bodyDiv.dataset.title = data.title; } 
         });
 
         // ==========================================
@@ -406,46 +531,49 @@
         function renderPost(id, data) {
             const list = document.getElementById('qnaList'); const li = document.createElement('li'); li.className = 'board-item'; li.id = `post-${id}`; li.dataset.pw = data.password || ''; li.dataset.secret = data.isSecret || false; 
             const author = data.author || '익명'; const rawTitle = data.title || data.text.substring(0, 20) + '...';
-            let displayTitleHtml = (data.isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(rawTitle);
-            if (data.imageUrl) displayTitleHtml += ` <i data-lucide="image" style="width:14px; height:14px; color:var(--primary); margin-left:4px;"></i>`;
+            
+            let displayTitleHtml = '';
+            if (data.isSecret) displayTitleHtml += SVG_LOCK + ' ';
+            displayTitleHtml += escapeHTML(rawTitle);
+            if (data.imageUrl) displayTitleHtml += ' ' + SVG_IMAGE;
+
             const listTime = data.time.split(' ')[0].substring(5) + ' ' + data.time.split(' ')[1];
             
-            // ★ 이미지 태그에 loading="lazy" 추가 완료 ★
-            let bodyContentHtml = escapeHTML(data.text); if (data.imageUrl) bodyContentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; bodyContentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>`;
+            let bodyContentHtml = escapeHTML(data.text); if (data.imageUrl) bodyContentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; bodyContentHtml += `<div class="post-meta-foot">Log Entry: ${data.time}</div>`;
             
             li.innerHTML = `
                 <div class="item-row" onclick="window.togglePost('${id}')">
-                    <div class="item-title-wrapper"><span class="item-title" id="title-text-${id}">${displayTitleHtml}</span><span class="reply-count" id="reply-count-${id}" style="display:none;">[0]</span></div>
-                    <div class="item-meta-mobile"><div class="item-author">${escapeHTML(author)}</div><div class="item-time">${listTime}</div></div>
+                    <div class="item-title-wrapper"><span class="item-title" id="title-text-${id}">${displayTitleHtml}</span></div>
+                    <div class="item-author">${escapeHTML(author)}</div><div class="item-time">${listTime}</div>
                 </div>
                 <div class="item-content" id="content-${id}">
-                    <div class="post-actions-inline"><button class="action-btn" onclick="window.handleEdit('${id}')">수정</button><button class="action-btn delete" onclick="window.handleDelete('${id}')">삭제</button></div>
+                    <div class="post-actions-inline"><button class="action-txt" onclick="window.handleEdit('${id}')">[Edit]</button><button class="action-txt delete" onclick="window.handleDelete('${id}')">[Delete]</button></div>
                     <div id="post-body-${id}" class="post-body" data-text="${escapeHTML(data.text)}" data-title="${escapeHTML(rawTitle)}" data-image="${escapeHTML(data.imageUrl || '')}" data-time="${escapeHTML(data.time)}">${bodyContentHtml}</div>
                     
                     <div class="comment-section">
-                        <div class="comment-header"><i data-lucide="message-circle" style="width:18px; height:18px; color:var(--primary);"></i> 답변 및 소통</div>
+                        <div class="comment-header">Administrative Annotations</div>
                         <ul class="comment-list" id="comment-list-${id}"></ul>
                         
                         <div class="reply-input-group" id="reply-group-${id}">
                             <div style="display:flex; flex-direction:column; flex:1; gap:6px;">
-                                <textarea id="reply-input-${id}" placeholder="선생님 공식 답변을 남겨주세요..."></textarea>
+                                <textarea id="reply-input-${id}" placeholder="Enter official remarks..."></textarea>
                                 <div style="display:flex; gap:8px;">
-                                    <button class="attach-btn" style="padding:6px 12px; font-size:0.8rem;" onclick="document.getElementById('reply-image-${id}').click()"><i data-lucide="camera" style="width:14px;height:14px;"></i> 사진 추가</button>
+                                    <button class="btn-sub" style="padding:6px 12px; font-size:0.75rem;" onclick="document.getElementById('reply-image-${id}').click()">
+                                        <svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Photo
+                                    </button>
                                     <input type="file" id="reply-image-${id}" style="display:none;" accept="image/*" onchange="window.previewDynamicImage(this, 'reply-preview-img-${id}', 'reply-preview-container-${id}')">
                                 </div>
                                 <div id="reply-preview-container-${id}" class="mini-preview-container">
                                     <img id="reply-preview-img-${id}">
-                                    <button class="remove-btn" onclick="window.removeDynamicImage('reply-image-${id}', 'reply-preview-img-${id}', 'reply-preview-container-${id}')"><i data-lucide="x" style="width:12px;height:12px;"></i></button>
+                                    <button class="remove-btn" onclick="window.removeDynamicImage('reply-image-${id}', 'reply-preview-img-${id}', 'reply-preview-container-${id}')">X</button>
                                 </div>
                             </div>
-                            <button id="reply-btn-${id}" style="height:fit-content; align-self:flex-start;" onclick="window.addReply('${id}')">답변 등록</button>
+                            <button id="reply-btn-${id}" style="height:fit-content; align-self:flex-start;" onclick="window.addReply('${id}')">Append</button>
                         </div>
                     </div>
                 </div>`;
-            list.prepend(li); refreshAdminUI(); window.refreshIcons(); // ★ 핵심 최적화 함수 호출
+            list.prepend(li); refreshAdminUI(); 
         }
-
-        function updateReplyCount(qId, change) { const span = document.getElementById(`reply-count-${qId}`); if (!span) return; let current = parseInt(span.dataset.count || '0') + change; span.dataset.count = current; span.style.display = current > 0 ? 'inline-block' : 'none'; span.textContent = `[${current}]`; }
 
         // ==========================================
         // ★ 선생님 1차 답변 등록 & 그리기 ★
@@ -455,10 +583,10 @@
             const input = document.getElementById(`reply-input-${id}`); const text = input.value.trim(); 
             const fileInput = document.getElementById(`reply-image-${id}`); const file = fileInput ? fileInput.files[0] : null;
 
-            if (!text && !file) { window.AppModal.show({type: 'alert', msg: '답변 내용이나 사진을 첨부해주세요.'}); return; }
+            if (!text && !file) { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); return; }
 
             const btn = document.getElementById(`reply-btn-${id}`);
-            if(btn) { btn.innerHTML = `<i data-lucide="loader" class="spin"></i>`; btn.disabled = true; window.refreshIcons(); }
+            if(btn) { btn.innerHTML = `Processing...`; btn.disabled = true; }
 
             try {
                 let imageUrl = null;
@@ -474,59 +602,62 @@
                 input.value = '';
                 if(fileInput) window.removeDynamicImage(`reply-image-${id}`, `reply-preview-img-${id}`, `reply-preview-container-${id}`);
             } catch (err) {
-                window.AppModal.show({type: 'alert', msg: '답변 등록 오류가 발생했습니다.'});
+                window.AppModal.show({type: 'alert', msg: '오류가 발생했습니다.'});
             } finally {
-                if(btn) { btn.innerHTML = `답변 등록`; btn.disabled = false; }
+                if(btn) { btn.innerHTML = `Append`; btn.disabled = false; }
             }
         };
 
         function renderComment(qId, replyId, data) {
             const list = document.getElementById(`comment-list-${qId}`); const li = document.createElement('li'); li.className = 'comment-item'; li.id = `reply-${qId}-${replyId}`; li.dataset.text = data.text; 
             
-            let imageHtml = data.imageUrl ? `<img src="${escapeHTML(data.imageUrl)}" loading="lazy" style="max-width:100%; border-radius:12px; margin-top:10px; border:1px solid var(--border-color); display:block;">` : '';
+            let imageHtml = data.imageUrl ? `<img src="${escapeHTML(data.imageUrl)}" loading="lazy" style="max-width:100%; border:1px solid var(--line); margin-top:15px; display:block; filter: sepia(0.1);">` : '';
 
             li.innerHTML = `
-                <div style="display:flex; gap:12px; width:100%;">
+                <div class="comment-main-row">
                     <div class="comment-profile">T</div>
                     <div class="comment-content">
                         <div class="comment-header-row">
-                            <div class="comment-meta"><span class="teacher-badge">선생님</span><span class="comment-time">${data.time}</span></div>
-                            <div class="reply-actions" style="display: ${isAdmin ? 'flex' : 'none'};"><button class="action-btn" onclick="window.editReply('${qId}', '${replyId}')">수정</button><button class="action-btn delete" onclick="window.deleteReply('${qId}', '${replyId}')">삭제</button></div>
+                            <div class="comment-meta"><span class="teacher-badge">OFFICIAL</span><span class="comment-time">${data.time}</span></div>
+                            <div class="reply-actions" style="display: ${isAdmin ? 'flex' : 'none'};"><button class="action-txt" onclick="window.editReply('${qId}', '${replyId}')">[Edit]</button><button class="action-txt delete" onclick="window.deleteReply('${qId}', '${replyId}')">[Delete]</button></div>
                         </div>
                         <div id="reply-text-${qId}-${replyId}" class="comment-text">${escapeHTML(data.text)}</div>
                         ${imageHtml}
-                        <button class="sub-reply-toggle-btn" onclick="window.toggleSubInput('${qId}', '${replyId}')"><i data-lucide="corner-down-right" style="width:14px;height:14px;"></i> 답글 달기</button>
+                        <button class="sub-reply-toggle-btn" onclick="window.toggleSubInput('${qId}', '${replyId}')">${SVG_CORNER} Add Note</button>
                     </div>
                 </div>
                 
                 <div class="sub-reply-input-box" id="sub-input-box-${qId}-${replyId}">
-                    <input type="text" id="sub-author-${qId}-${replyId}" class="author-in" placeholder="닉네임(선택)" maxlength="10">
-                    <textarea id="sub-text-${qId}-${replyId}" placeholder="추가 질문이나 의견을 남겨주세요..."></textarea>
+                    <input type="text" id="sub-author-${qId}-${replyId}" class="author-in" placeholder="닉네임 (선택)" maxlength="10">
+                    <textarea id="sub-text-${qId}-${replyId}" placeholder="추가 의견을 남겨주십시오..."></textarea>
                     
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:8px;">
                         <div style="display:flex; flex-direction:column; gap:6px;">
-                            <button class="attach-btn" style="padding:4px 10px; font-size:0.75rem; background:#f1f5f9; border:none; border-radius:8px; cursor:pointer;" onclick="document.getElementById('sub-image-${qId}-${replyId}').click()"><i data-lucide="camera" style="width:12px;height:12px; display:inline-block; vertical-align:middle;"></i> 사진 추가</button>
+                            <button class="btn-sub" style="padding:4px 10px; font-size:0.75rem;" onclick="document.getElementById('sub-image-${qId}-${replyId}').click()">
+                                <svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> Photo
+                            </button>
                             <input type="file" id="sub-image-${qId}-${replyId}" style="display:none;" accept="image/*" onchange="window.previewDynamicImage(this, 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}')">
                             <div id="sub-preview-container-${qId}-${replyId}" class="mini-preview-container">
                                 <img id="sub-preview-img-${qId}-${replyId}">
-                                <button class="remove-btn" onclick="window.removeDynamicImage('sub-image-${qId}-${replyId}', 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}')"><i data-lucide="x" style="width:12px;height:12px;"></i></button>
+                                <button class="remove-btn" onclick="window.removeDynamicImage('sub-image-${qId}-${replyId}', 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}')">X</button>
                             </div>
                         </div>
-                        <button id="sub-btn-${qId}-${replyId}" class="submit-btn-small" onclick="window.addSubReply('${qId}', '${replyId}')">등록</button>
+                        <button id="sub-btn-${qId}-${replyId}" class="btn-solid submit-btn-small" onclick="window.addSubReply('${qId}', '${replyId}')">Submit</button>
                     </div>
                 </div>
+                
                 <ul class="sub-comment-list" id="sub-list-${qId}-${replyId}"></ul>
             `;
-            list.appendChild(li); window.refreshIcons(); // ★ 최적화 함수 호출
+            list.appendChild(li); 
         }
 
-        window.editReply = (qId, replyId) => { if (!isAdmin) return; const li = document.getElementById(`reply-${qId}-${replyId}`); const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`); const currentText = li.dataset.text; textContainer.innerHTML = `<textarea id="edit-reply-input-${qId}-${replyId}" style="width:100%; height:60px; padding:10px; border:1px solid var(--primary); border-radius:10px; resize:none; font-family:inherit; outline:none; box-sizing:border-box; margin-top:8px;">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;"><button onclick="window.cancelEditReply('${qId}', '${replyId}')" style="padding:6px 12px; font-size:0.85rem; border:none; background:#f1f5f9; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer; color:var(--text-sub);">취소</button><button onclick="window.saveEditReply('${qId}', '${replyId}')" style="padding:6px 12px; font-size:0.85rem; border:none; background:var(--primary); color:white; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">저장</button></div>`; };
+        window.editReply = (qId, replyId) => { if (!isAdmin) return; const li = document.getElementById(`reply-${qId}-${replyId}`); const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`); const currentText = li.dataset.text; textContainer.innerHTML = `<textarea id="edit-reply-input-${qId}-${replyId}" style="width:100%; height:60px; padding:10px; border:1px solid var(--ink); background:var(--surface); font-family:var(--sans); resize:none; outline:none; box-sizing:border-box; margin-top:8px;">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;"><button onclick="window.cancelEditReply('${qId}', '${replyId}')" class="btn-sub">Cancel</button><button onclick="window.saveEditReply('${qId}', '${replyId}')" class="btn-solid" style="padding:10px 18px;">Save</button></div>`; };
         window.cancelEditReply = (qId, replyId) => { const li = document.getElementById(`reply-${qId}-${replyId}`); document.getElementById(`reply-text-${qId}-${replyId}`).textContent = li.dataset.text; };
-        window.saveEditReply = (qId, replyId) => { const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim(); if (newText) { update(dbRef(db, `questions/${qId}/replies/${replyId}`), { text: newText }); const li = document.getElementById(`reply-${qId}-${replyId}`); li.dataset.text = newText; document.getElementById(`reply-text-${qId}-${replyId}`).textContent = newText; } else { window.AppModal.show({type: 'alert', msg: '답변 내용을 입력해주세요.'}); } };
-        window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'답변 삭제', msg: '완전히 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}`)); }); };
+        window.saveEditReply = (qId, replyId) => { const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim(); if (newText) { update(dbRef(db, `questions/${qId}/replies/${replyId}`), { text: newText }); const li = document.getElementById(`reply-${qId}-${replyId}`); li.dataset.text = newText; document.getElementById(`reply-text-${qId}-${replyId}`).textContent = newText; } else { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); } };
+        window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'Delete', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}`)); }); };
 
         // ==========================================
-        // ★ 2차 댓글 (답글 + 사진) 로직 ★
+        // ★ 2차 댓글 (대댓글 + 사진) 로직 ★
         // ==========================================
         window.toggleSubInput = (qId, replyId) => { const box = document.getElementById(`sub-input-box-${qId}-${replyId}`); box.style.display = box.style.display === 'block' ? 'none' : 'block'; };
 
@@ -536,13 +667,13 @@
             const fileInput = document.getElementById(`sub-image-${qId}-${replyId}`);
             const file = fileInput ? fileInput.files[0] : null;
             
-            if (!textInput && !file) { window.AppModal.show({type: 'alert', msg: '내용이나 사진을 첨부해주세요.'}); return; }
+            if (!textInput && !file) { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); return; }
 
             const author = isAdmin ? '관리자' : (authorInput || '익명');
             const isTeacher = isAdmin;
             
             const btn = document.getElementById(`sub-btn-${qId}-${replyId}`);
-            if(btn) { btn.innerHTML = `처리 중...`; btn.disabled = true; }
+            if(btn) { btn.innerHTML = `Processing...`; btn.disabled = true; }
 
             try {
                 let imageUrl = null;
@@ -555,12 +686,12 @@
 
                 await push(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies`), { author: author, text: textInput, imageUrl: imageUrl || '', isTeacher: isTeacher, time: getCurrentTime() });
                 
-                // ⚠️ 답글 등록 시 디스코드 알람
+                // ⚠️ 대댓글 등록 시 디스코드 알람
                 const part1 = "https://discord.com/api/webhooks/1505402918025695353"; 
                 const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb"; 
                 const webhookUrl = part1 + part2;
                 if (webhookUrl.includes("discord.com")) {
-                    const message = { embeds: [{ title: `💬 [새로운 답글]`, description: textInput.length > 100 ? textInput.substring(0, 100) + "..." : textInput, color: 10181046, fields: [ { name: "작성자", value: author, inline: true } ], timestamp: new Date().toISOString() }] };
+                    const message = { embeds: [{ title: `💬 [새로운 대댓글]`, description: textInput.length > 100 ? textInput.substring(0, 100) + "..." : textInput, color: 10181046, fields: [ { name: "작성자", value: author, inline: true } ], timestamp: new Date().toISOString() }] };
                     fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(message) }).catch(err => console.error(err));
                 }
 
@@ -568,9 +699,9 @@
                 if(fileInput) window.removeDynamicImage(`sub-image-${qId}-${replyId}`, `sub-preview-img-${qId}-${replyId}`, `sub-preview-container-${qId}-${replyId}`);
                 window.toggleSubInput(qId, replyId);
             } catch (err) {
-                window.AppModal.show({type: 'alert', msg: '답글 등록 오류가 발생했습니다.'});
+                window.AppModal.show({type: 'alert', msg: '오류가 발생했습니다.'});
             } finally {
-                if(btn) { btn.innerHTML = `등록`; btn.disabled = false; }
+                if(btn) { btn.innerHTML = `Submit`; btn.disabled = false; }
             }
         };
 
@@ -579,38 +710,32 @@
             if(!list) return;
             const li = document.createElement('li'); li.className = 'sub-comment-item'; li.id = `sub-reply-${qId}-${replyId}-${subId}`;
 
-            const badgeHtml = data.isTeacher ? '<span class="teacher-badge">관리자</span>' : `<span class="student-badge">${escapeHTML(data.author)}</span>`;
+            const badgeHtml = data.isTeacher ? '<span class="student-badge" style="color:var(--terra); border-color:var(--terra-soft);">OFFICIAL</span>' : `<span class="student-badge">${escapeHTML(data.author)}</span>`;
             const profileIcon = data.isTeacher ? 'T' : 'S';
-            const profileBg = data.isTeacher ? 'var(--primary-light)' : '#e2e8f0';
-            const profileColor = data.isTeacher ? 'var(--primary)' : 'var(--text-sub)';
+            const profileClass = data.isTeacher ? ' teacher' : '';
             
-            let imageHtml = data.imageUrl ? `<img src="${escapeHTML(data.imageUrl)}" loading="lazy" style="max-width:100%; border-radius:8px; margin-top:8px; border:1px solid var(--border-color); display:block;">` : '';
+            let imageHtml = data.imageUrl ? `<img src="${escapeHTML(data.imageUrl)}" loading="lazy" style="max-width:100%; border:1px solid var(--line); margin-top:10px; display:block; filter: sepia(0.1);">` : '';
 
             li.innerHTML = `
-                <div class="sub-comment-profile" style="background:${profileBg}; color:${profileColor};">${profileIcon}</div>
+                <div class="sub-comment-profile${profileClass}">${profileIcon}</div>
                 <div class="sub-comment-content">
                     <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;">
-                        <div>${badgeHtml} <span style="font-size:0.75rem; color:#94a3b8; margin-left:6px;">${data.time}</span></div>
-                        <div class="reply-actions" style="display: ${isAdmin ? 'flex' : 'none'};"><button class="action-btn delete" onclick="window.deleteSubReply('${qId}', '${replyId}', '${subId}')" style="padding:2px 8px; font-size:0.7rem;">삭제</button></div>
+                        <div>${badgeHtml} <span style="font-size:0.75rem; color:var(--ink-faint); margin-left:6px; font-family:var(--serif); font-style:italic;">${data.time}</span></div>
+                        <div class="reply-actions" style="display: ${isAdmin ? 'flex' : 'none'};"><button class="action-txt delete" onclick="window.deleteSubReply('${qId}', '${replyId}', '${subId}')">[Delete]</button></div>
                     </div>
                     <div style="line-height:1.5;">${escapeHTML(data.text)}</div>
                     ${imageHtml}
                 </div>
             `;
-            list.appendChild(li); window.refreshIcons(); // ★ 최적화 함수 호출
+            list.appendChild(li); 
         }
 
         window.deleteSubReply = (qId, replyId, subId) => {
             if (!isAdmin) return;
-            window.AppModal.show({type: 'confirm', msg: '이 답글을 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies/${subId}`)); });
+            window.AppModal.show({type: 'confirm', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies/${subId}`)); });
         };
 
-        function getCurrentTime() { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const date = String(now.getDate()).padStart(2, '0'); const ampm = now.getHours() >= 12 ? '오후' : '오전'; let hour = now.getHours() % 12; hour = hour ? hour : 12; const minutes = String(now.getMinutes()).padStart(2, '0'); return `${year}/${month}/${date} ${ampm} ${hour}:${minutes}`; }
-    </script>
-    
-    <script>
-        // 초기 로딩 시 아이콘 렌더링
-        window.refreshIcons();
+        function getCurrentTime() { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const date = String(now.getDate()).padStart(2, '0'); const ampm = now.getHours() >= 12 ? 'PM' : 'AM'; let hour = now.getHours() % 12; hour = hour ? hour : 12; const minutes = String(now.getMinutes()).padStart(2, '0'); return `${year}/${month}/${date} ${ampm} ${hour}:${minutes}`; }
     </script>
     
     <script>
