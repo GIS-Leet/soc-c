@@ -1,141 +1,231 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-E1W226W5M4');
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>태양 고도와 입사각 시뮬레이터 - 통합사회 C</title>
+    <title>태양 고도와 입사각 시뮬레이터 — Geographia Archive</title>
     
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
 
     <style>
+        /* ============================================================
+           GEOGRAPHIA — Academic Archival Editorial Concept
+        ============================================================ */
         :root {
-            --primary: #2563eb;
-            --primary-light: #eff6ff;
-            --text-main: #0f172a;
-            --text-sub: #64748b;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --border-color: rgba(0,0,0,0.06);
-            --radius: 20px;
+            --ink:        #1a1714;
+            --ink-2:      #4a443c;
+            --ink-3:      #8c8479;
+            --ink-faint:  #b8b0a3;
+
+            --paper:      #f4f0e8;
+            --paper-2:    #efe9dd;
+            --surface:    #fbf9f3;
+
+            --line:       #d8d0c0;
+            --line-soft:  #e6dfd0;
+
+            --terra:      #b4502e;
+            --terra-soft: #f0e0d4;
+            --sea:        #2f5d50;
+            --sea-soft:   #dde8e2;
+            --gold:       #9a7b3f;
+            --gold-soft:  #f3ebd8;
+
+            --serif: 'Fraunces', Georgia, serif;
+            --sans:  'Pretendard', -apple-system, sans-serif;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background-color: var(--paper);
+            margin: 0; padding: 0;
+            color: var(--ink);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Paper Grain Overlay */
+        body::before {
+            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.5;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+        body > * { position: relative; z-index: 2; }
         a { text-decoration: none; color: inherit; }
+        .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
-        /* 글래스모피즘 네비게이션 */
-        .navbar { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+        /* MASTHEAD */
+        .masthead {
+            background: rgba(244,240,232,0.82); backdrop-filter: blur(14px) saturate(1.2); border-bottom: 1px solid var(--line); position: relative; z-index: 9999; flex-shrink: 0;
         }
-        .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-        .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .logo-icon i { width: 18px; height: 18px; stroke-width: 2.5px; }
-        .menu { display: flex; gap: 24px; }
-        .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
-        .menu a:hover { background: var(--primary-light); color: var(--primary); }
+        .masthead-inner {
+            max-width: 1400px; margin: 0 auto; padding: 0 40px; height: 66px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand { display: flex; align-items: center; gap: 13px; }
+        .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+        .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+        .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+        .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+        .nav { display: flex; align-items: center; gap: 2px; }
+        .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
+        .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
 
-        /* 대시보드 레이아웃 */
-        .dashboard-container { display: flex; flex: 1; padding: 24px; gap: 24px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden; }
+        /* LAYOUT WRAPPER */
+        .dashboard-container {
+            display: flex; flex: 1; padding: 30px 40px; gap: 30px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden;
+        }
         
-        /* 왼쪽 캔버스 영역 */
-        .canvas-wrapper { flex: 2; background: #ffffff; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--border-color); display: flex; justify-content: center; align-items: center; background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 20px 20px; }
-        canvas { width: 100%; max-height: 100%; object-fit: contain; }
-
-        /* 오른쪽 컨트롤 패널 영역 */
-        .controls-wrapper { flex: 1; min-width: 340px; max-width: 450px; background: var(--card-bg); border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 25px; overflow-y: auto; }
+        /* 2D CANVAS (Geometry Frame) */
+        .canvas-wrapper {
+            flex: 2; position: relative; border: 1px solid var(--ink); background: var(--paper); padding: 4px; box-shadow: inset 0 0 0 1px var(--line), 6px 6px 0 rgba(26,23,20,0.06);
+            display: flex; justify-content: center; align-items: center;
+            background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 24px 24px;
+        }
+        .canvas-inner {
+            position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 1px solid var(--line-soft); background: transparent; display: flex; justify-content: center; align-items: center;
+        }
+        canvas { width: 100%; max-height: 100%; object-fit: contain; z-index: 5; }
         
-        .panel-header { margin-bottom: 5px; }
-        .panel-header h2 { margin: 0 0 8px 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
-        .panel-header p { margin: 0; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; word-break: keep-all; }
+        /* GUIDE BADGE (Paper Label) */
+        .guide-badge {
+            position: absolute; top: 20px; left: 20px; background: var(--paper); border: 1px solid var(--ink); color: var(--ink);
+            font-family: var(--serif); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em; padding: 8px 14px; pointer-events: none; display: flex; align-items: center; gap: 8px; z-index: 10; box-shadow: 2px 2px 0 rgba(26,23,20,0.1);
+        }
+        .guide-badge .ico { color: var(--terra); }
 
-        /* 슬라이더 컨트롤 */
-        .timeline-box { background: var(--primary-light); border: 1px solid #bfdbfe; border-radius: 16px; padding: 25px 20px; display: flex; flex-direction: column; gap: 15px; }
-        .alt-display { font-size: 1.2rem; font-weight: 800; color: var(--text-main); text-align: center; margin-bottom: 5px; }
-        .alt-display span { color: #e74c3c; font-size: 2rem; letter-spacing: -1px; }
+        /* LEDGER PANEL (Controls) */
+        .controls-wrapper {
+            flex: 1; min-width: 360px; max-width: 450px; background: var(--surface); border: 1px solid var(--line); padding: 35px; position: relative; display: flex; flex-direction: column; gap: 25px; overflow-y: auto;
+        }
+        .controls-wrapper::before, .controls-wrapper::after { content: ''; position: absolute; width: 8px; height: 8px; border-color: var(--ink-faint); opacity: 0.6; pointer-events: none; }
+        .controls-wrapper::before { top: 8px; left: 8px; border-left: 1px solid; border-top: 1px solid; }
+        .controls-wrapper::after  { bottom: 8px; right: 8px; border-right: 1px solid; border-bottom: 1px solid; }
         
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #cbd5e1; border-radius: 5px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #e74c3c; cursor: pointer; box-shadow: 0 0 0 4px white, 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        .controls-wrapper::-webkit-scrollbar { width: 6px; }
+        .controls-wrapper::-webkit-scrollbar-track { background: var(--surface); }
+        .controls-wrapper::-webkit-scrollbar-thumb { background: var(--line); }
+        
+        .panel-header { border-bottom: 1px solid var(--ink); padding-bottom: 15px; margin-bottom: 5px; }
+        .panel-header h2 { margin: 0 0 5px 0; font-family: var(--serif); font-size: 1.35rem; font-weight: 500; display: flex; align-items: center; gap: 8px; color: var(--ink); letter-spacing: -0.01em; }
+        .panel-header p { margin: 0; font-family: var(--sans); font-size: 0.9rem; color: var(--ink-2); line-height: 1.5; word-break: keep-all; }
 
-        /* 공식 패널 (디자인 하이라이트) */
-        .equation-box { background: #f8fafc; border: 1px solid var(--border-color); padding: 25px; border-radius: 16px; text-align: center; display: flex; flex-direction: column; gap: 15px; }
-        .eq-title { font-size: 0.9rem; font-weight: 800; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; }
-        .eq-formula { font-size: 1.6rem; font-weight: 800; color: var(--text-main); display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .badge-alt { background: #fee2e2; color: #dc2626; padding: 6px 12px; border-radius: 8px; }
-        .badge-inc { background: #e0f2fe; color: #0284c7; padding: 6px 12px; border-radius: 8px; }
+        /* SLIDER (Instrument Style) */
+        .timeline-box { background: var(--paper-2); border: 1px solid var(--line); padding: 25px; display: flex; flex-direction: column; gap: 15px; position: relative; }
+        .alt-display { font-family: var(--serif); font-size: 1rem; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.1em; text-align: center; margin-bottom: 5px; }
+        .alt-display span { color: var(--terra); font-size: 2.2rem; font-weight: 400; font-style: italic; letter-spacing: -0.02em; display: block; margin-top: 5px; }
+        
+        .slider-labels { display: flex; justify-content: space-between; font-family: var(--serif); font-size: 0.75rem; font-weight: 600; color: var(--ink-3); margin-bottom: -5px; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 2px; background: var(--ink-faint); }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--terra); border: 2px solid var(--paper); margin-top: -7px; box-shadow: 0 2px 4px rgba(26,23,20,0.2); transition: transform 0.1s; }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        /* EQUATION BOX (Academic Note) */
+        .equation-box { background: var(--surface); border: 1px dashed var(--ink-faint); padding: 25px; text-align: center; display: flex; flex-direction: column; gap: 15px; position: relative; }
+        .eq-title { font-family: var(--serif); font-size: 0.8rem; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; justify-content: center; gap: 6px;}
+        .eq-formula { font-family: var(--serif); font-size: 1.6rem; color: var(--ink); display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .badge-alt { color: var(--terra); font-weight: 500; font-style: italic; }
+        .badge-inc { color: var(--sea); font-weight: 500; font-style: italic; }
+        .equation-box p { margin: 0; font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; word-break: keep-all; font-family: var(--sans); border-top: 1px solid var(--line-soft); padding-top: 15px; }
 
         @media (max-width: 900px) {
-            .dashboard-container { flex-direction: column; overflow-y: auto; }
-            .canvas-wrapper { min-height: 40vh; flex: none; }
+            .dashboard-container { flex-direction: column; overflow-y: auto; padding: 20px; }
+            .canvas-wrapper { min-height: 45vh; flex: none; }
             .controls-wrapper { max-width: 100%; flex: none; }
-            .navbar { padding: 16px 20px; }
-            .eq-formula { font-size: 1.3rem; }
+            .masthead-inner { padding: 0 20px; }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon"><i data-lucide="globe"></i></div>
-            Society - C - Geography
-        </a>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <a href="qna.html">Q&A 게시판</a>
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html">홈</a>
+                <a href="qna.html">Q&amp;A 게시판</a>
+            </nav>
         </div>
-    </nav>
+    </header>
 
     <div class="dashboard-container">
         
         <div class="canvas-wrapper">
-            <canvas id="simCanvas" width="600" height="400"></canvas>
+            <div class="guide-badge">
+                <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                <span>Geometry of Insolation</span>
+            </div>
+            <div class="canvas-inner">
+                <canvas id="simCanvas" width="700" height="450"></canvas>
+            </div>
         </div>
 
         <div class="controls-wrapper">
             <div class="panel-header">
-                <h2><i data-lucide="triangle-right" style="color:var(--primary);"></i> 태양 고도와 입사각</h2>
-                <p>슬라이더를 조절하여 태양의 높이(고도)와 지표면 입사각의 상호 삼각비 원리를 확인하세요.</p>
+                <h2>
+                    <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/></svg>
+                    태양 고도와 입사각
+                </h2>
+                <p>슬라이더를 조절하여 태양의 높이(고도)와 지표면 입사각의 원리를 확인하세요.</p>
             </div>
 
             <div class="timeline-box">
-                <div class="alt-display">현재 태양 고도: <span id="altValue">45°</span></div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); margin-bottom: -5px;">
-                    <span>0° (지평선)</span>
-                    <span>90° (수직)</span>
+                <div class="alt-display">Altitude (태양 고도) <span id="altValue">45°</span></div>
+                <div class="slider-labels">
+                    <span>0° (Horizon)</span>
+                    <span>90° (Zenith)</span>
                 </div>
                 <input type="range" id="sunSlider" min="0" max="90" value="45">
             </div>
 
             <div class="equation-box">
-                <div class="eq-title"><i data-lucide="calculator" style="width:14px; height:14px; display:inline-block; vertical-align:middle;"></i> 공간 기하학 공식</div>
+                <div class="eq-title">
+                    <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="12" y1="7" x2="12" y2="17"/></svg>
+                    공간 기하학 공식
+                </div>
                 <div class="eq-formula">
-                    <span class="badge-alt">고도 <span id="eqAlt">45</span>°</span> 
-                    <span>+</span> 
-                    <span class="badge-inc">입사각 <span id="eqInc">45</span>°</span> 
-                    <span>=</span> 
+                    <span class="badge-alt">Alt <span id="eqAlt">45</span>°</span> 
+                    <span style="color:var(--ink-faint);">+</span> 
+                    <span class="badge-inc">Inc <span id="eqInc">45</span>°</span> 
+                    <span style="color:var(--ink-faint);">=</span> 
                     <span>90°</span>
                 </div>
-                <p style="margin:0; font-size:0.9rem; color:var(--text-sub); line-height:1.5;">
-                    고도가 높아질수록 입사각은 작아지며, 이는 단위 면적당 <strong>태양 에너지(일사량) 집중도</strong>가 높아짐을 의미합니다.
+                <p>
+                    고도가 높아질수록 입사각은 작아지며, 이는 단위 면적당 <strong>태양 에너지(일사량)의 집중도</strong>가 높아짐을 의미합니다.
                 </p>
             </div>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
-
         const canvas = document.getElementById('simCanvas'); 
         const ctx = canvas.getContext('2d');
         const slider = document.getElementById('sunSlider'); 
@@ -143,7 +233,8 @@
         const eqAltTxt = document.getElementById('eqAlt'); 
         const eqIncTxt = document.getElementById('eqInc');
         
-        const cx = 300; const cy = 350; const rayLength = 260;
+        // 캔버스 중심점 및 광선 길이 (캔버스 크기 700x450 기준)
+        const cx = 350; const cy = 380; const rayLength = 280;
 
         function drawSimulation() {
             const altitude = parseInt(slider.value, 10); 
@@ -156,105 +247,97 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 지표면 선
-            ctx.beginPath(); ctx.moveTo(40, cy); ctx.lineTo(560, cy); 
-            ctx.lineWidth = 5; ctx.strokeStyle = '#0f172a'; ctx.stroke();
-            ctx.fillStyle = '#0f172a'; ctx.font = 'bold 16px "Pretendard"'; ctx.fillText("지표면", 500, cy + 25);
+            // 지표면 선 (Ground)
+            ctx.beginPath(); ctx.moveTo(60, cy); ctx.lineTo(640, cy); 
+            ctx.lineWidth = 3; ctx.strokeStyle = '#1a1714'; ctx.stroke();
+            ctx.fillStyle = '#4a443c'; ctx.font = '600 14px "Fraunces", serif'; ctx.fillText("GROUND LEVEL", 540, cy + 25);
             
-            // 법선 (수직 점선)
-            ctx.beginPath(); ctx.setLineDash([8, 8]); ctx.moveTo(cx, cy); ctx.lineTo(cx, 50); 
-            ctx.lineWidth = 2; ctx.strokeStyle = '#94a3b8'; ctx.stroke();
-            ctx.setLineDash([]); ctx.fillStyle = '#64748b'; ctx.font = 'bold 14px "Pretendard"'; ctx.fillText("법선 (수직선)", cx - 45, 35);
+            // 법선 (Normal Line - 수직 점선)
+            ctx.beginPath(); ctx.setLineDash([6, 6]); ctx.moveTo(cx, cy); ctx.lineTo(cx, 60); 
+            ctx.lineWidth = 1.5; ctx.strokeStyle = '#8c8479'; ctx.stroke();
+            ctx.setLineDash([]); ctx.fillStyle = '#8c8479'; ctx.font = 'italic 14px "Fraunces", serif'; ctx.fillText("Normal Line (Zenith)", cx - 65, 45);
 
             // 태양광선 벡터 계산
             const radAlt = altitude * (Math.PI / 180);
             const sunX = cx + rayLength * Math.cos(radAlt); 
             const sunY = cy - rayLength * Math.sin(radAlt);
             
-            // 태양광선 그리기
+            // 태양광선 그리기 (Ray)
             ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(sunX, sunY); 
-            ctx.lineWidth = 4; ctx.strokeStyle = '#f59e0b'; ctx.stroke();
+            ctx.lineWidth = 3; ctx.strokeStyle = '#9a7b3f'; ctx.stroke();
             
-            // 화살표 머리 (빛이 들어오는 방향 표시)
-            const headlen = 15;
+            // 화살표 머리 (빛 방향)
+            const headlen = 16;
             const angle = Math.atan2(cy - sunY, cx - sunX);
             ctx.beginPath();
             ctx.moveTo(cx, cy);
-            ctx.lineTo(cx - headlen * Math.cos(angle - Math.PI / 6), cy - headlen * Math.sin(angle - Math.PI / 6));
-            ctx.lineTo(cx - headlen * Math.cos(angle + Math.PI / 6), cy - headlen * Math.sin(angle + Math.PI / 6));
-            ctx.fillStyle = '#f59e0b';
+            ctx.lineTo(cx - headlen * Math.cos(angle - Math.PI / 7), cy - headlen * Math.sin(angle - Math.PI / 7));
+            ctx.lineTo(cx - headlen * Math.cos(angle + Math.PI / 7), cy - headlen * Math.sin(angle + Math.PI / 7));
+            ctx.fillStyle = '#9a7b3f';
             ctx.fill();
 
-            // 태양 이모지
-            ctx.font = '45px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; 
-            ctx.fillText('☀️', sunX + 10, sunY - 10);
+            // 클래식한 태양 심볼 그리기 (이모지 대체)
+            ctx.beginPath(); ctx.arc(sunX, sunY, 14, 0, Math.PI * 2); 
+            ctx.fillStyle = '#f4f0e8'; ctx.fill();
+            ctx.lineWidth = 2.5; ctx.strokeStyle = '#9a7b3f'; ctx.stroke();
+            // 태양 햇살
+            for(let i=0; i<8; i++) {
+                const rayAngle = i * (Math.PI / 4);
+                const r1 = 18; const r2 = 24;
+                ctx.beginPath();
+                ctx.moveTo(sunX + r1 * Math.cos(rayAngle), sunY + r1 * Math.sin(rayAngle));
+                ctx.lineTo(sunX + r2 * Math.cos(rayAngle), sunY + r2 * Math.sin(rayAngle));
+                ctx.stroke();
+            }
 
-            // 고도각 (빨간색 호)
+            // 고도각 (Altitude - Terra Color)
             if (altitude > 0) {
-                ctx.beginPath(); ctx.arc(cx, cy, 100, 0, -radAlt, true); 
-                ctx.lineWidth = 4; ctx.strokeStyle = '#ef4444'; ctx.stroke();
+                ctx.beginPath(); ctx.arc(cx, cy, 110, 0, -radAlt, true); 
+                ctx.lineWidth = 2.5; ctx.strokeStyle = '#b4502e'; ctx.stroke();
                 
                 // 호 내부 반투명 채우기
-                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 100, 0, -radAlt, true); ctx.lineTo(cx, cy);
-                ctx.fillStyle = 'rgba(239, 68, 68, 0.1)'; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 110, 0, -radAlt, true); ctx.lineTo(cx, cy);
+                ctx.fillStyle = 'rgba(180, 80, 46, 0.08)'; ctx.fill();
 
-                const altMidRad = radAlt / 2; ctx.fillStyle = '#dc2626'; ctx.font = 'bold 18px "Pretendard"';
-                ctx.fillText(`고도 ${altitude}°`, cx + 135 * Math.cos(altMidRad), cy - 135 * Math.sin(altMidRad));
+                const altMidRad = radAlt / 2; ctx.fillStyle = '#b4502e'; ctx.font = '500 16px "Fraunces", serif';
+                ctx.fillText(`Alt ${altitude}°`, cx + 130 * Math.cos(altMidRad), cy - 130 * Math.sin(altMidRad) + 5);
             }
             
-            // 입사각 (파란색 호)
+            // 입사각 (Incidence - Sea Color)
             if (incidence > 0) {
-                ctx.beginPath(); ctx.arc(cx, cy, 150, -Math.PI / 2, -radAlt, false); 
-                ctx.lineWidth = 4; ctx.strokeStyle = '#0ea5e9'; ctx.stroke();
+                ctx.beginPath(); ctx.arc(cx, cy, 160, -Math.PI / 2, -radAlt, false); 
+                ctx.lineWidth = 2.5; ctx.strokeStyle = '#2f5d50'; ctx.stroke();
                 
                 // 호 내부 반투명 채우기
-                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 150, -Math.PI / 2, -radAlt, false); ctx.lineTo(cx, cy);
-                ctx.fillStyle = 'rgba(14, 165, 233, 0.1)'; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 160, -Math.PI / 2, -radAlt, false); ctx.lineTo(cx, cy);
+                ctx.fillStyle = 'rgba(47, 93, 80, 0.08)'; ctx.fill();
 
-                const incMidRad = (Math.PI / 2 + radAlt) / 2; ctx.fillStyle = '#0284c7'; ctx.font = 'bold 18px "Pretendard"';
-                ctx.fillText(`입사각 ${incidence}°`, cx + 185 * Math.cos(incMidRad), cy - 185 * Math.sin(incMidRad));
+                const incMidRad = (Math.PI / 2 + radAlt) / 2; ctx.fillStyle = '#2f5d50'; ctx.font = '500 16px "Fraunces", serif';
+                ctx.fillText(`Inc ${incidence}°`, cx + 180 * Math.cos(incMidRad), cy - 180 * Math.sin(incMidRad) + 5);
             }
 
-            // 중심점
-            ctx.beginPath(); ctx.arc(cx, cy, 6, 0, 2 * Math.PI); ctx.fillStyle = '#0f172a'; ctx.fill();
+            // 중심점 (관측자 위치)
+            ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fillStyle = '#1a1714'; ctx.fill();
         }
         
         slider.addEventListener('input', drawSimulation); 
+        // 초기 로딩 시 한 번 그려주기
+        // 폰트(Fraunces)가 로딩된 후 정확한 렌더링을 위해 약간 지연
+        setTimeout(drawSimulation, 100);
         drawSimulation();
     </script>
 <script>
         // 1. 마우스 우클릭 차단
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
         // 2. 텍스트 드래그 및 선택 차단
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-        });
-
+        document.addEventListener('selectstart', function(e) { e.preventDefault(); });
         // 3. F12 및 주요 개발자 도구 단축키 차단
         document.addEventListener('keydown', function(e) {
-            // F12 차단
-            if (e.keyCode === 123) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + I (개발자 도구)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + C (요소 검사)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + J (콘솔)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-            }
-            // Ctrl + U (페이지 소스 보기)
-            if (e.ctrlKey && e.keyCode === 85) {
-                e.preventDefault();
-            }
+            if (e.keyCode === 123) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
+            if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
         });
     </script>
 </body>
