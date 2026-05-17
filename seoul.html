@@ -112,23 +112,24 @@
         .sheet-title { font-family: var(--serif); font-size: 1.7rem; font-weight: 500; letter-spacing: -0.015em; color: var(--ink); margin: 0; }
         .sheet-meta { margin-left: auto; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); align-self: center; }
 
-        /* MAP FRAME */
+        /* ★ MAP FRAME (지도 증발 해결을 위한 CSS 보강) ★ */
         .map-frame {
             flex: 1;
-            min-height: 450px;
+            min-height: 500px; /* 안정적인 최소 높이 보장 */
             border: 1px solid var(--ink);
             position: relative;
             background: var(--paper);
-            padding: 4px; /* inner border feel */
-            box-shadow: inset 0 0 0 1px var(--line), 4px 4px 0 rgba(26,23,20,0.06);
+            box-shadow: 4px 4px 0 rgba(26,23,20,0.06);
             z-index: 10;
         }
         #map {
-            width: 100%;
-            height: 100%;
-            /* 지도를 고지도(Vintage) 느낌으로 변환하는 필터 */
+            /* 부모(.map-frame) 안에 4px 여백을 두고 꽉 차도록 절대 좌표 설정 */
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px; 
+            /* 고지도 필터 */
             filter: sepia(0.4) contrast(0.95) brightness(0.95);
-            background: #fff;
+            background-color: var(--paper);
+            z-index: 1;
         }
 
         /* LEDGER / CONTROL PANEL */
@@ -228,7 +229,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
                         공간적 팽창 기록
                     </h3>
-                    <p id="descArea"><b>서울 집중:</b> 짙은 먹색의 <b>[서울 행정구역]</b> 내부에만 인구와 산업이 과밀화. (집적 불이익 발생)</p>
+                    <p id="descArea"><b>서울의 도시화:</b> <b>[서울 행정구역]</b> 내부에만 인구와 산업이 과밀화. (집적 불이익 발생)</p>
                 </div>
                 <div class="info-card transport">
                     <h3>
@@ -306,23 +307,23 @@
         const textData = {
             1: { 
                 title: "Phase I (1970-80s)", 
-                area: "<b>서울 집중:</b> 짙은 먹색의 <b>[서울 행정구역]</b> 내부에만 인구와 산업이 과밀화. (집적 불이익 발생)", 
+                area: "<b>서울의 도시화:</b> <b>[서울 행정구역]</b> 내부에만 인구와 산업이 과밀화. (집적 불이익 발생)", 
                 trans: "<b>교통 한계:</b> 광역 수송 수단이 부족하여 직장이 있는 서울 내부에서만 거주가 가능했던 시기." 
             },
             2: { 
                 title: "Phase II (1990s)", 
-                area: "<b>1기 신도시 교외화:</b> 딥 그린 <b>[분당, 일산, 평촌 등]</b> 구역이 건설되며 주거지가 서울 외곽으로 팽창.", 
+                area: "<b>1기 신도시 교외화:</b> <b>[분당, 일산, 평촌 등]</b> 구역이 건설되며 주거지가 서울 외곽으로 팽창.", 
                 trans: "<b>광역 전철 개통:</b> 3호선, 4호선, 분당선 등 연장 개통으로 장거리 통근 시대가 시작됨." 
             },
             3: { 
                 title: "Phase III (2000-10s)", 
-                area: "<b>광역화 가속:</b> 올드 골드 <b>[판교, 동탄 등 2·3기 신도시]</b> 조성으로 대도시권이 경기 남북으로 거대하게 확장됨.", 
+                area: "<b>대도시권 성장:</b> <b>[판교, 동탄 등 2·3기 신도시]</b> 조성으로 대도시권이 경기 남북으로 거대하게 확장됨.", 
                 trans: "<b>순환선 및 광역버스:</b> <b>[수도권 제1순환고속도로]</b> 개통 및 M버스 도입으로 거점 간 이동이 활발해짐." 
             },
             4: { 
                 title: "Phase IV (Present)", 
                 area: "<b>대도시권 완성:</b> 서울과 주변 위성도시들이 행정 경계를 완전히 초월하여 하나의 거대 생활권으로 통합.", 
-                trans: "<b>GTX (광역급행철도):</b> 지도에 뻗은 <b>[번트 시에나 등 3색 노선]</b>이 서울 도심 중심부를 30분대에 관통." 
+                trans: "<b>GTX (광역급행철도):</b> 지도에 뻗은 <b>[GTX(광역급행철도)]</b>가 서울 도심 중심부를 30분대에 관통." 
             }
         };
 
@@ -344,6 +345,11 @@
             document.getElementById('stageLabel').innerText = textData[stage].title;
             document.getElementById('descArea').innerHTML = textData[stage].area;
             document.getElementById('descTransport').innerHTML = textData[stage].trans;
+        });
+
+        // 창 크기 변경 시 지도가 깨지지 않도록 재계산
+        window.addEventListener('resize', function() {
+            map.invalidateSize();
         });
     </script>
     <script>
