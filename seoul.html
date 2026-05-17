@@ -1,170 +1,361 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-E1W226W5M4');
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>서울의 대도시권 형성 과정</title>
+    <title>서울 대도시권 팽창 — Geographia Archive</title>
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        body { margin: 0; padding: 0; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; display: flex; flex-direction: column; height: 100vh; background: #f4f6f9; }
-        
-        /* 공통 네비게이션 바 */
-        .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; position: relative; z-index: 2000; flex-shrink: 0; }
-        .logo { font-size: 20px; font-weight: bold; color: #1a73e8; text-decoration: none; }
-        .menu { display: flex; gap: 20px; }
-        .menu a { font-size: 15px; font-weight: 500; color: #5f6368; text-decoration: none; transition: 0.2s; }
-        .menu a:hover { color: #1a73e8; font-weight: bold; }
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
 
-        .header { background: #2c3e50; color: white; padding: 15px 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000; flex-shrink: 0; }
-        .header h1 { margin: 0; font-size: 1.5rem; }
-        .header p { margin: 5px 0 0 0; font-size: 0.9rem; color: #bdc3c7; }
+    <style>
+        /* ============================================================
+           GEOGRAPHIA — Academic Archival Editorial Concept
+        ============================================================ */
+        :root {
+            --ink:        #1a1714;
+            --ink-2:      #4a443c;
+            --ink-3:      #8c8479;
+            --ink-faint:  #b8b0a3;
+
+            --paper:      #f4f0e8;
+            --paper-2:    #efe9dd;
+            --surface:    #fbf9f3;
+
+            --line:       #d8d0c0;
+            --line-soft:  #e6dfd0;
+
+            --terra:      #b4502e;
+            --terra-soft: #f0e0d4;
+            --sea:        #2f5d50;
+            --gold:       #9a7b3f;
+
+            --serif: 'Fraunces', Georgia, serif;
+            --sans:  'Pretendard', -apple-system, sans-serif;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: var(--sans);
+            background-color: var(--paper);
+            margin: 0; padding: 0;
+            color: var(--ink);
+            line-height: 1.62;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+        }
         
-        #map { flex: 1; width: 100%; z-index: 1; }
+        /* Paper Grain Overlay */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.5;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+        body > * { position: relative; z-index: 2; }
+        a { text-decoration: none; color: inherit; }
+
+        /* MASTHEAD */
+        .masthead {
+            background: rgba(244,240,232,0.82);
+            backdrop-filter: blur(14px) saturate(1.2);
+            border-bottom: 1px solid var(--line);
+            position: sticky; top: 0; z-index: 9999;
+            flex-shrink: 0;
+        }
+        .masthead-inner {
+            max-width: 1280px; margin: 0 auto; padding: 0 40px; height: 66px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .brand { display: flex; align-items: center; gap: 13px; }
+        .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+        .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+        .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+        .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+        .nav { display: flex; align-items: center; gap: 2px; }
+        .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
+        .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
+
+        /* LAYOUT WRAPPER */
+        .layout-wrapper {
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            gap: 30px;
+        }
+
+        .sheet-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 10px; }
+        .sheet-num { font-family: var(--serif); font-size: 0.82rem; font-weight: 600; color: var(--terra); letter-spacing: 0.1em; }
+        .sheet-title { font-family: var(--serif); font-size: 1.7rem; font-weight: 500; letter-spacing: -0.015em; color: var(--ink); margin: 0; }
+        .sheet-meta { margin-left: auto; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); align-self: center; }
+
+        /* MAP FRAME */
+        .map-frame {
+            flex: 1;
+            min-height: 450px;
+            border: 1px solid var(--ink);
+            position: relative;
+            background: var(--paper);
+            padding: 4px; /* inner border feel */
+            box-shadow: inset 0 0 0 1px var(--line), 4px 4px 0 rgba(26,23,20,0.06);
+            z-index: 10;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            /* 지도를 고지도(Vintage) 느낌으로 변환하는 필터 */
+            filter: sepia(0.4) contrast(0.95) brightness(0.95);
+            background: #fff;
+        }
+
+        /* LEDGER / CONTROL PANEL */
+        .ledger-panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            padding: 30px 40px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            flex-shrink: 0;
+        }
+        .ledger-panel::before, .ledger-panel::after {
+            content: ''; position: absolute; width: 8px; height: 8px; border-color: var(--ink-faint); opacity: 0.6;
+        }
+        .ledger-panel::before { top: 8px; left: 8px; border-left: 1px solid; border-top: 1px solid; }
+        .ledger-panel::after  { bottom: 8px; right: 8px; border-right: 1px solid; border-bottom: 1px solid; }
+
+        /* SLIDER (Instrument Style) */
+        .slider-wrapper { display: flex; align-items: center; gap: 24px; padding-bottom: 25px; border-bottom: 1px dashed var(--line); }
+        #stageLabel { font-family: var(--serif); font-size: 1.25rem; font-weight: 600; color: var(--ink); min-width: 180px; letter-spacing: -0.01em; }
         
-        .control-panel { background: white; padding: 20px 30px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000; display: flex; flex-direction: column; gap: 15px; flex-shrink: 0; }
-        .slider-wrapper { display: flex; align-items: center; gap: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; }
-        #stageLabel { font-weight: bold; color: #2c3e50; min-width: 150px; font-size: 1.1rem; }
-        input[type=range] { flex: 1; cursor: pointer; }
+        input[type=range] { -webkit-appearance: none; flex: 1; background: transparent; cursor: pointer; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: var(--line); border-radius: 2px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--terra); border: 2px solid var(--surface); margin-top: -7px; box-shadow: 0 2px 6px rgba(26,23,20,0.3); transition: transform 0.1s; }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
         
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .info-card { padding: 15px; border-radius: 8px; border-left: 4px solid #2c3e50; background: #fdfdfd; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
-        .info-card.transport { border-left-color: #e74c3c; }
-        .info-card h3 { margin: 0 0 8px 0; font-size: 1rem; color: #333; }
-        .info-card p { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #555; }
-        
-        @media (max-width: 600px) { .navbar { flex-direction: column; padding: 15px; gap: 10px; } .info-grid { grid-template-columns: 1fr; } .slider-wrapper { flex-direction: column; text-align: center; } }
+        .slider-guide { font-family: var(--serif); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; color: var(--ink-faint); text-transform: uppercase; }
+
+        /* INFO GRID */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        .info-card { display: flex; flex-direction: column; }
+        .info-card h3 { font-family: var(--serif); font-size: 1.1rem; font-weight: 500; color: var(--ink); margin: 0 0 12px 0; border-bottom: 1px solid var(--line-soft); padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .info-card h3 svg { color: var(--terra); width: 18px; height: 18px; }
+        .info-card p { margin: 0; font-size: 0.95rem; line-height: 1.6; color: var(--ink-2); word-break: keep-all; }
+        .info-card b { color: var(--terra); font-weight: 600; }
+
+        @media (max-width: 900px) {
+            .layout-wrapper { padding: 30px 20px; }
+            .info-grid { gap: 20px; }
+            .slider-wrapper { flex-direction: column; align-items: flex-start; gap: 15px; }
+            #stageLabel { min-width: auto; }
+            .slider-guide { display: none; }
+        }
+        @media (max-width: 600px) {
+            .masthead-inner { padding: 0 20px; }
+            .info-grid { grid-template-columns: 1fr; }
+            .map-frame { min-height: 350px; }
+            .sheet-meta { display: none; }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo">🌍 경기여고 통합사회</a>
-        <div class="menu"><a href="index.html">홈</a><a href="qna.html">Q&A 게시판</a></div>
-    </nav>
-
-    <div class="header">
-        <h1>서울의 대도시권 형성 과정</h1>
-        <p>도시화에 따른 서울의 팽창 및 교통망 발전 과정</p>
-    </div>
-
-    <div id="map"></div>
-
-    <div class="control-panel">
-        <div class="slider-wrapper">
-            <span id="stageLabel">1단계 (70~80년대)</span>
-            <input type="range" id="stageSlider" min="1" max="4" value="1" step="1">
-            <span style="font-size:0.9rem; color:#888; font-weight:bold;">진행 과정 ➔</span>
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html">홈</a>
+                <a href="qna.html">Q&amp;A 게시판</a>
+            </nav>
         </div>
-        <div class="info-grid">
-            <div class="info-card">
-                <h3>서울의 확장</h3>
-                <p id="descArea">서울 중심부에만 인구와 일자리가 초과밀 상태. (집적 불이익 발생)</p>
+    </header>
+
+    <div class="layout-wrapper">
+        <div class="sheet-head">
+            <span class="sheet-num">§ Map 01</span>
+            <h2 class="sheet-title">서울 대도시권 팽창 기록</h2>
+            <span class="sheet-meta">Urban Expansion Simulator</span>
+        </div>
+
+        <div class="map-frame">
+            <div id="map"></div>
+        </div>
+
+        <div class="ledger-panel">
+            <div class="slider-wrapper">
+                <span id="stageLabel">Phase I (1970-80s)</span>
+                <input type="range" id="stageSlider" min="1" max="4" value="1" step="1">
+                <span class="slider-guide">Timeline &rarr;</span>
             </div>
-            <div class="info-card transport">
-                <h3>교통망의 발전</h3>
-                <p id="descTransport">대중교통 인프라 부족으로 서울 외부로의 장거리 출퇴근이 사실상 불가능한 시기.</p>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        공간적 팽창 기록
+                    </h3>
+                    <p id="descArea"><b>서울 집중:</b> 짙은 먹색의 <b>[서울 행정구역]</b> 내부에만 인구와 산업이 과밀화. (집적 불이익 발생)</p>
+                </div>
+                <div class="info-card transport">
+                    <h3>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                        교통망 발전 일지
+                    </h3>
+                    <p id="descTransport"><b>교통 한계:</b> 광역 수송 수단이 부족하여 직장이 있는 서울 내부에서만 거주가 가능했던 시기.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const map = L.map('map').setView([37.53, 126.98], 10.5);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap', subdomains: 'abcd', maxZoom: 19 }).addTo(map);
+        // Leaflet Map Initialization
+        const map = L.map('map', { zoomControl: false }).setView([37.53, 126.98], 10.5);
+        L.control.zoom({ position: 'topright' }).addTo(map);
+
+        // Base Map (Light theme, sepia filter applied via CSS)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { 
+            attribution: '&copy; OpenStreetMap', subdomains: 'abcd', maxZoom: 19 
+        }).addTo(map);
         
-        const seoulCoords = [ [37.645, 126.915], [37.655, 126.950], [37.685, 126.995], [37.695, 127.045], [37.675, 127.085], [37.625, 127.095], [37.595, 127.125], [37.565, 127.175], [37.535, 127.145], [37.485, 127.135], [37.465, 127.105], [37.435, 127.055], [37.455, 126.995], [37.435, 126.955], [37.435, 126.915], [37.465, 126.885], [37.485, 126.825], [37.525, 126.825], [37.555, 126.795], [37.585, 126.815], [37.585, 126.865], [37.605, 126.885], [37.625, 126.915] ];
-        const seoulPolygon = L.polygon(seoulCoords, { color: '#2c3e50', fillColor: '#34495e', fillOpacity: 0.65, weight: 2 });
-
-        const nt1_bundang = L.circle([37.38, 127.12], { radius: 3500, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
-        const nt1_ilsan = L.circle([37.66, 126.77], { radius: 3500, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
-        const nt1_pyeongchon = L.circle([37.39, 126.96], { radius: 2500, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
-        const nt1_sanbon = L.circle([37.36, 126.93], { radius: 2000, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
-        const nt1_jungdong = L.circle([37.50, 126.76], { radius: 2500, color: '#2980b9', fillColor: '#3498db', fillOpacity: 0.5 });
-        const stage2_areas = L.layerGroup([nt1_bundang, nt1_ilsan, nt1_pyeongchon, nt1_sanbon, nt1_jungdong]);
-
-        const sub_bundang = L.polyline([[37.52, 127.04], [37.38, 127.12]], { color: '#f1c40f', weight: 4, dashArray: '5, 10' });
-        const sub_ilsan = L.polyline([[37.56, 126.92], [37.66, 126.77]], { color: '#e67e22', weight: 4, dashArray: '5, 10' });
-        const sub_pyeongchon = L.polyline([[37.48, 126.98], [37.39, 126.96]], { color: '#3498db', weight: 4, dashArray: '5, 10' });
-        const stage2_lines = L.layerGroup([sub_bundang, sub_ilsan, sub_pyeongchon]);
-
-        const nt2_dongtan = L.circle([37.20, 127.09], { radius: 4500, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
-        const nt2_pangyo = L.circle([37.40, 127.11], { radius: 3000, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
-        const nt2_gimpo = L.circle([37.64, 126.67], { radius: 3500, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
-        const nt2_gwanggyo = L.circle([37.29, 127.05], { radius: 3000, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
-        const nt2_wirye = L.circle([37.47, 127.14], { radius: 2000, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
-        const nt2_unjeong = L.circle([37.73, 126.74], { radius: 3500, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
-        const nt2_yangju = L.circle([37.82, 127.09], { radius: 3000, color: '#27ae60', fillColor: '#2ecc71', fillOpacity: 0.5 });
-        const stage3_areas = L.layerGroup([nt2_dongtan, nt2_pangyo, nt2_gimpo, nt2_gwanggyo, nt2_wirye, nt2_unjeong, nt2_yangju]);
-
-        const highway = L.polyline([[37.68, 126.75], [37.74, 127.05], [37.58, 127.17], [37.40, 127.10], [37.38, 126.90], [37.45, 126.75], [37.55, 126.74], [37.68, 126.75]], { color: '#8e44ad', weight: 4, opacity: 0.7 });
-        const stage3_lines = L.layerGroup([highway]);
-
-        const gtx_a = L.polyline([[37.73, 126.74], [37.61, 126.92], [37.55, 126.97], [37.48, 127.10], [37.20, 127.09]], { color: '#e74c3c', weight: 6, opacity: 0.9 });
-        const gtx_b = L.polyline([[37.38, 126.64], [37.52, 126.92], [37.55, 126.97], [37.58, 127.04], [37.65, 127.30]], { color: '#3498db', weight: 6, opacity: 0.9 });
-        const gtx_c = L.polyline([[37.84, 127.06], [37.63, 127.05], [37.58, 127.04], [37.51, 127.06], [37.26, 127.00]], { color: '#27ae60', weight: 6, opacity: 0.9 });
-        const stage4_lines = L.layerGroup([gtx_a, gtx_b, gtx_c]);
-
-        seoulPolygon.addTo(map);
-
-        const textData = {
-            1: { title: "1단계 (70~80년대)", area: "<b>서울 집중:</b> 짙은 남색의 <b>[서울 경계]</b> 안에만 인구와 산업 과밀화. (집적 불이익)", trans: "<b>교통 한계:</b> 광역 수송 수단이 거의 없어 직장이 있는 서울 안에서만 거주." },
-            2: { title: "2단계 (90년대)", area: "<b>1기 신도시 교외화:</b> 파란 원 <b>[분당, 일산, 평촌 등]</b>이 건설되며 주거지가 서울 밖으로 팽창.", trans: "<b>광역 전철 개통:</b> 3, 4호선, 분당선 등 연장으로 장거리 통근 시대 시작." },
-            3: { title: "3단계 (00~10년대)", area: "<b>광역화:</b> 초록 원 <b>[판교, 동탄 등 2·3기 신도시]</b> 조성으로 대도시권이 경기 남북으로 확장.", trans: "<b>순환고속도로와 버스:</b> 보라색 <b>[수도권 제1순환선]</b> 개통 및 M버스로 광역 이동 활발." },
-            4: { title: "4단계 (현재~미래)", area: "<b>대도시권 완성:</b> 서울과 주변 도시들이 행정 경계를 초월해 하나의 거대 생활권 통합.", trans: "<b>GTX (수도권 광역급행철도):</b> 지도에 뻗은 <b>A, B, C 노선</b>이 서울 도심까지 30분대 관통." }
+        // Thematic Colors (Archival Ink, Terra, Sea, Gold)
+        const colors = {
+            seoulBase: '#4a443c',   // ink-2
+            phase2Area: '#2f5d50',  // sea
+            phase2Line: '#8c8479',  // ink-3
+            phase3Area: '#9a7b3f',  // gold
+            phase3Line: '#1a1714',  // ink
+            gtxA: '#b4502e',        // terra
+            gtxB: '#2f5d50',        // sea
+            gtxC: '#9a7b3f'         // gold
         };
 
+        // 1. Seoul Boundary
+        const seoulCoords = [ [37.645, 126.915], [37.655, 126.950], [37.685, 126.995], [37.695, 127.045], [37.675, 127.085], [37.625, 127.095], [37.595, 127.125], [37.565, 127.175], [37.535, 127.145], [37.485, 127.135], [37.465, 127.105], [37.435, 127.055], [37.455, 126.995], [37.435, 126.955], [37.435, 126.915], [37.465, 126.885], [37.485, 126.825], [37.525, 126.825], [37.555, 126.795], [37.585, 126.815], [37.585, 126.865], [37.605, 126.885], [37.625, 126.915] ];
+        const seoulPolygon = L.polygon(seoulCoords, { color: colors.seoulBase, fillColor: colors.seoulBase, fillOpacity: 0.45, weight: 2 });
+
+        // 2. Phase 2 (1st Gen New Towns)
+        const nt1_bundang = L.circle([37.38, 127.12], { radius: 3500, color: colors.phase2Area, fillColor: colors.phase2Area, fillOpacity: 0.4 });
+        const nt1_ilsan = L.circle([37.66, 126.77], { radius: 3500, color: colors.phase2Area, fillColor: colors.phase2Area, fillOpacity: 0.4 });
+        const nt1_pyeongchon = L.circle([37.39, 126.96], { radius: 2500, color: colors.phase2Area, fillColor: colors.phase2Area, fillOpacity: 0.4 });
+        const nt1_sanbon = L.circle([37.36, 126.93], { radius: 2000, color: colors.phase2Area, fillColor: colors.phase2Area, fillOpacity: 0.4 });
+        const nt1_jungdong = L.circle([37.50, 126.76], { radius: 2500, color: colors.phase2Area, fillColor: colors.phase2Area, fillOpacity: 0.4 });
+        const stage2_areas = L.layerGroup([nt1_bundang, nt1_ilsan, nt1_pyeongchon, nt1_sanbon, nt1_jungdong]);
+
+        const sub_bundang = L.polyline([[37.52, 127.04], [37.38, 127.12]], { color: colors.phase2Line, weight: 3, dashArray: '4, 8' });
+        const sub_ilsan = L.polyline([[37.56, 126.92], [37.66, 126.77]], { color: colors.phase2Line, weight: 3, dashArray: '4, 8' });
+        const sub_pyeongchon = L.polyline([[37.48, 126.98], [37.39, 126.96]], { color: colors.phase2Line, weight: 3, dashArray: '4, 8' });
+        const stage2_lines = L.layerGroup([sub_bundang, sub_ilsan, sub_pyeongchon]);
+
+        // 3. Phase 3 (2nd/3rd Gen New Towns & Ring Expressway)
+        const nt2_dongtan = L.circle([37.20, 127.09], { radius: 4500, color: colors.phase3Area, fillColor: colors.phase3Area, fillOpacity: 0.4 });
+        const nt2_pangyo = L.circle([37.40, 127.11], { radius: 3000, color: colors.phase3Area, fillColor: colors.phase3Area, fillOpacity: 0.4 });
+        const nt2_gimpo = L.circle([37.64, 126.67], { radius: 3500, color: colors.phase3Area, fillColor: colors.phase3Area, fillOpacity: 0.4 });
+        const nt2_gwanggyo = L.circle([37.29, 127.05], { radius: 3000, color: colors.phase3Area, fillColor: colors.phase3Area, fillOpacity: 0.4 });
+        const nt2_wirye = L.circle([37.47, 127.14], { radius: 2000, color: colors.phase3Area, fillColor: colors.phase3Area, fillOpacity: 0.4 });
+        const nt2_unjeong = L.circle([37.73, 126.74], { radius: 3500, color: colors.phase3Area, fillColor: colors.phase3Area, fillOpacity: 0.4 });
+        const nt2_yangju = L.circle([37.82, 127.09], { radius: 3000, color: colors.phase3Area, fillColor: colors.phase3Area, fillOpacity: 0.4 });
+        const stage3_areas = L.layerGroup([nt2_dongtan, nt2_pangyo, nt2_gimpo, nt2_gwanggyo, nt2_wirye, nt2_unjeong, nt2_yangju]);
+
+        const highway = L.polyline([[37.68, 126.75], [37.74, 127.05], [37.58, 127.17], [37.40, 127.10], [37.38, 126.90], [37.45, 126.75], [37.55, 126.74], [37.68, 126.75]], { color: colors.phase3Line, weight: 3, opacity: 0.6, dashArray: '6, 6' });
+        const stage3_lines = L.layerGroup([highway]);
+
+        // 4. Phase 4 (GTX Lines)
+        const gtx_a = L.polyline([[37.73, 126.74], [37.61, 126.92], [37.55, 126.97], [37.48, 127.10], [37.20, 127.09]], { color: colors.gtxA, weight: 5, opacity: 0.85 });
+        const gtx_b = L.polyline([[37.38, 126.64], [37.52, 126.92], [37.55, 126.97], [37.58, 127.04], [37.65, 127.30]], { color: colors.gtxB, weight: 5, opacity: 0.85 });
+        const gtx_c = L.polyline([[37.84, 127.06], [37.63, 127.05], [37.58, 127.04], [37.51, 127.06], [37.26, 127.00]], { color: colors.gtxC, weight: 5, opacity: 0.85 });
+        const stage4_lines = L.layerGroup([gtx_a, gtx_b, gtx_c]);
+
+        // Init Map
+        seoulPolygon.addTo(map);
+
+        // Ledger Text Data
+        const textData = {
+            1: { 
+                title: "Phase I (1970-80s)", 
+                area: "<b>서울 집중:</b> 짙은 먹색의 <b>[서울 행정구역]</b> 내부에만 인구와 산업이 과밀화. (집적 불이익 발생)", 
+                trans: "<b>교통 한계:</b> 광역 수송 수단이 부족하여 직장이 있는 서울 내부에서만 거주가 가능했던 시기." 
+            },
+            2: { 
+                title: "Phase II (1990s)", 
+                area: "<b>1기 신도시 교외화:</b> 딥 그린 <b>[분당, 일산, 평촌 등]</b> 구역이 건설되며 주거지가 서울 외곽으로 팽창.", 
+                trans: "<b>광역 전철 개통:</b> 3호선, 4호선, 분당선 등 연장 개통으로 장거리 통근 시대가 시작됨." 
+            },
+            3: { 
+                title: "Phase III (2000-10s)", 
+                area: "<b>광역화 가속:</b> 올드 골드 <b>[판교, 동탄 등 2·3기 신도시]</b> 조성으로 대도시권이 경기 남북으로 거대하게 확장됨.", 
+                trans: "<b>순환선 및 광역버스:</b> <b>[수도권 제1순환고속도로]</b> 개통 및 M버스 도입으로 거점 간 이동이 활발해짐." 
+            },
+            4: { 
+                title: "Phase IV (Present)", 
+                area: "<b>대도시권 완성:</b> 서울과 주변 위성도시들이 행정 경계를 완전히 초월하여 하나의 거대 생활권으로 통합.", 
+                trans: "<b>GTX (광역급행철도):</b> 지도에 뻗은 <b>[번트 시에나 등 3색 노선]</b>이 서울 도심 중심부를 30분대에 관통." 
+            }
+        };
+
+        // Slider Event Listener
         document.getElementById('stageSlider').addEventListener('input', function() {
             const stage = parseInt(this.value);
-            map.removeLayer(stage2_areas); map.removeLayer(stage2_lines); map.removeLayer(stage3_areas); map.removeLayer(stage3_lines); map.removeLayer(stage4_lines);
+            
+            // Reset Layers
+            map.removeLayer(stage2_areas); map.removeLayer(stage2_lines); 
+            map.removeLayer(stage3_areas); map.removeLayer(stage3_lines); 
+            map.removeLayer(stage4_lines);
+            
+            // Add Layers conditionally
             if (stage >= 2) { stage2_areas.addTo(map); stage2_lines.addTo(map); }
             if (stage >= 3) { stage3_areas.addTo(map); stage3_lines.addTo(map); }
             if (stage === 4) { stage4_lines.addTo(map); }
+            
+            // Update Text
             document.getElementById('stageLabel').innerText = textData[stage].title;
             document.getElementById('descArea').innerHTML = textData[stage].area;
             document.getElementById('descTransport').innerHTML = textData[stage].trans;
         });
     </script>
-<script>
-        // 1. 마우스 우클릭 차단
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        // 2. 텍스트 드래그 및 선택 차단
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-        });
-
-        // 3. F12 및 주요 개발자 도구 단축키 차단
+    <script>
+        // 우클릭, 드래그, 개발자 도구 차단 로직
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+        document.addEventListener('selectstart', function(e) { e.preventDefault(); });
         document.addEventListener('keydown', function(e) {
-            // F12 차단
-            if (e.keyCode === 123) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + I (개발자 도구)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + C (요소 검사)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + J (콘솔)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-            }
-            // Ctrl + U (페이지 소스 보기)
-            if (e.ctrlKey && e.keyCode === 85) {
-                e.preventDefault();
-            }
+            if (e.keyCode === 123) e.preventDefault();
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) e.preventDefault();
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) e.preventDefault();
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) e.preventDefault();
+            if (e.ctrlKey && e.keyCode === 85) e.preventDefault();
         });
     </script>
 </body>
