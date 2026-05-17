@@ -425,7 +425,29 @@
                     time: getCurrentTime(), 
                     timestamp: Date.now() 
                 });
-
+                const webhookUrl = "https://discord.com/api/webhooks/1493465601987969034/Lux3bUtb4jLaBt8yldAezz3Rausg7oJ0IaP4V597fla25z8cwsInZ7kMQPxi4pRlDKhM";
+                
+                if (webhookUrl !== "https://discord.com/api/webhooks/1493465601987969034/Lux3bUtb4jLaBt8yldAezz3Rausg7oJ0IaP4V597fla25z8cwsInZ7kMQPxi4pRlDKhM") {
+                    const message = {
+                        embeds: [{
+                            title: `🔔 [새로운 게시글] ${title}`,
+                            description: text.length > 100 ? text.substring(0, 100) + "..." : text,
+                            color: 2451163, // 테마 색상 (QnA: 파란색)
+                            fields: [
+                                { name: "작성자", value: author, inline: true },
+                                { name: "비밀글", value: isSecret ? "🔒 예" : "🔓 아니오", inline: true }
+                            ],
+                            timestamp: new Date().toISOString()
+                        }]
+                    };
+                    
+                    // 알람 전송 (await를 생략하여 학생 화면의 글 등록 속도를 지연시키지 않음)
+                    fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(message)
+                    }).catch(err => console.error("디스코드 전송 실패:", err));
+                }
                 // 초기화
                 document.getElementById('titleInput').value = '';
                 document.getElementById('questionInput').value = '';
