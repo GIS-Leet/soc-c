@@ -49,86 +49,100 @@
     .card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
 
     .admin-header-row { display: flex; justify-content: flex-end; width: 100%; position: relative; margin-bottom: -10px; }
+    #adminBtn { padding: 8px 16px; font-size<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-E1W226W5M4');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>통합사회 C QnA</title>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+    :root {
+        --primary: #2563eb; --primary-light: #eff6ff; --text-main: #0f172a; --text-sub: #64748b;
+        --bg-color: #f8fafc; --card-bg: #ffffff; --radius: 16px; --border-color: rgba(0,0,0,0.06);
+    }
+    body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+    
+    .navbar { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid var(--border-color); }
+    .logo { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px; color: var(--text-main); }
+    .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+    .logo-icon i { width: 18px; height: 18px; stroke-width: 2.5px; }
+    .menu { display: flex; gap: 24px; }
+    .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: all 0.2s ease; }
+    .menu a:hover, .menu a.active { background: var(--primary-light); color: var(--primary); }
+
+    .qna-wrapper { padding: 40px 20px 80px; }
+    .qna-container { max-width: 800px; margin: 0 auto; box-sizing: border-box; position: relative; display: flex; flex-direction: column; gap: 20px; }
+    .card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
+
+    .admin-header-row { display: flex; justify-content: flex-end; width: 100%; position: relative; margin-bottom: -10px; }
     #adminBtn { padding: 8px 16px; font-size: 0.85rem; cursor: pointer; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; align-items: center; gap: 6px; color: var(--text-sub); font-weight: 600; font-family: inherit; }
-    #adminBtn i { width: 14px; height: 14px; }
     #adminBtn:hover { background: #f1f5f9; color: var(--text-main); }
     #adminBtn.active { background: var(--primary-light); color: var(--primary); border-color: #bfdbfe; }
-    
     .admin-login-box { display: none; position: absolute; top: 40px; right: 0; background: #fff; border: 1px solid var(--border-color); padding: 12px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 50; }
     .admin-login-box input { width: 140px; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 8px; outline: none; font-family: inherit; }
     .admin-login-box button { padding: 8px 12px; font-size: 0.9rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: inherit; margin-left: 5px; }
 
-    .notice-box { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0; padding: 24px 30px; }
-    .notice-box h2 { margin: 0 0 12px 0; color: #166534; font-size: 1.25rem; display: flex; align-items: center; gap: 8px; letter-spacing: -0.5px; }
-    .notice-box h2 i { width: 22px; height: 22px; }
-    .notice-box ol { margin: 0; padding-left: 22px; color: #15803d; line-height: 1.7; font-size: 0.95rem; }
-
-    /* 새 글 쓰기 폼 */
     .write-box { display: flex; flex-direction: column; gap: 12px; }
     .write-box input[type="text"], .write-box input[type="password"], .write-box textarea { width: 100%; padding: 14px 16px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.95rem; outline: none; box-sizing: border-box; font-family: inherit; transition: border-color 0.2s; background: #f8fafc; }
     .write-box input:focus, .write-box textarea:focus { border-color: var(--primary); background: #ffffff; box-shadow: 0 0 0 3px var(--primary-light); }
     .write-title-input { font-weight: 700; font-size: 1.1rem !important; color: var(--text-main); }
     
-    /* ★ 수정된 부분: 닉네임과 비밀번호 칸 50:50 분할 ★ */
     .write-header { display: flex; gap: 12px; width: 100%; }
     #authorInput { flex: 1; width: 100%; }
     .write-options { display: flex; gap: 12px; align-items: center; flex: 1; width: 100%; }
     #pwInput { flex: 1; width: 100%; }
-
     .secret-label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; font-weight: 600; cursor: pointer; color: var(--text-sub); white-space: nowrap; padding: 0 14px; user-select: none; background: #f1f5f9; border-radius: 8px; height: 100%; box-sizing: border-box; transition: 0.2s; border: 1px solid transparent; }
     .secret-label:hover { background: #e2e8f0; color: var(--text-main); border-color: #cbd5e1; }
-    .secret-label input { width: 16px; height: 16px; cursor: pointer; margin: 0; }
-    
     .write-box textarea { height: 100px; resize: none; }
     
-    /* ★ 사진 첨부 UI 관련 스타일 ★ */
     .write-actions-row { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
     .attach-btn { background: #f1f5f9; color: var(--text-main); border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; font-family: inherit; }
     .attach-btn:hover { background: #e2e8f0; }
     .submit-btn { background-color: var(--text-main); color: white; border: none; border-radius: 12px; padding: 12px 28px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: background 0.2s; font-family: inherit; display: flex; align-items: center; gap: 8px; }
     .submit-btn:hover { background-color: #334155; }
-    .submit-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
-
+    
     .image-preview-wrapper { display: none; position: relative; margin-top: 10px; border-radius: 12px; overflow: hidden; width: max-content; border: 1px solid var(--border-color); }
     .image-preview-wrapper img { max-height: 200px; display: block; }
     .image-remove-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .image-remove-btn:hover { background: rgba(220, 38, 38, 0.9); }
 
-    /* 게시판 리스트 및 본문 */
     .board-wrapper { padding: 0; overflow: hidden; }
     .board-header { display: flex; padding: 16px 24px; background: #f8fafc; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; font-weight: 700; color: var(--text-sub); }
     .board-header .col-title { flex: 1; text-align: center; }
     .board-header .col-author { width: 90px; text-align: center; }
     .board-header .col-time { width: 120px; text-align: center; }
-
     .board-list { list-style: none; padding: 0; margin: 0; }
     .board-item { border-bottom: 1px solid var(--border-color); }
-    .board-item:last-child { border-bottom: none; }
-    
     .item-row { display: flex; padding: 18px 24px; align-items: center; cursor: pointer; transition: 0.2s; }
     .item-row:hover { background-color: #f8fafc; }
-    
     .item-title-wrapper { flex: 1; display: flex; align-items: center; gap: 8px; overflow: hidden; padding-right: 15px; }
     .item-title { font-size: 1rem; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
     .reply-count { font-size: 0.85rem; font-weight: 700; color: var(--primary); flex-shrink: 0; background: var(--primary-light); padding: 2px 8px; border-radius: 20px; }
-    
     .item-author { width: 90px; font-size: 0.9rem; color: var(--text-sub); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
     .item-time { width: 120px; font-size: 0.85rem; color: #94a3b8; text-align: center; white-space: nowrap; }
 
     .item-content { display: none; background: #fcfcfd; border-top: 1px dashed var(--border-color); position: relative; box-shadow: inset 0 4px 6px -4px rgba(0,0,0,0.02); }
     .post-actions-inline { position: absolute; top: 20px; right: 24px; display: flex; gap: 8px; z-index: 5; }
     .action-btn { background: #ffffff; border: 1px solid #cbd5e1; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); cursor: pointer; padding: 6px 12px; border-radius: 8px; transition: 0.2s; font-family: inherit; }
-    .action-btn:hover { background-color: #f1f5f9; color: var(--text-main); }
-    .action-btn.delete:hover { background-color: #fef2f2; border-color: #fca5a5; color: #dc2626; }
-    
     .post-body { padding: 40px 30px 30px; font-size: 0.95rem; color: #334155; line-height: 1.7; white-space: pre-wrap; word-break: break-all; }
-    .post-image { max-width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid var(--border-color); display: block; } /* ★ 게시글 내 첨부사진 스타일 */
+    .post-image { max-width: 100%; border-radius: 12px; margin-top: 15px; border: 1px solid var(--border-color); display: block; }
 
-    /* 댓글 영역 */
     .comment-section { background-color: #ffffff; padding: 24px 30px; border-top: 1px solid var(--border-color); }
     .comment-header { font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
     .comment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
-    .comment-item { display: flex; gap: 12px; width: 100%; box-sizing: border-box; }
+    .comment-item { display: flex; gap: 12px; width: 100%; box-sizing: border-box; flex-direction: column; }
+    .comment-main-row { display: flex; gap: 12px; width: 100%; }
     .comment-profile { width: 36px; height: 36px; background: var(--primary-light); color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: bold; }
     .comment-content { background: #f8fafc; padding: 16px; border-radius: 16px; border-top-left-radius: 4px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box; }
     .comment-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
@@ -138,9 +152,30 @@
     .comment-time { font-size: 0.8rem; color: #94a3b8; }
     .reply-actions { display: none; gap: 6px; }
     
-    .reply-input-group { display: none; margin-top: 20px; gap: 10px; align-items: stretch; }
-    .reply-input-group textarea { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.9rem; resize: none; outline: none; height: 45px; box-sizing: border-box; font-family: inherit; }
-    .reply-input-group button { background-color: var(--primary); color: white; border: none; border-radius: 12px; padding: 0 20px; font-weight: bold; cursor: pointer; white-space: nowrap; font-family: inherit; transition: 0.2s; }
+    .reply-input-group { display: none; margin-top: 20px; gap: 10px; align-items: flex-start; }
+    .reply-input-group textarea { flex: 1; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.9rem; resize: none; outline: none; height: 50px; box-sizing: border-box; font-family: inherit; }
+    .reply-input-group button { background-color: var(--primary); color: white; border: none; border-radius: 12px; padding: 14px 20px; font-weight: bold; cursor: pointer; white-space: nowrap; font-family: inherit; }
+
+    .sub-comment-list { list-style: none; padding-left: 30px; margin-top: 8px; display: flex; flex-direction: column; gap: 8px; border-left: 2px solid #e2e8f0; margin-left: 18px; }
+    .sub-comment-item { display: flex; gap: 10px; }
+    .sub-comment-profile { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold; flex-shrink: 0; }
+    .sub-comment-content { background: #f1f5f9; padding: 12px; border-radius: 12px; border-top-left-radius: 4px; width: 100%; box-sizing: border-box; font-size: 0.9rem; border: 1px solid transparent; }
+    .student-badge { font-size: 0.7rem; font-weight: 700; background: #cbd5e1; color: #334155; padding: 2px 6px; border-radius: 4px; }
+    
+    .sub-reply-toggle-btn { background: none; border: none; color: var(--text-sub); font-size: 0.85rem; font-weight: 600; cursor: pointer; padding: 4px 0; margin-top: 8px; display: inline-flex; align-items: center; gap: 4px; font-family: inherit; transition: 0.2s; }
+    .sub-reply-toggle-btn:hover { color: var(--primary); }
+    
+    .sub-reply-input-box { display: none; margin-top: 10px; margin-left: 48px; background: #ffffff; padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+    .sub-reply-input-box input.author-in { width: 120px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.85rem; margin-bottom: 8px; outline: none; font-family: inherit; background: #f8fafc; }
+    .sub-reply-input-box textarea { width: 100%; height: 60px; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; resize: none; outline: none; box-sizing: border-box; font-family: inherit; background: #f8fafc; }
+    .sub-reply-input-box input:focus, .sub-reply-input-box textarea:focus { border-color: var(--primary); background: #ffffff; }
+    .sub-reply-input-box .submit-btn-small { background: var(--text-main); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: inherit; transition: 0.2s; }
+    .sub-reply-input-box .submit-btn-small:hover { background: #334155; }
+
+    /* 작은 이미지 썸네일 미리보기 컨테이너 (댓글/대댓글용) */
+    .mini-preview-container { display: none; position: relative; margin-top: 8px; width: max-content; }
+    .mini-preview-container img { max-height: 80px; border-radius: 8px; border: 1px solid var(--border-color); }
+    .mini-preview-container .remove-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
     /* 커스텀 모달 */
     .custom-modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; }
@@ -158,17 +193,14 @@
         .navbar { padding: 16px 20px; }
         .qna-wrapper { padding: 20px 15px; }
         .write-header { flex-direction: column; gap: 12px; }
-        .write-header > input, .write-options { width: 100%; }
-        .write-actions-row { flex-direction: column; gap: 10px; align-items: stretch; }
         .board-header { display: none; }
         .item-row { flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px; }
         .item-title-wrapper { width: 100%; padding-right: 0; }
-        .item-meta-mobile { display: flex; gap: 10px; align-items: center; width: 100%; }
         .item-author, .item-time { width: auto; text-align: left; display: inline-block; font-size: 0.85rem; color: #94a3b8; }
-        .item-meta-mobile .item-author::after { content: "•"; margin-left: 10px; color: #cbd5e1; }
-        .post-body { padding: 45px 20px 20px; }
-        .comment-section { padding: 20px; }
-        .post-actions-inline { top: 15px; right: 15px; }
+        .sub-reply-input-box { margin-left: 10px; }
+        .sub-comment-list { margin-left: 5px; padding-left: 15px; }
+        .reply-input-group { flex-direction: column; }
+        .reply-input-group button { width: 100%; }
     }
 </style>
 </head>
@@ -177,7 +209,7 @@
     <nav class="navbar">
         <a href="index.html" class="logo">
             <div class="logo-icon"><i data-lucide="globe"></i></div>
-            Society - C - Geography
+            Mundus Geographia Transfiguratus
         </a>
         <div class="menu">
             <a href="index.html">홈</a>
@@ -197,22 +229,11 @@
                     </div>
                 </div>
             </div>
-
-            <div class="card notice-box">
-                <h2><i data-lucide="bell-ring"></i> 통합사회 C 질문 아카이브</h2>
-                <ol>
-                    <li>이곳은 공식 질문 아카이브(수행평가용)와 <b>별개로 운영되는 QnA</b>입니다.</li>
-                    <li>답변 속도는 상황에 따라 다를 수 있습니다.</li>
-                    <li>공공의 이익을 위해 비공개글은 가급적 지양해 주세요.</li>
-                    <li>급한 질문은 교무실로 찾아오시면 빠릅니다(8:00 ~ 16:00).</li>
-                    <li>사진 자료를 첨부하여 질문할 수 있습니다.</li>
-                </ol>
-            </div>
             
             <div class="card write-box">
-                <input type="text" id="titleInput" class="write-title-input" placeholder="게시글 제목을 입력하세요" maxlength="50">
+                <input type="text" id="titleInput" class="write-title-input" placeholder="질문 제목을 입력하세요" maxlength="50">
                 <div class="write-header">
-                    <input type="text" id="authorInput" placeholder="닉네임 (선택)" maxlength="10">
+                    <input type="text" id="authorInput" placeholder="학번 및 이름" maxlength="10">
                     <div class="write-options">
                         <input type="password" id="pwInput" placeholder="비밀번호 (수정/삭제용)" maxlength="20">
                         <label class="secret-label">
@@ -221,24 +242,23 @@
                         </label>
                     </div>
                 </div>
-                <textarea id="questionInput" placeholder="궁금한 내용이나 학습지 번호를 자유롭게 작성해주세요..."></textarea>
+                <textarea id="questionInput" placeholder="궁금한 내용을 자유롭게 작성해주세요."></textarea>
                 
                 <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
-                
                 <div id="imagePreviewContainer" class="image-preview-wrapper">
                     <img id="imagePreview" src="">
                     <button class="image-remove-btn" onclick="removeSelectedImage()"><i data-lucide="x" style="width:16px; height:16px;"></i></button>
                 </div>
 
                 <div class="write-actions-row">
-                    <button class="attach-btn" onclick="document.getElementById('imageInput').click()"><i data-lucide="camera"></i> 사진 첨부하기</button>
+                    <button class="attach-btn" onclick="document.getElementById('imageInput').click()"><i data-lucide="camera"></i> 사진 첨부</button>
                     <button class="submit-btn" id="submitBtn" onclick="window.addQuestion()"><i data-lucide="send"></i> 게시글 등록</button>
                 </div>
             </div>
 
             <div class="card board-wrapper">
                 <div class="board-header">
-                    <div class="col-title">게시글 제목</div>
+                    <div class="col-title">제목</div>
                     <div class="col-author">작성자</div>
                     <div class="col-time">작성일</div>
                 </div>
@@ -259,11 +279,9 @@
         </div>
     </div>
 
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref as dbRef, push, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-        // ★ 파이어베이스 스토리지 도구 추가 로드
         import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -279,489 +297,368 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const storage = getStorage(app); // 스토리지 초기화
+        const storage = getStorage(app); 
         const questionsRef = dbRef(db, 'questions');
 
         const ADMIN_PW = "tkdkxkd1~"; 
         let isAdmin = false;
-        let selectedImageFile = null; // 사용자가 선택한 이미지 파일 저장용
+        let selectedImageFile = null; 
 
         function escapeHTML(str) {
             if (!str) return '';
             return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
         }
 
-        // 이미지 선택 및 미리보기 처리
+        // --- 사진 미리보기 공용 함수 ---
         window.handleImageSelection = function(event) {
             const file = event.target.files[0];
             if (file) {
-                if(file.size > 5 * 1024 * 1024) { // 5MB 제한
-                    window.AppModal.show({type: 'alert', msg: '사진 용량은 5MB를 초과할 수 없습니다.'});
-                    return;
-                }
+                if(file.size > 5 * 1024 * 1024) { window.AppModal.show({type: 'alert', msg: '사진 용량은 5MB를 초과할 수 없습니다.'}); return; }
                 selectedImageFile = file;
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('imagePreview').src = e.target.result;
-                    document.getElementById('imagePreviewContainer').style.display = 'block';
-                };
+                reader.onload = function(e) { document.getElementById('imagePreview').src = e.target.result; document.getElementById('imagePreviewContainer').style.display = 'block'; };
                 reader.readAsDataURL(file);
             }
         };
+        window.removeSelectedImage = function() { selectedImageFile = null; document.getElementById('imageInput').value = ''; document.getElementById('imagePreviewContainer').style.display = 'none'; document.getElementById('imagePreview').src = ''; };
 
-        window.removeSelectedImage = function() {
-            selectedImageFile = null;
-            document.getElementById('imageInput').value = '';
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            document.getElementById('imagePreview').src = '';
+        // 댓글 & 대댓글 전용 동적 사진 미리보기 함수
+        window.previewDynamicImage = function(input, previewImgId, containerId) {
+            if(input.files && input.files[0]) {
+                if(input.files[0].size > 5 * 1024 * 1024) { window.AppModal.show({type: 'alert', msg: '용량은 5MB 이하로 올려주세요.'}); input.value=''; return; }
+                const reader = new FileReader();
+                reader.onload = function(e) { document.getElementById(previewImgId).src = e.target.result; document.getElementById(containerId).style.display = 'block'; };
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+        window.removeDynamicImage = function(inputId, previewImgId, containerId) {
+            document.getElementById(inputId).value = ''; document.getElementById(previewImgId).src = ''; document.getElementById(containerId).style.display = 'none';
         };
 
+        // --- 모달 & 관리자 로직 ---
         window.AppModal = {
-            overlay: document.getElementById('customModal'),
-            title: document.getElementById('modalTitle'),
-            msg: document.getElementById('modalMessage'),
-            input: document.getElementById('modalInput'),
-            cancelBtn: document.getElementById('modalCancelBtn'),
-            confirmBtn: document.getElementById('modalConfirmBtn'),
-            callback: null,
-            show(options, callback) {
-                this.callback = callback;
-                this.title.innerHTML = `<i data-lucide="alert-circle" style="color:var(--primary);"></i> ${options.title || '알림'}`;
-                this.msg.innerText = options.msg || '';
-                this.input.value = '';
-                this.confirmBtn.innerText = options.confirmText || '확인';
-                this.confirmBtn.className = 'confirm' + (options.confirmText === '삭제' ? ' danger' : '');
-                this.input.style.display = options.type === 'prompt' ? 'block' : 'none';
-                this.cancelBtn.style.display = options.type === 'alert' ? 'none' : 'inline-block';
-                this.overlay.style.display = 'flex';
-                lucide.createIcons();
-                if(options.type === 'prompt') setTimeout(() => this.input.focus(), 100);
-            },
-            close() { this.overlay.style.display = 'none'; },
-            submit() { this.close(); if (this.callback) this.callback(this.input.style.display === 'block' ? this.input.value : true); },
-            cancel() { this.close(); if (this.callback) this.callback(null); }
+            overlay: document.getElementById('customModal'), title: document.getElementById('modalTitle'), msg: document.getElementById('modalMessage'), input: document.getElementById('modalInput'), cancelBtn: document.getElementById('modalCancelBtn'), confirmBtn: document.getElementById('modalConfirmBtn'), callback: null,
+            show(options, callback) { this.callback = callback; this.title.innerHTML = `<i data-lucide="alert-circle" style="color:var(--primary);"></i> ${options.title || '알림'}`; this.msg.innerText = options.msg || ''; this.input.value = ''; this.confirmBtn.innerText = options.confirmText || '확인'; this.confirmBtn.className = 'confirm' + (options.confirmText === '삭제' ? ' danger' : ''); this.input.style.display = options.type === 'prompt' ? 'block' : 'none'; this.cancelBtn.style.display = options.type === 'alert' ? 'none' : 'inline-block'; this.overlay.style.display = 'flex'; lucide.createIcons(); if(options.type === 'prompt') setTimeout(() => this.input.focus(), 100); },
+            close() { this.overlay.style.display = 'none'; }, submit() { this.close(); if (this.callback) this.callback(this.input.style.display === 'block' ? this.input.value : true); }, cancel() { this.close(); if (this.callback) this.callback(null); }
         };
-
         document.getElementById('modalConfirmBtn').onclick = () => window.AppModal.submit();
         document.getElementById('modalCancelBtn').onclick = () => window.AppModal.cancel();
         document.getElementById('modalInput').onkeypress = (e) => { if(e.key === 'Enter') window.AppModal.submit(); };
 
         window.toggleAdminPanel = function() {
-            if (isAdmin) {
-                isAdmin = false;
-                document.getElementById('adminBtn').innerHTML = `<i data-lucide="settings"></i> 선생님 모드`;
-                document.getElementById('adminBtn').classList.remove('active');
-                refreshAdminUI();
-                lucide.createIcons();
-            } else {
-                const box = document.getElementById('adminLoginBox');
-                box.style.display = box.style.display === 'block' ? 'none' : 'block';
-                if(box.style.display === 'block') document.getElementById('adminPwInput').focus();
-            }
+            if (isAdmin) { isAdmin = false; document.getElementById('adminBtn').innerHTML = `<i data-lucide="settings"></i> 선생님 모드`; document.getElementById('adminBtn').classList.remove('active'); refreshAdminUI(); lucide.createIcons(); } else { const box = document.getElementById('adminLoginBox'); box.style.display = box.style.display === 'block' ? 'none' : 'block'; if(box.style.display === 'block') document.getElementById('adminPwInput').focus(); }
         };
-        
         window.loginAdmin = function() {
             const input = document.getElementById('adminPwInput');
-            if (input.value === ADMIN_PW) {
-                isAdmin = true;
-                document.getElementById('adminBtn').innerHTML = `<i data-lucide="check-circle"></i> 관리자 활성`;
-                document.getElementById('adminBtn').classList.add('active');
-                document.getElementById('adminLoginBox').style.display = 'none';
-                input.value = ''; refreshAdminUI();
-                lucide.createIcons();
-            } else {
-                const btn = document.getElementById('adminBtn');
-                btn.innerHTML = `<i data-lucide="x-circle"></i> 비밀번호 오류`;
-                btn.style.color = "#dc2626";
-                setTimeout(() => { btn.innerHTML = `<i data-lucide="settings"></i> 선생님 모드`; btn.style.color = ""; lucide.createIcons(); }, 1500);
-                input.value = '';
-                lucide.createIcons();
-            }
+            if (input.value === ADMIN_PW) { isAdmin = true; document.getElementById('adminBtn').innerHTML = `<i data-lucide="check-circle"></i> 관리자 활성`; document.getElementById('adminBtn').classList.add('active'); document.getElementById('adminLoginBox').style.display = 'none'; input.value = ''; refreshAdminUI(); lucide.createIcons(); } else { const btn = document.getElementById('adminBtn'); btn.innerHTML = `<i data-lucide="x-circle"></i> 비밀번호 오류`; btn.style.color = "#dc2626"; setTimeout(() => { btn.innerHTML = `<i data-lucide="settings"></i> 선생님 모드`; btn.style.color = ""; lucide.createIcons(); }, 1500); input.value = ''; lucide.createIcons(); }
         };
         window.handlePwKeyPress = (e) => { if (e.key === 'Enter') window.loginAdmin(); };
 
-        function refreshAdminUI() {
-            document.querySelectorAll('.reply-input-group').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
-            document.querySelectorAll('.reply-actions').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
+        function refreshAdminUI() { 
+            document.querySelectorAll('.reply-input-group').forEach(g => g.style.display = isAdmin ? 'flex' : 'none'); 
+            document.querySelectorAll('.reply-actions').forEach(g => g.style.display = isAdmin ? 'flex' : 'none'); 
         }
 
-        // ★ 글 등록 로직 (사진 업로드 포함) ★
+        // ==========================================
+        // ★ 메인 게시글 등록 ★
+        // ==========================================
         window.addQuestion = async function() {
-            const title = document.getElementById('titleInput').value.trim();
-            const text = document.getElementById('questionInput').value.trim();
-            const author = document.getElementById('authorInput').value.trim() || '익명'; 
-            const password = document.getElementById('pwInput').value.trim();
-            const isSecret = document.getElementById('secretInput').checked;
-            
-            if (!title || !password || !text) {
-                window.AppModal.show({type: 'alert', msg: '제목, 비밀번호, 내용을 모두 입력해주세요.'});
-                return;
-            }
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.innerHTML = `<i data-lucide="loader" class="spin"></i> 업로드 중...`;
-            submitBtn.disabled = true;
-            lucide.createIcons();
+            const title = document.getElementById('titleInput').value.trim(); const text = document.getElementById('questionInput').value.trim(); const author = document.getElementById('authorInput').value.trim() || '익명'; const password = document.getElementById('pwInput').value.trim(); const isSecret = document.getElementById('secretInput').checked;
+            if (!title || !password || !text) { window.AppModal.show({type: 'alert', msg: '제목, 비밀번호, 내용을 모두 입력해주세요.'}); return; }
+            const submitBtn = document.getElementById('submitBtn'); submitBtn.innerHTML = `<i data-lucide="loader" class="spin"></i> 처리 중...`; submitBtn.disabled = true; lucide.createIcons();
 
             try {
                 let imageUrl = null;
+                if (selectedImageFile) { const fileName = `images/${Date.now()}_${selectedImageFile.name}`; const imgRef = storageRef(storage, fileName); await uploadBytes(imgRef, selectedImageFile); imageUrl = await getDownloadURL(imgRef); }
+                await push(questionsRef, { title, author, password, text, isSecret, imageUrl: imageUrl || '', time: getCurrentTime(), timestamp: Date.now() });
                 
-                // 사진 파일이 선택되어 있다면 파이어베이스 스토리지에 먼저 업로드
-                if (selectedImageFile) {
-                    const fileName = `images/${Date.now()}_${selectedImageFile.name}`;
-                    const imgRef = storageRef(storage, fileName);
-                    await uploadBytes(imgRef, selectedImageFile);
-                    imageUrl = await getDownloadURL(imgRef); // 업로드 후 웹 링크 받아오기
-                }
-
-                // 사진 링크(있는 경우만)와 함께 기존 DB에 게시글 등록
-                await push(questionsRef, { 
-                    title, 
-                    author, 
-                    password, 
-                    text, 
-                    isSecret, 
-                    imageUrl: imageUrl || '', // 사진 링크 저장 (없으면 빈 문자열)
-                    time: getCurrentTime(), 
-                    timestamp: Date.now() 
-                });
-                // 1. 발급받은 주소를 대충 절반으로 나누어 적어주세요.
+                // --- 웹훅 전송 --- (⚠️ 디스코드 주소 파트 꼭 넣으세요!)
                 const part1 = "https://discord.com/api/webhooks/1505402918025695353"; 
                 const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb"; 
                 const webhookUrl = part1 + part2;
-                
-                if (webhookUrl.includes("discord.com")) {                   
-                    const message = {
-                        embeds: [{
-                            title: `🔔 [새로운 게시글] ${title}`,
-                            description: text.length > 100 ? text.substring(0, 100) + "..." : text,
-                            color: 2451163, // 테마 색상 (QnA: 파란색)
-                            fields: [
-                                { name: "작성자", value: author, inline: true },
-                                { name: "비밀글", value: isSecret ? "🔒 예" : "🔓 아니오", inline: true }
-                            ],
-                            timestamp: new Date().toISOString()
-                        }]
-                    };
-                    
-                    // 알람 전송 (await를 생략하여 학생 화면의 글 등록 속도를 지연시키지 않음)
-                    fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(message)
-                    }).catch(err => console.error("디스코드 전송 실패:", err));
+                if (webhookUrl.includes("discord.com")) {
+                    const message = { embeds: [{ title: `📘 [QnA 새글] ${title}`, description: text.length > 100 ? text.substring(0, 100) + "..." : text, color: 2451163, fields: [ { name: "작성자", value: author, inline: true }, { name: "비밀글", value: isSecret ? "🔒 예" : "🔓 아니오", inline: true } ], timestamp: new Date().toISOString() }] };
+                    fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(message) }).catch(err => console.error(err));
                 }
-                // 초기화
-                document.getElementById('titleInput').value = '';
-                document.getElementById('questionInput').value = '';
-                document.getElementById('authorInput').value = '';
-                document.getElementById('pwInput').value = '';
-                document.getElementById('secretInput').checked = false;
-                window.removeSelectedImage();
                 
-            } catch (error) {
-                window.AppModal.show({type: 'alert', msg: '업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'});
-                console.error(error);
-            } finally {
-                submitBtn.innerHTML = `<i data-lucide="send"></i> 게시글 등록`;
-                submitBtn.disabled = false;
-                lucide.createIcons();
-            }
+                document.getElementById('titleInput').value = ''; document.getElementById('questionInput').value = ''; document.getElementById('authorInput').value = ''; document.getElementById('pwInput').value = ''; document.getElementById('secretInput').checked = false; window.removeSelectedImage();
+            } catch (error) { window.AppModal.show({type: 'alert', msg: '오류가 발생했습니다.'}); } finally { submitBtn.innerHTML = `<i data-lucide="send"></i> 게시글 등록`; submitBtn.disabled = false; lucide.createIcons(); }
         };
 
         window.togglePost = (id) => {
-            const li = document.getElementById(`post-${id}`);
-            const content = document.getElementById(`content-${id}`);
-            const isSecret = li.dataset.secret === 'true';
-            const correctPw = li.dataset.pw;
-
-            if (content.style.display === 'block') {
-                content.style.display = 'none'; return;
-            }
-
-            if (isSecret && !isAdmin) {
-                window.AppModal.show({type: 'prompt', title: '비밀글 열람', msg: '작성 시 설정한 비밀번호를 입력해주세요.'}, (pw) => {
-                    if (pw === correctPw) { content.style.display = 'block'; } 
-                    else if (pw !== null) { window.AppModal.show({type: 'alert', msg: '비밀번호가 일치하지 않습니다.'}); }
-                });
-            } else {
-                content.style.display = 'block';
-            }
+            const li = document.getElementById(`post-${id}`); const content = document.getElementById(`content-${id}`); const isSecret = li.dataset.secret === 'true'; const correctPw = li.dataset.pw;
+            if (content.style.display === 'block') { content.style.display = 'none'; return; }
+            if (isSecret && !isAdmin) { window.AppModal.show({type: 'prompt', title: '비밀글 열람', msg: '비밀번호를 입력해주세요.'}, (pw) => { if (pw === correctPw) { content.style.display = 'block'; } else if (pw !== null) { window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'}); } }); } else { content.style.display = 'block'; }
         };
 
-        window.handleEdit = function(id) {
-            const li = document.getElementById(`post-${id}`);
-            const correctPw = li.dataset.pw;
-            if (!isAdmin) {
-                window.AppModal.show({type: 'prompt', title: '게시글 수정', msg: '비밀번호를 입력해주세요.'}, (pw) => {
-                    if (pw === correctPw) enableEditMode(id);
-                    else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'});
-                });
-            } else enableEditMode(id);
-        };
+        window.handleEdit = function(id) { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (!isAdmin) { window.AppModal.show({type: 'prompt', title: '게시글 수정', msg: '비밀번호 입력'}, (pw) => { if (pw === correctPw) enableEditMode(id); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'}); }); } else enableEditMode(id); };
 
         function enableEditMode(id) {
-            const bodyDiv = document.getElementById(`post-body-${id}`);
-            const currentText = bodyDiv.dataset.text;
-            const currentTitle = bodyDiv.dataset.title;
-            // 참고: 수정 모드에서는 사진 교체 기능은 제외하고 글/제목만 수정하도록 단순화 (기존 로직 유지)
-            bodyDiv.innerHTML = `
-                <input type="text" id="edit-title-${id}" value="${escapeHTML(currentTitle)}" style="width:100%; padding:12px 16px; margin-bottom:12px; border:1px solid var(--primary); border-radius:10px; font-weight:700; font-family:inherit; outline:none; box-sizing:border-box;">
-                <textarea id="edit-textarea-${id}" style="width:100%; height:100px; padding:12px 16px; border:1px solid var(--primary); border-radius:10px; outline:none; font-family:inherit; resize:none; box-sizing:border-box;">${escapeHTML(currentText)}</textarea>
-                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
-                    <button onclick="window.cancelEdit('${id}')" style="padding:8px 16px; border:none; background:#f1f5f9; color:var(--text-sub); border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">취소</button>
-                    <button onclick="window.saveEdit('${id}')" style="padding:8px 16px; border:none; background:var(--primary); color:white; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">저장</button>
-                </div>`;
+            const bodyDiv = document.getElementById(`post-body-${id}`); const currentText = bodyDiv.dataset.text; const currentTitle = bodyDiv.dataset.title;
+            bodyDiv.innerHTML = `<input type="text" id="edit-title-${id}" value="${escapeHTML(currentTitle)}" style="width:100%; padding:12px 16px; margin-bottom:12px; border:1px solid var(--primary); border-radius:10px; font-weight:700; font-family:inherit; outline:none; box-sizing:border-box;"><textarea id="edit-textarea-${id}" style="width:100%; height:100px; padding:12px 16px; border:1px solid var(--primary); border-radius:10px; outline:none; font-family:inherit; resize:none; box-sizing:border-box;">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"><button onclick="window.cancelEdit('${id}')" style="padding:8px 16px; border:none; background:#f1f5f9; color:var(--text-sub); border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">취소</button><button onclick="window.saveEdit('${id}')" style="padding:8px 16px; border:none; background:var(--primary); color:white; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">저장</button></div>`;
         }
 
-        window.cancelEdit = (id) => {
-            const bodyDiv = document.getElementById(`post-body-${id}`);
-            // 수정 취소 시 기존 텍스트와 이미지 태그 복구
-            const imageUrl = bodyDiv.dataset.image;
-            let contentHtml = escapeHTML(bodyDiv.dataset.text);
-            if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" alt="첨부 이미지">`;
-            contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${bodyDiv.dataset.time}</div>`;
-            bodyDiv.innerHTML = contentHtml;
-        };
+        window.cancelEdit = (id) => { const bodyDiv = document.getElementById(`post-body-${id}`); const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(bodyDiv.dataset.text); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" alt="첨부 이미지">`; contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; };
 
         window.saveEdit = (id) => {
-            const newTitle = document.getElementById(`edit-title-${id}`).value.trim();
-            const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
-            if (newTitle && newText) {
-                update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText });
-                
-                const bodyDiv = document.getElementById(`post-body-${id}`);
-                bodyDiv.dataset.text = newText;
-                bodyDiv.dataset.title = newTitle;
-                
-                // 저장 완료 후 텍스트와 이미지 태그 재렌더링
-                const imageUrl = bodyDiv.dataset.image;
-                let contentHtml = escapeHTML(newText);
-                if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" alt="첨부 이미지">`;
-                contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${bodyDiv.dataset.time}</div>`;
-                bodyDiv.innerHTML = contentHtml;
-                
-                const li = document.getElementById(`post-${id}`);
-                const isSecret = li.dataset.secret === 'true';
-                document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(newTitle);
-                lucide.createIcons();
-            } else {
-                window.AppModal.show({type: 'alert', msg: '제목과 내용을 모두 입력해주세요.'});
-            }
+            const newTitle = document.getElementById(`edit-title-${id}`).value.trim(); const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
+            if (newTitle && newText) { update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText }); const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" alt="첨부 이미지">`; contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(newTitle); lucide.createIcons(); } else { window.AppModal.show({type: 'alert', msg: '제목과 내용을 모두 입력해주세요.'}); }
         };
 
-        window.handleDelete = (id) => {
-            const li = document.getElementById(`post-${id}`);
-            const correctPw = li.dataset.pw;
-            if (isAdmin) {
-                window.AppModal.show({type: 'confirm', title:'게시글 삭제', msg: '선생님 권한으로 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); });
-            } else {
-                window.AppModal.show({type: 'prompt', title:'게시글 삭제', msg: '비밀번호를 입력하세요.'}, (pw) => {
-                    if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '정말 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); });
-                    else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'});
-                });
-            }
-        };
+        window.handleDelete = (id) => { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (isAdmin) { window.AppModal.show({type: 'confirm', title:'게시글 삭제', msg: '선생님 권한으로 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); } else { window.AppModal.show({type: 'prompt', title:'게시글 삭제', msg: '비밀번호를 입력하세요.'}, (pw) => { if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '정말 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '비밀번호 불일치'}); }); } };
 
+        // ==========================================
+        // 파이어베이스 리스너 (실시간 감지)
+        // ==========================================
         onChildAdded(questionsRef, (snapshot) => {
-            const id = snapshot.key;
-            renderPost(id, snapshot.val());
-            
+            const id = snapshot.key; renderPost(id, snapshot.val());
             const repliesRef = dbRef(db, `questions/${id}/replies`);
-            onChildAdded(repliesRef, (rep) => { renderComment(id, rep.key, rep.val()); updateReplyCount(id, 1); });
-            onChildRemoved(repliesRef, (rep) => { document.getElementById(`reply-${id}-${rep.key}`)?.remove(); updateReplyCount(id, -1); });
-            onChildChanged(repliesRef, (rep) => {
-                const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`);
-                if (textContainer && !textContainer.querySelector('textarea')) {
-                    textContainer.textContent = rep.val().text;
-                    document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text;
-                }
-            });
-        });
-
-        onChildRemoved(questionsRef, (snapshot) => document.getElementById(`post-${snapshot.key}`)?.remove());
-
-        onChildChanged(questionsRef, (snapshot) => {
-            const id = snapshot.key;
-            const data = snapshot.val();
-            const titleSpan = document.getElementById(`title-text-${id}`);
-            const bodyDiv = document.getElementById(`post-body-${id}`);
             
-            if (titleSpan) {
-                titleSpan.innerHTML = (data.isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
-            }
-            
-            if (bodyDiv && !bodyDiv.querySelector('textarea')) {
-                let contentHtml = escapeHTML(data.text);
-                if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" alt="첨부 이미지">`;
-                contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>`;
+            // 1차 댓글 (선생님) 감지
+            onChildAdded(repliesRef, (rep) => { 
+                renderComment(id, rep.key, rep.val()); 
+                updateReplyCount(id, 1); 
                 
-                bodyDiv.innerHTML = contentHtml;
-                bodyDiv.dataset.text = data.text;
-                bodyDiv.dataset.title = data.title;
-            }
-            lucide.createIcons();
+                // 2차 댓글 (대댓글) 감지
+                const subRepliesRef = dbRef(db, `questions/${id}/replies/${rep.key}/subReplies`);
+                onChildAdded(subRepliesRef, (sub) => {
+                    renderSubComment(id, rep.key, sub.key, sub.val());
+                });
+                onChildRemoved(subRepliesRef, (sub) => { document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`)?.remove(); });
+            });
+            onChildRemoved(repliesRef, (rep) => { document.getElementById(`reply-${id}-${rep.key}`)?.remove(); updateReplyCount(id, -1); });
+            onChildChanged(repliesRef, (rep) => { const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`); if (textContainer && !textContainer.querySelector('textarea')) { textContainer.textContent = rep.val().text; document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text; } });
+        });
+        onChildRemoved(questionsRef, (snapshot) => document.getElementById(`post-${snapshot.key}`)?.remove());
+        onChildChanged(questionsRef, (snapshot) => {
+            const id = snapshot.key; const data = snapshot.val(); const titleSpan = document.getElementById(`title-text-${id}`); const bodyDiv = document.getElementById(`post-body-${id}`);
+            if (titleSpan) titleSpan.innerHTML = (data.isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
+            if (bodyDiv && !bodyDiv.querySelector('textarea')) { let contentHtml = escapeHTML(data.text); if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" alt="첨부 이미지">`; contentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>`; bodyDiv.innerHTML = contentHtml; bodyDiv.dataset.text = data.text; bodyDiv.dataset.title = data.title; } lucide.createIcons();
         });
 
+        // 메인 게시글 화면에 그리기
         function renderPost(id, data) {
-            const list = document.getElementById('qnaList');
-            const li = document.createElement('li');
-            li.className = 'board-item';
-            li.id = `post-${id}`;
-            li.dataset.pw = data.password || ''; 
-            li.dataset.secret = data.isSecret || false; 
-            
-            const author = data.author || '익명';
-            const rawTitle = data.title || data.text.substring(0, 20) + '...';
-            // 비밀글 아이콘 및 사진 첨부 아이콘(이미지가 있을 경우) 표시
+            const list = document.getElementById('qnaList'); const li = document.createElement('li'); li.className = 'board-item'; li.id = `post-${id}`; li.dataset.pw = data.password || ''; li.dataset.secret = data.isSecret || false; 
+            const author = data.author || '익명'; const rawTitle = data.title || data.text.substring(0, 20) + '...';
             let displayTitleHtml = (data.isSecret ? '<i data-lucide="lock" style="width:14px; height:14px; color:var(--text-sub);"></i> ' : '') + escapeHTML(rawTitle);
-            if (data.imageUrl) {
-                displayTitleHtml += ` <i data-lucide="image" style="width:14px; height:14px; color:var(--primary); margin-left:4px;"></i>`;
-            }
-
+            if (data.imageUrl) displayTitleHtml += ` <i data-lucide="image" style="width:14px; height:14px; color:var(--primary); margin-left:4px;"></i>`;
             const listTime = data.time.split(' ')[0].substring(5) + ' ' + data.time.split(' ')[1];
-
-            // 본문 및 이미지 태그 렌더링
-            let bodyContentHtml = escapeHTML(data.text);
-            if (data.imageUrl) {
-                bodyContentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" alt="첨부 이미지">`;
-            }
-            bodyContentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>`;
-
+            let bodyContentHtml = escapeHTML(data.text); if (data.imageUrl) bodyContentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" alt="첨부 이미지">`; bodyContentHtml += `<div style="font-size:0.8rem; color:#94a3b8; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:10px;">작성일시: ${data.time}</div>`;
             li.innerHTML = `
                 <div class="item-row" onclick="window.togglePost('${id}')">
-                    <div class="item-title-wrapper">
-                        <span class="item-title" id="title-text-${id}">${displayTitleHtml}</span>
-                        <span class="reply-count" id="reply-count-${id}" style="display:none;">[0]</span>
-                    </div>
-                    <div class="item-meta-mobile">
-                        <div class="item-author">${escapeHTML(author)}</div>
-                        <div class="item-time">${listTime}</div>
-                    </div>
+                    <div class="item-title-wrapper"><span class="item-title" id="title-text-${id}">${displayTitleHtml}</span><span class="reply-count" id="reply-count-${id}" style="display:none;">[0]</span></div>
+                    <div class="item-meta-mobile"><div class="item-author">${escapeHTML(author)}</div><div class="item-time">${listTime}</div></div>
                 </div>
                 <div class="item-content" id="content-${id}">
-                    <div class="post-actions-inline">
-                        <button class="action-btn" onclick="window.handleEdit('${id}')">수정</button>
-                        <button class="action-btn delete" onclick="window.handleDelete('${id}')">삭제</button>
-                    </div>
-                    <div id="post-body-${id}" class="post-body" data-text="${escapeHTML(data.text)}" data-title="${escapeHTML(rawTitle)}" data-image="${escapeHTML(data.imageUrl || '')}" data-time="${escapeHTML(data.time)}">
-                        ${bodyContentHtml}
-                    </div>
+                    <div class="post-actions-inline"><button class="action-btn" onclick="window.handleEdit('${id}')">수정</button><button class="action-btn delete" onclick="window.handleDelete('${id}')">삭제</button></div>
+                    <div id="post-body-${id}" class="post-body" data-text="${escapeHTML(data.text)}" data-title="${escapeHTML(rawTitle)}" data-image="${escapeHTML(data.imageUrl || '')}" data-time="${escapeHTML(data.time)}">${bodyContentHtml}</div>
                     <div class="comment-section">
-                        <div class="comment-header"><i data-lucide="message-circle" style="width:18px; height:18px; color:var(--primary);"></i> 코멘트</div>
+                        <div class="comment-header"><i data-lucide="message-circle" style="width:18px; height:18px; color:var(--primary);"></i> 답변 및 소통</div>
                         <ul class="comment-list" id="comment-list-${id}"></ul>
+                        
                         <div class="reply-input-group" id="reply-group-${id}">
-                            <textarea id="reply-input-${id}" placeholder="선생님 답변을 남겨주세요..." onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); window.addReply('${id}'); }"></textarea>
-                            <button onclick="window.addReply('${id}')">등록</button>
+                            <div style="display:flex; flex-direction:column; flex:1; gap:6px;">
+                                <textarea id="reply-input-${id}" placeholder="선생님 공식 답변을 남겨주세요..."></textarea>
+                                
+                                <div style="display:flex; gap:8px;">
+                                    <button class="attach-btn" style="padding:6px 12px; font-size:0.8rem;" onclick="document.getElementById('reply-image-${id}').click()"><i data-lucide="camera" style="width:14px;height:14px;"></i> 사진</button>
+                                    <input type="file" id="reply-image-${id}" style="display:none;" accept="image/*" onchange="window.previewDynamicImage(this, 'reply-preview-img-${id}', 'reply-preview-container-${id}')">
+                                </div>
+                                <div id="reply-preview-container-${id}" class="mini-preview-container">
+                                    <img id="reply-preview-img-${id}">
+                                    <button class="remove-btn" onclick="window.removeDynamicImage('reply-image-${id}', 'reply-preview-img-${id}', 'reply-preview-container-${id}')"><i data-lucide="x" style="width:12px;height:12px;"></i></button>
+                                </div>
+                            </div>
+                            <button id="reply-btn-${id}" onclick="window.addReply('${id}')">답변 등록</button>
                         </div>
                     </div>
                 </div>`;
-            list.prepend(li);
-            refreshAdminUI();
+            list.prepend(li); refreshAdminUI(); lucide.createIcons();
+        }
+
+        function updateReplyCount(qId, change) { const span = document.getElementById(`reply-count-${qId}`); if (!span) return; let current = parseInt(span.dataset.count || '0') + change; span.dataset.count = current; span.style.display = current > 0 ? 'inline-block' : 'none'; span.textContent = `[${current}]`; }
+
+        // ==========================================
+        // ★ 1차 댓글 (선생님 답변) 달기 로직 ★
+        // ==========================================
+        window.addReply = async (id) => { 
+            if (!isAdmin) return; 
+            const input = document.getElementById(`reply-input-${id}`); 
+            const text = input.value.trim(); 
+            const fileInput = document.getElementById(`reply-image-${id}`);
+            const file = fileInput.files[0];
+
+            if (!text && !file) { window.AppModal.show({type: 'alert', msg: '답변 내용이나 사진을 첨부해주세요.'}); return; }
+
+            const btn = document.getElementById(`reply-btn-${id}`);
+            btn.innerHTML = `<i data-lucide="loader" class="spin"></i>`; btn.disabled = true; lucide.createIcons();
+
+            try {
+                let imageUrl = null;
+                if (file) {
+                    const fileName = `images/${Date.now()}_${file.name}`;
+                    const imgRef = storageRef(storage, fileName);
+                    await uploadBytes(imgRef, file);
+                    imageUrl = await getDownloadURL(imgRef);
+                }
+                
+                await push(dbRef(db, `questions/${id}/replies`), { 
+                    text: text, 
+                    imageUrl: imageUrl || '',
+                    time: getCurrentTime(), 
+                    isTeacher: true 
+                });
+                
+                input.value = '';
+                window.removeDynamicImage(`reply-image-${id}`, `reply-preview-img-${id}`, `reply-preview-container-${id}`);
+            } catch (err) {
+                window.AppModal.show({type: 'alert', msg: '답변 등록 오류'});
+            } finally {
+                btn.innerHTML = `답변 등록`; btn.disabled = false;
+            }
+        };
+
+        // 화면에 1차 댓글 그리기
+        function renderComment(qId, replyId, data) {
+            const list = document.getElementById(`comment-list-${qId}`); const li = document.createElement('li'); li.className = 'comment-item'; li.id = `reply-${qId}-${replyId}`; li.dataset.text = data.text; 
+            
+            let imageHtml = data.imageUrl ? `<img src="${escapeHTML(data.imageUrl)}" style="max-width:100%; border-radius:12px; margin-top:10px; border:1px solid var(--border-color); display:block;">` : '';
+
+            li.innerHTML = `
+                <div class="comment-main-row">
+                    <div class="comment-profile">T</div>
+                    <div class="comment-content">
+                        <div class="comment-header-row">
+                            <div class="comment-meta"><span class="teacher-badge">관리자</span><span class="comment-time">${data.time}</span></div>
+                            <div class="reply-actions" style="display: ${isAdmin ? 'flex' : 'none'};"><button class="action-btn" onclick="window.editReply('${qId}', '${replyId}')">수정</button><button class="action-btn delete" onclick="window.deleteReply('${qId}', '${replyId}')">삭제</button></div>
+                        </div>
+                        <div id="reply-text-${qId}-${replyId}" class="comment-text">${escapeHTML(data.text)}</div>
+                        ${imageHtml}
+                        <button class="sub-reply-toggle-btn" onclick="window.toggleSubInput('${qId}', '${replyId}')"><i data-lucide="corner-down-right" style="width:14px;height:14px;"></i> 대댓글 달기</button>
+                    </div>
+                </div>
+                
+                <div class="sub-reply-input-box" id="sub-input-box-${qId}-${replyId}">
+                    <input type="text" id="sub-author-${qId}-${replyId}" class="author-in" placeholder="닉네임 (비우면 익명)" maxlength="10">
+                    <textarea id="sub-text-${qId}-${replyId}" placeholder="추가 질문이나 의견을 남겨주세요..."></textarea>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:8px;">
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <button class="attach-btn" style="padding:4px 10px; font-size:0.75rem; background:#f1f5f9; border:none;" onclick="document.getElementById('sub-image-${qId}-${replyId}').click()"><i data-lucide="camera" style="width:12px;height:12px;"></i> 사진 추가</button>
+                            <input type="file" id="sub-image-${qId}-${replyId}" style="display:none;" accept="image/*" onchange="window.previewDynamicImage(this, 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}')">
+                            <div id="sub-preview-container-${qId}-${replyId}" class="mini-preview-container">
+                                <img id="sub-preview-img-${qId}-${replyId}">
+                                <button class="remove-btn" onclick="window.removeDynamicImage('sub-image-${qId}-${replyId}', 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}')"><i data-lucide="x" style="width:12px;height:12px;"></i></button>
+                            </div>
+                        </div>
+                        <button id="sub-btn-${qId}-${replyId}" class="submit-btn-small" onclick="window.addSubReply('${qId}', '${replyId}')">등록</button>
+                    </div>
+                </div>
+                
+                <ul class="sub-comment-list" id="sub-list-${qId}-${replyId}"></ul>
+            `;
+            list.appendChild(li);
             lucide.createIcons();
         }
 
-        function updateReplyCount(qId, change) {
-            const span = document.getElementById(`reply-count-${qId}`);
-            if (!span) return;
-            let current = parseInt(span.dataset.count || '0') + change;
-            span.dataset.count = current;
-            span.style.display = current > 0 ? 'inline-block' : 'none';
-            span.textContent = `${current}`;
-        }
+        window.editReply = (qId, replyId) => { if (!isAdmin) return; const li = document.getElementById(`reply-${qId}-${replyId}`); const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`); const currentText = li.dataset.text; textContainer.innerHTML = `<textarea id="edit-reply-input-${qId}-${replyId}" style="width:100%; height:60px; padding:10px; border:1px solid var(--primary); border-radius:10px; resize:none; font-family:inherit; outline:none; box-sizing:border-box; margin-top:8px;">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;"><button onclick="window.cancelEditReply('${qId}', '${replyId}')" style="padding:6px 12px; font-size:0.85rem; border:none; background:#f1f5f9; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer; color:var(--text-sub);">취소</button><button onclick="window.saveEditReply('${qId}', '${replyId}')" style="padding:6px 12px; font-size:0.85rem; border:none; background:var(--primary); color:white; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">저장</button></div>`; };
+        window.cancelEditReply = (qId, replyId) => { const li = document.getElementById(`reply-${qId}-${replyId}`); document.getElementById(`reply-text-${qId}-${replyId}`).textContent = li.dataset.text; };
+        window.saveEditReply = (qId, replyId) => { const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim(); if (newText) { update(dbRef(db, `questions/${qId}/replies/${replyId}`), { text: newText }); const li = document.getElementById(`reply-${qId}-${replyId}`); li.dataset.text = newText; document.getElementById(`reply-text-${qId}-${replyId}`).textContent = newText; } else { window.AppModal.show({type: 'alert', msg: '답변 내용을 입력해주세요.'}); } };
+        window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'답변 삭제', msg: '삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}`)); }); };
 
-        window.addReply = (id) => {
-            if (!isAdmin) return;
-            const input = document.getElementById(`reply-input-${id}`);
-            const text = input.value.trim();
-            if (text) push(dbRef(db, `questions/${id}/replies`), { text, time: getCurrentTime(), isTeacher: true });
-            input.value = '';
+
+        // ==========================================
+        // ★ 2차 댓글 (대댓글 + 사진) 로직 ★
+        // ==========================================
+        window.toggleSubInput = (qId, replyId) => {
+            const box = document.getElementById(`sub-input-box-${qId}-${replyId}`);
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
         };
 
-        function renderComment(qId, replyId, data) {
-            const list = document.getElementById(`comment-list-${qId}`);
-            const li = document.createElement('li');
-            li.className = 'comment-item';
-            li.id = `reply-${qId}-${replyId}`;
-            li.dataset.text = data.text; 
+        window.addSubReply = async (qId, replyId) => {
+            const authorInput = document.getElementById(`sub-author-${qId}-${replyId}`).value.trim();
+            const textInput = document.getElementById(`sub-text-${qId}-${replyId}`).value.trim();
+            const fileInput = document.getElementById(`sub-image-${qId}-${replyId}`);
+            const file = fileInput.files[0];
             
+            if (!textInput && !file) { window.AppModal.show({type: 'alert', msg: '내용이나 사진을 첨부해주세요.'}); return; }
+
+            const author = isAdmin ? '관리자' : (authorInput || '익명');
+            const isTeacher = isAdmin;
+            
+            const btn = document.getElementById(`sub-btn-${qId}-${replyId}`);
+            btn.innerHTML = `처리 중...`; btn.disabled = true;
+
+            try {
+                let imageUrl = null;
+                if (file) {
+                    const fileName = `images/${Date.now()}_${file.name}`;
+                    const imgRef = storageRef(storage, fileName);
+                    await uploadBytes(imgRef, file);
+                    imageUrl = await getDownloadURL(imgRef);
+                }
+
+                await push(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies`), {
+                    author: author, text: textInput, imageUrl: imageUrl || '', isTeacher: isTeacher, time: getCurrentTime()
+                });
+                
+                // --- 웹훅 전송 (⚠️ 디스코드 주소 파트 꼭 넣으세요!) ---
+                const part1 = "https://discord.com/api/webhooks/1505402918025695353"; 
+                const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb"; 
+                const webhookUrl = part1 + part2;
+                if (webhookUrl.includes("discord.com")) {
+                    const message = { embeds: [{ title: `💬 [새로운 대댓글]`, description: textInput.length > 100 ? textInput.substring(0, 100) + "..." : textInput, color: 10181046, fields: [ { name: "작성자", value: author, inline: true } ], timestamp: new Date().toISOString() }] };
+                    fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(message) }).catch(err => console.error(err));
+                }
+
+                document.getElementById(`sub-author-${qId}-${replyId}`).value = ''; document.getElementById(`sub-text-${qId}-${replyId}`).value = '';
+                window.removeDynamicImage(`sub-image-${qId}-${replyId}`, `sub-preview-img-${qId}-${replyId}`, `sub-preview-container-${qId}-${replyId}`);
+                window.toggleSubInput(qId, replyId);
+
+            } catch (err) {
+                window.AppModal.show({type: 'alert', msg: '대댓글 등록 오류'});
+            } finally {
+                btn.innerHTML = `등록`; btn.disabled = false;
+            }
+        };
+
+        function renderSubComment(qId, replyId, subId, data) {
+            const list = document.getElementById(`sub-list-${qId}-${replyId}`);
+            if(!list) return;
+            const li = document.createElement('li'); li.className = 'sub-comment-item'; li.id = `sub-reply-${qId}-${replyId}-${subId}`;
+
+            const badgeHtml = data.isTeacher ? '<span class="teacher-badge">관리자</span>' : `<span class="student-badge">${escapeHTML(data.author)}</span>`;
+            const profileIcon = data.isTeacher ? 'T' : 'S';
+            const profileBg = data.isTeacher ? 'var(--primary-light)' : '#e2e8f0';
+            const profileColor = data.isTeacher ? 'var(--primary)' : 'var(--text-sub)';
+            
+            let imageHtml = data.imageUrl ? `<img src="${escapeHTML(data.imageUrl)}" style="max-width:100%; border-radius:8px; margin-top:8px; border:1px solid var(--border-color); display:block;">` : '';
+
             li.innerHTML = `
-                <div class="comment-profile">T</div>
-                <div class="comment-content">
-                    <div class="comment-header-row">
-                        <div class="comment-meta">
-                            <span class="teacher-badge">선생님</span>
-                            <span class="comment-time">${data.time}</span>
-                        </div>
-                        <div class="reply-actions" style="display: ${isAdmin ? 'flex' : 'none'};">
-                            <button class="action-btn" onclick="window.editReply('${qId}', '${replyId}')">수정</button>
-                            <button class="action-btn delete" onclick="window.deleteReply('${qId}', '${replyId}')">삭제</button>
-                        </div>
+                <div class="sub-comment-profile" style="background:${profileBg}; color:${profileColor};">${profileIcon}</div>
+                <div class="sub-comment-content">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;">
+                        <div>${badgeHtml} <span style="font-size:0.75rem; color:#94a3b8; margin-left:6px;">${data.time}</span></div>
+                        <div class="reply-actions" style="display: ${isAdmin ? 'flex' : 'none'};"><button class="action-btn delete" onclick="window.deleteSubReply('${qId}', '${replyId}', '${subId}')" style="padding:2px 8px; font-size:0.7rem;">삭제</button></div>
                     </div>
-                    <div id="reply-text-${qId}-${replyId}" class="comment-text">${escapeHTML(data.text)}</div>
+                    <div style="line-height:1.5;">${escapeHTML(data.text)}</div>
+                    ${imageHtml}
                 </div>
             `;
             list.appendChild(li);
         }
 
-        window.editReply = (qId, replyId) => {
+        window.deleteSubReply = (qId, replyId, subId) => {
             if (!isAdmin) return;
-            const li = document.getElementById(`reply-${qId}-${replyId}`);
-            const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`);
-            const currentText = li.dataset.text;
-
-            textContainer.innerHTML = `
-                <textarea id="edit-reply-input-${qId}-${replyId}" style="width:100%; height:60px; padding:10px; border:1px solid var(--primary); border-radius:10px; resize:none; font-family:inherit; outline:none; box-sizing:border-box; margin-top:8px;">${escapeHTML(currentText)}</textarea>
-                <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
-                    <button onclick="window.cancelEditReply('${qId}', '${replyId}')" style="padding:6px 12px; font-size:0.85rem; border:none; background:#f1f5f9; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer; color:var(--text-sub);">취소</button>
-                    <button onclick="window.saveEditReply('${qId}', '${replyId}')" style="padding:6px 12px; font-size:0.85rem; border:none; background:var(--primary); color:white; border-radius:8px; font-family:inherit; font-weight:bold; cursor:pointer;">저장</button>
-                </div>
-            `;
+            window.AppModal.show({type: 'confirm', msg: '이 대댓글을 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies/${subId}`)); });
         };
 
-        window.cancelEditReply = (qId, replyId) => {
-            const li = document.getElementById(`reply-${qId}-${replyId}`);
-            const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`);
-            textContainer.textContent = li.dataset.text;
-        };
-
-        window.saveEditReply = (qId, replyId) => {
-            const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim();
-            if (newText) {
-                update(dbRef(db, `questions/${qId}/replies/${replyId}`), { text: newText });
-                
-                const li = document.getElementById(`reply-${qId}-${replyId}`);
-                li.dataset.text = newText;
-                const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`);
-                textContainer.textContent = newText;
-                
-            } else {
-                window.AppModal.show({type: 'alert', msg: '답변 내용을 입력해주세요.'});
-            }
-        };
-
-        window.deleteReply = (qId, replyId) => {
-            if (!isAdmin) return;
-            window.AppModal.show({type: 'confirm', title:'답변 삭제', msg: '이 답변을 완전히 삭제하시겠습니까?', confirmText: '삭제'}, (res) => {
-                if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}`));
-            });
-        };
-
-        function getCurrentTime() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const date = String(now.getDate()).padStart(2, '0');
-            const ampm = now.getHours() >= 12 ? '오후' : '오전';
-            let hour = now.getHours() % 12;
-            hour = hour ? hour : 12;
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${year}/${month}/${date} ${ampm} ${hour}:${minutes}`;
-        }
+        function getCurrentTime() { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const date = String(now.getDate()).padStart(2, '0'); const ampm = now.getHours() >= 12 ? '오후' : '오전'; let hour = now.getHours() % 12; hour = hour ? hour : 12; const minutes = String(now.getMinutes()).padStart(2, '0'); return `${year}/${month}/${date} ${ampm} ${hour}:${minutes}`; }
     </script>
-    
+    <script>lucide.createIcons();</script>
     <script>
-        lucide.createIcons();
+        document.addEventListener('contextmenu', e => e.preventDefault()); document.addEventListener('selectstart', e => e.preventDefault());
+        document.addEventListener('keydown', e => { if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 67 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) e.preventDefault(); });
     </script>
 <script>
         // 1. 마우스 우클릭 차단
