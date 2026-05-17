@@ -1,200 +1,360 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-E1W226W5M4');
 </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지역 탐구 프로젝트 가이드 - 통합사회 C</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>지역 탐구 프로젝트 가이드 — Geographia Archive</title>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+
+<style>
+    /* ============================================================
+       GEOGRAPHIA — Academic Archival Editorial Concept
+    ============================================================ */
+    :root {
+        --ink:        #1a1714;
+        --ink-2:      #4a443c;
+        --ink-3:      #8c8479;
+        --ink-faint:  #b8b0a3;
+
+        --paper:      #f4f0e8;
+        --paper-2:    #efe9dd;
+        --surface:    #fbf9f3;
+
+        --line:       #d8d0c0;
+        --line-soft:  #e6dfd0;
+
+        --terra:      #b4502e;
+        --terra-soft: #f0e0d4;
+        --sea:        #2f5d50;
+        --gold:       #9a7b3f;
+
+        --serif: 'Fraunces', Georgia, serif;
+        --sans:  'Pretendard', -apple-system, sans-serif;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+        font-family: var(--sans);
+        background-color: var(--paper);
+        margin: 0; padding: 0;
+        color: var(--ink);
+        line-height: 1.62;
+        -webkit-font-smoothing: antialiased;
+        position: relative;
+    }
     
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <script src="https://unpkg.com/lucide@latest"></script>
+    /* Paper Grain Overlay */
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.5;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+        mix-blend-mode: multiply;
+    }
+    body > * { position: relative; z-index: 2; }
 
-    <style>
-        :root {
-            --primary: #2563eb; --primary-light: #eff6ff; --text-main: #0f172a; --text-sub: #64748b;
-            --bg-color: #f8fafc; --card-bg: #ffffff; --border-color: rgba(0,0,0,0.06); --radius: 24px;
-        }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
-        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: var(--text-main); line-height: 1.6; }
-        a { text-decoration: none; color: inherit; }
+    /* MASTHEAD */
+    .masthead {
+        background: rgba(244,240,232,0.82);
+        backdrop-filter: blur(14px) saturate(1.2);
+        -webkit-backdrop-filter: blur(14px) saturate(1.2);
+        border-bottom: 1px solid var(--line);
+        position: sticky; top: 0; z-index: 9999;
+    }
+    .masthead-inner {
+        max-width: 1180px; margin: 0 auto; padding: 0 40px; height: 66px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+    .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+    .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+    .nav { display: flex; align-items: center; gap: 2px; }
+    .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
+    .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
+    .nav a.active { color: var(--paper); background: var(--ink); }
 
-        /* 네비게이션 바 */
-        .navbar { 
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 16px 40px; position: sticky; top: 0; z-index: 9999; border-bottom: 1px solid var(--border-color);
-        }
-        .logo { font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-        .logo-icon { background: var(--primary); color: white; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
-        .menu { display: flex; gap: 24px; }
-        .menu a { font-size: 0.95rem; font-weight: 600; color: var(--text-sub); padding: 8px 12px; border-radius: 12px; transition: 0.2s; }
-        .menu a:hover { background: var(--primary-light); color: var(--primary); }
+    /* LAYOUT & CONTAINERS */
+    .sheet { max-width: 1180px; margin: 0 auto; padding: 56px 40px 100px; }
+    .sheet-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 34px; position: relative; }
+    .sheet-num { font-family: var(--serif); font-size: 0.82rem; font-weight: 600; color: var(--terra); letter-spacing: 0.1em; }
+    .sheet-title { font-family: var(--serif); font-size: 1.7rem; font-weight: 500; letter-spacing: -0.015em; color: var(--ink); margin: 0; }
+    .sheet-meta { margin-left: auto; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); align-self: center; }
 
-        /* 히어로 섹션 */
-        .hero { max-width: 1000px; margin: 60px auto 40px; padding: 0 20px; text-align: center; }
-        .badge { display: inline-block; padding: 6px 14px; background: var(--primary-light); color: var(--primary); border-radius: 20px; font-size: 0.85rem; font-weight: 800; margin-bottom: 16px; border: 1px solid rgba(37,99,235,0.2); }
-        .hero h1 { font-size: 2.8rem; font-weight: 900; letter-spacing: -1px; margin: 0 0 16px 0; color: var(--text-main); }
-        .hero p { font-size: 1.1rem; color: var(--text-sub); max-width: 650px; margin: 0 auto; word-break: keep-all; }
+    /* HERO SECTION */
+    .hero { max-width: 900px; margin: 0 auto 60px; text-align: center; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border: 1px solid var(--terra); color: var(--terra); font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 24px; }
+    .hero h1 { font-family: var(--serif); font-size: 2.8rem; font-weight: 400; letter-spacing: -0.02em; margin: 0 0 16px 0; color: var(--ink); line-height: 1.1; }
+    .hero h1 em { color: var(--terra); font-style: italic; }
+    .hero p { font-size: 1.05rem; color: var(--ink-2); max-width: 650px; margin: 0 auto; word-break: keep-all; line-height: 1.7; }
 
-        .container { max-width: 1200px; margin: 0 auto 80px; padding: 0 20px; display: flex; flex-direction: column; gap: 40px; }
+    /* SECTION TITLES */
+    .section-title { font-family: var(--serif); font-size: 1.3rem; font-weight: 500; display: flex; align-items: center; gap: 12px; margin: 60px 0 24px; color: var(--ink); border-bottom: 1px solid var(--line-soft); padding-bottom: 12px; }
+    .section-title .ico { color: var(--terra); }
 
-        /* 섹션 타이틀 */
-        .section-title { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--text-main); }
-        .section-title i { color: var(--primary); }
+    /* PANEL STYLES (Used for cards) */
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        position: relative;
+        transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+    }
+    .panel::before, .panel::after {
+        content: '';
+        position: absolute;
+        width: 9px; height: 9px;
+        border-color: var(--ink-faint);
+        opacity: 0.55;
+        transition: opacity 0.4s var(--ease), border-color 0.4s var(--ease);
+    }
+    .panel::before { top: 9px; left: 9px; border-left: 1.5px solid; border-top: 1.5px solid; }
+    .panel::after  { bottom: 9px; right: 9px; border-right: 1.5px solid; border-bottom: 1.5px solid; }
 
-        /* 카드 공통 스타일 */
-        .card { background: var(--card-bg); border-radius: var(--radius); padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
+    /* STEP GRID (Methodology) */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .step-card { padding: 30px 24px; display: flex; flex-direction: column; }
+    .step-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -20px rgba(26,23,20,0.15); border-color: var(--ink-faint); }
+    .step-card:hover::before, .step-card:hover::after { opacity: 1; border-color: var(--terra); }
+    
+    .step-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px dashed var(--line); padding-bottom: 15px; }
+    .step-icon { width: 38px; height: 38px; color: var(--ink); display: flex; align-items: center; justify-content: center; }
+    .step-num { font-family: var(--serif); font-size: 1.2rem; font-weight: 500; font-style: italic; color: var(--terra); }
+    
+    .step-card h3 { margin: 0 0 10px 0; font-size: 1.05rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
+    .step-card p { margin: 0; font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; }
 
-        /* 탐구 방법 (프로세스 스텝) 레이아웃 */
-        .step-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .step-card { background: var(--bg-color); border-radius: 20px; padding: 25px; border: 1px solid transparent; transition: 0.3s; position: relative; overflow: hidden; }
-        .step-card:hover { background: white; border-color: var(--primary); box-shadow: 0 10px 25px rgba(37,99,235,0.1); transform: translateY(-5px); }
-        .step-num { font-size: 3rem; font-weight: 900; color: rgba(37,99,235,0.1); position: absolute; top: -10px; right: 10px; line-height: 1; pointer-events: none; }
-        .step-icon { width: 48px; height: 48px; background: white; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .step-card h3 { margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 800; color: var(--text-main); }
-        .step-card p { margin: 0; font-size: 0.9rem; color: var(--text-sub); line-height: 1.5; }
+    /* EXAMPLE GRID (Archive) */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .ex-card { display: flex; flex-direction: column; cursor: pointer; }
+    .ex-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -20px rgba(26,23,20,0.15); border-color: var(--ink-faint); }
+    .ex-card:hover::before, .ex-card:hover::after { opacity: 1; border-color: var(--sea); }
+    
+    .ex-thumb { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
+    /* Pattern Backgrounds */
+    .pat-1 { background-color: var(--paper-2); background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 10px 10px; }
+    .pat-2 { background-color: var(--paper-2); background-image: repeating-linear-gradient(45deg, var(--line) 0, var(--line) 1px, transparent 0, transparent 50%); background-size: 12px 12px; }
+    .pat-3 { background-color: var(--paper-2); background-image: repeating-radial-gradient(circle at 0 0, transparent 0, var(--paper-2) 10px, var(--line) 10px, var(--line) 11px); }
+    
+    .ex-icon-box { width: 56px; height: 56px; background: var(--paper); border: 1px solid var(--ink); display: flex; align-items: center; justify-content: center; color: var(--ink); position: relative; z-index: 2; box-shadow: 4px 4px 0 rgba(26,23,20,0.08); }
+    .ex-tag { position: absolute; top: 12px; left: 12px; font-family: var(--serif); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink); background: var(--paper); border: 1px solid var(--ink); padding: 3px 8px; z-index: 2; }
+    
+    .ex-content { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+    .ex-content h3 { margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 700; color: var(--ink); line-height: 1.4; letter-spacing: -0.01em; }
+    .ex-content p { margin: 0 0 18px 0; font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; flex: 1; }
+    
+    .ex-tech { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px dashed var(--line); padding-top: 16px; }
+    .ex-tech span { font-family: var(--serif); font-size: 0.7rem; font-style: italic; color: var(--ink-3); }
 
-        /* 우수 사례 (아카이브) 레이아웃 */
-        .example-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .example-card { border-radius: 20px; overflow: hidden; border: 1px solid var(--border-color); background: white; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; }
-        .example-card:hover { box-shadow: 0 15px 30px rgba(0,0,0,0.08); transform: translateY(-5px); }
-        .ex-thumb { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        /* 썸네일 그라데이션 테마 */
-        .thumb-1 { background: linear-gradient(135deg, #fecaca, #fb7185); }
-        .thumb-2 { background: linear-gradient(135deg, #bfdbfe, #3b82f6); }
-        .thumb-3 { background: linear-gradient(135deg, #bbf7d0, #10b981); }
-        .ex-icon { width: 64px; height: 64px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .ex-tag { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; backdrop-filter: blur(4px); }
-        .ex-content { padding: 25px; flex: 1; display: flex; flex-direction: column; }
-        .ex-content h3 { margin: 0 0 10px 0; font-size: 1.15rem; font-weight: 800; color: var(--text-main); line-height: 1.4; }
-        .ex-content p { margin: 0 0 15px 0; font-size: 0.9rem; color: var(--text-sub); line-height: 1.5; flex: 1; }
-        .ex-tech { display: flex; gap: 6px; flex-wrap: wrap; }
-        .ex-tech span { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; background: var(--bg-color); color: var(--text-sub); border-radius: 6px; }
+    /* CTA BOX (Observatory Style) */
+    .obs-cta {
+        background: linear-gradient(135deg, rgba(180,80,46,0.06), transparent 60%), var(--ink);
+        border: 1px solid var(--ink);
+        border-radius: 4px;
+        padding: 50px 40px;
+        text-align: center;
+        color: var(--paper);
+        position: relative;
+        overflow: hidden;
+        margin-top: 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .obs-cta .orbit { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; color: rgba(244,240,232,0.04); pointer-events: none; }
+    
+    .obs-cta-icon { width: 48px; height: 48px; color: var(--terra); margin-bottom: 20px; position: relative; z-index: 1; }
+    .obs-cta h2 { font-family: var(--serif); font-size: 1.8rem; font-weight: 400; margin: 0 0 12px; letter-spacing: -0.01em; position: relative; z-index: 1; }
+    .obs-cta p { font-size: 0.95rem; color: rgba(244,240,232,0.6); max-width: 500px; margin: 0 0 30px; position: relative; z-index: 1; word-break: keep-all; }
+    
+    .obs-go {
+        display: inline-flex; align-items: center; gap: 11px;
+        font-family: var(--serif); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+        color: var(--paper); border: 1px solid rgba(244,240,232,0.25); padding: 12px 28px;
+        position: relative; z-index: 1; transition: all 0.3s var(--ease); cursor: pointer; background: transparent;
+    }
+    .obs-go:hover { background: var(--terra); border-color: var(--terra); }
+    .obs-go .ico { transition: transform 0.35s var(--ease); }
+    .obs-go:hover .ico { transform: translateX(5px); }
 
-        /* 하단 CTA (Call To Action) 배너 */
-        .cta-box { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: var(--radius); padding: 40px; text-align: center; color: white; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .cta-box h2 { margin: 0; font-size: 1.8rem; font-weight: 800; }
-        .cta-box p { margin: 0; font-size: 1rem; color: #cbd5e1; max-width: 500px; }
-        .btn-submit { margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; background: var(--primary); color: white; padding: 16px 32px; border-radius: 14px; font-size: 1.1rem; font-weight: 800; transition: 0.3s; border: none; cursor: pointer; }
-        .btn-submit:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37,99,235,0.4); }
+    /* COLOPHON */
+    .colophon { max-width: 1180px; margin: 0 auto; padding: 44px 40px 60px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--ink-3); letter-spacing: 0.04em; }
+    .colophon .mono { font-family: var(--serif); font-style: italic; font-size: 0.84rem; }
 
-        @media (max-width: 900px) {
-            .step-grid { grid-template-columns: repeat(2, 1fr); }
-            .example-grid { grid-template-columns: 1fr; }
-            .hero h1 { font-size: 2.2rem; }
-        }
-        @media (max-width: 600px) {
-            .step-grid { grid-template-columns: 1fr; }
-            .navbar { padding: 16px 20px; }
-        }
-    </style>
+    @media (max-width: 900px) {
+        .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: 1fr; }
+        .hero h1 { font-size: 2.2rem; }
+    }
+    @media (max-width: 600px) {
+        .masthead-inner { padding: 0 20px; }
+        .sheet { padding: 40px 20px 80px; }
+        .grid-4 { grid-template-columns: 1fr; }
+        .obs-cta { padding: 40px 20px; }
+        .colophon { flex-direction: column; gap: 12px; text-align: center; }
+    }
+</style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <div class="logo-icon"><i data-lucide="globe"></i></div>
-            Society - C - Geography
-        </a>
-        <div class="menu">
-            <a href="index.html">홈</a>
-            <a href="qna.html">Q&A 게시판</a>
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html">홈</a>
+                <a href="qna.html">Q&amp;A 게시판</a>
+            </nav>
         </div>
-    </nav>
-
-    <header class="hero">
-        <div class="badge"><i data-lucide="compass" style="width:14px; display:inline-block; vertical-align:middle;"></i> Performance Assessment</div>
-        <h1>지역 탐구 프로젝트 <br><span style="color:var(--primary);">A to Z 가이드</span></h1>
-        <p>우리 동네의 지리적, 사회적 문제를 찾고하고, 탐구를 통해 결론 및 대안을 제시하는 통합사회 탐구 프로젝트입니다.</p>
     </header>
 
-    <main class="container">
+    <main class="sheet">
         
-        <section class="card">
-            <h2 class="section-title"><i data-lucide="route"></i> 탐구 진행 프로세스</h2>
-            <div class="step-grid">
-                
-                <div class="step-card">
-                    <div class="step-num">01</div>
-                    <div class="step-icon"><i data-lucide="map-pin"></i></div>
+        <header class="hero">
+            <div class="badge">
+                <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                Performance Assessment
+            </div>
+            <h1>지역 탐구 프로젝트 <br><em>Methodology Guide</em></h1>
+            <p>우리 동네의 지리적, 사회적 문제를 직접 발굴하고, 실증적 데이터 분석을 통해 창의적인 대안을 제시하는 통합사회 현장 연구 프로젝트입니다.</p>
+        </header>
+
+        <section>
+            <h2 class="section-title">
+                <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+                탐구 진행 프로세스
+            </h2>
+            
+            <div class="grid-4">
+                <div class="panel step-card">
+                    <div class="step-head">
+                        <div class="step-icon">
+                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+                        </div>
+                        <span class="step-num">I.</span>
+                    </div>
                     <h3>주제 및 지역 선정</h3>
-                    <p>내가 사는 동네, 혹은 관심 있는 지역에서 발생하고 있는 지리적/사회적 현상이나 갈등을 탐색합니다.</p>
+                    <p>내가 사는 동네, 혹은 관심 있는 지역에서 발생하고 있는 지리/사회적 현상이나 갈등을 탐색합니다.</p>
                 </div>
 
-                <div class="step-card">
-                    <div class="step-num">02</div>
-                    <div class="step-icon"><i data-lucide="database"></i></div>
+                <div class="panel step-card">
+                    <div class="step-head">
+                        <div class="step-icon">
+                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                        </div>
+                        <span class="step-num">II.</span>
+                    </div>
                     <h3>공간 데이터 수집</h3>
-                    <p>통계청 및 공개 데이터, 뉴스 자료, 서적 등 여러 자료나 설문조사를 통해 객관적인 데이터를 수집합니다.</p>
+                    <p>통계청 및 공개 데이터, 뉴스 자료, 서적 등 여러 자료들을 통해 객관적인 데이터를 수집합니다.</p>
                 </div>
 
-                <div class="step-card">
-                    <div class="step-num">03</div>
-                    <div class="step-icon"><i data-lucide="bar-chart-3"></i></div>
-                    <h3>데이터 분석 및 시각화</h3>
-                    <p>수집한 자료를 바탕으로 현상의 원인을 분석하고, 그래프나 지도, 도표 등의 형태로 시각화하여 한 눈에 알아볼 수 있게 표현합니다..</p>
+                <div class="panel step-card">
+                    <div class="step-head">
+                        <div class="step-icon">
+                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        </div>
+                        <span class="step-num">III.</span>
+                    </div>
+                    <h3>분석 및 시각화</h3>
+                    <p>수집한 자료를 바탕으로 현상의 원인을 분석하고 그래프나 지도, 도표 등의 형태로 시각화하여 한 눈에 알아볼 수 있게 표현합니다.</p>
                 </div>
 
-                <div class="step-card">
-                    <div class="step-num">04</div>
-                    <div class="step-icon"><i data-lucide="lightbulb"></i></div>
-                    <h3>결론 제시 </h3>
+                <div class="panel step-card">
+                    <div class="step-head">
+                        <div class="step-icon">
+                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        </div>
+                        <span class="step-num">IV.</span>
+                    </div>
+                    <h3>결론 및 대안 제시</h3>
                     <p>도출된 결론을 바탕으로 지역 사회를 위한 현실적이고 창의적인 해결책을 제안합니다.</p>
                 </div>
-
             </div>
         </section>
 
         <section>
-            <h2 class="section-title" style="margin-left: 10px;"><i data-lucide="award"></i> 분야별 탐구 사례</h2>
-            <div class="example-grid">
+            <h2 class="section-title">
+                <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                분야별 탐구 사례 아카이브
+            </h2>
+            
+            <div class="grid-3">
                 
-                <div class="example-card">
-                    <div class="ex-thumb thumb-1">
-                        <span class="ex-tag">지역 내 의료시설 부족</span>
-                        <div class="ex-icon" style="color: #e11d48;"><i data-lucide="store" style="width:32px; height:32px;"></i></div>
+                <div class="panel ex-card">
+                    <div class="ex-thumb pat-1">
+                        <span class="ex-tag">Demographics</span>
+                        <div class="ex-icon-box">
+                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </div>
                     </div>
                     <div class="ex-content">
-                        <h3>서울시의 병원 개원 경쟁, 필수 의료시설 부족</h3>
-                        <p>서울시의 병원 업종별 개수 변화와 최근 개원 병원 데이터를 분석하여 산부인과 부족 현상을 시각화하고, 그 원인과 해결 방안을 제안함.</p>
+                        <h3>서울시 병원 개원 경쟁과 필수 의료시설의 공백</h3>
+                        <p>서울시의 병원 업종별 개수 변화와 최근 개원 병원 데이터를 분석하여 산부인과 부족 현상을 공간적으로 시각화하고 원인을 규명함.</p>
                         <div class="ex-tech">
-                            <span>#통계분석</span> <span>#저출산</span>
+                            <span>#의료공백</span> <span>#저출산</span> <span>#상권분석</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="example-card">
-                    <div class="ex-thumb thumb-2">
-                        <span class="ex-tag">교통/인구</span>
-                        <div class="ex-icon" style="color: #2563eb;"><i data-lucide="train" style="width:32px; height:32px;"></i></div>
+                <div class="panel ex-card">
+                    <div class="ex-thumb pat-2">
+                        <span class="ex-tag">Transportation</span>
+                        <div class="ex-icon-box">
+                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                        </div>
                     </div>
                     <div class="ex-content">
-                        <h3>GTX 개통이 신도시 인구 이동에 미치는 영향</h3>
-                        <p>수도권 광역급행철도 예정역 주변의 인구 유입 및 부동산 데이터를 활용해, 개통 후의 빨대 효과(Straw Effect)를 예측함.</p>
+                        <h3>광역철도망 개통이 신도시 인구 이동에 미치는 영향</h3>
+                        <p>GTX 예정역 주변의 인구 유입 및 부동산 데이터를 활용해, 개통 이후에 발생할 수 있는 빨대 효과(Straw Effect)를 지리적으로 예측함.</p>
                         <div class="ex-tech">
-                            <span>#공간데이터</span> <span>#교통</span>
+                            <span>#GTX</span> <span>#인구이동</span> <span>#공간데이터</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="example-card">
-                    <div class="ex-thumb thumb-3">
-                        <span class="ex-tag">기후/환경</span>
-                        <div class="ex-icon" style="color: #059669;"><i data-lucide="thermometer-sun" style="width:32px; height:32px;"></i></div>
+                <div class="panel ex-card">
+                    <div class="ex-thumb pat-3">
+                        <span class="ex-tag">Climate & Env</span>
+                        <div class="ex-icon-box">
+                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/><path d="M12 12v4"/></svg>
+                        </div>
                     </div>
                     <div class="ex-content">
-                        <h3>기후 변화에 따른 제주도 농작물 재배지 북상</h3>
-                        <p>과거 30년간의 기온 데이터와 감귤 재배 면적 변화를 교차 분석하여, 미래 한반도 농업의 변화를 시뮬레이션함.</p>
+                        <h3>기후 변화에 따른 제주도 농작물 재배 한계선 북상</h3>
+                        <p>과거 30년간의 기온 데이터와 감귤 재배 면적 변화를 교차 분석하여, 미래 한반도 농업 지도의 변화를 환경 결정론적 관점에서 시뮬레이션함.</p>
                         <div class="ex-tech">
-                            <span>#기후변화</span> <span>#빅데이터분석</span>
+                            <span>#기후온난화</span> <span>#농업지리</span> <span>#통계분석</span>
                         </div>
                     </div>
                 </div>
@@ -202,22 +362,33 @@
             </div>
         </section>
 
-        <section class="cta-box">
-            <div style="background: rgba(255,255,255,0.1); width: 64px; height: 64px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
-                <i data-lucide="send" style="width: 32px; height: 32px; color: var(--neon-blue);"></i>
-            </div>
+        <section class="obs-cta">
+            <svg class="orbit" viewBox="0 0 600 600" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="300" cy="300" r="280"/>
+                <ellipse cx="300" cy="300" rx="280" ry="100"/>
+                <circle cx="300" cy="20" r="6" fill="currentColor"/>
+                <circle cx="580" cy="300" r="4" fill="currentColor"/>
+            </svg>
+            <svg class="obs-cta-icon ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
             <h2>주제 선정을 완료했나요?</h2>
-            <p>위 가이드라인과 예시를 충분히 숙지했다면, 이제 여러분만의 창의적인 탐구를 시작해 주세요.</p>
+            <p>본 가이드라인의 연구 방법론과 선행 사례를 충분히 숙지했다면,<br>이제 여러분만의 탐구를 시작할 차례입니다.</p>
             
+            <a href="qna.html" class="obs-go">
+                QnA 이동
+                <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
             </a>
         </section>
 
     </main>
 
+    <footer class="colophon">
+        <span>Leet's Geographia-Class</span>
+        <span class="mono">2026 Leet &mdash; All rights reserved</span>
+    </footer>
+
     <script>
-        lucide.createIcons();
-    </script>
-<script>
         // 1. 마우스 우클릭 차단
         document.addEventListener('contextmenu', function(e) {
             e.preventDefault();
@@ -230,26 +401,11 @@
 
         // 3. F12 및 주요 개발자 도구 단축키 차단
         document.addEventListener('keydown', function(e) {
-            // F12 차단
-            if (e.keyCode === 123) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + I (개발자 도구)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + C (요소 검사)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + J (콘솔)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-            }
-            // Ctrl + U (페이지 소스 보기)
-            if (e.ctrlKey && e.keyCode === 85) {
-                e.preventDefault();
-            }
+            if (e.keyCode === 123) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
+            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
+            if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
         });
     </script>
 </body>
