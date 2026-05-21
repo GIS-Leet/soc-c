@@ -320,7 +320,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref as dbRef, push, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
         // 기존 feedback.html과 공유하는 Firebase 설정 (100% 무료 Spark Plan)
         const firebaseConfig = {
@@ -340,7 +340,7 @@
 
         // 보안 대상 교사 구글 계정 이메일
         const ADMIN_EMAIL = "leetae712@gmail.com";
-        // 기본 동기화할 구글 드라이브 폴더 ID (유저님이 나중에 변경하여 저장할 수 있습니다)
+        // 기본 동기화할 구글 드라이브 폴더 ID
         const DEFAULT_FOLDER_ID = "1aZtApeoU0xW-X3l4x_x9SgOq2L0s9QcZ"; 
 
         let googleAccessToken = localStorage.getItem("gdrive_access_token") || null;
@@ -358,11 +358,23 @@
         // Set default folder ID in input
         folderIdInput.value = localStorage.getItem("gdrive_folder_id") || DEFAULT_FOLDER_ID;
 
+        // 리디렉션 로그인 후 돌아왔을 때 액세스 토큰 복구
+        getRedirectResult(auth).then((result) => {
+            if (result) {
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                if (credential && credential.accessToken) {
+                    googleAccessToken = credential.accessToken;
+                    localStorage.setItem("gdrive_access_token", googleAccessToken);
+                }
+            }
+        }).catch((error) => {
+            console.error("Redirect Result Error:", error);
+        });
+
         // AUTH OBSERVATION
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 if (user.email === ADMIN_EMAIL) {
-                    // 승인된 구글 관리자 로그인 성공
                     showDashboard(user);
                 } else {
                     showToast("❌ 승인되지 않은 계정입니다.");
@@ -373,21 +385,11 @@
             }
         });
 
-        // 1. SIGN IN & OUT GOOGLE
+        // 1. SIGN IN & OUT GOOGLE (팝업 대신 리디렉션 방식 — firebaseapp.com 호스팅 불필요)
         window.loginGoogle = function() {
             const provider = new GoogleAuthProvider();
-            // 구글 드라이브 읽기 전용 및 파일 메타데이터 조회를 위한 스코프 요청 (무료 API)
             provider.addScope("https://www.googleapis.com/auth/drive.readonly");
-            
-            signInWithPopup(auth, provider).then((result) => {
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                googleAccessToken = credential.accessToken;
-                localStorage.setItem("gdrive_access_token", googleAccessToken);
-                showToast("🗝️ Vault Entry Authorized.");
-            }).catch((error) => {
-                console.error("Auth Error:", error);
-                showToast("❌ 로그인 연동 실패");
-            });
+            signInWithRedirect(auth, provider);
         };
 
         window.logout = function() {
@@ -403,12 +405,8 @@
             loginGateway.style.display = "none";
             dashboard.style.display = "block";
             logoutBtn.style.display = "inline-block";
-            
-            // 파이어베이스 데이터베이스 비밀 리스너 초기화 (보안 영역)
             plannerRef = dbRef(db, "vault/planner");
             initPlanner();
-            
-            // 구글 드라이브 실시간 연동 실행
             fetchGoogleDriveFiles();
         }
 
@@ -423,19 +421,15 @@
         // 2. CHRONICLE PLANNER IMPLEMENTATION (Firebase RTDB)
         function initPlanner() {
             taskList.innerHTML = "";
-            
-            // Firebase Realtime DB Child Listeners
             onChildAdded(plannerRef, (snapshot) => {
                 removePlaceholder();
                 renderTask(snapshot.key, snapshot.val());
             });
-
             onChildRemoved(plannerRef, (snapshot) => {
                 const el = document.getElementById(`task-${snapshot.key}`);
                 if (el) el.remove();
                 checkPlaceholder();
             });
-
             onChildChanged(plannerRef, (snapshot) => {
                 const el = document.getElementById(`task-${snapshot.key}`);
                 if (el) {
@@ -450,15 +444,13 @@
             const li = document.createElement("li");
             li.className = `task-item ${data.completed ? 'completed' : ''}`;
             li.id = `task-${id}`;
-            
             const displayDate = data.dueDate ? `<span class="task-date">[By ${data.dueDate}]</span>` : '';
-            
             li.innerHTML = `
                 <div class="task-left">
                     <input type="checkbox" class="task-checkbox" ${data.completed ? 'checked' : ''} onchange="window.toggleTask('${id}', this.checked)">
                     <span class="task-label">${escapeHTML(data.text)} ${displayDate}</span>
                 </div>
-                <button class="task-remove" onclick="window.removeTask('${id}')">✕</button>
+                <button class="task-remove" onclick="window.removeTask('${id}')">&#x2715;</button>
             `;
             taskList.appendChild(li);
         }
@@ -468,14 +460,8 @@
             const dateInput = document.getElementById("taskDate");
             const text = input.value.trim();
             const dueDate = dateInput.value;
-            
             if (text && plannerRef) {
-                push(plannerRef, {
-                    text: text,
-                    dueDate: dueDate || "",
-                    completed: false,
-                    timestamp: Date.now()
-                });
+                push(plannerRef, { text, dueDate: dueDate || "", completed: false, timestamp: Date.now() });
                 input.value = "";
                 dateInput.value = "";
                 showToast("📝 Task recorded.");
@@ -483,9 +469,7 @@
         };
 
         window.toggleTask = function(id, completed) {
-            if (plannerRef) {
-                update(dbRef(db, `vault/planner/${id}`), { completed: completed });
-            }
+            if (plannerRef) update(dbRef(db, `vault/planner/${id}`), { completed });
         };
 
         window.removeTask = function(id) {
@@ -506,7 +490,7 @@
             }
         }
 
-        // 3. GOOGLE DRIVE API SYNC (No cost, Rest API Fetch)
+        // 3. GOOGLE DRIVE API SYNC
         window.syncGoogleDrive = function() {
             const fInput = folderIdInput.value.trim();
             if (fInput) {
@@ -518,45 +502,31 @@
         async function fetchGoogleDriveFiles() {
             const folderId = folderIdInput.value.trim() || DEFAULT_FOLDER_ID;
             const driveStatus = document.getElementById("driveStatus");
-            
             if (!googleAccessToken) {
-                fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">⚠️ 구글 드라이브 인증 정보가 유실되었습니다. 재로그인 해주세요.</td></tr>`;
+                fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">⚠️ 구글 드라이브 인증 정보가 유실되었습니다. 로그아웃 후 재로그인 해주세요.</td></tr>`;
                 return;
             }
-
             driveStatus.innerHTML = `<span class="spinner"></span>`;
             fileList.innerHTML = `<tr><td colspan="4" class="status-msg">구글 아카이브와 주파수를 맞추는 중...</td></tr>`;
-
             try {
-                // 특정 비공개 폴더 내 파일 조회 쿼리 (무료 API)
                 const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
                 const fields = encodeURIComponent('files(id,name,mimeType,modifiedTime,size,webViewLink)');
                 const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}&orderBy=modifiedTime+desc`;
-
-                const response = await fetch(url, {
-                    headers: {
-                        "Authorization": `Bearer ${googleAccessToken}`
-                    }
-                });
-
+                const response = await fetch(url, { headers: { "Authorization": `Bearer ${googleAccessToken}` } });
                 if (response.status === 401) {
-                    // 토큰 만료 시 재로그인 유도
                     driveStatus.innerHTML = '';
-                    fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">🔑 인증 세션이 만료되었습니다. 로그아웃 후 구글 계정으로 재접속 해주세요.</td></tr>`;
+                    fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">🔑 인증 세션이 만료되었습니다. 로그아웃 후 재접속 해주세요.</td></tr>`;
                     return;
                 }
-
                 if (!response.ok) throw new Error("Drive API request failed.");
-
                 const data = await response.json();
                 renderFiles(data.files || []);
                 driveStatus.innerHTML = `<span>🟢 Linked</span>`;
                 showToast("📂 Drive Archives updated.");
-
             } catch (err) {
                 console.error("Drive Error:", err);
                 driveStatus.innerHTML = `<span>🔴 Interrupted</span>`;
-                fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">⚠️ 구글 드라이브를 불러오지 못했습니다. 폴더 ID 및 공유 권한을 확인해주세요.</td></tr>`;
+                fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">⚠️ 구글 드라이브를 불러오지 못했습니다.</td></tr>`;
             }
         }
 
@@ -565,55 +535,36 @@
                 fileList.innerHTML = `<tr><td colspan="4" class="status-msg">지정된 보관함 폴더에 파일이 비어 있습니다.</td></tr>`;
                 return;
             }
-
             fileList.innerHTML = "";
             files.forEach(file => {
                 const tr = document.createElement("tr");
                 const dateStr = new Date(file.modifiedTime).toLocaleDateString("ko-KR", {year: 'numeric', month: '2-digit', day: '2-digit'});
                 const sizeStr = file.size ? formatBytes(parseInt(file.size)) : '-';
-                
-                // 확장자별 프리미엄 아이콘 획득
                 const iconSvg = getFileIcon(file.mimeType);
-
                 tr.innerHTML = `
-                    <td>
-                        <div class="file-name-cell">
-                            ${iconSvg}
-                            <span>${escapeHTML(file.name)}</span>
-                        </div>
-                    </td>
+                    <td><div class="file-name-cell">${iconSvg}<span>${escapeHTML(file.name)}</span></div></td>
                     <td class="file-date">${dateStr}</td>
                     <td class="file-size">${sizeStr}</td>
-                    <td style="text-align: right;">
-                        <a href="${file.webViewLink}" target="_blank" class="btn-download">Open ↗</a>
-                    </td>
+                    <td style="text-align: right;"><a href="${file.webViewLink}" target="_blank" class="btn-download">Open ↗</a></td>
                 `;
                 fileList.appendChild(tr);
             });
         }
 
-        // HELPERS
         function formatBytes(bytes, decimals = 2) {
             if (!+bytes) return '0 Bytes';
             const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
             const sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(decimals < 0 ? 0 : decimals))} ${sizes[i]}`;
         }
 
         function getFileIcon(mimeType) {
-            // SVG Icons based on MimeType
             const base = `<svg class="file-icon ico" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">`;
-            if (mimeType.includes("pdf")) {
-                return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
-            } else if (mimeType.includes("image")) {
-                return base + `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
-            } else if (mimeType.includes("document") || mimeType.includes("text")) {
-                return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>`;
-            } else {
-                return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
-            }
+            if (mimeType.includes("pdf")) return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`;
+            if (mimeType.includes("image")) return base + `<rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+            if (mimeType.includes("document") || mimeType.includes("text")) return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`;
+            return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
         }
 
         function escapeHTML(str) {
