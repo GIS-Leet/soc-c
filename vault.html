@@ -17,42 +17,28 @@
         href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
 
     <style>
-        /* ============================================================
-           GEOGRAPHIA — Teacher's Vault (Dark Archive Concept)
-        ============================================================ */
         :root {
             --ink: #1a1714;
             --ink-2: #4a443c;
             --ink-3: #8c8479;
-
             --paper: #f4f0e8;
             --paper-2: #efe9dd;
-
             --terra: #b4502e;
             --gold: #9a7b3f;
-
             --serif: 'Fraunces', Georgia, serif;
             --sans: 'Pretendard', -apple-system, sans-serif;
             --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
 
-        /* Vault는 다른 페이지와 달리 짙은 먹색 배경을 사용하여 기밀성을 강조합니다. */
         body {
             font-family: var(--sans);
             background-color: var(--ink);
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             color: var(--paper);
             line-height: 1.62;
             -webkit-font-smoothing: antialiased;
@@ -61,7 +47,6 @@
             min-height: 100vh;
         }
 
-        /* [중요 해결 포인트] pointer-events: none 으로 클릭 방해 해제 */
         body::before {
             content: '';
             position: fixed;
@@ -73,685 +58,870 @@
             mix-blend-mode: screen;
         }
 
-        .content-layer {
-            position: relative;
-            z-index: 2;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
+        .content-layer { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; }
+        a { text-decoration: none; color: inherit; }
+        .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .ico {
-            display: inline-block;
-            vertical-align: middle;
-            flex-shrink: 0;
-        }
-
-        /* MASTHEAD (Dark Mode) */
+        /* MASTHEAD */
         .masthead {
             border-bottom: 1px solid var(--ink-2);
-            background: rgba(26, 23, 20, 0.8);
+            background: rgba(26,23,20,0.8);
             backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 9999;
+            position: sticky; top: 0; z-index: 9999;
         }
-
         .masthead-inner {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 40px;
-            height: 66px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            max-width: 1100px; margin: 0 auto;
+            padding: 0 40px; height: 66px;
+            display: flex; align-items: center; justify-content: space-between;
         }
+        .brand { display: flex; align-items: center; gap: 13px; }
+        .brand-seal { width: 38px; height: 38px; color: var(--gold); }
+        .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+        .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; color: var(--paper); }
+        .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; color: var(--ink-3); margin-top: 2px; text-transform: uppercase; }
+        .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-3); padding: 8px 16px; transition: 0.25s; border-radius: 100px; border: 1px solid transparent; }
+        .nav a:hover { color: var(--paper); border-color: var(--ink-2); }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-        }
-
-        .brand-seal {
-            width: 38px;
-            height: 38px;
-            color: var(--gold);
-        }
-
-        .brand-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.05;
-        }
-
-        .brand-text .ko {
-            font-family: var(--serif);
-            font-weight: 600;
-            font-size: 1.02rem;
-            color: var(--paper);
-        }
-
-        .brand-text .en {
-            font-size: 0.66rem;
-            font-weight: 600;
-            letter-spacing: 0.22em;
-            color: var(--ink-3);
-            margin-top: 2px;
-            text-transform: uppercase;
-        }
-
-        .nav a {
-            font-size: 0.84rem;
-            font-weight: 600;
-            color: var(--ink-3);
-            padding: 8px 16px;
-            transition: 0.25s;
-            border-radius: 100px;
-            border: 1px solid transparent;
-        }
-
-        .nav a:hover {
-            color: var(--paper);
-            border-color: var(--ink-2);
-        }
-
-        /* 1. LOGIN SECTION (보안 검색대) */
+        /* LOGIN */
         #login-section {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px;
+            flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px;
         }
-
         .auth-box {
-            background: var(--paper);
-            border: 2px solid var(--ink-2);
-            padding: 50px 40px;
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
-            color: var(--ink);
-            position: relative;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            background: var(--paper); border: 2px solid var(--ink-2);
+            padding: 50px 40px; max-width: 420px; width: 100%;
+            text-align: center; color: var(--ink);
+            position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-
-        .auth-box::before {
-            content: '';
-            position: absolute;
-            inset: 6px;
-            border: 1px solid var(--line);
-            pointer-events: none;
-        }
-
-        .auth-stamp {
-            width: 60px;
-            height: 60px;
-            color: var(--terra);
-            margin-bottom: 20px;
-        }
-
-        .auth-box h1 {
-            font-family: var(--serif);
-            font-size: 1.6rem;
-            font-weight: 500;
-            margin: 0 0 10px;
-            letter-spacing: -0.01em;
-        }
-
-        .auth-box p {
-            font-size: 0.9rem;
-            color: var(--ink-2);
-            margin: 0 0 30px;
-            word-break: keep-all;
-            line-height: 1.6;
-        }
-
+        .auth-stamp { width: 60px; height: 60px; color: var(--terra); margin-bottom: 20px; }
+        .auth-box h1 { font-family: var(--serif); font-size: 1.6rem; font-weight: 500; margin: 0 0 10px; }
+        .auth-box p { font-size: 0.9rem; color: var(--ink-2); margin: 0 0 30px; word-break: keep-all; line-height: 1.6; }
         .google-btn {
-            background: var(--ink);
-            color: var(--paper);
-            border: none;
-            padding: 14px 24px;
-            width: 100%;
-            font-family: var(--serif);
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: 0.3s var(--ease);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            z-index: 5;
+            background: var(--ink); color: var(--paper); border: none;
+            padding: 14px 24px; width: 100%;
+            font-family: var(--serif); font-size: 0.9rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            cursor: pointer; transition: 0.3s var(--ease);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
+        .google-btn:hover { background: var(--terra); }
 
-        .google-btn:hover {
-            background: var(--terra);
-        }
-
-        /* 2. VAULT SECTION (파일 보관함) */
+        /* VAULT SECTION */
         #vault-section {
             display: none;
-            max-width: 1000px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 50px 40px 100px;
+            max-width: 1100px; margin: 0 auto; width: 100%;
+            padding: 40px 40px 100px;
         }
 
+        /* VAULT HEADER */
         .vault-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 40px;
-            border-bottom: 1px solid var(--ink-2);
-            padding-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0; border-bottom: 1px solid var(--ink-2); padding-bottom: 16px;
         }
-
-        .vault-title h2 {
-            font-family: var(--serif);
-            font-size: 2rem;
-            font-weight: 400;
-            color: var(--gold);
-            margin: 0 0 5px;
-        }
-
-        .vault-title p {
-            margin: 0;
-            color: var(--ink-3);
-            font-size: 0.9rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            font-family: var(--serif);
-        }
-
+        .vault-title h2 { font-family: var(--serif); font-size: 1.8rem; font-weight: 400; color: var(--gold); margin: 0 0 3px; }
+        .vault-title p { margin: 0; color: var(--ink-3); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; font-family: var(--serif); }
         .logout-btn {
-            background: transparent;
-            color: var(--ink-3);
-            border: 1px solid var(--ink-2);
-            padding: 8px 16px;
-            font-family: var(--serif);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: 0.2s;
+            background: transparent; color: var(--ink-3);
+            border: 1px solid var(--ink-2); padding: 8px 16px;
+            font-family: var(--serif); font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            cursor: pointer; transition: 0.2s;
         }
+        .logout-btn:hover { color: var(--terra); border-color: var(--terra); }
 
-        .logout-btn:hover {
-            color: var(--terra);
-            border-color: var(--terra);
+        /* TAB NAV */
+        .tab-nav {
+            display: flex; gap: 0;
+            border-bottom: 1px solid var(--ink-2); margin-bottom: 32px;
+        }
+        .tab-btn {
+            background: transparent; border: none; border-bottom: 2px solid transparent;
+            color: var(--ink-3); padding: 14px 22px; margin-bottom: -1px;
+            font-family: var(--serif); font-size: 0.9rem; font-weight: 500;
+            cursor: pointer; transition: 0.2s; letter-spacing: 0.02em;
+        }
+        .tab-btn:hover { color: var(--paper); }
+        .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* SHARED: SETTINGS BAR */
+        .settings-bar {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--ink-2);
+            padding: 16px 20px; margin-bottom: 24px;
+            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+        }
+        .settings-bar label { color: var(--ink-3); font-size: 0.8rem; font-family: var(--serif); white-space: nowrap; }
+        .settings-input {
+            background: rgba(255,255,255,0.06); border: 1px solid var(--ink-2);
+            color: var(--paper); padding: 8px 12px; font-family: var(--sans);
+            font-size: 0.85rem; flex: 1; min-width: 200px; outline: none;
+        }
+        .settings-input:focus { border-color: var(--gold); }
+        .settings-input::placeholder { color: var(--ink-3); }
+        .save-btn {
+            background: var(--gold); color: var(--ink); border: none;
+            padding: 8px 18px; font-family: var(--serif); font-size: 0.8rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+            cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .save-btn:hover { background: var(--paper); }
+
+        /* SHARED: FILE LIST */
+        .file-list { display: flex; flex-direction: column; gap: 10px; }
+        .file-item {
+            background: var(--paper); color: var(--ink);
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 14px 18px; display: flex;
+            justify-content: space-between; align-items: center; transition: 0.2s;
+        }
+        .file-item:hover { transform: translateX(3px); border-color: var(--gold); }
+        .file-info { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
+        .file-icon { color: var(--terra); display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; flex-shrink: 0; }
+        .file-name { font-size: 0.92rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-meta { font-family: var(--serif); font-size: 0.78rem; color: var(--ink-3); margin-right: 16px; font-style: italic; flex-shrink: 0; }
+        .file-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .act-btn {
+            background: transparent; border: 1px solid #ccc8bf;
+            padding: 5px 11px; font-family: var(--sans); font-size: 0.73rem;
+            font-weight: 700; cursor: pointer; color: var(--ink-2);
+            transition: 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+        }
+        .act-btn:hover { background: #e8e3d8; color: var(--ink); }
+        .act-btn.del:hover { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+        .empty-state {
+            text-align: center; color: var(--ink-3); padding: 40px 0;
+            font-family: var(--serif); font-style: italic;
+            border: 1px dashed var(--ink-2);
         }
 
         /* UPLOAD PANEL */
         .upload-panel {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px dashed var(--ink-2);
-            padding: 30px;
-            margin-bottom: 40px;
-            text-align: center;
+            background: rgba(255,255,255,0.03); border: 1px dashed var(--ink-2);
+            padding: 24px; margin-bottom: 24px; text-align: center;
         }
-
-        .upload-panel p {
-            color: var(--ink-faint);
-            margin: 0 0 20px;
-            font-size: 0.95rem;
-        }
-
-        .upload-btn-wrap {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-
+        .upload-panel p { color: var(--ink-3); margin: 0 0 16px; font-size: 0.9rem; }
+        .upload-btn-wrap { display: flex; justify-content: center; gap: 10px; }
         .upload-btn {
-            background: var(--paper);
-            color: var(--ink);
-            border: none;
-            padding: 12px 24px;
-            font-family: var(--serif);
-            font-size: 0.85rem;
+            background: var(--paper); color: var(--ink); border: none;
+            padding: 10px 22px; font-family: var(--serif); font-size: 0.83rem;
+            font-weight: 600; cursor: pointer; display: flex; align-items: center;
+            gap: 8px; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .upload-btn:hover { background: var(--gold); color: var(--ink); }
+        input[type="file"] { display: none; }
+
+        /* CALENDAR */
+        .cal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .cal-title { font-family: var(--serif); font-size: 1.4rem; color: var(--gold); }
+        .cal-nav-btn {
+            background: transparent; border: 1px solid var(--ink-2);
+            color: var(--ink-3); padding: 6px 14px; font-family: var(--serif);
+            font-size: 1rem; cursor: pointer; transition: 0.2s;
+        }
+        .cal-nav-btn:hover { color: var(--paper); border-color: var(--paper); }
+        .cal-weekdays {
+            display: grid; grid-template-columns: repeat(7, 1fr);
+            gap: 2px; margin-bottom: 4px;
+        }
+        .cal-weekday {
+            text-align: center; font-size: 0.72rem; font-weight: 700;
+            color: var(--ink-3); padding: 6px 0; text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .cal-weekday:first-child { color: #c0504d; }
+        .cal-weekday:last-child { color: #5b7ab8; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+        .cal-cell {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--ink-2);
+            min-height: 90px; padding: 8px 8px 6px;
+            cursor: pointer; transition: 0.15s; position: relative;
+        }
+        .cal-cell:hover { background: rgba(255,255,255,0.07); border-color: var(--gold); }
+        .cal-cell.empty { background: transparent; border-color: transparent; cursor: default; }
+        .cal-cell.today { border-color: var(--gold); background: rgba(154,123,63,0.1); }
+        .cal-date {
+            font-family: var(--serif); font-size: 0.85rem; font-weight: 500;
+            color: var(--ink-3); display: block; text-align: right; margin-bottom: 4px;
+        }
+        .cal-cell.today .cal-date { color: var(--gold); font-weight: 600; }
+        .cal-cell:first-child .cal-date,
+        .cal-cell:nth-child(7n+1) .cal-date { color: #c0504d; }
+        .cal-cell:nth-child(7n) .cal-date { color: #5b7ab8; }
+        .cal-cell.today .cal-date { color: var(--gold) !important; }
+        .cal-events { display: flex; flex-direction: column; gap: 2px; }
+        .cal-event {
+            font-size: 0.72rem; background: var(--gold); color: var(--ink);
+            padding: 2px 5px; border-radius: 2px; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; cursor: pointer;
             font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+        }
+        .cal-event:hover { background: var(--terra); color: var(--paper); }
+        .cal-add-wrap { margin-top: 4px; }
+        .cal-input {
+            width: 100%; background: rgba(255,255,255,0.1);
+            border: 1px solid var(--gold); color: var(--paper);
+            padding: 3px 5px; font-size: 0.75rem; font-family: var(--sans);
+            outline: none;
         }
 
-        .upload-btn:hover {
-            background: var(--gold);
-            color: var(--ink);
+        /* GITHUB BREADCRUMB */
+        .gh-breadcrumb {
+            font-family: var(--serif); font-size: 0.85rem;
+            color: var(--ink-3); margin-bottom: 16px;
+            display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
         }
+        .gh-crumb { color: var(--gold); cursor: pointer; }
+        .gh-crumb:hover { text-decoration: underline; }
 
-        input[type="file"] {
-            display: none;
+        /* DRIVE CONNECT */
+        .connect-btn {
+            background: var(--gold); color: var(--ink); border: none;
+            padding: 10px 22px; font-family: var(--serif); font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; transition: 0.2s;
+            text-transform: uppercase; letter-spacing: 0.08em; margin-top: 10px;
         }
+        .connect-btn:hover { background: var(--paper); }
 
-        /* FILE LIST (Ledger View) */
-        .file-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .file-item {
-            background: var(--paper);
-            color: var(--ink);
-            border: 1px solid var(--line);
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.2s;
-        }
-
-        .file-item:hover {
-            transform: translateX(4px);
-            box-shadow: 4px 4px 0 rgba(255, 255, 255, 0.1);
-            border-color: var(--gold);
-        }
-
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .file-icon {
-            color: var(--terra);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            flex-shrink: 0;
-        }
-
-        .file-name {
-            font-family: var(--sans);
-            font-size: 0.95rem;
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .file-meta {
-            font-family: var(--serif);
-            font-size: 0.8rem;
-            color: var(--ink-3);
-            margin-right: 20px;
-            font-style: italic;
-            flex-shrink: 0;
-        }
-
-        .file-actions {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .act-btn {
-            background: transparent;
-            border: 1px solid var(--line);
-            padding: 6px 12px;
-            font-family: var(--sans);
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            color: var(--ink-2);
-            transition: 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .act-btn:hover {
-            background: var(--line-soft);
-            color: var(--ink);
-        }
-
-        .act-btn.del:hover {
-            background: #fef2f2;
-            color: #dc2626;
-            border-color: #fca5a5;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: var(--ink-3);
-            padding: 40px 0;
-            font-family: var(--serif);
-            font-style: italic;
-            border: 1px dashed var(--ink-2);
-        }
-
-        @media (max-width: 600px) {
-
-            .masthead-inner,
-            #vault-section {
-                padding: 0 20px;
-            }
-
-            .file-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .file-actions {
-                width: 100%;
-                justify-content: flex-end;
-                border-top: 1px dashed var(--line);
-                padding-top: 12px;
-            }
-
-            .file-meta {
-                display: none;
-            }
+        @media (max-width: 640px) {
+            .masthead-inner, #vault-section { padding: 0 16px; }
+            #vault-section { padding-bottom: 60px; }
+            .tab-btn { padding: 12px 14px; font-size: 0.8rem; }
+            .cal-cell { min-height: 64px; }
+            .file-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .file-actions { width: 100%; justify-content: flex-end; border-top: 1px dashed rgba(0,0,0,0.15); padding-top: 10px; }
+            .file-meta { display: none; }
         }
     </style>
 </head>
 
 <body>
+<div class="content-layer">
 
-    <div class="content-layer">
-        <header class="masthead">
-            <div class="masthead-inner">
-                <a href="index.html" class="brand">
-                    <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="24" cy="24" r="20" />
-                        <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5" />
-                        <path d="M24 4v40M4 24h40" />
-                        <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none" />
-                        <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none" />
-                    </svg>
-                    <span class="brand-text">
-                        <span class="ko">Leet's Geographia Class</span>
-                        <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
-                    </span>
-                </a>
-                <nav class="nav">
-                    <a href="index.html">Exit Vault</a>
-                </nav>
-            </div>
-        </header>
-
-        <main id="login-section">
-            <div class="auth-box">
-                <svg class="auth-stamp ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
                 </svg>
-                <h1>Classified Archive</h1>
-                <p>본 구역은 교사 전용 기밀 데이터 보관소입니다.<br>인가된 Google 계정으로 접근을 승인하십시오.</p>
-                <button id="googleLoginBtn" class="google-btn">
-                    <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                        <polyline points="10 17 15 12 10 7" />
-                        <line x1="15" y1="12" x2="3" y2="12" />
-                    </svg>
-                    Google Auth
-                </button>
-            </div>
-        </main>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav"><a href="index.html">Exit Vault</a></nav>
+        </div>
+    </header>
 
-        <section id="vault-section">
-            <div class="vault-header">
-                <div class="vault-title">
-                    <h2>The Teacher's Vault</h2>
-                    <p>Secured Cloud Storage &amp; Planner</p>
+    <main id="login-section">
+        <div class="auth-box">
+            <svg class="auth-stamp ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <h1>Classified Archive</h1>
+            <p>본 구역은 교사 전용 기밀 데이터 보관소입니다.<br>인가된 Google 계정으로 접근을 승인하십시오.</p>
+            <button id="googleLoginBtn" class="google-btn">
+                <svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                Google Auth
+            </button>
+        </div>
+    </main>
+
+    <section id="vault-section">
+        <div class="vault-header">
+            <div class="vault-title">
+                <h2>The Teacher's Vault</h2>
+                <p>Secured Archive &amp; Workspace</p>
+            </div>
+            <button id="logoutBtn" class="logout-btn">Lock Vault</button>
+        </div>
+
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="calendar">📅 일정</button>
+            <button class="tab-btn" data-tab="drive">☁ Drive</button>
+            <button class="tab-btn" data-tab="github">⬡ GitHub</button>
+            <button class="tab-btn" data-tab="storage">📁 보관함</button>
+        </nav>
+
+        <!-- TAB: CALENDAR -->
+        <div id="tab-calendar" class="tab-panel active">
+            <div class="cal-header">
+                <button class="cal-nav-btn" id="calPrev">‹</button>
+                <span class="cal-title" id="calTitle"></span>
+                <button class="cal-nav-btn" id="calNext">›</button>
+            </div>
+            <div class="cal-weekdays">
+                <div class="cal-weekday">일</div><div class="cal-weekday">월</div>
+                <div class="cal-weekday">화</div><div class="cal-weekday">수</div>
+                <div class="cal-weekday">목</div><div class="cal-weekday">금</div>
+                <div class="cal-weekday">토</div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+        </div>
+
+        <!-- TAB: GOOGLE DRIVE -->
+        <div id="tab-drive" class="tab-panel">
+            <div class="settings-bar">
+                <label>폴더 ID</label>
+                <input class="settings-input" id="driveFolderInput" placeholder="Google Drive 폴더 ID (URL의 /folders/ 뒷부분)">
+                <button class="save-btn" id="driveSaveBtn">저장 & 불러오기</button>
+                <button class="save-btn" id="driveReconnectBtn" style="background:var(--terra);color:var(--paper);">Drive 재연결</button>
+            </div>
+            <div id="drive-list" class="file-list">
+                <div class="empty-state">폴더 ID를 입력하고 저장 버튼을 눌러주세요.</div>
+            </div>
+        </div>
+
+        <!-- TAB: GITHUB -->
+        <div id="tab-github" class="tab-panel">
+            <div class="settings-bar">
+                <label>PAT</label>
+                <input class="settings-input" id="ghTokenInput" type="password" placeholder="GitHub Personal Access Token">
+                <label>저장소</label>
+                <input class="settings-input" id="ghRepoInput" placeholder="owner/repo" style="flex:0.6">
+                <button class="save-btn" id="ghSaveBtn">저장 & 연결</button>
+            </div>
+            <div class="upload-panel" id="gh-upload-panel" style="display:none">
+                <p>현재 경로에 파일을 업로드합니다.</p>
+                <div class="upload-btn-wrap">
+                    <input type="file" id="ghFileUploader" multiple>
+                    <button class="upload-btn" onclick="document.getElementById('ghFileUploader').click()">
+                        <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        파일 선택 & 업로드
+                    </button>
                 </div>
-                <button id="logoutBtn" class="logout-btn">Lock Vault</button>
+                <div id="ghUploadStatus" style="margin-top:12px;color:var(--gold);font-size:0.83rem;font-family:var(--serif)"></div>
             </div>
+            <div class="gh-breadcrumb" id="ghBreadcrumb"></div>
+            <div id="gh-list" class="file-list">
+                <div class="empty-state">GitHub 설정을 입력하고 연결해주세요.</div>
+            </div>
+        </div>
 
+        <!-- TAB: STORAGE -->
+        <div id="tab-storage" class="tab-panel">
             <div class="upload-panel">
                 <p>학습지, 이미지 등 웹페이지에 연결할 리소스를 안전하게 업로드합니다.</p>
                 <div class="upload-btn-wrap">
                     <input type="file" id="fileUploader" multiple>
                     <button class="upload-btn" onclick="document.getElementById('fileUploader').click()">
-                        <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="17 8 12 3 7 8" />
-                            <line x1="12" y1="3" x2="12" y2="15" />
+                        <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
                         </svg>
                         Select Files
                     </button>
-                    <button class="upload-btn" id="uploadExecBtn"
-                        style="display:none; background:var(--terra); color:var(--paper);">Upload Now</button>
+                    <button class="upload-btn" id="uploadExecBtn" style="display:none;background:var(--terra);color:var(--paper);">Upload Now</button>
                 </div>
-                <div id="uploadStatus"
-                    style="margin-top: 15px; color: var(--gold); font-size: 0.85rem; font-family: var(--serif);"></div>
+                <div id="uploadStatus" style="margin-top:15px;color:var(--gold);font-size:0.85rem;font-family:var(--serif)"></div>
             </div>
-
             <div id="fileListContainer" class="file-list">
                 <div class="empty-state">Loading secure data...</div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-        import { getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getDatabase, ref, push, set, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
-        // 선생님의 Firebase 설정 객체
-        const firebaseConfig = {
-            apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
-            authDomain: "soc-c-qna.web.app",
-            databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
-            projectId: "soc-c-qna",
-            storageBucket: "soc-c-qna.firebasestorage.app",
-            messagingSenderId: "927605189358",
-            appId: "1:927605189358:web:9ea5171373ac4c9e8661ff"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
+        authDomain: "soc-c-qna.web.app",
+        databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
+        projectId: "soc-c-qna",
+        storageBucket: "soc-c-qna.firebasestorage.app",
+        messagingSenderId: "927605189358",
+        appId: "1:927605189358:web:9ea5171373ac4c9e8661ff"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-        const db = getDatabase(app);
-        const storage = getStorage(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+    const ADMIN_EMAIL = 'leetae712@gmail.com';
 
-        const ADMIN_EMAIL = 'leetae712@gmail.com';
+    let driveToken = sessionStorage.getItem('driveToken') || null;
 
-        // UI 요소
-        const loginSec = document.getElementById('login-section');
-        const vaultSec = document.getElementById('vault-section');
-        const loginBtn = document.getElementById('googleLoginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const fileUploader = document.getElementById('fileUploader');
-        const uploadExecBtn = document.getElementById('uploadExecBtn');
-        const uploadStatus = document.getElementById('uploadStatus');
-        const fileListContainer = document.getElementById('fileListContainer');
-
-        let selectedFiles = [];
-
-        // ==========================================
-        // ★ [해결 포인트] 클릭 이벤트 강제 바인딩 ★
-        // ==========================================
-        // type="module" 안에 있는 함수는 HTML에서 직접 찾을 수 없으므로, 
-        // 버튼의 addEventListener를 스크립트 내부에서 직접 달아줍니다.
-
-        loginBtn.addEventListener('click', () => {
-            loginBtn.innerHTML = `Processing...`;
-            signInWithPopup(auth, provider).catch(err => {
-                alert("인증 시스템 오류: " + err.message);
-                loginBtn.innerHTML = `<svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Google Auth`;
-            });
+    // ── TAB SWITCHING ──────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
         });
+    });
 
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth);
+    // ── AUTH ───────────────────────────────────────────────
+    const loginSec = document.getElementById('login-section');
+    const vaultSec = document.getElementById('vault-section');
+    const loginBtn = document.getElementById('googleLoginBtn');
+
+    loginBtn.addEventListener('click', () => {
+        loginBtn.textContent = 'Processing...';
+        signInWithPopup(auth, provider).then(result => {
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            if (credential?.accessToken) {
+                driveToken = credential.accessToken;
+                sessionStorage.setItem('driveToken', driveToken);
+            }
+        }).catch(err => {
+            alert("인증 오류: " + err.message);
+            loginBtn.innerHTML = `<svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Google Auth`;
         });
+    });
 
-        // ==========================================
-        // 인증 상태 감지기 (방화벽 로직)
-        // ==========================================
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                if (user.email === ADMIN_EMAIL) {
-                    // 권한 승인 완료
-                    loginSec.style.display = 'none';
-                    vaultSec.style.display = 'block';
-                    loadFiles(); // 파일 목록 불러오기
-                } else {
-                    // 미승인 계정 접근 차단
-                    alert("경고: 접근 권한이 없는 계정입니다. 보안을 위해 즉시 로그아웃됩니다.");
-                    signOut(auth);
-                }
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        sessionStorage.removeItem('driveToken');
+        signOut(auth);
+    });
+
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            if (user.email === ADMIN_EMAIL) {
+                loginSec.style.display = 'none';
+                vaultSec.style.display = 'block';
+                initCalendar();
+                loadStorageFiles();
+                loadGithubSettings();
+                loadDriveSettings();
             } else {
-                // 로그아웃 상태
-                loginSec.style.display = 'flex';
-                vaultSec.style.display = 'none';
-                loginBtn.innerHTML = `<svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Google Auth`;
+                alert("접근 권한이 없는 계정입니다. 즉시 로그아웃됩니다.");
+                signOut(auth);
             }
+        } else {
+            loginSec.style.display = 'flex';
+            vaultSec.style.display = 'none';
+            loginBtn.innerHTML = `<svg class="ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Google Auth`;
+        }
+    });
+
+    // ── CALENDAR ───────────────────────────────────────────
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+    let calData = {};
+
+    function initCalendar() {
+        onValue(ref(db, 'vault/calendar'), snap => {
+            calData = snap.val() || {};
+            renderCalendar();
         });
-
-        // ==========================================
-        // 파일 업로드 로직
-        // ==========================================
-        fileUploader.addEventListener('change', (e) => {
-            selectedFiles = e.target.files;
-            if (selectedFiles.length > 0) {
-                uploadExecBtn.style.display = 'inline-flex';
-                uploadStatus.innerText = `${selectedFiles.length}개의 파일이 대기 중입니다.`;
-            } else {
-                uploadExecBtn.style.display = 'none';
-                uploadStatus.innerText = '';
-            }
+        document.getElementById('calPrev').addEventListener('click', () => {
+            calMonth--;
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            renderCalendar();
         });
-
-        uploadExecBtn.addEventListener('click', async () => {
-            if (selectedFiles.length === 0) return;
-            uploadExecBtn.disabled = true;
-            uploadExecBtn.innerHTML = 'Uploading...';
-
-            try {
-                for (let i = 0; i < selectedFiles.length; i++) {
-                    const file = selectedFiles[i];
-                    const fileName = `vault/${Date.now()}_${file.name}`;
-                    const storageReference = sRef(storage, fileName);
-
-                    uploadStatus.innerText = `[${i + 1}/${selectedFiles.length}] ${file.name} 업로드 중...`;
-
-                    await uploadBytes(storageReference, file);
-                    const downloadUrl = await getDownloadURL(storageReference);
-
-                    // DB에 기록 저장
-                    await push(ref(db, 'vault/planner'), {
-                        name: file.name,
-                        url: downloadUrl,
-                        path: fileName,
-                        type: file.type,
-                        time: new Date().toLocaleString('ko-KR')
-                    });
-                }
-                uploadStatus.innerText = '모든 파일이 안전하게 보관되었습니다.';
-                uploadStatus.style.color = '#22c55e'; // success green
-            } catch (err) {
-                console.error(err);
-                uploadStatus.innerText = '업로드 중 오류가 발생했습니다.';
-                uploadStatus.style.color = 'var(--terra)';
-            } finally {
-                uploadExecBtn.style.display = 'none';
-                uploadExecBtn.disabled = false;
-                uploadExecBtn.innerHTML = 'Upload Now';
-                fileUploader.value = '';
-                selectedFiles = [];
-                setTimeout(() => { uploadStatus.innerText = ''; uploadStatus.style.color = 'var(--gold)'; }, 3000);
-            }
+        document.getElementById('calNext').addEventListener('click', () => {
+            calMonth++;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            renderCalendar();
         });
+    }
 
-        // ==========================================
-        // 파일 목록 불러오기 & 삭제 로직
-        // ==========================================
-        function getIconForType(mimeType) {
-            const base = `<svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">`;
-            if (mimeType.includes("video")) return base + `<rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>`;
-            if (mimeType.includes("image")) return base + `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
-            return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line><polyline points=\"10 9 9 9 8 9\"></polyline></svg>`;
+    function renderCalendar() {
+        const monthNames = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+        document.getElementById('calTitle').textContent = `${calYear}년 ${monthNames[calMonth]}`;
+
+        const firstDay = new Date(calYear, calMonth, 1).getDay();
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+        const today = new Date();
+        const grid = document.getElementById('calGrid');
+
+        let html = '';
+        for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell empty"></div>`;
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateKey = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const events = calData[dateKey] ? Object.entries(calData[dateKey]) : [];
+            const isToday = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+
+            const evHtml = events.slice(0, 3).map(([k, ev]) =>
+                `<div class="cal-event" data-key="${k}" data-date="${dateKey}">${ev.text}</div>`
+            ).join('');
+
+            html += `
+                <div class="cal-cell${isToday ? ' today' : ''}" data-date="${dateKey}">
+                    <span class="cal-date">${d}</span>
+                    <div class="cal-events">${evHtml}</div>
+                    <div class="cal-add-wrap" style="display:none">
+                        <input class="cal-input" placeholder="일정..." data-date="${dateKey}">
+                    </div>
+                </div>`;
         }
 
-        function loadFiles() {
-            onValue(ref(db, 'vault/planner'), (snapshot) => {
-                fileListContainer.innerHTML = '';
-                const data = snapshot.val();
+        grid.innerHTML = html;
 
-                if (!data) {
-                    fileListContainer.innerHTML = '<div class="empty-state">저장된 파일이 없습니다.</div>';
+        grid.querySelectorAll('.cal-cell:not(.empty)').forEach(cell => {
+            cell.addEventListener('click', e => {
+                if (e.target.classList.contains('cal-event')) {
+                    const k = e.target.dataset.key, dt = e.target.dataset.date;
+                    if (confirm('일정을 삭제하시겠습니까?')) remove(ref(db, `vault/calendar/${dt}/${k}`));
+                    e.stopPropagation();
                     return;
                 }
-
-                // 최신순 정렬
-                const files = Object.entries(data).reverse();
-
-                files.forEach(([key, file]) => {
-                    const el = document.createElement('div');
-                    el.className = 'file-item';
-
-                    const iconSvg = getIconForType(file.type || "");
-
-                    el.innerHTML = `
-                        <div class="file-info">
-                            ${iconSvg}
-                            <span class="file-name" title="${file.name}">${file.name}</span>
-                        </div>
-                        <span class="file-meta">${file.time.split(' ')[0]}</span>
-                        <div class="file-actions">
-                            <a href="${file.url}" target="_blank" class="act-btn">열람</a>
-                            <button class="act-btn" onclick="navigator.clipboard.writeText('${file.url}'); alert('링크가 복사되었습니다.');">복사</button>
-                            <button class="act-btn del" id="del-${key}">삭제</button>
-                        </div>
-                    `;
-                    fileListContainer.appendChild(el);
-
-                    // 동적 생성된 삭제 버튼 이벤트 연결
-                    document.getElementById(`del-${key}`).addEventListener('click', () => {
-                        if (confirm(`[${file.name}]\n이 파일을 영구히 삭제하시겠습니까?`)) {
-                            // DB 기록 삭제
-                            remove(ref(db, `vault/planner/${key}`));
-                            // 스토리지 실제 파일 삭제
-                            deleteObject(sRef(storage, file.path)).catch(err => console.log("스토리지 삭제 무시 (이미 없거나 오류)"));
-                        }
-                    });
-                });
+                if (e.target.classList.contains('cal-input')) return;
+                const wrap = cell.querySelector('.cal-add-wrap');
+                const isOpen = wrap.style.display !== 'none';
+                grid.querySelectorAll('.cal-add-wrap').forEach(w => w.style.display = 'none');
+                if (!isOpen) { wrap.style.display = 'block'; wrap.querySelector('input').focus(); }
             });
-        }
-    </script>
-
-    <script>
-        // 1. 마우스 우클릭 차단
-        document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-        // 2. 텍스트 드래그 및 선택 차단
-        document.addEventListener('selectstart', function (e) { e.preventDefault(); });
-        // 3. F12 및 주요 개발자 도구 단축키 차단
-        document.addEventListener('keydown', function (e) {
-            if (e.keyCode === 123) { e.preventDefault(); }
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
-            if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
         });
-    </script>
-</body>
 
+        grid.querySelectorAll('.cal-input').forEach(input => {
+            input.addEventListener('click', e => e.stopPropagation());
+            input.addEventListener('keydown', async e => {
+                if (e.key === 'Enter' && input.value.trim()) {
+                    await push(ref(db, `vault/calendar/${input.dataset.date}`), { text: input.value.trim() });
+                    input.value = '';
+                    input.closest('.cal-add-wrap').style.display = 'none';
+                }
+                if (e.key === 'Escape') input.closest('.cal-add-wrap').style.display = 'none';
+            });
+        });
+    }
+
+    // ── GOOGLE DRIVE ───────────────────────────────────────
+    async function loadDriveSettings() {
+        const snap = await get(ref(db, 'vault/settings/driveFolderId'));
+        if (snap.exists()) {
+            const id = snap.val();
+            document.getElementById('driveFolderInput').value = id;
+            loadDriveFiles(id);
+        }
+    }
+
+    document.getElementById('driveSaveBtn').addEventListener('click', async () => {
+        const id = document.getElementById('driveFolderInput').value.trim();
+        if (!id) return;
+        await set(ref(db, 'vault/settings/driveFolderId'), id);
+        loadDriveFiles(id);
+    });
+
+    document.getElementById('driveReconnectBtn').addEventListener('click', async () => {
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            if (credential?.accessToken) {
+                driveToken = credential.accessToken;
+                sessionStorage.setItem('driveToken', driveToken);
+                const id = document.getElementById('driveFolderInput').value.trim();
+                if (id) loadDriveFiles(id);
+            }
+        } catch (err) { alert('Drive 재연결 실패: ' + err.message); }
+    });
+
+    async function loadDriveFiles(folderId) {
+        const container = document.getElementById('drive-list');
+        if (!driveToken) {
+            container.innerHTML = `<div class="empty-state">Drive 접근 토큰이 없습니다.<br><button class="connect-btn" id="driveConnectInline">Drive 재연결</button></div>`;
+            document.getElementById('driveConnectInline')?.addEventListener('click', () => document.getElementById('driveReconnectBtn').click());
+            return;
+        }
+        container.innerHTML = '<div class="empty-state">불러오는 중...</div>';
+        try {
+            const res = await fetch(
+                `https://www.googleapis.com/drive/v3/files?q=%27${folderId}%27+in+parents+and+trashed%3Dfalse&fields=files(id,name,mimeType,modifiedTime)&orderBy=modifiedTime+desc`,
+                { headers: { Authorization: `Bearer ${driveToken}` } }
+            );
+            if (res.status === 401) {
+                sessionStorage.removeItem('driveToken'); driveToken = null;
+                container.innerHTML = `<div class="empty-state">토큰이 만료되었습니다.<br><button class="connect-btn" onclick="document.getElementById('driveReconnectBtn').click()">Drive 재연결</button></div>`;
+                return;
+            }
+            const data = await res.json();
+            const files = data.files || [];
+            if (!files.length) { container.innerHTML = '<div class="empty-state">폴더에 파일이 없습니다.</div>'; return; }
+            container.innerHTML = files.map(f => `
+                <div class="file-item">
+                    <div class="file-info">
+                        <span style="font-size:1.1em;flex-shrink:0">${f.mimeType.includes('folder') ? '📁' : f.mimeType.includes('pdf') ? '📄' : '📎'}</span>
+                        <span class="file-name">${f.name}</span>
+                    </div>
+                    <span class="file-meta">${f.modifiedTime.split('T')[0]}</span>
+                    <div class="file-actions">
+                        <a href="https://drive.google.com/file/d/${f.id}/view" target="_blank" class="act-btn">열람</a>
+                        <a href="https://drive.google.com/uc?export=download&id=${f.id}" class="act-btn">다운로드</a>
+                    </div>
+                </div>`).join('');
+        } catch (err) {
+            container.innerHTML = `<div class="empty-state">오류: ${err.message}</div>`;
+        }
+    }
+
+    // ── GITHUB ─────────────────────────────────────────────
+    let ghPAT = null, ghRepo = null, ghPath = '';
+
+    async function loadGithubSettings() {
+        const snap = await get(ref(db, 'vault/settings/github'));
+        if (snap.exists()) {
+            const s = snap.val();
+            ghPAT = s.token || null;
+            ghRepo = s.repo || null;
+            if (s.token) document.getElementById('ghTokenInput').value = s.token;
+            if (s.repo) document.getElementById('ghRepoInput').value = s.repo;
+            if (ghPAT && ghRepo) {
+                document.getElementById('gh-upload-panel').style.display = 'block';
+                loadGithubFiles('');
+            }
+        }
+    }
+
+    document.getElementById('ghSaveBtn').addEventListener('click', async () => {
+        const token = document.getElementById('ghTokenInput').value.trim();
+        const repo = document.getElementById('ghRepoInput').value.trim();
+        if (!token || !repo) return;
+        await set(ref(db, 'vault/settings/github'), { token, repo });
+        ghPAT = token; ghRepo = repo;
+        document.getElementById('gh-upload-panel').style.display = 'block';
+        loadGithubFiles('');
+    });
+
+    async function loadGithubFiles(path) {
+        if (!ghPAT || !ghRepo) return;
+        ghPath = path;
+        updateGhBreadcrumb();
+        const container = document.getElementById('gh-list');
+        container.innerHTML = '<div class="empty-state">불러오는 중...</div>';
+        try {
+            const res = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${path}`, {
+                headers: { Authorization: `Bearer ${ghPAT}`, Accept: 'application/vnd.github.v3+json' }
+            });
+            if (!res.ok) {
+                const err = await res.json();
+                container.innerHTML = `<div class="empty-state">오류: ${err.message}</div>`;
+                return;
+            }
+            const items = await res.json();
+            const list = Array.isArray(items) ? items : [items];
+            const dirs = list.filter(i => i.type === 'dir').sort((a,b) => a.name.localeCompare(b.name));
+            const files = list.filter(i => i.type === 'file').sort((a,b) => a.name.localeCompare(b.name));
+
+            if (!list.length) { container.innerHTML = '<div class="empty-state">파일이 없습니다.</div>'; return; }
+
+            container.innerHTML = [...dirs, ...files].map(item => {
+                const isDir = item.type === 'dir';
+                const isPDF = item.name.toLowerCase().endsWith('.pdf');
+                return `
+                    <div class="file-item">
+                        <div class="file-info">
+                            <span style="font-size:1.1em;flex-shrink:0">${isDir ? '📁' : isPDF ? '📄' : '📎'}</span>
+                            <span class="file-name">${item.name}</span>
+                        </div>
+                        <div class="file-actions">
+                            ${isDir
+                                ? `<button class="act-btn" data-path="${item.path}" data-action="dir">열기</button>`
+                                : isPDF
+                                ? `<button class="act-btn" data-url="${item.url}" data-name="${item.name}" data-action="pdf">PDF 보기</button>`
+                                : `<a href="${item.download_url}" target="_blank" class="act-btn">다운로드</a>`
+                            }
+                        </div>
+                    </div>`;
+            }).join('');
+
+            container.querySelectorAll('[data-action="dir"]').forEach(btn => {
+                btn.addEventListener('click', () => loadGithubFiles(btn.dataset.path));
+            });
+            container.querySelectorAll('[data-action="pdf"]').forEach(btn => {
+                btn.addEventListener('click', () => viewGithubPDF(btn.dataset.url, btn.dataset.name));
+            });
+        } catch (err) {
+            container.innerHTML = `<div class="empty-state">오류: ${err.message}</div>`;
+        }
+    }
+
+    function updateGhBreadcrumb() {
+        const parts = ghPath ? ghPath.split('/') : [];
+        let html = `<span class="gh-crumb" data-path="">root</span>`;
+        let acc = '';
+        parts.forEach(p => {
+            acc += (acc ? '/' : '') + p;
+            html += ` / <span class="gh-crumb" data-path="${acc}">${p}</span>`;
+        });
+        const bc = document.getElementById('ghBreadcrumb');
+        bc.innerHTML = html;
+        bc.querySelectorAll('.gh-crumb').forEach(el => {
+            el.addEventListener('click', () => loadGithubFiles(el.dataset.path));
+        });
+    }
+
+    async function viewGithubPDF(apiUrl, filename) {
+        const container = document.getElementById('gh-list');
+        const loading = document.createElement('div');
+        loading.id = 'gh-loading';
+        loading.style.cssText = 'text-align:center;padding:16px;color:var(--gold);font-family:var(--serif);font-style:italic';
+        loading.textContent = `${filename} 불러오는 중...`;
+        container.prepend(loading);
+        try {
+            const res = await fetch(apiUrl, {
+                headers: { Authorization: `Bearer ${ghPAT}`, Accept: 'application/vnd.github.v3+json' }
+            });
+            const data = await res.json();
+            const binary = atob(data.content.replace(/\n/g, ''));
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            const blob = new Blob([bytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+        } catch (err) {
+            alert('PDF 로드 실패: ' + err.message);
+        } finally {
+            document.getElementById('gh-loading')?.remove();
+        }
+    }
+
+    // GitHub 파일 업로드
+    document.getElementById('ghFileUploader').addEventListener('change', async e => {
+        const files = e.target.files;
+        if (!files.length) return;
+        const status = document.getElementById('ghUploadStatus');
+        for (const file of files) {
+            status.textContent = `${file.name} 업로드 중...`;
+            try {
+                const b64 = await new Promise((res, rej) => {
+                    const r = new FileReader();
+                    r.onload = () => res(r.result.split(',')[1]);
+                    r.onerror = rej;
+                    r.readAsDataURL(file);
+                });
+                const path = `${ghPath ? ghPath + '/' : ''}${file.name}`;
+                let sha = null;
+                const check = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${path}`, {
+                    headers: { Authorization: `Bearer ${ghPAT}` }
+                });
+                if (check.ok) sha = (await check.json()).sha;
+
+                const putRes = await fetch(`https://api.github.com/repos/${ghRepo}/contents/${path}`, {
+                    method: 'PUT',
+                    headers: { Authorization: `Bearer ${ghPAT}`, Accept: 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `Upload ${file.name}`, content: b64, ...(sha ? { sha } : {}) })
+                });
+                if (!putRes.ok) { const err = await putRes.json(); throw new Error(err.message); }
+            } catch (err) {
+                status.style.color = 'var(--terra)';
+                status.textContent = `오류: ${err.message}`;
+                e.target.value = '';
+                return;
+            }
+        }
+        status.style.color = '#22c55e';
+        status.textContent = '업로드 완료.';
+        e.target.value = '';
+        setTimeout(() => { status.textContent = ''; status.style.color = 'var(--gold)'; }, 3000);
+        loadGithubFiles(ghPath);
+    });
+
+    // ── STORAGE (기존 기능) ────────────────────────────────
+    const fileUploader = document.getElementById('fileUploader');
+    const uploadExecBtn = document.getElementById('uploadExecBtn');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const fileListContainer = document.getElementById('fileListContainer');
+    let selectedFiles = [];
+
+    fileUploader.addEventListener('change', e => {
+        selectedFiles = e.target.files;
+        uploadExecBtn.style.display = selectedFiles.length ? 'inline-flex' : 'none';
+        uploadStatus.textContent = selectedFiles.length ? `${selectedFiles.length}개 대기 중` : '';
+    });
+
+    uploadExecBtn.addEventListener('click', async () => {
+        if (!selectedFiles.length) return;
+        uploadExecBtn.disabled = true;
+        uploadExecBtn.textContent = 'Uploading...';
+        try {
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const fileName = `vault/${Date.now()}_${file.name}`;
+                uploadStatus.textContent = `[${i+1}/${selectedFiles.length}] ${file.name} 업로드 중...`;
+                await uploadBytes(sRef(storage, fileName), file);
+                const url = await getDownloadURL(sRef(storage, fileName));
+                await push(ref(db, 'vault/planner'), { name: file.name, url, path: fileName, type: file.type, time: new Date().toLocaleString('ko-KR') });
+            }
+            uploadStatus.style.color = '#22c55e';
+            uploadStatus.textContent = '모든 파일이 안전하게 보관되었습니다.';
+        } catch (err) {
+            uploadStatus.style.color = 'var(--terra)';
+            uploadStatus.textContent = '업로드 오류: ' + err.message;
+        } finally {
+            uploadExecBtn.style.display = 'none';
+            uploadExecBtn.disabled = false;
+            uploadExecBtn.textContent = 'Upload Now';
+            fileUploader.value = '';
+            selectedFiles = [];
+            setTimeout(() => { uploadStatus.textContent = ''; uploadStatus.style.color = 'var(--gold)'; }, 3000);
+        }
+    });
+
+    function getFileIcon(mimeType) {
+        const base = `<svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">`;
+        if (mimeType?.includes('video')) return base + `<rect x="2" y="2" width="20" height="20" rx="2"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>`;
+        if (mimeType?.includes('image')) return base + `<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+        return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+    }
+
+    function loadStorageFiles() {
+        onValue(ref(db, 'vault/planner'), snap => {
+            fileListContainer.innerHTML = '';
+            const data = snap.val();
+            if (!data) { fileListContainer.innerHTML = '<div class="empty-state">저장된 파일이 없습니다.</div>'; return; }
+            Object.entries(data).reverse().forEach(([key, file]) => {
+                const el = document.createElement('div');
+                el.className = 'file-item';
+                el.innerHTML = `
+                    <div class="file-info">${getFileIcon(file.type)}<span class="file-name" title="${file.name}">${file.name}</span></div>
+                    <span class="file-meta">${file.time.split(' ')[0]}</span>
+                    <div class="file-actions">
+                        <a href="${file.url}" target="_blank" class="act-btn">열람</a>
+                        <button class="act-btn" data-copy="${file.url}">복사</button>
+                        <button class="act-btn del" data-del="${key}" data-path="${file.path}" data-name="${file.name}">삭제</button>
+                    </div>`;
+                el.querySelector('[data-copy]').addEventListener('click', function() {
+                    navigator.clipboard.writeText(this.dataset.copy);
+                    alert('링크가 복사되었습니다.');
+                });
+                el.querySelector('[data-del]').addEventListener('click', function() {
+                    if (confirm(`[${this.dataset.name}]\n영구 삭제하시겠습니까?`)) {
+                        remove(ref(db, `vault/planner/${this.dataset.del}`));
+                        deleteObject(sRef(storage, this.dataset.path)).catch(() => {});
+                    }
+                });
+                fileListContainer.appendChild(el);
+            });
+        });
+    }
+</script>
+
+<script>
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+        if (e.keyCode === 123) e.preventDefault();
+        if (e.ctrlKey && e.shiftKey && [73,67,74].includes(e.keyCode)) e.preventDefault();
+        if (e.ctrlKey && e.keyCode === 85) e.preventDefault();
+    });
+</script>
+</body>
 </html>
