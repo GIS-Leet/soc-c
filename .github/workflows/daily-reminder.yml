@@ -1,0 +1,59 @@
+name: Daily Calendar Reminder
+
+on:
+  schedule:
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch calendar & send Discord alert
+        run: |
+          python3 << 'EOF'
+          import urllib.request, json, os
+          from datetime import datetime, timezone, timedelta
+
+          KST = timezone(timedelta(hours=9))
+          today = datetime.now(KST).strftime('%Y-%m-%d')
+
+          url = f"https://soc-c-qna-default-rtdb.firebaseio.com/vault/calendar/{today}.json"
+          try:
+              with urllib.request.urlopen(url, timeout=10) as r:
+                  data = json.loads(r.read())
+          except Exception as e:
+              print(f"Firebase 조회 실패: {e}")
+              exit(0)
+
+          if not data:
+              print(f"{today} 일정 없음. 알림 생략.")
+              exit(0)
+
+          events = [v['text'] for v in data.values() if isinstance(v, dict) and 'text' in v]
+          if not events:
+              exit(0)
+
+          event_lines = '\n'.join(f'• {e}' for e in events)
+          payload = {
+              "username": "Geographia Vault",
+              "embeds": [{
+                  "title": f"📅 {today} 오늘의 일정",
+                  "description": event_lines,
+                  "color": 0x9a7b3f,
+                  "footer": {"text": "Leet's Geographia Class"}
+              }]
+          }
+
+          webhook = os.environ['DISCORD_WEBHOOK_URL']
+          req = urllib.request.Request(
+              webhook,
+              data=json.dumps(payload).encode(),
+              headers={'Content-Type': 'application/json'},
+              method='POST'
+          )
+          with urllib.request.urlopen(req) as r:
+              print(f"Discord 전송 완료: HTTP {r.status}")
+          EOF
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
