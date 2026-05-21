@@ -357,6 +357,11 @@
 
         <!-- TAB: CALENDAR -->
         <div id="tab-calendar" class="tab-panel active">
+            <div class="settings-bar" style="margin-bottom:20px">
+                <label>Discord Webhook</label>
+                <input class="settings-input" id="discordWebhookInput" placeholder="https://discord.com/api/webhooks/...">
+                <button class="save-btn" id="discordWebhookSaveBtn">저장</button>
+            </div>
             <div class="cal-header">
                 <button class="cal-nav-btn" id="calPrev">‹</button>
                 <span class="cal-title" id="calTitle"></span>
@@ -524,7 +529,19 @@
     let calMonth = new Date().getMonth();
     let calData = {};
 
-    function initCalendar() {
+    async function initCalendar() {
+        // Discord 웹훅 URL 로드
+        const whSnap = await get(ref(db, 'vault/settings/discordWebhook'));
+        if (whSnap.exists()) document.getElementById('discordWebhookInput').value = whSnap.val();
+
+        document.getElementById('discordWebhookSaveBtn').addEventListener('click', async () => {
+            const url = document.getElementById('discordWebhookInput').value.trim();
+            if (!url) return;
+            await set(ref(db, 'vault/settings/discordWebhook'), url);
+            document.getElementById('discordWebhookSaveBtn').textContent = '저장됨 ✓';
+            setTimeout(() => document.getElementById('discordWebhookSaveBtn').textContent = '저장', 2000);
+        });
+
         onValue(ref(db, 'vault/calendar'), snap => {
             calData = snap.val() || {};
             renderCalendar();
@@ -925,3 +942,4 @@
 </script>
 </body>
 </html>
+
