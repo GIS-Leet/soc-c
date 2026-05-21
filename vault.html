@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>The Teacher’s Vault — Geographia Archive</title>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+
+<style>
+    /* ============================================================
+       GEOGRAPHIA — Teacher's Vault Premium Theme
+       Academic Archival Editorial Concept (Zero Costs)
+       ============================================================ */
+    :root {
+        --ink:        #1a1714;
+        --ink-2:      #4a443c;
+        --ink-3:      #8c8479;
+        --ink-faint:  #b8b0a3;
+
+        --paper:      #f4f0e8;
+        --paper-2:    #efe9dd;
+        --surface:    #fbf9f3;
+
+        --line:       #d8d0c0;
+        --line-soft:  #e6dfd0;
+
+        --terra:      #b4502e;
+        --terra-soft: #f0e0d4;
+
+        --serif: 'Fraunces', Georgia, serif;
+        --sans:  'Pretendard', -apple-system, sans-serif;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+        font-family: var(--sans);
+        background-color: var(--paper);
+        margin: 0; padding: 0;
+        color: var(--ink);
+        line-height: 1.62;
+        -webkit-font-smoothing: antialiased;
+        position: relative;
+    }
+    
+    /* Paper Grain Overlay */
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.5;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+        mix-blend-mode: multiply;
+    }
+    body > * { position: relative; z-index: 2; }
+
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+
+    /* MASTHEAD */
+    .masthead {
+        background: rgba(244,240,232,0.82);
+        backdrop-filter: blur(14px) saturate(1.2);
+        -webkit-backdrop-filter: blur(14px) saturate(1.2);
+        border-bottom: 1px solid var(--line);
+        position: sticky; top: 0; z-index: 999;
+    }
+    .masthead-inner {
+        max-width: 1180px; margin: 0 auto; padding: 0 40px; height: 66px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+    .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+    .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+    .nav { display: flex; align-items: center; gap: 12px; }
+    
+    /* BUTTONS */
+    .btn-outline { background: transparent; border: 1px solid var(--line); color: var(--ink-2); font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 16px; cursor: pointer; transition: 0.2s; border-radius: 0; }
+    .btn-outline:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .btn-solid { background: var(--ink); color: var(--paper); border: none; padding: 12px 28px; font-family: var(--serif); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; border-radius: 0; }
+    .btn-solid:hover { background: var(--terra); }
+
+    /* GATEWAY (Login Screen) */
+    .gateway-container {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        min-height: calc(100vh - 66px); max-width: 460px; margin: 0 auto; padding: 40px 20px;
+        text-align: center;
+    }
+    .gateway-card {
+        background: var(--surface); border: 1px solid var(--line); padding: 46px 36px;
+        width: 100%; box-shadow: 6px 6px 0 rgba(26,23,20,0.04);
+        position: relative;
+    }
+    .gateway-card::before {
+        content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px; right: 8px;
+        border: 1px dashed var(--line-soft); pointer-events: none;
+    }
+    .gateway-icon { color: var(--terra); margin-bottom: 24px; }
+    .gateway-title { font-family: var(--serif); font-size: 1.6rem; font-weight: 500; margin: 0 0 12px 0; color: var(--ink); }
+    .gateway-desc { font-size: 0.88rem; color: var(--ink-2); line-height: 1.7; margin: 0 0 32px 0; word-break: keep-all; }
+    
+    /* Google Login Button */
+    .btn-google {
+        display: inline-flex; align-items: center; gap: 12px; background: #ffffff;
+        border: 1px solid var(--line); color: var(--ink-2); padding: 12px 24px;
+        font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.25s var(--ease);
+        font-family: var(--sans);
+    }
+    .btn-google:hover {
+        background: var(--surface); color: var(--ink); border-color: var(--ink);
+        box-shadow: 4px 4px 0 rgba(26,23,20,0.05);
+    }
+    .btn-google svg { width: 18px; height: 18px; }
+
+    /* DASHBOARD CONTENT */
+    .dashboard-layout { display: none; max-width: 1200px; margin: 0 auto; padding: 48px 40px 100px; }
+    
+    .dashboard-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--ink); padding-bottom: 16px; margin-bottom: 36px; }
+    .dashboard-title { font-family: var(--serif); font-size: 1.8rem; font-weight: 500; margin: 0; color: var(--ink); }
+    .dashboard-subtitle { font-family: var(--serif); font-size: 0.85rem; font-weight: 600; color: var(--terra); letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    
+    @media (max-width: 1024px) {
+        .grid-container { grid-template-columns: 1fr; gap: 48px; }
+    }
+
+    /* SECTION PANEL */
+    .panel { background: var(--surface); border: 1px solid var(--line); padding: 36px; position: relative; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 24px; }
+    .panel-title { font-family: var(--serif); font-size: 1.22rem; font-weight: 500; margin: 0; display: flex; align-items: center; gap: 8px; color: var(--ink); }
+    .panel-title::before { content: '§'; color: var(--terra); }
+
+    /* PLANNERS & TASKS */
+    .planner-input-row { display: flex; gap: 10px; margin-bottom: 20px; }
+    .form-input { flex: 1; background: transparent; border: 1px solid var(--line); padding: 10px 14px; font-family: var(--sans); font-size: 0.9rem; color: var(--ink); outline: none; transition: border-color 0.2s; }
+    .form-input:focus { border-color: var(--terra); background: var(--paper); }
+    .form-input::placeholder { color: var(--ink-faint); font-style: italic; }
+    .input-date { width: 130px; font-family: var(--serif); }
+    .btn-add { background: var(--ink); color: var(--paper); border: none; padding: 0 18px; font-family: var(--serif); font-weight: 600; text-transform: uppercase; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+    .btn-add:hover { background: var(--terra); }
+
+    .task-list { display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; padding-right: 6px; }
+    .task-item { display: flex; justify-content: space-between; align-items: center; background: var(--paper-2); border: 1px solid var(--line-soft); padding: 14px 18px; transition: all 0.2s; }
+    .task-item.completed { opacity: 0.65; background: rgba(26,23,20,0.02); }
+    .task-item.completed .task-label { text-decoration: line-through; color: var(--ink-3); }
+    .task-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+    .task-checkbox { width: 16px; height: 16px; accent-color: var(--terra); cursor: pointer; }
+    .task-label { font-size: 0.92rem; font-weight: 500; color: var(--ink); word-break: break-all; }
+    .task-date { font-family: var(--serif); font-style: italic; font-size: 0.76rem; color: var(--terra); margin-left: 8px; }
+    .task-remove { background: none; border: none; color: var(--ink-3); cursor: pointer; font-size: 1.1rem; padding: 0 4px; transition: color 0.2s; }
+    .task-remove:hover { color: var(--terra); }
+
+    /* ARCHIVE DEPOSITORY (Google Drive list) */
+    .drive-settings { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; background: var(--paper-2); padding: 10px 14px; border: 1px solid var(--line-soft); }
+    .drive-settings-title { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-2); white-space: nowrap; }
+    .drive-settings-input { flex: 1; background: #ffffff; border: 1px solid var(--line); padding: 6px 10px; font-size: 0.82rem; font-family: var(--sans); outline: none; }
+    .drive-settings-input:focus { border-color: var(--ink); }
+    .btn-sync { background: var(--ink); color: var(--paper); border: none; padding: 6px 12px; font-size: 0.75rem; font-family: var(--serif); font-weight: 600; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+    .btn-sync:hover { background: var(--terra); }
+
+    .file-table-wrapper { overflow-x: auto; max-height: 480px; }
+    .file-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .file-table th { font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); padding: 10px 12px; border-bottom: 2px solid var(--ink); }
+    .file-table td { padding: 12px; border-bottom: 1px solid var(--line-soft); font-size: 0.88rem; color: var(--ink-2); vertical-align: middle; }
+    .file-table tr:hover td { background: rgba(26,23,20,0.01); }
+    .file-name-cell { font-weight: 600; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+    .file-icon { color: var(--terra); flex-shrink: 0; }
+    .file-date { font-family: var(--serif); font-style: italic; font-size: 0.78rem; color: var(--ink-3); }
+    .file-size { font-family: var(--serif); font-size: 0.78rem; color: var(--ink-3); text-align: right; }
+    .btn-download { display: inline-flex; align-items: center; gap: 4px; color: var(--terra); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; font-family: var(--serif); cursor: pointer; transition: color 0.2s; }
+    .btn-download:hover { color: var(--ink); }
+
+    .status-msg { text-align: center; color: var(--ink-3); font-style: italic; padding: 30px; font-size: 0.9rem; }
+    .status-msg.error { color: var(--terra); }
+
+    /* LOADING SPINNER */
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(180, 80, 46, 0.15); border-radius: 50%; border-top-color: var(--terra); animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST NOTIFICATION */
+    .toast { position: fixed; bottom: 30px; right: 30px; background: var(--ink); color: var(--paper); padding: 12px 24px; font-family: var(--serif); font-size: 0.85rem; letter-spacing: 0.05em; font-weight: 600; box-shadow: 4px 4px 0 rgba(26,23,20,0.15); display: none; z-index: 9999; animation: slideIn 0.3s var(--ease); }
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    @media (max-width: 600px) {
+        .masthead-inner { padding: 0 20px; }
+        .dashboard-layout { padding: 32px 20px 80px; }
+        .dashboard-header { flex-direction: column; gap: 10px; align-items: flex-start; }
+        .panel { padding: 24px; }
+        .planner-input-row { flex-direction: column; gap: 8px; }
+        .input-date { width: 100%; }
+        .drive-settings { flex-direction: column; align-items: stretch; gap: 8px; }
+    }
+</style>
+</head>
+<body>
+
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Geographia Secret Vault</span>
+                    <span class="en">Official&nbsp;·&nbsp;Archival</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html" class="btn-outline">Exit Vault</a>
+                <button id="logoutBtn" class="btn-outline" style="display:none;" onclick="window.logout()">Sign Out</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- GATEWAY SCREEN (Shown when logged out) -->
+        <div class="gateway-container" id="loginGateway">
+            <div class="gateway-card">
+                <div class="gateway-icon">
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+                <h1 class="gateway-title">The Teacher’s Vault</h1>
+                <p class="gateway-desc">
+                    본 구역은 교사용 비밀 서재 공간입니다. 승인받은 구글 관리자 계정으로 로그인한 경우에만 업무 플래너와 구글 드라이브 비공개 아카이브가 활성화됩니다.
+                </p>
+                <button class="btn-google" onclick="window.loginGoogle()">
+                    <svg viewBox="0 0 24 24">
+                        <path fill="#EA4335" d="M12 5.04c1.67 0 3.19.58 4.38 1.69l3.27-3.27C17.67 1.64 15.01 1 12 1 7.35 1 3.4 3.65 1.5 7.5l3.86 3C6.27 7.54 8.91 5.04 12 5.04z"/>
+                        <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.46c-.29 1.48-1.14 2.73-2.4 3.58l3.73 2.9c2.18-2.01 3.7-4.96 3.7-8.63z"/>
+                        <path fill="#FBBC05" d="M5.36 14.5c-.24-.72-.38-1.49-.38-2.3s.14-1.58.38-2.3L1.5 6.9c-.8 1.61-1.25 3.41-1.25 5.3s.45 3.69 1.25 5.3l3.86-3z"/>
+                        <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.73-2.9c-1.03.69-2.35 1.1-4.23 1.1-3.09 0-5.73-2.5-6.64-5.46L1.5 15.83C3.4 19.68 7.35 22.9 12 23z"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+
+        <!-- DASHBOARD CONTAINER (Shown when logged in) -->
+        <div class="dashboard-layout" id="dashboard">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Scholar's Private Ledger</h1>
+                <span class="dashboard-subtitle">§ Geographia Management Hub</span>
+            </div>
+
+            <div class="grid-container">
+                <!-- PANEL 1: CHRONICLE PLANNER (Firebase RTDB Tasks) -->
+                <section class="panel">
+                    <div class="panel-head">
+                        <h2 class="panel-title">Chronicle Planner</h2>
+                        <span id="plannerStatus"></span>
+                    </div>
+                    
+                    <div class="planner-input-row">
+                        <input type="text" id="taskInput" class="form-input" placeholder="업무 일정을 기록하세요..." onkeypress="if(event.key==='Enter') window.addTask()">
+                        <input type="date" id="taskDate" class="form-input input-date">
+                        <button class="btn-add" onclick="window.addTask()">Append</button>
+                    </div>
+
+                    <ul class="task-list" id="taskList">
+                        <!-- Loading placeholder -->
+                        <div class="status-msg">Loading planner data...</div>
+                    </ul>
+                </section>
+
+                <!-- PANEL 2: ARCHIVES DEPOSITORY (Google Drive API) -->
+                <section class="panel">
+                    <div class="panel-head">
+                        <h2 class="panel-title">Archives Depository</h2>
+                        <span id="driveStatus"></span>
+                    </div>
+
+                    <!-- Drive Settings (Folder Changer) -->
+                    <div class="drive-settings">
+                        <span class="drive-settings-title">Folder ID</span>
+                        <input type="text" id="folderIdInput" class="drive-settings-input" placeholder="Google Drive Folder ID">
+                        <button class="btn-sync" onclick="window.syncGoogleDrive()">Sync</button>
+                    </div>
+
+                    <div class="file-table-wrapper">
+                        <table class="file-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject File</th>
+                                    <th>Last Modified</th>
+                                    <th>Size</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="fileList">
+                                <tr>
+                                    <td colspan="4" class="status-msg">구글 로그인 시 실시간 연동이 시작됩니다.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <div class="toast" id="toast">Vault Synced successfully.</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref as dbRef, push, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // 기존 feedback.html과 공유하는 Firebase 설정 (100% 무료 Spark Plan)
+        const firebaseConfig = {
+          apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
+          authDomain: "soc-c-qna.firebaseapp.com",
+          databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
+          projectId: "soc-c-qna",
+          storageBucket: "soc-c-qna.firebasestorage.app",
+          messagingSenderId: "927605189358",
+          appId: "1:927605189358:web:9ea5171373ac4c9e8661ff",
+          measurementId: "G-5KMMM2T0ED"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // 보안 대상 교사 구글 계정 이메일
+        const ADMIN_EMAIL = "leetae712@gmail.com";
+        // 기본 동기화할 구글 드라이브 폴더 ID (유저님이 나중에 변경하여 저장할 수 있습니다)
+        const DEFAULT_FOLDER_ID = "1aZtApeoU0xW-X3l4x_x9SgOq2L0s9QcZ"; 
+
+        let googleAccessToken = localStorage.getItem("gdrive_access_token") || null;
+        let plannerRef = null;
+
+        // UI Element References
+        const loginGateway = document.getElementById("loginGateway");
+        const dashboard = document.getElementById("dashboard");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const fileList = document.getElementById("fileList");
+        const taskList = document.getElementById("taskList");
+        const folderIdInput = document.getElementById("folderIdInput");
+        const toast = document.getElementById("toast");
+
+        // Set default folder ID in input
+        folderIdInput.value = localStorage.getItem("gdrive_folder_id") || DEFAULT_FOLDER_ID;
+
+        // AUTH OBSERVATION
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                if (user.email === ADMIN_EMAIL) {
+                    // 승인된 구글 관리자 로그인 성공
+                    showDashboard(user);
+                } else {
+                    showToast("❌ 승인되지 않은 계정입니다.");
+                    setTimeout(() => { signOut(auth); }, 1500);
+                }
+            } else {
+                showGateway();
+            }
+        });
+
+        // 1. SIGN IN & OUT GOOGLE
+        window.loginGoogle = function() {
+            const provider = new GoogleAuthProvider();
+            // 구글 드라이브 읽기 전용 및 파일 메타데이터 조회를 위한 스코프 요청 (무료 API)
+            provider.addScope("https://www.googleapis.com/auth/drive.readonly");
+            
+            signInWithPopup(auth, provider).then((result) => {
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                googleAccessToken = credential.accessToken;
+                localStorage.setItem("gdrive_access_token", googleAccessToken);
+                showToast("🗝️ Vault Entry Authorized.");
+            }).catch((error) => {
+                console.error("Auth Error:", error);
+                showToast("❌ 로그인 연동 실패");
+            });
+        };
+
+        window.logout = function() {
+            signOut(auth).then(() => {
+                googleAccessToken = null;
+                localStorage.removeItem("gdrive_access_token");
+                showToast("🔒 Vault Sealed.");
+            });
+        };
+
+        // UI VISIBILITY TOGGLE
+        function showDashboard(user) {
+            loginGateway.style.display = "none";
+            dashboard.style.display = "block";
+            logoutBtn.style.display = "inline-block";
+            
+            // 파이어베이스 데이터베이스 비밀 리스너 초기화 (보안 영역)
+            plannerRef = dbRef(db, "vault/planner");
+            initPlanner();
+            
+            // 구글 드라이브 실시간 연동 실행
+            fetchGoogleDriveFiles();
+        }
+
+        function showGateway() {
+            loginGateway.style.display = "flex";
+            dashboard.style.display = "none";
+            logoutBtn.style.display = "none";
+            taskList.innerHTML = "";
+            fileList.innerHTML = `<tr><td colspan="4" class="status-msg">구글 로그인 시 실시간 연동이 시작됩니다.</td></tr>`;
+        }
+
+        // 2. CHRONICLE PLANNER IMPLEMENTATION (Firebase RTDB)
+        function initPlanner() {
+            taskList.innerHTML = "";
+            
+            // Firebase Realtime DB Child Listeners
+            onChildAdded(plannerRef, (snapshot) => {
+                removePlaceholder();
+                renderTask(snapshot.key, snapshot.val());
+            });
+
+            onChildRemoved(plannerRef, (snapshot) => {
+                const el = document.getElementById(`task-${snapshot.key}`);
+                if (el) el.remove();
+                checkPlaceholder();
+            });
+
+            onChildChanged(plannerRef, (snapshot) => {
+                const el = document.getElementById(`task-${snapshot.key}`);
+                if (el) {
+                    const data = snapshot.val();
+                    el.className = `task-item ${data.completed ? 'completed' : ''}`;
+                    el.querySelector(".task-checkbox").checked = data.completed;
+                }
+            });
+        }
+
+        function renderTask(id, data) {
+            const li = document.createElement("li");
+            li.className = `task-item ${data.completed ? 'completed' : ''}`;
+            li.id = `task-${id}`;
+            
+            const displayDate = data.dueDate ? `<span class="task-date">[By ${data.dueDate}]</span>` : '';
+            
+            li.innerHTML = `
+                <div class="task-left">
+                    <input type="checkbox" class="task-checkbox" ${data.completed ? 'checked' : ''} onchange="window.toggleTask('${id}', this.checked)">
+                    <span class="task-label">${escapeHTML(data.text)} ${displayDate}</span>
+                </div>
+                <button class="task-remove" onclick="window.removeTask('${id}')">✕</button>
+            `;
+            taskList.appendChild(li);
+        }
+
+        window.addTask = function() {
+            const input = document.getElementById("taskInput");
+            const dateInput = document.getElementById("taskDate");
+            const text = input.value.trim();
+            const dueDate = dateInput.value;
+            
+            if (text && plannerRef) {
+                push(plannerRef, {
+                    text: text,
+                    dueDate: dueDate || "",
+                    completed: false,
+                    timestamp: Date.now()
+                });
+                input.value = "";
+                dateInput.value = "";
+                showToast("📝 Task recorded.");
+            }
+        };
+
+        window.toggleTask = function(id, completed) {
+            if (plannerRef) {
+                update(dbRef(db, `vault/planner/${id}`), { completed: completed });
+            }
+        };
+
+        window.removeTask = function(id) {
+            if (plannerRef) {
+                remove(dbRef(db, `vault/planner/${id}`));
+                showToast("🗑️ Task expunged.");
+            }
+        };
+
+        function removePlaceholder() {
+            const placeholder = taskList.querySelector(".status-msg");
+            if (placeholder) placeholder.remove();
+        }
+
+        function checkPlaceholder() {
+            if (taskList.children.length === 0) {
+                taskList.innerHTML = `<div class="status-msg">현재 등록된 일과가 없습니다. 평화로운 책장입니다.</div>`;
+            }
+        }
+
+        // 3. GOOGLE DRIVE API SYNC (No cost, Rest API Fetch)
+        window.syncGoogleDrive = function() {
+            const fInput = folderIdInput.value.trim();
+            if (fInput) {
+                localStorage.setItem("gdrive_folder_id", fInput);
+                fetchGoogleDriveFiles();
+            }
+        };
+
+        async function fetchGoogleDriveFiles() {
+            const folderId = folderIdInput.value.trim() || DEFAULT_FOLDER_ID;
+            const driveStatus = document.getElementById("driveStatus");
+            
+            if (!googleAccessToken) {
+                fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">⚠️ 구글 드라이브 인증 정보가 유실되었습니다. 재로그인 해주세요.</td></tr>`;
+                return;
+            }
+
+            driveStatus.innerHTML = `<span class="spinner"></span>`;
+            fileList.innerHTML = `<tr><td colspan="4" class="status-msg">구글 아카이브와 주파수를 맞추는 중...</td></tr>`;
+
+            try {
+                // 특정 비공개 폴더 내 파일 조회 쿼리 (무료 API)
+                const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
+                const fields = encodeURIComponent('files(id,name,mimeType,modifiedTime,size,webViewLink)');
+                const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}&orderBy=modifiedTime+desc`;
+
+                const response = await fetch(url, {
+                    headers: {
+                        "Authorization": `Bearer ${googleAccessToken}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    // 토큰 만료 시 재로그인 유도
+                    driveStatus.innerHTML = '';
+                    fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">🔑 인증 세션이 만료되었습니다. 로그아웃 후 구글 계정으로 재접속 해주세요.</td></tr>`;
+                    return;
+                }
+
+                if (!response.ok) throw new Error("Drive API request failed.");
+
+                const data = await response.json();
+                renderFiles(data.files || []);
+                driveStatus.innerHTML = `<span>🟢 Linked</span>`;
+                showToast("📂 Drive Archives updated.");
+
+            } catch (err) {
+                console.error("Drive Error:", err);
+                driveStatus.innerHTML = `<span>🔴 Interrupted</span>`;
+                fileList.innerHTML = `<tr><td colspan="4" class="status-msg error">⚠️ 구글 드라이브를 불러오지 못했습니다. 폴더 ID 및 공유 권한을 확인해주세요.</td></tr>`;
+            }
+        }
+
+        function renderFiles(files) {
+            if (files.length === 0) {
+                fileList.innerHTML = `<tr><td colspan="4" class="status-msg">지정된 보관함 폴더에 파일이 비어 있습니다.</td></tr>`;
+                return;
+            }
+
+            fileList.innerHTML = "";
+            files.forEach(file => {
+                const tr = document.createElement("tr");
+                const dateStr = new Date(file.modifiedTime).toLocaleDateString("ko-KR", {year: 'numeric', month: '2-digit', day: '2-digit'});
+                const sizeStr = file.size ? formatBytes(parseInt(file.size)) : '-';
+                
+                // 확장자별 프리미엄 아이콘 획득
+                const iconSvg = getFileIcon(file.mimeType);
+
+                tr.innerHTML = `
+                    <td>
+                        <div class="file-name-cell">
+                            ${iconSvg}
+                            <span>${escapeHTML(file.name)}</span>
+                        </div>
+                    </td>
+                    <td class="file-date">${dateStr}</td>
+                    <td class="file-size">${sizeStr}</td>
+                    <td style="text-align: right;">
+                        <a href="${file.webViewLink}" target="_blank" class="btn-download">Open ↗</a>
+                    </td>
+                `;
+                fileList.appendChild(tr);
+            });
+        }
+
+        // HELPERS
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
+
+        function getFileIcon(mimeType) {
+            // SVG Icons based on MimeType
+            const base = `<svg class="file-icon ico" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">`;
+            if (mimeType.includes("pdf")) {
+                return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
+            } else if (mimeType.includes("image")) {
+                return base + `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+            } else if (mimeType.includes("document") || mimeType.includes("text")) {
+                return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line></svg>`;
+            } else {
+                return base + `<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>`;
+            }
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
+        }
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3000);
+        }
+    </script>
+</body>
+</html>
