@@ -591,7 +591,7 @@
 
         grid.innerHTML = html;
 
-        grid.querySelectorAll('.cal-cell:not(.empty)').forEach(cell => {
+         grid.querySelectorAll('.cal-cell:not(.empty)').forEach(cell => {
             cell.addEventListener('click', e => {
                 if (e.target.classList.contains('cal-event')) {
                     const k = e.target.dataset.key, dt = e.target.dataset.date;
@@ -599,7 +599,8 @@
                     e.stopPropagation();
                     return;
                 }
-                if (e.target.classList.contains('cal-input')) return;
+                // 입력칸 및 그 주변 영역 클릭 시 토글 방지
+                if (e.target.closest('.cal-add-wrap')) return;
                 const wrap = cell.querySelector('.cal-add-wrap');
                 const isOpen = wrap.style.display !== 'none';
                 grid.querySelectorAll('.cal-add-wrap').forEach(w => w.style.display = 'none');
@@ -611,11 +612,20 @@
             input.addEventListener('click', e => e.stopPropagation());
             input.addEventListener('keydown', async e => {
                 if (e.key === 'Enter' && input.value.trim()) {
-                    await push(ref(db, `vault/calendar/${input.dataset.date}`), { text: input.value.trim() });
+                    const dateKey = input.dataset.date;
+                    const text = input.value.trim();
                     input.value = '';
-                    input.closest('.cal-add-wrap').style.display = 'none';
+                    try {
+                        await push(ref(db, `vault/calendar/${dateKey}`), { text });
+                    } catch (err) {
+                        console.error('일정 저장 실패:', err);
+                        alert('저장 실패: ' + err.message);
+                    }
                 }
-                if (e.key === 'Escape') input.closest('.cal-add-wrap').style.display = 'none';
+                if (e.key === 'Escape') {
+                    const wrap = input.closest('.cal-add-wrap');
+                    if (wrap) wrap.style.display = 'none';
+                }
             });
         });
     }
