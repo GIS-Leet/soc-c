@@ -1,0 +1,28 @@
+# 민감 정보
+firebase-key.json
+src/.env
+.env
+
+# Python 캐시
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# 대용량 바이너리
+ppt/img_extracted/*.pkl
+ppt/img_extracted/*.json
+ppt/사진자료/
+
+# 컨테이너 관련
+container_home/
+container_root/
+container_server/
+container_tmp/
+
+# 로컬 전용
+src/
+ppt/
+
+# macOS
+.DS_Store
