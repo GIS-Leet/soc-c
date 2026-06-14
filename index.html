@@ -1022,12 +1022,19 @@
                     row.innerHTML = `<span class="empty">업로드된 파일이 없습니다.</span>`;
                 } else {
                     materials.forEach(file => {
-                        const a = document.createElement('a');
-                        a.href = file.download_url;
-                        a.target = '_blank';
-                        a.className = 'file-chip';
-                        a.innerHTML = `${folder.icon}<span>${file.name}</span>`;
-                        row.appendChild(a);
+                      const a = document.createElement('a');
+                    
+                      // ★ HTML은 raw 주소로 열면 코드가 그대로 보임 → githack으로 바꿔 '페이지'로 렌더링
+                      let href = file.download_url;
+                      if (file.name.toLowerCase().endsWith('.html')) {
+                        href = file.download_url.replace('raw.githubusercontent.com', 'raw.githack.com');
+                      }
+                      a.href = href;
+                    
+                      a.target = '_blank';
+                      a.className = 'file-chip';
+                      a.innerHTML = `${folder.icon}<span>${file.name}</span>`;
+                      row.appendChild(a);
                     });
                 }
             } catch {
