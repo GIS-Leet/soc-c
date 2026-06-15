@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>통합사회 기후 심화 학습 자료 — Geographia Archive</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#efe7d4;
+    --card:#faf5ea;
+    --card-2:#f3ecda;
+    --ink:#241f19;
+    --ink-2:#5b5347;
+    --ink-3:#8a8073;
+    --line:#c7b896;
+    --line-2:#ddd1b5;
+    --accent:#9c3b22;   /* 테라코타 (열·강조) */
+    --ochre:#947231;    /* 황토 (퇴적·자원) */
+    --teal:#3a6660;     /* 물 */
+    --olive:#586134;    /* 식생 */
+    --slate:#6a6256;    /* 암석 */
+    --serif:'Fraunces','Nanum Myeongjo',Georgia,serif;
+    --sans:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+    word-break:keep-all;
+    line-height:1.7;
+    padding:40px 24px 80px;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  /* 은은한 종이 질감 */
+  body::before{
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.45;
+    mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+  }
+  main{ position:relative; z-index:1; max-width:940px; margin:0 auto; }
+
+  /* ── 문서 헤더 ───────────────────── */
+  .doc-header{ border-top:3px solid var(--ink); padding-top:16px; margin-bottom:40px; }
+  .doc-eyebrow{
+    display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;
+    font-size:.72rem; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--ink-2); font-weight:600; margin-bottom:14px;
+  }
+  .doc-eyebrow .ed{ font-family:var(--serif); color:var(--accent); letter-spacing:.1em; }
+  .doc-header h1{
+    font-family:var(--serif); font-weight:600; font-size:clamp(2rem,5vw,2.9rem);
+    letter-spacing:-.01em; line-height:1.1;
+  }
+  .doc-header .lede{
+    margin-top:12px; color:var(--ink-2); font-size:.95rem; max-width:60ch;
+    border-left:2px solid var(--ochre); padding-left:14px;
+  }
+
+  /* ── 챕터 카드 ───────────────────── */
+  .chapter{
+    background:var(--card);
+    border:1px solid var(--line);
+    box-shadow:5px 6px 0 rgba(40,30,15,.07);
+    padding:30px 30px 34px;
+    margin-bottom:34px;
+  }
+  .ch-head{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+  .ch-num{
+    font-family:var(--serif); font-size:.78rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--accent); border:1px solid var(--line); padding:4px 11px; white-space:nowrap;
+  }
+  .ch-title{ font-family:var(--serif); font-weight:600; font-size:clamp(1.35rem,3vw,1.7rem); line-height:1.2; }
+  .ch-intro{ color:var(--ink-2); font-size:.92rem; margin-bottom:22px; }
+  .ch-intro ul{ list-style:none; }
+  .ch-intro li{ position:relative; padding-left:16px; margin-bottom:3px; }
+  .ch-intro li::before{ content:'–'; position:absolute; left:0; color:var(--ochre); }
+
+  /* 챕터 내부 소제목 (4장) */
+  .sub-head{
+    font-family:var(--serif); font-weight:600; font-size:1.15rem; color:var(--ink);
+    border-bottom:1.5px solid var(--ink); padding-bottom:8px; margin:34px 0 18px;
+    display:flex; align-items:baseline; gap:10px;
+  }
+  .sub-head .n{ font-size:.85rem; color:var(--accent); }
+
+  /* ── 그림(다이어그램) ─────────────── */
+  figure{ margin:0 0 24px; border:1px solid var(--ink); background:var(--card-2); overflow:hidden; }
+  figcaption{
+    font-family:var(--serif); font-size:.8rem; color:var(--ink-2);
+    padding:9px 14px; border-bottom:1px solid var(--line);
+    background:rgba(148,114,49,.07);
+  }
+  figure svg{ display:block; width:100%; height:auto; }
+
+  /* SVG 공통 텍스트 스타일 */
+  figure svg text{
+    font-family:var(--sans);
+    paint-order:stroke;
+    stroke:#f4eedd; stroke-width:2.4px; stroke-linejoin:round; stroke-linecap:round;
+  }
+  .t-title{ font-size:14px; font-weight:700; fill:#241f19; }
+  .t-lbl{ font-size:12px; font-weight:600; fill:#2b2620; }
+  .t-sub{ font-size:10px; font-weight:400; fill:#6a6256; }
+  .t-sm{ font-size:9px; font-weight:600; fill:#5b5347; }
+  .f-accent{ fill:#9c3b22; } .f-teal{ fill:#3a6660; } .f-ochre{ fill:#8a6a2f; }
+  .f-olive{ fill:#586134; } .f-ink{ fill:#2b2620; } .f-mut{ fill:#6a6256; } .f-paper{ fill:#faf5ea; }
+  /* 어두운 배경 위 밝은 라벨 (어두운 외곽선으로 분리) */
+  .f-light{ fill:#efe4c9; }
+  .f-paper, .f-light{ stroke:#211d17; stroke-width:2.2px; }
+
+  /* ── 하위 카드 / 그리드 ──────────── */
+  .grid{ display:grid; gap:20px; }
+  .grid-2{ grid-template-columns:1fr 1fr; }
+  .grid-3{ grid-template-columns:1fr 1fr 1fr; }
+  @media(max-width:760px){ .grid-2,.grid-3{ grid-template-columns:1fr; } }
+
+  .card{ background:var(--card-2); border:1px solid var(--line-2); padding:18px 18px 20px; }
+  .card-title{
+    font-family:var(--serif); font-weight:600; font-size:1.02rem; color:var(--ink);
+    margin-bottom:6px; display:flex; align-items:baseline; gap:8px;
+  }
+  .card-title .mk{
+    font-family:var(--sans); font-size:.7rem; font-weight:700; color:var(--card);
+    background:var(--ink); width:20px; height:20px; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center; flex:none;
+  }
+  .card-kicker{ font-size:.78rem; color:var(--accent); font-weight:600; margin-bottom:12px; letter-spacing:.01em; }
+
+  /* 개조체 목록 */
+  .pts{ list-style:none; }
+  .pts > li{
+    position:relative; padding-left:15px; font-size:.875rem; color:var(--ink-2);
+    line-height:1.62; margin-bottom:9px;
+  }
+  .pts > li::before{
+    content:''; position:absolute; left:0; top:.55em;
+    width:5px; height:5px; background:var(--ochre);
+  }
+  .pts .lead{ color:var(--ink); font-weight:700; }
+  .pts .sub{ list-style:none; margin-top:5px; }
+  .pts .sub li{ position:relative; padding-left:14px; margin-bottom:3px; font-size:.85rem; }
+  .pts .sub li::before{ content:'·'; position:absolute; left:2px; color:var(--ink-3); font-weight:700; }
+  b, strong{ color:var(--ink); font-weight:700; }
+  .term{ font-weight:700; color:var(--accent); }
+  .term-t{ font-weight:700; color:var(--teal); }
+  .term-o{ font-weight:700; color:var(--ochre); }
+  .hanja{ color:var(--ink-3); font-weight:400; font-size:.92em; }
+
+  /* 강조 박스 (기후/자원 연결 등) */
+  .note{
+    margin-top:14px; padding:12px 14px; font-size:.82rem; line-height:1.6;
+    border-left:3px solid var(--ochre); background:rgba(148,114,49,.08); color:var(--ink-2);
+  }
+  .note.heat{ border-left-color:var(--accent); background:rgba(156,59,34,.07); }
+  .note .h{ font-weight:700; color:var(--ink); }
+
+  /* 화학식 / 모노 */
+  .formula{
+    font-family:'Fraunces',ui-monospace,monospace; font-size:.9rem; text-align:center;
+    background:var(--ink); color:#e9dcc4; padding:9px 10px; margin:10px 0; letter-spacing:.02em;
+  }
+
+  /* 표 */
+  table{ width:100%; border-collapse:collapse; font-size:.78rem; margin:10px 0; }
+  th,td{ border:1px solid var(--line); padding:7px 8px; text-align:left; vertical-align:top; }
+  th{ background:var(--card); font-family:var(--serif); font-weight:600; color:var(--ink); }
+  td .hl-a{ color:var(--accent); font-weight:700; }
+  td .hl-o{ color:var(--olive); font-weight:700; }
+
+  /* 인쇄 버튼 */
+  .print-btn{
+    position:fixed; bottom:28px; right:28px; z-index:50;
+    background:var(--ink); color:var(--paper); font-family:var(--sans); font-weight:700;
+    border:none; padding:13px 22px; border-radius:999px; cursor:pointer; font-size:.9rem;
+    box-shadow:0 8px 22px rgba(0,0,0,.22); transition:.2s;
+  }
+  .print-btn:hover{ background:var(--accent); transform:translateY(-2px); }
+
+  @media print{
+    @page{ margin:13mm 10mm; size:A4 portrait; }
+    html, body{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    body{ padding:0 !important; background:#efe7d4 !important; }
+    body::before{ display:none !important; }            /* 인쇄 시 노이즈 텍스처 제거 → 깔끔하게 */
+    .no-print{ display:none !important; }
+    main{ max-width:100% !important; }
+
+    /* A4 인쇄 폭(~718px)이 모바일 분기점(760px)보다 좁아 카드가 1열로 무너지는 것 방지 */
+    .grid-2{ display:grid !important; grid-template-columns:1fr 1fr !important; gap:16px !important; }
+    .grid-3{ display:grid !important; grid-template-columns:1fr 1fr 1fr !important; gap:14px !important; }
+    .chapter{ box-shadow:none !important; border:1px solid #8a8073 !important; }
+
+    /* 큰 컨테이너는 페이지에 걸쳐 자연스럽게 나뉘도록 (통째로 묶지 않음) */
+    .chapter, .chapter.avoid-break, .grid, .ch-intro, .doc-header{
+      break-inside:auto !important; page-break-inside:auto !important;
+    }
+    /* 2~4장은 새 페이지에서 시작 */
+    .page-break{ break-before:page; page-break-before:always; }
+    /* 그림·표·카드·식 같은 '한 덩어리'만 페이지 경계에서 잘리지 않게 */
+    figure, .card, table, .formula, .note{
+      break-inside:avoid; page-break-inside:avoid;
+    }
+    /* 제목은 바로 아래 내용과 붙여서 (제목만 떨어지는 것 방지) */
+    figcaption, .card-title, .card-kicker, .ch-head, .sub-head{
+      break-after:avoid; page-break-after:avoid;
+    }
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">PDF 인쇄 / 저장</button>
+
+<main>
+
+  <header class="doc-header avoid-break">
+    <div class="doc-eyebrow">
+      <span>Integrated Social Studies · Climate Study Guide</span>
+      <span class="ed">Geographia Archive</span>
+    </div>
+    <h1>기후 심화 학습 자료</h1>
+    <p class="lede">통합사회 · 기후 심화 학습 — 대기 대순환과 기압대, 기압대의 계절 이동, 대륙 동·서안의 차이, 그리고 기후 그래프 판별까지. 모의고사·수능 대비 개념 정리.</p>
+  </header>
+
+  <!-- ════════════════ CHAPTER 01 ════════════════ -->
+  <section class="chapter avoid-break">
+    <div class="ch-head">
+      <span class="ch-num">Chapter 01</span>
+      <h2 class="ch-title">대기 대순환</h2>
+    </div>
+    <div class="ch-intro">
+      <ul>
+        <li>기후대가 위도 순서대로 줄지어 나타나는 이유 = 지구를 도는 거대한 공기 순환 3개</li>
+        <li>적도의 남는 열을 극지방으로 나르는 과정에서 저압대·고압대가 교대로 형성</li>
+        <li>이 기압대 배열이 사막·열대우림의 위치와 무역풍·편서풍의 방향을 결정</li>
+      </ul>
+    </div>
+
+    <figure class="avoid-break">
+      <figcaption>[그림 1] 대기 대순환 — 3개의 순환 고리와 기압대·바람·기후의 배열</figcaption>
+      <svg viewBox="0 0 960 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="960" height="400" fill="#f3ecda"/>
+
+        <!-- 순환 이름 -->
+        <text x="215" y="58" text-anchor="middle" class="t-sm f-mut">해들리 순환</text>
+        <text x="455" y="58" text-anchor="middle" class="t-sm f-mut">페렐 순환</text>
+        <text x="710" y="58" text-anchor="middle" class="t-sm f-mut">극 순환</text>
+
+        <!-- 기압대 이름 + 작용 -->
+        <text x="100" y="84" text-anchor="middle" class="t-lbl f-teal">적도수렴대</text>
+        <text x="100" y="100" text-anchor="middle" class="t-sm f-teal">저압·상승·다우</text>
+        <text x="330" y="84" text-anchor="middle" class="t-lbl f-accent">아열대 고압대</text>
+        <text x="330" y="100" text-anchor="middle" class="t-sm f-accent">고압·하강·건조</text>
+        <text x="580" y="84" text-anchor="middle" class="t-lbl f-teal">한대 전선대</text>
+        <text x="580" y="100" text-anchor="middle" class="t-sm f-teal">저압·상승·강수</text>
+        <text x="840" y="84" text-anchor="middle" class="t-lbl f-accent">극 고압대</text>
+        <text x="840" y="100" text-anchor="middle" class="t-sm f-accent">고압·하강·건조</text>
+
+        <!-- 구름(상승) / 해(하강) -->
+        <g fill="#cfd6cf">
+          <ellipse cx="100" cy="128" rx="30" ry="11"/><ellipse cx="84" cy="132" rx="15" ry="8"/><ellipse cx="116" cy="132" rx="15" ry="8"/>
+          <ellipse cx="580" cy="128" rx="30" ry="11"/><ellipse cx="564" cy="132" rx="15" ry="8"/><ellipse cx="596" cy="132" rx="15" ry="8"/>
+        </g>
+        <g stroke="#3a6660" stroke-width="1.6">
+          <line x1="90" y1="142" x2="86" y2="150"/><line x1="100" y1="142" x2="96" y2="150"/><line x1="110" y1="142" x2="106" y2="150"/>
+          <line x1="570" y1="142" x2="566" y2="150"/><line x1="580" y1="142" x2="576" y2="150"/><line x1="590" y1="142" x2="586" y2="150"/>
+        </g>
+        <g><circle cx="330" cy="126" r="11" fill="#e6b54e"/>
+          <g stroke="#e6b54e" stroke-width="1.6"><line x1="330" y1="108" x2="330" y2="114"/><line x1="330" y1="138" x2="330" y2="144"/><line x1="312" y1="126" x2="318" y2="126"/><line x1="342" y1="126" x2="348" y2="126"/></g>
+          <circle cx="840" cy="126" r="11" fill="#e6b54e"/>
+          <g stroke="#e6b54e" stroke-width="1.6"><line x1="840" y1="108" x2="840" y2="114"/><line x1="840" y1="138" x2="840" y2="144"/><line x1="822" y1="126" x2="828" y2="126"/><line x1="852" y1="126" x2="858" y2="126"/></g>
+        </g>
+
+        <!-- 상공 흐름 (얇은 화살표) -->
+        <g stroke="#9a907d" stroke-width="2" fill="none">
+          <line x1="118" y1="166" x2="312" y2="166"/><polygon points="322,166 310,161 310,171" fill="#9a907d"/>
+          <line x1="562" y1="166" x2="348" y2="166"/><polygon points="338,166 350,161 350,171" fill="#9a907d"/>
+          <line x1="598" y1="166" x2="822" y2="166"/><polygon points="832,166 820,161 820,171" fill="#9a907d"/>
+        </g>
+        <text x="455" y="160" text-anchor="middle" class="t-sm f-mut">← 상공 (고위도로 이동) →</text>
+
+        <!-- 연직 화살표: 상승(청록 ↑) / 하강(적색 ↓) -->
+        <g stroke-linecap="round">
+          <line x1="100" y1="306" x2="100" y2="184" stroke="#3a6660" stroke-width="7"/><polygon points="100,172 89,192 111,192" fill="#3a6660"/>
+          <line x1="580" y1="306" x2="580" y2="184" stroke="#3a6660" stroke-width="7"/><polygon points="580,172 569,192 591,192" fill="#3a6660"/>
+          <line x1="330" y1="184" x2="330" y2="306" stroke="#9c3b22" stroke-width="7"/><polygon points="330,318 319,298 341,298" fill="#9c3b22"/>
+          <line x1="840" y1="184" x2="840" y2="306" stroke="#9c3b22" stroke-width="7"/><polygon points="840,318 829,298 851,298" fill="#9c3b22"/>
+        </g>
+
+        <!-- 지표 바람 -->
+        <g stroke="#5b5347" stroke-width="2" fill="none">
+          <line x1="312" y1="322" x2="120" y2="322"/><polygon points="110,322 122,317 122,327" fill="#5b5347"/>
+          <line x1="348" y1="322" x2="562" y2="322"/><polygon points="572,322 560,317 560,327" fill="#5b5347"/>
+          <line x1="828" y1="322" x2="598" y2="322"/><polygon points="588,322 600,317 600,327" fill="#5b5347"/>
+        </g>
+        <text x="215" y="316" text-anchor="middle" class="t-sm f-ink">무역풍</text>
+        <text x="455" y="316" text-anchor="middle" class="t-sm f-ink">편서풍</text>
+        <text x="710" y="316" text-anchor="middle" class="t-sm f-ink">극동풍</text>
+
+        <!-- 지면 기후대 띠 -->
+        <rect x="60"  y="332" width="150" height="30" fill="#6d7942"/>
+        <rect x="210" y="332" width="230" height="30" fill="#c9a24b"/>
+        <rect x="440" y="332" width="260" height="30" fill="#7d8a55"/>
+        <rect x="700" y="332" width="200" height="30" fill="#aebcb9"/>
+        <rect x="60" y="332" width="840" height="30" fill="none" stroke="#241f19" stroke-width="1"/>
+        <text x="135" y="351" text-anchor="middle" class="t-sm f-light">열대우림</text>
+        <text x="325" y="351" text-anchor="middle" class="t-sm f-ink">사막</text>
+        <text x="570" y="351" text-anchor="middle" class="t-sm f-light">온대</text>
+        <text x="800" y="351" text-anchor="middle" class="t-sm f-ink">한대·빙설</text>
+
+        <!-- 위도 -->
+        <text x="100" y="383" text-anchor="middle" class="t-sm f-mut">0° 적도</text>
+        <text x="330" y="383" text-anchor="middle" class="t-sm f-mut">위도 30°</text>
+        <text x="580" y="383" text-anchor="middle" class="t-sm f-mut">위도 60°</text>
+        <text x="840" y="383" text-anchor="middle" class="t-sm f-mut">90° 극</text>
+      </svg>
+    </figure>
+
+    <div class="grid grid-3">
+      <div class="card avoid-break">
+        <div class="card-title">적도 저압대 <span style="font-size:.78rem;color:var(--teal)">상승·저압</span></div>
+        <ul class="pts">
+          <li><span class="lead">위치</span> — 적도(0°) 부근, <span class="term-t">적도수렴대(ITCZ)</span></li>
+          <li><span class="lead">원리</span> — 강한 일사로 공기 가열 → <b>상승기류</b> → 무역풍이 모여듦(수렴)</li>
+          <li><span class="lead">날씨</span> — 저기압, 구름·비 많음, 강한 <b>대류성 강수(스콜)</b></li>
+          <li><span class="lead">기후</span> — 연중 다우의 <b>열대 우림(Af)</b></li>
+        </ul>
+      </div>
+      <div class="card avoid-break">
+        <div class="card-title">아열대 고압대 <span style="font-size:.78rem;color:var(--accent)">하강·고압</span></div>
+        <ul class="pts">
+          <li><span class="lead">위치</span> — 남·북위 <b>30°</b> 부근</li>
+          <li><span class="lead">원리</span> — 적도서 상승한 공기가 이동하다 냉각·<b>하강기류</b></li>
+          <li><span class="lead">날씨</span> — 고기압, 맑고 <b>건조</b></li>
+          <li><span class="lead">기후</span> — <b>사막(BW)</b> 형성; 여기서 <span class="term">무역풍</span>(저위도)과 <span class="term">편서풍</span>(중위도)이 갈라짐</li>
+        </ul>
+      </div>
+      <div class="card avoid-break">
+        <div class="card-title">한대 전선대 <span style="font-size:.78rem;color:var(--teal)">상승·저압</span></div>
+        <ul class="pts">
+          <li><span class="lead">위치</span> — 남·북위 <b>60°</b> 부근</li>
+          <li><span class="lead">원리</span> — 차가운 <b>극동풍</b> + 따뜻한 <b>편서풍</b>이 충돌 → 공기 상승</li>
+          <li><span class="lead">날씨</span> — 저기압, <b>온대저기압</b> 발생·강수</li>
+          <li><span class="lead">극(90°)</span> — 한랭 공기 하강 → <b>극 고압대</b> → 한대·빙설</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note heat" style="margin-top:18px"><span class="h">수능 포인트</span> — <b>저압대=상승=다우</b>, <b>고압대=하강=건조</b>. 위도 0°·60°는 저압(비 많음), 30°·90°는 고압(건조). 이 4단 배열만 잡으면 사막·우림의 위치가 한 번에 풀립니다.</div>
+  </section>
+
+  <!-- ════════════════ CHAPTER 02 ════════════════ -->
+  <section class="chapter page-break avoid-break">
+    <div class="ch-head">
+      <span class="ch-num">Chapter 02</span>
+      <h2 class="ch-title">기압대의 계절 이동</h2>
+    </div>
+    <div class="ch-intro">
+      <ul>
+        <li>자전축이 기울어 공전 → 일사가 집중되는 위도가 계절 따라 남북으로 이동</li>
+        <li>기압대도 통째로 <b>여름 반구 쪽</b>으로 따라 이동</li>
+        <li>이 이동이 사바나·지중해성·계절풍 기후의 <b>건기/우기</b>를 만듦</li>
+      </ul>
+    </div>
+
+    <figure class="avoid-break">
+      <figcaption>[그림 2] 지구본 위의 기압대 — 계절에 따라 남북으로 이동하며 건기·우기를 만든다</figcaption>
+      <svg viewBox="0 0 960 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="globeS"><circle cx="235" cy="195" r="115"/></clipPath>
+          <clipPath id="globeW"><circle cx="715" cy="195" r="115"/></clipPath>
+        </defs>
+        <rect width="960" height="400" fill="#f3ecda"/>
+
+        <!-- 제목 -->
+        <text x="235" y="34" text-anchor="middle" class="t-title f-accent">북반구 여름 (7월)</text>
+        <text x="235" y="52" text-anchor="middle" class="t-sm f-mut">기압대 북상 ↑ (태양이 북반구를 비춤)</text>
+        <text x="715" y="34" text-anchor="middle" class="t-title f-teal">북반구 겨울 (1월)</text>
+        <text x="715" y="52" text-anchor="middle" class="t-sm f-mut">기압대 남하 ↓ (태양이 남반구를 비춤)</text>
+
+        <!-- ===== 여름 지구본 ===== -->
+        <circle cx="235" cy="195" r="115" fill="#d4e3e2"/>
+        <g clip-path="url(#globeS)">
+          <rect x="115" y="100" width="240" height="30" fill="#c9a24b" opacity="0.7"/>   <!-- 아열대고압대(북) -->
+          <rect x="115" y="158" width="240" height="28" fill="#3a6660" opacity="0.55"/>  <!-- 적도수렴대(적도 북측) -->
+          <rect x="115" y="248" width="240" height="26" fill="#c9a24b" opacity="0.5"/>   <!-- 아열대고압대(남) -->
+          <line x1="120" y1="195" x2="350" y2="195" stroke="#5b5347" stroke-width="1" stroke-dasharray="2 3"/>
+          <!-- 고정 위도 -->
+          <line x1="120" y1="115" x2="350" y2="115" stroke="#241f19" stroke-width="1.2" stroke-dasharray="6 4"/>
+          <line x1="120" y1="172" x2="350" y2="172" stroke="#241f19" stroke-width="1.2" stroke-dasharray="6 4"/>
+          <!-- 위도선 (3D 느낌) -->
+          <ellipse cx="235" cy="195" rx="115" ry="40" fill="none" stroke="#9fb6b4" stroke-width="0.8"/>
+          <ellipse cx="235" cy="195" rx="40" ry="115" fill="none" stroke="#9fb6b4" stroke-width="0.8"/>
+        </g>
+        <circle cx="235" cy="195" r="115" fill="none" stroke="#5b5347" stroke-width="1.5"/>
+        <!-- 자전축(북극이 태양쪽으로 기욺) -->
+        <line x1="200" y1="92" x2="270" y2="298" stroke="#241f19" stroke-width="1.4" stroke-dasharray="4 3"/>
+        <text x="196" y="88" class="t-sm f-ink">N</text>
+        <!-- 태양 -->
+        <circle cx="70" cy="78" r="16" fill="#e6b54e"/>
+        <g stroke="#e6b54e" stroke-width="2"><line x1="70" y1="52" x2="70" y2="60"/><line x1="44" y1="78" x2="52" y2="78"/><line x1="52" y1="60" x2="58" y2="66"/></g>
+        <g stroke="#e6b54e" stroke-width="1.4" opacity="0.7"><line x1="86" y1="92" x2="150" y2="135"/><line x1="92" y1="104" x2="150" y2="150"/></g>
+        <!-- 위도 표시 라벨 -->
+        <text x="124" y="111" class="t-sm f-ink">지중해 위도</text>
+        <text x="124" y="168" class="t-sm f-ink">사바나 위도</text>
+
+        <!-- ===== 겨울 지구본 ===== -->
+        <circle cx="715" cy="195" r="115" fill="#d4e3e2"/>
+        <g clip-path="url(#globeW)">
+          <rect x="595" y="95"  width="240" height="26" fill="#7d8a55" opacity="0.6"/>   <!-- 편서풍·전선대(북) -->
+          <rect x="595" y="150" width="240" height="30" fill="#c9a24b" opacity="0.7"/>   <!-- 아열대고압대 -->
+          <rect x="595" y="208" width="240" height="28" fill="#3a6660" opacity="0.55"/>  <!-- 적도수렴대(적도 남측) -->
+          <line x1="600" y1="195" x2="830" y2="195" stroke="#5b5347" stroke-width="1" stroke-dasharray="2 3"/>
+          <line x1="600" y1="115" x2="830" y2="115" stroke="#241f19" stroke-width="1.2" stroke-dasharray="6 4"/>
+          <line x1="600" y1="172" x2="830" y2="172" stroke="#241f19" stroke-width="1.2" stroke-dasharray="6 4"/>
+          <ellipse cx="715" cy="195" rx="115" ry="40" fill="none" stroke="#9fb6b4" stroke-width="0.8"/>
+          <ellipse cx="715" cy="195" rx="40" ry="115" fill="none" stroke="#9fb6b4" stroke-width="0.8"/>
+        </g>
+        <circle cx="715" cy="195" r="115" fill="none" stroke="#5b5347" stroke-width="1.5"/>
+        <line x1="750" y1="92" x2="680" y2="298" stroke="#241f19" stroke-width="1.4" stroke-dasharray="4 3"/>
+        <text x="752" y="88" class="t-sm f-ink">N</text>
+        <circle cx="892" cy="312" r="16" fill="#e6b54e"/>
+        <g stroke="#e6b54e" stroke-width="2"><line x1="892" y1="286" x2="892" y2="294"/><line x1="910" y1="312" x2="918" y2="312"/></g>
+        <g stroke="#e6b54e" stroke-width="1.4" opacity="0.7"><line x1="876" y1="298" x2="812" y2="255"/><line x1="870" y1="286" x2="812" y2="240"/></g>
+        <text x="604" y="111" class="t-sm f-ink">지중해 위도</text>
+        <text x="604" y="168" class="t-sm f-ink">사바나 위도</text>
+
+        <!-- 결과 -->
+        <text x="235" y="340" text-anchor="middle" class="t-lbl f-ink">사바나 → 우기 ·  지중해 → 고온건조</text>
+        <text x="715" y="340" text-anchor="middle" class="t-lbl f-ink">사바나 → 건기 ·  지중해 → 온난습윤</text>
+
+        <!-- 범례 -->
+        <rect x="300" y="364" width="14" height="11" fill="#3a6660" opacity="0.7"/><text x="320" y="374" class="t-sm f-mut">적도수렴대(저압·다우)</text>
+        <rect x="500" y="364" width="14" height="11" fill="#c9a24b" opacity="0.8"/><text x="520" y="374" class="t-sm f-mut">아열대 고압대(고압·건조)</text>
+      </svg>
+    </figure>
+
+    <div class="grid grid-3">
+      <div class="card avoid-break">
+        <div class="card-title"><span class="mk">1</span>사바나 (Aw)</div>
+        <div class="card-kicker">적도 약간 바깥 · 우기·건기 뚜렷</div>
+        <ul class="pts">
+          <li><span class="lead">여름</span> — 적도수렴대 북상해 머리 위 → <b>우기</b></li>
+          <li><span class="lead">겨울</span> — 아열대고압대 영향권 → <b>건기</b></li>
+          <li><span class="lead">결과</span> — 키 큰 풀 + 드문드문 나무(사바나), 강수 패턴 <b>w(겨울 건조)</b></li>
+        </ul>
+      </div>
+      <div class="card avoid-break">
+        <div class="card-title"><span class="mk">2</span>지중해성 (Cs)</div>
+        <div class="card-kicker">위도 30~40° 대륙 서안</div>
+        <ul class="pts">
+          <li><span class="lead">여름</span> — 아열대고압대 북상·영향권 → <b>고온 건조</b></li>
+          <li><span class="lead">겨울</span> — 편서풍·한대전선대 → <b>온난 습윤</b></li>
+          <li><span class="lead">결과</span> — <b>여름 건조 s</b> → 올리브·포도 등 수목농업</li>
+        </ul>
+      </div>
+      <div class="card avoid-break">
+        <div class="card-title"><span class="mk">3</span>계절풍 (Am·Cw)</div>
+        <div class="card-kicker">대륙 동안 · 해풍/육풍</div>
+        <ul class="pts">
+          <li><span class="lead">여름</span> — <b>해풍</b>(바다→대륙, 습윤) → 우기</li>
+          <li><span class="lead">겨울</span> — <b>육풍</b>(대륙→바다, 건조) → 건기</li>
+          <li><span class="lead">결과</span> — <b>겨울 건조 w</b> → 벼농사, 동·남부 아시아</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note" style="margin-top:18px"><span class="h">헷갈림 주의</span> — <span class="term">지중해성(Cs)</span>은 <b>여름</b>이 건조(대륙 서안), <span class="term-o">온대 겨울 건조(Cw)</span>는 <b>겨울</b>이 건조(대륙 동안). 건조한 계절이 정반대입니다.</div>
+  </section>
+
+  <!-- ════════════════ CHAPTER 03 ════════════════ -->
+  <section class="chapter page-break avoid-break">
+    <div class="ch-head">
+      <span class="ch-num">Chapter 03</span>
+      <h2 class="ch-title">대륙 서안과 동안</h2>
+    </div>
+    <div class="ch-intro">
+      <ul>
+        <li>같은 위도라도 대륙 <b>서쪽</b>과 <b>동쪽</b>의 기후가 크게 다름</li>
+        <li>바람(편서풍 ↔ 계절풍)과 바다(해류·비열)가 그 차이를 만듦</li>
+      </ul>
+    </div>
+
+    <figure class="avoid-break">
+      <figcaption>[그림 3] 유라시아 대륙 — 서안(유럽)과 동안(동아시아)의 기후가 다른 이유</figcaption>
+      <svg viewBox="0 0 960 380" xmlns="http://www.w3.org/2000/svg">
+        <rect width="960" height="380" fill="#cfe0df"/>
+        <!-- 대양 라벨 -->
+        <text x="55"  y="180" text-anchor="middle" class="t-lbl f-teal">대서양</text>
+        <text x="905" y="180" text-anchor="middle" class="t-lbl f-teal">태평양</text>
+        <text x="560" y="360" text-anchor="middle" class="t-lbl f-teal">인도양</text>
+
+        <!-- 유라시아 대륙 -->
+        <path d="M150,96 Q470,66 800,92 L838,150 Q828,196 802,238 L742,268 L690,266
+                 L648,292 L622,340 L596,292 L556,266 L512,282 L470,258 L450,296 L430,296 L408,256
+                 L348,266 Q300,250 286,210 Q252,228 214,232 Q180,236 174,206 Q204,196 194,168
+                 Q170,166 178,140 Q212,134 200,108 Z"
+              fill="#9d9072" stroke="#241f19" stroke-width="1.3"/>
+        <!-- 지중해 -->
+        <ellipse cx="300" cy="244" rx="34" ry="13" fill="#cfe0df" stroke="#7fa3a0" stroke-width="0.8"/>
+        <text x="300" y="248" text-anchor="middle" class="t-sm f-teal">지중해</text>
+
+        <!-- 권역 라벨 -->
+        <text x="235" y="150" text-anchor="middle" class="t-lbl f-ink">유럽 (서안)</text>
+        <text x="520" y="150" text-anchor="middle" class="t-lbl f-light">아시아 내륙</text>
+        <text x="520" y="168" text-anchor="middle" class="t-sm f-light">대륙성·건조</text>
+        <text x="760" y="150" text-anchor="middle" class="t-lbl f-ink">동아시아 (동안)</text>
+        <!-- 한반도 점 -->
+        <circle cx="792" cy="180" r="4" fill="#9c3b22"/><text x="800" y="184" class="t-sm f-accent">한반도</text>
+
+        <!-- 편서풍 (서안) -->
+        <g stroke="#3a6660" stroke-width="3" fill="none">
+          <line x1="40" y1="168" x2="150" y2="168"/><polygon points="162,168 148,162 148,174" fill="#3a6660"/>
+        </g>
+        <text x="92" y="158" text-anchor="middle" class="t-sm f-teal">편서풍 (연중)</text>
+        <!-- 북대서양 난류 -->
+        <path d="M70,250 Q120,210 158,180" stroke="#9c3b22" stroke-width="2.6" fill="none"/>
+        <polygon points="158,180 152,194 166,190" fill="#9c3b22"/>
+        <text x="96" y="268" text-anchor="middle" class="t-sm f-accent">난류 (따뜻)</text>
+
+        <!-- 동아시아 계절풍 -->
+        <g stroke="#3a6660" stroke-width="3" fill="none"><line x1="905" y1="220" x2="825" y2="220"/><polygon points="813,220 827,214 827,226" fill="#3a6660"/></g>
+        <text x="884" y="212" text-anchor="middle" class="t-sm f-teal">여름 해풍(습)</text>
+        <g stroke="#5b5347" stroke-width="3" fill="none"><line x1="822" y1="248" x2="902" y2="248"/><polygon points="914,248 900,242 900,254" fill="#5b5347"/></g>
+        <text x="884" y="266" text-anchor="middle" class="t-sm f-ink">겨울 육풍(건)</text>
+
+        <!-- 결과 라벨 -->
+        <text x="200" y="306" text-anchor="middle" class="t-sm f-teal">서안해양성(Cfb)·지중해성(Cs)</text>
+        <text x="200" y="322" text-anchor="middle" class="t-sm f-teal">연교차↓ · 연중 강수 고름</text>
+        <text x="770" y="306" text-anchor="middle" class="t-sm f-accent">온대겨울건조(Cw)·온난습윤(Cfa)</text>
+        <text x="770" y="322" text-anchor="middle" class="t-sm f-accent">연교차↑ · 여름 집중호우</text>
+      </svg>
+    </figure>
+
+    <div class="grid grid-3">
+      <div class="card avoid-break">
+        <div class="card-title">대륙 서안 <span style="font-size:.78rem;color:var(--teal)">편서풍·해양성</span></div>
+        <ul class="pts">
+          <li><span class="lead">바람</span> — 1년 내내 바다→육지로 부는 <b>편서풍</b> → 바다(해양)의 영향이 큼</li>
+          <li><span class="lead">특징</span> — <b>연교차 작음</b>, 강수가 연중 고르게 분포</li>
+          <li><span class="lead">기후</span> — 서안해양성(<b>Cfb</b>), 지중해성(<b>Cs</b>)</li>
+          <li><span class="lead">+ 난류</span> — 난류와 만나면 고위도에도 온화(서유럽)</li>
+        </ul>
+      </div>
+      <div class="card avoid-break">
+        <div class="card-title">대륙 동안 <span style="font-size:.78rem;color:var(--accent)">계절풍·대륙성</span></div>
+        <ul class="pts">
+          <li><span class="lead">바람</span> — 여름 해풍·겨울 육풍의 <b>계절풍</b> 영향이 큼</li>
+          <li><span class="lead">특징</span> — <b>연교차 큼</b>, 강수가 <b>여름에 집중</b></li>
+          <li><span class="lead">기후</span> — 온난습윤(<b>Cfa</b>), 온대겨울건조(<b>Cw</b>), 냉대겨울건조(<b>Dw</b>)</li>
+        </ul>
+      </div>
+      <div class="card avoid-break">
+        <div class="card-title">해류·비열 <span style="font-size:.78rem;color:var(--ochre)">숨은 변수</span></div>
+        <ul class="pts">
+          <li><span class="lead">난류</span> — 연안 기온↑·증발↑ → 따뜻하고 강수↑</li>
+          <li><span class="lead">한류</span> — 연안 기온↓ → 서늘·안개, 강수↓(해안 사막 유발)</li>
+          <li><span class="lead">비열</span> — 바다는 비열이 커 천천히 변함 → <b>해양성=연교차 작게</b>; 육지는 빨리 변함 → <b>대륙성=연교차 크게</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="note heat" style="margin-top:18px"><span class="h">수능 포인트</span> — "같은 위도, 다른 기후" 문제의 핵심 단서는 <b>연교차</b>. 서안=편서풍·해양성(연교차↓), 동안=계절풍·대륙성(연교차↑).</div>
+  </section>
+
+  <!-- ════════════════ CHAPTER 04 ════════════════ -->
+  <section class="chapter page-break avoid-break">
+    <div class="ch-head">
+      <span class="ch-num">Chapter 04</span>
+      <h2 class="ch-title">기후 그래프 판별</h2>
+    </div>
+    <div class="ch-intro">
+      <ul>
+        <li>수능·모의고사 단골 = 기온·강수 그래프(클라이모그래프) 보고 기후 맞히기</li>
+        <li>정해진 순서대로 읽으면 헷갈림 없이 판별 가능</li>
+      </ul>
+    </div>
+
+    <figure class="avoid-break">
+      <figcaption>[그림 4] 클라이모그래프 읽는 법 — 기온 곡선(선)과 강수량(막대)에서 단서 뽑기</figcaption>
+      <svg viewBox="0 0 960 380" xmlns="http://www.w3.org/2000/svg">
+        <rect width="960" height="380" fill="#f3ecda"/>
+        <!-- 그래프 프레임 -->
+        <line x1="120" y1="60" x2="120" y2="300" stroke="#5b5347" stroke-width="1.4"/>
+        <line x1="120" y1="300" x2="800" y2="300" stroke="#5b5347" stroke-width="1.4"/>
+        <line x1="800" y1="60" x2="800" y2="300" stroke="#5b5347" stroke-width="1.4"/>
+        <text x="96" y="66" text-anchor="end" class="t-sm f-mut">기온(℃)</text>
+        <text x="824" y="66" class="t-sm f-mut">강수(mm)</text>
+        <!-- 월 눈금 -->
+        <g class="t-sm f-mut" text-anchor="middle">
+          <text x="160" y="318">1</text><text x="280" y="318">3</text><text x="400" y="318">5</text>
+          <text x="520" y="318">7</text><text x="640" y="318">9</text><text x="760" y="318">11(월)</text>
+        </g>
+        <!-- 강수 막대 (여름 집중) -->
+        <g fill="#3a6660" opacity="0.8">
+          <rect x="150" y="284" width="18" height="16"/><rect x="210" y="280" width="18" height="20"/>
+          <rect x="270" y="266" width="18" height="34"/><rect x="330" y="240" width="18" height="60"/>
+          <rect x="390" y="208" width="18" height="92"/><rect x="450" y="170" width="18" height="130"/>
+          <rect x="510" y="150" width="18" height="150"/><rect x="570" y="186" width="18" height="114"/>
+          <rect x="630" y="240" width="18" height="60"/><rect x="690" y="270" width="18" height="30"/>
+          <rect x="750" y="286" width="18" height="14"/>
+        </g>
+        <!-- 기온 곡선 (여름 고온) -->
+        <polyline points="159,250 219,236 279,212 339,180 399,150 459,128 519,120 579,132 639,162 699,200 759,238"
+                  fill="none" stroke="#9c3b22" stroke-width="2.6"/>
+        <!-- 최난월/최한월 표시 -->
+        <circle cx="519" cy="120" r="4.5" fill="#9c3b22"/>
+        <text x="519" y="104" text-anchor="middle" class="t-sm f-accent">최난월(7월·여름 더움→북반구)</text>
+        <circle cx="159" cy="250" r="4.5" fill="#9c3b22"/>
+        <text x="190" y="262" class="t-sm f-accent">최한월(겨울)</text>
+        <!-- 연교차 -->
+        <line x1="92" y1="120" x2="92" y2="250" stroke="#586134" stroke-width="1.6"/>
+        <text x="84" y="190" text-anchor="end" class="t-sm f-olive">연교차</text>
+        <!-- 강수 패턴 주석 -->
+        <text x="519" y="345" text-anchor="middle" class="t-sm f-teal">강수가 여름(7월)에 집중 → 겨울 건조형(w) 단서</text>
+        <text x="700" y="150" text-anchor="middle" class="t-sm f-mut">막대=강수</text>
+        <text x="700" y="166" text-anchor="middle" class="t-sm f-accent">선=기온</text>
+      </svg>
+    </figure>
+
+    <div class="grid grid-2">
+      <div class="card avoid-break">
+        <div class="card-title">판별 순서 <span style="font-size:.78rem;color:var(--accent)">이 순서대로!</span></div>
+        <ul class="pts">
+          <li><span class="lead">① 남/북반구</span> — 기온이 <b>6~8월에 높으면 북반구</b>, 12~2월에 높으면 남반구</li>
+          <li><span class="lead">② 기온 1차 분류</span>
+            <ul class="sub">
+              <li>최한월 <b>18℃ 이상</b> → <b>A</b>(열대)</li>
+              <li>최난월 <b>10℃ 미만</b> → <b>E</b>(한대)</li>
+              <li>최한월 −3℃~18℃ → <b>C</b>(온대) / 최한월 <b>−3℃ 미만</b> → <b>D</b>(냉대)</li>
+            </ul>
+          </li>
+          <li><span class="lead">③ 건조(B) 확인</span> — 강수량이 매우 적으면(강수<증발) <b>B</b> → 250mm 미만 BW(사막), 250~500mm BS(스텝)</li>
+          <li><span class="lead">④ 강수 2차</span> — 연중 고름 <b>f</b> / 여름 건조 <b>s</b> / 겨울 건조 <b>w</b></li>
+        </ul>
+      </div>
+      <div class="card avoid-break">
+        <div class="card-title">헷갈리는 기후 비교 <span style="font-size:.78rem;color:var(--ochre)">결정 기준</span></div>
+        <ul class="pts">
+          <li><span class="lead">Aw vs Cw</span> — <b>최한월 18℃</b> (이상이면 Aw 열대, 미만이면 Cw 온대)</li>
+          <li><span class="lead">Cfa vs Cfb</span> — <b>최난월 22℃</b> (이상=더움 a→Cfa, 미만=서늘 b→Cfb)</li>
+          <li><span class="lead">Cs vs Cw</span> — 건조한 계절로 (여름 건조=Cs 서안, 겨울 건조=Cw 동안)</li>
+          <li><span class="lead">BS vs BW</span> — 연강수 <b>250mm</b> (이상 스텝, 미만 사막)</li>
+          <li><span class="lead">Df vs Dw</span> — 강수 연중 고름 Df(서안), 여름 집중·겨울 건조 Dw(동안)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note heat" style="margin-top:18px"><span class="h">수능 포인트</span> — <b>기온으로 큰 분류(A·C·D·E) 먼저, 강수로 세부(f·s·w)</b>. 결정적 숫자 네 개: 최한월 <b>18℃</b>(열대/온대)·<b>−3℃</b>(온대/냉대), 최난월 <b>10℃</b>(한대 여부)·<b>22℃</b>(a/b).</div>
+  </section>
+
+</main>
+</body>
+</html>
