@@ -59,9 +59,11 @@
 
         .canvas-wrapper { flex: 3; position: relative; border: 1px solid var(--ink); background: var(--paper); padding: 4px; box-shadow: inset 0 0 0 1px var(--line), 6px 6px 0 rgba(26,23,20,0.06);
             filter: sepia(0.07) contrast(0.98) saturate(1.06); }
-        #webgl-container { position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; outline: none; background: #1a1714; z-index: 1; }
+        /* 3D 뷰포트와 라벨을 담는 무대 — 데스크톱에선 캔버스를 꽉 채우고, 모바일에선 설명 박스 위쪽에 별도 높이로 분리됨 */
+        .canvas-stage { position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; }
+        #webgl-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; outline: none; background: #1a1714; z-index: 1; }
 
-        #label-layer { position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; overflow: hidden; pointer-events: none; z-index: 6; }
+        #label-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 6; }
         .map-label { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; pointer-events: none; display: flex; align-items: center; gap: 7px; padding: 5px 11px 5px 9px; background: var(--ink); color: var(--paper); border: 1px solid rgba(244,240,232,0.25); font-family: var(--sans); font-size: 0.78rem; font-weight: 600; letter-spacing: -0.01em; box-shadow: 2px 2px 0 rgba(26,23,20,0.25); transition: opacity 0.4s var(--ease); }
         .map-label::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 1px; height: 6px; background: rgba(244,240,232,0.55); transform: translateX(-50%); }
         .map-label .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--terra); box-shadow: 0 0 0 3px rgba(180,80,46,0.25); flex-shrink: 0; }
@@ -135,12 +137,14 @@
             body { height: auto; min-height: 100vh; overflow: visible; display: block; }
             .dashboard-container { flex-direction: column; height: auto; overflow: visible; padding: 18px; gap: 18px; }
             .controls-wrapper { max-width: 100%; flex: none; max-height: none; }
-            .canvas-wrapper { flex: none; height: 68vh; height: 68dvh; min-height: 380px; }
+            /* 검은 설명 박스가 지형을 가리지 않도록 3D 화면(위)과 설명(아래)을 세로로 분리함 */
+            .canvas-wrapper { flex: none; height: auto; display: flex; flex-direction: column; }
+            .canvas-stage { position: relative; top: auto; left: auto; right: auto; bottom: auto; width: 100%; height: 62vh; height: 62dvh; min-height: 340px; flex: none; }
+            .scenario-caption { position: relative; left: auto; bottom: auto; transform: none; width: 100%; max-width: 100%; margin-top: 10px; }
             .caption-box { min-width: 0; max-width: 100%; }
         }
         @media (max-width: 600px) {
             .masthead-inner { padding: 0 20px; }
-            .scenario-caption { max-width: 96%; bottom: 12px; }
             .caption-box { padding: 12px 14px; }
             .cap-top { margin-bottom: 7px; }
             .cap-ex { display: none; }
@@ -178,13 +182,15 @@
 
     <div class="dashboard-container">
         <div class="canvas-wrapper">
-            <div class="guide-badge">
-                <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
-                <span>화면을 드래그해 시점을 돌리고, 아래 버튼으로 단계를 넘겨보세요</span>
-            </div>
+            <div class="canvas-stage">
+                <div class="guide-badge">
+                    <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+                    <span>화면을 드래그해 시점을 돌리고, 아래 버튼으로 단계를 넘겨보세요</span>
+                </div>
 
-            <div id="webgl-container"></div>
-            <div id="label-layer"></div>
+                <div id="webgl-container"></div>
+                <div id="label-layer"></div>
+            </div>
 
             <div class="scenario-caption" id="captionPanel">
                 <div class="caption-box">
