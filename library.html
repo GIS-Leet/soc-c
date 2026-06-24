@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<!-- 학생 공개 자료실: materials/ 폴더를 GitHub Contents API로 실시간 조회해 자동 나열함 (로그인 불필요) -->
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E1W226W5M4');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자료실 — Leet's Geographia Class</title>
+
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --ink:        #1a1714;
+        --ink-2:      #4a443c;
+        --ink-3:      #8c8479;
+        --ink-faint:  #b8b0a3;
+
+        --paper:      #f4f0e8;
+        --paper-2:    #efe9dd;
+        --surface:    #fbf9f3;
+
+        --line:       #d8d0c0;
+        --line-soft:  #e6dfd0;
+
+        --terra:      #b4502e;
+        --terra-soft: #f0e0d4;
+        --sea:        #2f5d50;
+        --sea-soft:   #dde8e2;
+        --gold:       #9a7b3f;
+
+        --serif: 'Fraunces', Georgia, serif;
+        --sans:  'Pretendard', -apple-system, sans-serif;
+
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+        font-family: var(--sans);
+        background-color: var(--paper);
+        background-image:
+            radial-gradient(circle at 18% 20%, rgba(180,80,46,0.04), transparent 38%),
+            radial-gradient(circle at 85% 75%, rgba(47,93,80,0.045), transparent 42%);
+        margin: 0; padding: 0;
+        color: var(--ink);
+        line-height: 1.62;
+        -webkit-font-smoothing: antialiased;
+        position: relative;
+        min-height: 100vh;
+    }
+    body::before {
+        content: '';
+        position: fixed; inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.5;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
+        mix-blend-mode: multiply;
+    }
+    body > * { position: relative; z-index: 2; }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ── MASTHEAD ── */
+    .masthead {
+        background: rgba(244,240,232,0.82);
+        backdrop-filter: blur(14px) saturate(1.2);
+        -webkit-backdrop-filter: blur(14px) saturate(1.2);
+        border-bottom: 1px solid var(--line);
+        position: sticky; top: 0; z-index: 9999;
+    }
+    .masthead-inner {
+        max-width: 1180px; margin: 0 auto; padding: 0 40px; height: 66px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+    .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
+    .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
+    .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+
+    .nav { display: flex; align-items: center; gap: 2px; }
+    .nav a {
+        font-size: 0.84rem; font-weight: 600; color: var(--ink-2);
+        padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease);
+    }
+    .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
+    .nav a.active { color: var(--paper); background: var(--ink); }
+
+    /* ── HERO ── */
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
+    .hero { padding: 64px 0 30px; }
+    .plate-no {
+        font-family: var(--serif); font-style: italic; font-size: 0.92rem;
+        color: var(--terra); letter-spacing: 0.02em; margin-bottom: 14px;
+    }
+    .hero h1 {
+        font-family: var(--serif); font-weight: 600; font-size: 3.2rem;
+        letter-spacing: -0.02em; line-height: 1.02; margin: 0 0 18px;
+    }
+    .hero p {
+        font-size: 1.02rem; color: var(--ink-2); max-width: 560px; margin: 0;
+    }
+    .hero .hint {
+        font-size: 0.82rem; color: var(--ink-3); margin-top: 12px; letter-spacing: 0.01em;
+    }
+
+    .rule { border: 0; border-top: 1px solid var(--line); margin: 8px 0 0; max-width: 1180px; }
+
+    /* ── BREADCRUMB ── */
+    .crumbs {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+        padding: 26px 0 4px; font-size: 0.84rem; color: var(--ink-3);
+    }
+    .crumbs a { color: var(--ink-2); font-weight: 600; }
+    .crumbs a:hover { color: var(--terra); }
+    .crumbs .sep { color: var(--ink-faint); }
+    .crumbs .cur { color: var(--ink); font-weight: 600; }
+
+    /* ── ARCHIVE GRID ── */
+    .archive { padding: 18px 0 80px; }
+    .arch-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(282px, 1fr)); gap: 16px;
+    }
+    .card {
+        background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+        padding: 20px; display: flex; flex-direction: column; gap: 14px;
+        transition: transform 0.25s var(--ease), border-color 0.25s var(--ease), box-shadow 0.25s var(--ease);
+    }
+    .card:hover {
+        transform: translateY(-2px); border-color: var(--ink-faint);
+        box-shadow: 0 10px 30px -16px rgba(26,23,20,0.35);
+    }
+    .card-top { display: flex; align-items: flex-start; gap: 13px; }
+    .card-ico { width: 34px; height: 34px; flex-shrink: 0; }
+    .card-ico.file { color: var(--terra); }
+    .card-ico.dir  { color: var(--sea); }
+    .card-head { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .card-name {
+        font-weight: 600; font-size: 0.98rem; line-height: 1.38;
+        color: var(--ink); word-break: break-word;
+    }
+    .card-meta { display: flex; align-items: center; gap: 8px; }
+    .tag {
+        font-size: 0.64rem; font-weight: 700; letter-spacing: 0.08em;
+        text-transform: uppercase; color: var(--terra);
+        background: var(--terra-soft); border-radius: 5px; padding: 2px 7px;
+    }
+    .tag.dir { color: var(--sea); background: var(--sea-soft); }
+    .size { font-size: 0.74rem; color: var(--ink-3); letter-spacing: 0.02em; }
+
+    .card-act { display: flex; gap: 8px; margin-top: auto; }
+    .btn {
+        font-size: 0.8rem; font-weight: 600; letter-spacing: 0.01em;
+        padding: 8px 16px; border-radius: 100px; cursor: pointer;
+        border: 1px solid var(--ink); background: var(--ink); color: var(--paper);
+        transition: all 0.2s var(--ease); display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:hover { background: var(--ink-2); border-color: var(--ink-2); }
+    .btn-ghost { background: transparent; color: var(--ink-2); border-color: var(--line); }
+    .btn-ghost:hover { background: rgba(26,23,20,0.05); color: var(--ink); border-color: var(--ink-faint); }
+
+    /* ── STATES ── */
+    .state {
+        text-align: center; padding: 80px 24px; color: var(--ink-3);
+        border: 1px dashed var(--line); border-radius: 16px; background: var(--surface);
+    }
+    .state .ttl { font-family: var(--serif); font-size: 1.4rem; color: var(--ink-2); margin-bottom: 10px; }
+    .state p { margin: 0; font-size: 0.92rem; }
+    .stale {
+        font-size: 0.76rem; color: var(--gold); background: rgba(154,123,63,0.08);
+        border: 1px solid rgba(154,123,63,0.25); border-radius: 8px;
+        padding: 8px 14px; margin-bottom: 18px; display: inline-block;
+    }
+    .spinner {
+        width: 26px; height: 26px; border: 2.5px solid var(--line);
+        border-top-color: var(--terra); border-radius: 50%;
+        animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── COLOPHON ── */
+    .colophon {
+        max-width: 1180px; margin: 0 auto; padding: 44px 40px 60px;
+        border-top: 1px solid var(--line); display: flex;
+        justify-content: space-between; align-items: center;
+        font-size: 0.76rem; color: var(--ink-3); letter-spacing: 0.04em;
+    }
+    .colophon .mono { font-family: var(--serif); font-style: italic; font-size: 0.84rem; }
+
+    .reveal { opacity: 0; transform: translateY(16px); animation: rise 0.7s var(--ease) forwards; }
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 940px) {
+        .masthead-inner, .wrap, .colophon { padding-left: 22px; padding-right: 22px; }
+        .hero { padding-top: 44px; }
+        .hero h1 { font-size: 2.6rem; }
+        .colophon { flex-direction: column; gap: 12px; text-align: center; }
+    }
+    @media (max-width: 520px) {
+        .hero h1 { font-size: 2.2rem; }
+        .arch-grid { grid-template-columns: 1fr; }
+        .brand-text .ko { font-size: 0.94rem; }
+    }
+</style>
+</head>
+<body>
+    <!-- ══════════ MASTHEAD ══════════ -->
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a href="index.html" class="brand">
+                <svg class="brand-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="24" cy="24" r="20"/>
+                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+                    <path d="M24 4v40M4 24h40"/>
+                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+                </svg>
+                <span class="brand-text">
+                    <span class="ko">Leet's Geographia Class</span>
+                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
+                </span>
+            </a>
+            <nav class="nav">
+                <a href="index.html">홈</a>
+                <a href="library.html" class="active">자료실</a>
+                <a href="qna.html">Q&amp;A 게시판</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ══════════ HERO ══════════ -->
+    <section class="wrap hero">
+        <div class="plate-no reveal">Reading Room · Open Archive</div>
+        <h1 class="reveal">자료실</h1>
+        <p class="reveal">수업과 학습에 쓰는 자료를 모아 둠. 로그인 없이 열람하거나 내려받음.</p>
+        <p class="hint reveal">PDF는 브라우저에서 바로 열림. 워드 문서는 뷰어로 표시됨. 폴더를 누르면 주제별 자료로 들어감.</p>
+    </section>
+    <hr class="rule">
+
+    <!-- ══════════ ARCHIVE ══════════ -->
+    <main class="wrap archive">
+        <nav class="crumbs" id="crumbs" aria-label="경로"></nav>
+        <div id="listing"></div>
+    </main>
+
+    <!-- ══════════ COLOPHON ══════════ -->
+    <footer class="colophon">
+        <span>Leet's Geographia-Class</span>
+        <span class="mono">2026 Leet — All rights reserved</span>
+    </footer>
+
+<script>
+    // ── 설정 ──
+    const REPO = 'GIS-Leet/soc-c';
+    const ROOT = 'materials';
+    const ROOT_LABEL = '자료실';
+    const API = `https://api.github.com/repos/${REPO}/contents/`;
+    const CACHE_TTL = 10 * 60 * 1000; // 10분
+    const PAGES_BASE = location.origin + location.pathname.replace(/[^/]*$/, ''); // 현재 페이지 디렉터리 (해시·쿼리 무관)
+
+    // 경로 각 구간을 안전하게 인코딩 (공백·한글·특수문자)
+    const encPath = (p) => p.split('/').map(encodeURIComponent).join('/');
+    const fileURL = (p) => PAGES_BASE + encPath(p); // 같은 출처(빠른 정적 서빙)
+
+    const fmtSize = (b) => {
+        if (b == null) return '';
+        if (b < 1024) return b + ' B';
+        if (b < 1024 * 1024) return (b / 1024).toFixed(0) + ' KB';
+        return (b / (1024 * 1024)).toFixed(1) + ' MB';
+    };
+
+    const ext = (name) => {
+        const m = name.toLowerCase().match(/\.([a-z0-9]+)$/);
+        return m ? m[1] : '';
+    };
+    const OFFICE = ['doc','docx','ppt','pptx','xls','xlsx'];
+    const IMAGE  = ['png','jpg','jpeg','gif','webp','svg','avif','bmp'];
+
+    // 아이콘 (브랜드와 동일한 선형 스타일)
+    const ICO = {
+        dir:  '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+        doc:  '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h5"/>',
+        img:  '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="10" r="1.8"/><path d="M21 16l-5-5L5 20"/>',
+        file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>'
+    };
+    const svg = (kind, cls) =>
+        `<svg class="card-ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICO[kind]}</svg>`;
+
+    // ── 데이터 조회 (캐시 우선 → 네트워크 → 실패 시 캐시 폴백) ──
+    async function listDir(path) {
+        const key = 'matcache:' + path;
+        let cached = null;
+        try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+        if (cached && Date.now() - cached.t < CACHE_TTL) return { items: cached.data };
+        try {
+            const res = await fetch(API + encPath(path), { headers: { Accept: 'application/vnd.github.v3+json' } });
+            if (res.status === 404) return { notFound: true };
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            localStorage.setItem(key, JSON.stringify({ t: Date.now(), data }));
+            return { items: data };
+        } catch (e) {
+            if (cached) return { items: cached.data, stale: true };
+            return { error: e.message || String(e) };
+        }
+    }
+
+    // ── 현재 경로 (해시 기반, 뒤로가기·딥링크 지원) ──
+    function currentPath() {
+        const h = decodeURIComponent(location.hash.replace(/^#/, '')).replace(/\/+$/, '');
+        return (h && (h === ROOT || h.startsWith(ROOT + '/'))) ? h : ROOT;
+    }
+
+    function renderCrumbs(path) {
+        const el = document.getElementById('crumbs');
+        const parts = path.split('/'); // ['materials', '지형', ...]
+        let acc = '';
+        const html = parts.map((p, i) => {
+            acc = i === 0 ? p : acc + '/' + p;
+            const label = i === 0 ? ROOT_LABEL : p;
+            const isLast = i === parts.length - 1;
+            return isLast
+                ? `<span class="cur">${label}</span>`
+                : `<a href="#${encodeURIComponent(acc)}">${label}</a><span class="sep">/</span>`;
+        }).join('');
+        el.innerHTML = html;
+    }
+
+    function cardHTML(item) {
+        if (item.type === 'dir') {
+            return `<div class="card">
+                <div class="card-top">
+                    ${svg('dir', 'dir')}
+                    <div class="card-head">
+                        <div class="card-name">${item.name}</div>
+                        <div class="card-meta"><span class="tag dir">폴더</span></div>
+                    </div>
+                </div>
+                <div class="card-act">
+                    <a class="btn" href="#${encodeURIComponent(item.path)}">열기</a>
+                </div>
+            </div>`;
+        }
+        const e = ext(item.name);
+        const isImg = IMAGE.includes(e);
+        const isOffice = OFFICE.includes(e);
+        const isPDF = e === 'pdf';
+        const viewable = isPDF || isImg || isOffice;
+        const kind = isImg ? 'img' : (isPDF || isOffice ? 'doc' : 'file');
+
+        const viewHref = isOffice
+            ? `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(fileURL(item.path))}`
+            : fileURL(item.path);
+
+        const actions = viewable
+            ? `<a class="btn" href="${viewHref}" target="_blank" rel="noopener">열람</a>
+               <a class="btn btn-ghost" href="${fileURL(item.path)}" download>내려받기</a>`
+            : `<a class="btn" href="${fileURL(item.path)}" download>내려받기</a>`;
+
+        return `<div class="card">
+            <div class="card-top">
+                ${svg(kind, 'file')}
+                <div class="card-head">
+                    <div class="card-name">${item.name}</div>
+                    <div class="card-meta">
+                        ${e ? `<span class="tag">${e}</span>` : ''}
+                        <span class="size">${fmtSize(item.size)}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-act">${actions}</div>
+        </div>`;
+    }
+
+    function renderList(items, stale) {
+        const box = document.getElementById('listing');
+        const visible = (Array.isArray(items) ? items : [])
+            .filter(i => !i.name.startsWith('.') && i.name.toLowerCase() !== 'readme.md');
+        const dirs = visible.filter(i => i.type === 'dir').sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        const files = visible.filter(i => i.type === 'file').sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        const ordered = [...dirs, ...files];
+
+        if (!ordered.length) {
+            box.innerHTML = `<div class="state">
+                <div class="ttl">아직 등록된 자료가 없음</div>
+                <p>자료가 올라오면 이곳에 자동으로 나타남.</p>
+            </div>`;
+            return;
+        }
+        const note = stale ? `<div class="stale">최신 목록을 불러오지 못해 저장된 목록을 보여 줌.</div>` : '';
+        box.innerHTML = note + `<div class="arch-grid reveal">${ordered.map(cardHTML).join('')}</div>`;
+    }
+
+    async function render() {
+        const path = currentPath();
+        renderCrumbs(path);
+        const box = document.getElementById('listing');
+        box.innerHTML = `<div class="state"><div class="spinner"></div><p>불러오는 중...</p></div>`;
+
+        const r = await listDir(path);
+        if (r.notFound) {
+            box.innerHTML = `<div class="state">
+                <div class="ttl">준비 중</div>
+                <p>아직 자료 폴더가 만들어지지 않음. 곧 자료가 올라옴.</p>
+            </div>`;
+        } else if (r.error) {
+            box.innerHTML = `<div class="state">
+                <div class="ttl">잠시 후 다시 시도</div>
+                <p>목록을 불러오지 못함. 잠시 뒤 새로고침 바람. (${r.error})</p>
+            </div>`;
+        } else {
+            renderList(r.items, r.stale);
+        }
+    }
+
+    window.addEventListener('hashchange', render);
+    render();
+</script>
+</body>
+</html>
