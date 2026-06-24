@@ -247,8 +247,7 @@
     <section class="wrap hero">
         <div class="plate-no reveal">Reading Room · Open Archive</div>
         <h1 class="reveal">자료실</h1>
-        <p class="reveal">수업과 학습에 쓰는 자료를 모아 둠. 로그인 없이 열람하거나 내려받음.</p>
-        <p class="hint reveal">PDF는 브라우저에서 바로 열림. 워드 문서는 뷰어로 표시됨. 폴더를 누르면 주제별 자료로 들어감.</p>
+        <p class="reveal">선생님이 개인적으로 공부하는 자료.</p>
     </section>
     <hr class="rule">
 
@@ -416,12 +415,12 @@
         if (r.notFound) {
             box.innerHTML = `<div class="state">
                 <div class="ttl">준비 중</div>
-                <p>아직 자료 폴더가 만들어지지 않음. 곧 자료가 올라옴.</p>
+                <p>등록된 자료가 없습니다.</p>
             </div>`;
         } else if (r.error) {
             box.innerHTML = `<div class="state">
                 <div class="ttl">잠시 후 다시 시도</div>
-                <p>목록을 불러오지 못함. 잠시 뒤 새로고침 바람. (${r.error})</p>
+                <p>목록을 불러오지 못 하였습니다. 잠시 뒤 새로고침 해 주세요. (${r.error})</p>
             </div>`;
         } else {
             renderList(r.items, r.stale);
