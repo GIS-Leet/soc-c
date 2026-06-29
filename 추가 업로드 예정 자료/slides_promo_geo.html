@@ -1,0 +1,871 @@
+<!-- 과목 선택 홍보 슬라이드 — 세계시민과 지리 (전 계열 진로 · 생기부 강화) -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <title>세계시민과 지리 — 과목 선택 설명회</title>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <style>
+    :root {
+      --black: #000;
+      --ink: #1d1d1f;
+      --tile1: #272729;
+      --tile2: #2a2a2c;
+      --parch: #f5f5f7;
+      --white: #fff;
+      --blue: #0066cc;
+      --bludark: #2997ff;
+      --inkmt: #6e6e73;
+      --hair: #e0e0e0;
+      --mutdk: #cccccc;
+      --dimdk: #555559;
+      --linedk: #38383c;
+      --imgbg: #e4e4e8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .reveal {
+      font-family: 'Pretendard', -apple-system, sans-serif;
+    }
+
+    .reveal .slides section {
+      padding: 0;
+      top: 0 !important;
+    }
+
+    .reveal .slides {
+      text-align: left;
+    }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4,
+    .reveal h5,
+    .reveal h6 {
+      font-family: 'Pretendard', -apple-system, sans-serif;
+      color: inherit;
+      text-transform: none;
+      letter-spacing: normal;
+      line-height: normal;
+      margin: 0;
+      text-shadow: none;
+      font-weight: 700;
+    }
+
+    .reveal p,
+    .reveal li {
+      margin: 0;
+    }
+
+    .reveal ul,
+    .reveal ol {
+      display: block;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    /* ── Slide shell ── */
+    .s {
+      width: 1280px;
+      height: 720px;
+      padding: 34px 62px 30px;
+      display: flex;
+      flex-direction: column;
+      font-size: 16px;
+      line-height: 1.5;
+      font-family: 'Pretendard', -apple-system, sans-serif;
+    }
+
+    .dark {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .parch {
+      background: var(--parch);
+      color: var(--ink);
+    }
+
+    .wh {
+      background: var(--white);
+      color: var(--ink);
+    }
+
+    /* ── Header ── */
+    .hd {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: .02em;
+      padding-bottom: 8px;
+      border-bottom: 1px solid;
+      flex-shrink: 0;
+      margin-bottom: 13px;
+    }
+
+    .dark .hd {
+      color: var(--dimdk);
+      border-color: var(--linedk);
+    }
+
+    .parch .hd,
+    .wh .hd {
+      color: var(--inkmt);
+      border-color: var(--hair);
+    }
+
+    /* ── Tag ── */
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      margin-bottom: 9px;
+    }
+
+    .dark .tag {
+      color: var(--bludark);
+    }
+
+    .parch .tag,
+    .wh .tag {
+      color: var(--blue);
+    }
+
+    /* ── Typography ── */
+    .h1 {
+      font-size: 96px;
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -.02em;
+    }
+
+    .h2 {
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      margin-bottom: 7px;
+    }
+
+    .h3 {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 5px;
+    }
+
+    .h4 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .sub {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .dark .sub {
+      color: var(--mutdk);
+    }
+
+    .parch .sub,
+    .wh .sub {
+      color: var(--inkmt);
+    }
+
+    .bd {
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    .bdsm {
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .mt {
+      color: var(--inkmt);
+    }
+
+    .dark .mt {
+      color: var(--mutdk);
+    }
+
+    /* ── Chips ── */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 11.5px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .parch .chip,
+    .wh .chip {
+      border-color: var(--hair);
+      background: var(--white);
+      color: var(--ink);
+    }
+
+    .dark .chip {
+      border-color: var(--linedk);
+      background: var(--tile2);
+      color: var(--mutdk);
+    }
+
+    /* ── Bullets ── */
+    .bul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .bul li {
+      font-size: 16px;
+      line-height: 1.7;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .bul li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .dark .bul li {
+      color: var(--mutdk);
+    }
+
+    /* ── Two-col ── */
+    .twocol {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .cl {
+      padding-right: 34px;
+      border-right: 1px solid var(--hair);
+      display: flex;
+      flex-direction: column;
+      padding-top: 4px;
+    }
+
+    .cr {
+      padding-left: 34px;
+      display: flex;
+      flex-direction: column;
+      padding-top: 4px;
+    }
+
+    .dark .cl {
+      border-color: var(--linedk);
+    }
+
+    /* ── Three-col ── */
+    .threecol {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Four-col ── */
+    .fourcol {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 13px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Image placeholder ── */
+    .iph {
+      background: var(--imgbg);
+      border-radius: 10px;
+      border: 1px solid var(--hair);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9.5px;
+      color: var(--inkmt);
+      flex: 1;
+      min-height: 50px;
+      text-align: center;
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    /* ── Fact bar ── */
+    .factbar {
+      border-top: 1px solid var(--linedk);
+      padding-top: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 34px;
+      flex-shrink: 0;
+    }
+
+    .fac-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--bludark);
+      letter-spacing: .07em;
+      margin-bottom: 5px;
+    }
+
+    .fac-ttl {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    .fac-desc {
+      font-size: 15px;
+      color: var(--mutdk);
+    }
+
+    /* ── Page number ── */
+    .pnum {
+      font-size: 10.5px;
+      padding-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .dark .pnum {
+      color: var(--dimdk);
+    }
+
+    .parch .pnum,
+    .wh .pnum {
+      color: var(--inkmt);
+    }
+
+    /* ── 홍보용 카드 ── */
+    .card {
+      background: rgba(0, 102, 204, .05);
+      border: 1px solid rgba(0, 102, 204, .1);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dark .card {
+      background: var(--tile2);
+      border-color: var(--linedk);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+
+      <!-- ══ 01 표지 ══ -->
+      <section>
+        <div class="s dark" style="position:relative;overflow:hidden;">
+          <img src="assets/promo/library.jpg" alt=""
+            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% 50%;opacity:.30;filter:grayscale(.25) contrast(1.05);">
+          <div style="position:absolute;inset:0;background:linear-gradient(105deg, rgba(0,0,0,.85) 40%, rgba(0,0,0,.5) 100%);">
+          </div>
+          <div style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:flex-end;">
+            <div class="tag">세계시민과 지리 · 2027 선택 과목 안내</div>
+            <div class="h1" style="margin-bottom:18px;">세계를 읽다.</div>
+            <div class="sub mt">자연과 사회, 경제와 문화를 한 주제로 잇는 종합 학문. 진로의 폭과 생활기록부의 깊이를 함께 넓히는 과목.</div>
+          </div>
+          <div class="factbar" style="position:relative;z-index:1;">
+            <div>
+              <div class="fac-lbl">대상 — FOR</div>
+              <div class="fac-ttl">계열을 가리지 않는 모든 진로</div>
+              <div class="fac-desc">경영 · 국제부터 공학 · 인문 · 예술까지</div>
+            </div>
+            <div>
+              <div class="fac-lbl">왜 지리인가 — APPROACH</div>
+              <div class="fac-ttl">세상을 공간으로 읽는 시야</div>
+              <div class="fac-desc">그 시야가 생기부의 변별력으로 남는 과목</div>
+            </div>
+          </div>
+          <div class="pnum" style="position:relative;z-index:1;">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;01 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 02 도입 — 존 스노우 ══ -->
+      <section>
+        <div class="s dark">
+          <div class="hd"><span>도입 — 지도 한 장이 사람을 살렸다</span><span>1854 · LONDON</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;">
+            <div>
+              <div class="tag" style="margin-bottom:6px;">1854, 런던 콜레라</div>
+              <div class="h2" style="color:var(--white);font-size:44px;">지도에 점을 찍자,<br>전염병이 멈췄다.</div>
+            </div>
+            <div class="bd mt" style="max-width:840px;">콜레라로 사람들이 죽어가던 런던. 한 의사가 사망자가 나온 집을 지도에 하나씩 점으로 표시. 점들은 어느 식수 펌프
+              주변에 집중. 그 펌프를 잠그자 전염도 종식.</div>
+          </div>
+          <div class="factbar">
+            <div>
+              <div class="fac-lbl">도구 — TOOL</div>
+              <div class="fac-ttl">공간으로 생각하는 힘</div>
+              <div class="fac-desc">세균도 현미경도 없던 시절, 단 하나의 단서</div>
+            </div>
+            <div>
+              <div class="fac-lbl">정체 — WHAT</div>
+              <div class="fac-ttl">그것이 곧 지리</div>
+              <div class="fac-desc">세상이 왜 지금 이 모습인지 묻는 학문</div>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;02 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 03 오해 깨기 — 세 장면 ══ -->
+      <section>
+        <div class="s parch">
+          <div class="hd"><span>지리는, 아는 그 과목이 아니다</span><span>NOT WHAT YOU THINK</span></div>
+          <div style="margin-bottom:16px;">
+            <div class="tag">암기 과목이라는 오해</div>
+            <div class="h2">지명 암기가 아니라,<br>세상의 작동 원리를 묻는 학문.</div>
+          </div>
+          <div class="threecol">
+            <div class="card" style="background:#fff;gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;">공간의 법칙 · 1970</div>
+              <div class="h4">지리학 제1법칙</div>
+              <div class="bdsm mt">'가까운 것이 먼 것보다 더 강하게 연결된다.'</div>
+              <div style="margin-top:auto;font-size:13.5px;color:var(--inkmt);">부동산 예측 · 전염병 모델 · 추천 알고리즘의 토대</div>
+            </div>
+            <div class="card" style="background:#fff;gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;">공간 경제 · 2008</div>
+              <div class="h4">노벨 경제학상</div>
+              <div class="bdsm mt">'산업은 왜 한곳에 모이는가.' 지리의 질문을 경제학으로 풀어 수상.</div>
+              <div style="margin-top:auto;font-size:13.5px;color:var(--inkmt);">무시받던 질문이 받은 영예</div>
+            </div>
+            <div class="card" style="background:#fff;gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;">지정학 · 1904</div>
+              <div class="h4">심장지대 이론</div>
+              <div class="bdsm mt">'내륙을 지배하는 자가 세계를 지배한다.'</div>
+              <div style="margin-top:auto;font-size:13.5px;color:var(--inkmt);">오늘의 국제 뉴스 분석에도 소환</div>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;03 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 04 세계가 다시 주목 ══ -->
+      <section>
+        <div class="s dark">
+          <div class="hd"><span>세계는 지리를 다시 '필수'로</span><span>A GLOBAL SHIFT</span></div>
+          <div style="margin-bottom:16px;">
+            <div class="tag">해외 동향</div>
+            <div class="h2" style="color:var(--white);">선진국은 지리를<br>다시 필수 과목으로 끌어올렸다.</div>
+          </div>
+          <div class="threecol">
+            <div class="card" style="gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--bludark);letter-spacing:.06em;">프랑스</div>
+              <div class="h3" style="color:var(--white);">공통 필수</div>
+              <div class="bdsm" style="color:var(--mutdk);">일반계 고교에서 역사-지리를 공통 필수로 이수. 바칼로레아에 반영.</div>
+            </div>
+            <div class="card" style="gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--bludark);letter-spacing:.06em;">일본</div>
+              <div class="h3" style="color:var(--white);">2022 필수화</div>
+              <div class="bdsm" style="color:var(--mutdk);">약 50년 만에 '지리총합'을 필수로 지정. 핵심은 GIS. 2025년부터 대입 출제.</div>
+            </div>
+            <div class="card" style="gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--bludark);letter-spacing:.06em;">공간정보 · GT</div>
+              <div class="h3" style="color:var(--white);">21세기 유망 분야</div>
+              <div class="bdsm" style="color:var(--mutdk);">BT·NT와 나란히 꼽히는 분야. 내비게이션·자율주행·위성 데이터의 토대.</div>
+            </div>
+          </div>
+          <div class="bdsm mt" style="margin-top:14px;">일상과 미래 산업이 모두 '어디' 위에서 작동.</div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;04 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 05 핵심 — 두 가지 이유 ══ -->
+      <section>
+        <div class="s dark">
+          <div class="hd"><span>핵심 — 입시에서 유리한 이유</span><span>THE CORE</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:24px;">
+            <div>
+              <div class="tag" style="margin-bottom:6px;">여기서부터가 핵심</div>
+              <div class="h2" style="color:var(--white);font-size:42px;">진로와 생기부의 질을 높이는<br>두 가지 이유.</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <div class="card" style="gap:9px;padding:24px 26px;">
+                <div style="font-size:13px;font-weight:700;color:var(--bludark);letter-spacing:.06em;">REASON 01</div>
+                <div class="h3" style="color:var(--white);">융합 과목</div>
+                <div class="bdsm" style="color:var(--mutdk);">사회·자연·인문을 한 과목에서. 대학이 원하는 융합형 인재로 직결.</div>
+              </div>
+              <div class="card" style="gap:9px;padding:24px 26px;">
+                <div style="font-size:13px;font-weight:700;color:var(--bludark);letter-spacing:.06em;">REASON 02</div>
+                <div class="h3" style="color:var(--white);">GeoAI · 데이터 분석</div>
+                <div class="bdsm" style="color:var(--mutdk);">코딩·지도·AI로 탐구. 누구와도 겹치지 않는 생기부.</div>
+              </div>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;05 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 06 이유 1 — 융합 과목 ══ -->
+      <section>
+        <div class="s parch">
+          <div class="hd"><span>이유 ① — 융합 과목</span><span>INTERDISCIPLINARY</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;">
+            <div>
+              <div class="tag" style="margin-bottom:6px;">사회 · 자연 · 인문</div>
+              <div class="h2">세 갈래 학문을<br>한 과목에서 다룬다.</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
+              <div style="background:var(--blue);border-radius:12px;padding:18px 15px;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.65);letter-spacing:.08em;">CORE</div>
+                <div style="font-size:20px;font-weight:700;color:#fff;">융합</div>
+                <div style="font-size:14px;color:rgba(255,255,255,.78);line-height:1.5;">한 과목에<br>세 학문</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--hair);border-radius:12px;padding:18px 15px;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:11px;font-weight:700;color:var(--inkmt);letter-spacing:.08em;">자연과학</div>
+                <div style="font-size:20px;font-weight:700;">기후·지형</div>
+                <div style="font-size:14px;color:var(--inkmt);line-height:1.5;">환경<br>생태</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--hair);border-radius:12px;padding:18px 15px;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:11px;font-weight:700;color:var(--inkmt);letter-spacing:.08em;">사회과학</div>
+                <div style="font-size:20px;font-weight:700;">경제·도시</div>
+                <div style="font-size:14px;color:var(--inkmt);line-height:1.5;">정치<br>인구</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--hair);border-radius:12px;padding:18px 15px;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:11px;font-weight:700;color:var(--inkmt);letter-spacing:.08em;">인문학</div>
+                <div style="font-size:20px;font-weight:700;">문화·역사</div>
+                <div style="font-size:14px;color:var(--inkmt);line-height:1.5;">언어<br>종교</div>
+              </div>
+              <div style="background:#fff;border:1px solid var(--hair);border-radius:12px;padding:18px 15px;display:flex;flex-direction:column;gap:6px;">
+                <div style="font-size:11px;font-weight:700;color:var(--inkmt);letter-spacing:.08em;">데이터</div>
+                <div style="font-size:20px;font-weight:700;">GIS·통계</div>
+                <div style="font-size:14px;color:var(--inkmt);line-height:1.5;">코딩<br>시각화</div>
+              </div>
+            </div>
+            <div class="bdsm mt">대학이 원하는 인재는 경계를 넘나드는 융합형. 데이터도 다루고 사회도 읽는 학생을 자연스럽게 증명.</div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;06 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 07 융합 시연 — 스마트폰 다섯 시선 ══ -->
+      <section>
+        <div class="s wh">
+          <div class="hd"><span>한 주제, 다섯 학문 — 융합이 보이는 방식</span><span>ONE TOPIC, FIVE LENSES</span></div>
+          <div class="twocol">
+            <div class="cl">
+              <div class="tag">탐구 주제 — TOPIC</div>
+              <div class="h2">스마트폰 하나에<br>다섯 개의 시선.</div>
+              <div class="bdsm mt" style="margin:13px 0 14px;">익숙한 제품 하나를 여러 학문으로 살피는 연습. 탐구의 폭과 깊이.</div>
+              <div
+                style="flex:1;min-height:0;border-radius:12px;overflow:hidden;position:relative;border:1px solid var(--hair);">
+                <img src="assets/promo/harbor.jpg" alt="컨테이너 항만"
+                  style="width:100%;height:100%;object-fit:cover;object-position:55% 42%;">
+                <div
+                  style="position:absolute;left:0;right:0;bottom:0;padding:10px 14px;background:linear-gradient(0deg,rgba(0,0,0,.62),transparent);font-size:13px;color:#fff;">
+                  제품 하나가 거치는 생산 · 무역 · 소비의 공간.</div>
+              </div>
+            </div>
+            <div class="cr" style="gap:9px;justify-content:center;">
+              <div class="tag">분석의 렌즈 — LENSES</div>
+              <div class="card" style="flex-direction:row;align-items:center;gap:12px;padding:13px 16px;">
+                <div style="font-size:11px;font-weight:700;color:var(--blue);min-width:64px;">자원·환경</div>
+                <div class="bdsm">희소 금속의 산지와 채굴 환경.</div>
+              </div>
+              <div class="card" style="flex-direction:row;align-items:center;gap:12px;padding:13px 16px;">
+                <div style="font-size:11px;font-weight:700;color:var(--blue);min-width:64px;">제조·경제</div>
+                <div class="bdsm">부품 생산 입지와 글로벌 분업.</div>
+              </div>
+              <div class="card" style="flex-direction:row;align-items:center;gap:12px;padding:13px 16px;">
+                <div style="font-size:11px;font-weight:700;color:var(--blue);min-width:64px;">무역·물류</div>
+                <div class="bdsm">공급망과 국제 운송 경로.</div>
+              </div>
+              <div class="card" style="flex-direction:row;align-items:center;gap:12px;padding:13px 16px;">
+                <div style="font-size:11px;font-weight:700;color:var(--blue);min-width:64px;">국제·정책</div>
+                <div class="bdsm">생산국·소비국의 경제 격차.</div>
+              </div>
+              <div class="card" style="flex-direction:row;align-items:center;gap:12px;padding:13px 16px;">
+                <div style="font-size:11px;font-weight:700;color:var(--blue);min-width:64px;">소비·문화</div>
+                <div class="bdsm">브랜드 전략과 소비 트렌드.</div>
+              </div>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;07 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 08 이유 2 — GeoAI · 데이터 분석 ══ -->
+      <section>
+        <div class="s dark">
+          <div class="hd"><span>이유 ② — GeoAI · 데이터 분석</span><span>THE EDGE</span></div>
+          <div class="twocol">
+            <div class="cl">
+              <div class="tag">지리학의 최전선</div>
+              <div class="h2" style="color:var(--white);">지도를 보는 게 아니라,<br>데이터로 다룬다.</div>
+              <div class="bdsm mt" style="margin:13px 0 14px;">공간 데이터에 인공지능을 결합하는 분야가 GeoAI. 지도가 곧 분석 도구.</div>
+              <div
+                style="flex:1;min-height:0;border-radius:12px;overflow:hidden;border:1px solid var(--linedk);background:#fff;">
+                <img src="assets/img_topic4_5/flowmap.jpg" alt="인구 이동 흐름 지도"
+                  style="width:100%;height:100%;object-fit:contain;background:#fff;">
+              </div>
+            </div>
+            <div class="cr" style="gap:11px;justify-content:center;border-left:1px solid var(--linedk);padding-left:34px;">
+              <div class="tag">수업에서 가능한 탐구 — ACTIVITIES</div>
+              <div class="card" style="gap:5px;">
+                <div class="h4" style="color:#fff;">GIS 지도화 + Python 분석</div>
+                <div class="bdsm" style="color:var(--mutdk);">폭염 취약 지역을 지도화하고 데이터로 대책 제안.</div>
+              </div>
+              <div class="card" style="gap:5px;">
+                <div class="h4" style="color:#fff;">머신러닝 예측 (GeoAI)</div>
+                <div class="bdsm" style="color:var(--mutdk);">위성·기후 데이터로 변화를 예측.</div>
+              </div>
+              <div class="card" style="gap:5px;">
+                <div class="h4" style="color:#fff;">실제 사회 문제 탐구</div>
+                <div class="bdsm" style="color:var(--mutdk);">인구 이동·상권·재난 대응을 데이터와 지도로.</div>
+              </div>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;08 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 09 생기부 변별력 ══ -->
+      <section>
+        <div class="s dark">
+          <div class="hd"><span>생활기록부 — 겹치지 않는 한 줄</span><span>DISTINCTION</span></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;">
+            <div class="tag">탐구 활동이 이렇게 기록된다</div>
+            <div style="background:var(--blue);border-radius:16px;padding:30px 34px;">
+              <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.07em;margin-bottom:10px;">
+                생활기록부 기재 예시</div>
+              <div style="font-size:30px;font-weight:700;color:#fff;line-height:1.3;letter-spacing:-.01em;">"공간 데이터를
+                수집·분석·시각화하여<br>지역 문제 해결 방안을 제시함."</div>
+            </div>
+            <div class="bd mt" style="max-width:900px;">이 한 줄이 경제학과 · 컴퓨터공학과 · 도시공학과 · 통계학과 · 사회학과 · 환경공학과 — 어느 학과에서도 통하는 기록.</div>
+          </div>
+          <div class="factbar">
+            <div>
+              <div class="fac-lbl">변별력 — WHY IT MATTERS</div>
+              <div class="fac-ttl">다른 학생과 겹치지 않는 생기부</div>
+              <div class="fac-desc">주제도, 방법(코딩·지도·현장조사)도 열려 있는 과목</div>
+            </div>
+            <div>
+              <div class="fac-lbl">한 줄 요약</div>
+              <div class="fac-ttl">융합 과목 × GeoAI</div>
+              <div class="fac-desc">대체하기 어려운 탐구 기록</div>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;09 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 10 무엇을 배우나 — 교과 목표 ══ -->
+      <section>
+        <div class="s parch">
+          <div class="hd"><span>무엇을 배우나 — 교과 목표</span><span>WHAT YOU LEARN</span></div>
+          <div class="twocol">
+            <div class="cl">
+              <div class="tag">교과 목표</div>
+              <div class="h2">세계의 자연과 사회를 함께 읽고,<br>지속가능한 미래를 판단한다.</div>
+              <div class="bdsm mt" style="margin-top:13px;">지역의 자연·인문 환경이 어떻게 맞물리는지 이해하고, 현명하게 판단하고 행동하는 시민을 기르는 과목.</div>
+              <div
+                style="margin-top:auto;padding:15px 18px;border-radius:12px;background:rgba(0,102,204,.06);border:1px solid rgba(0,102,204,.12);">
+                <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.07em;margin-bottom:6px;">데이터 시대의 핵심 역량</div>
+                <div style="font-size:22px;font-weight:700;">수집 · 분석 · 시각화</div>
+              </div>
+            </div>
+            <div class="cr" style="justify-content:center;">
+              <div class="tag">구체적으로 — IN DETAIL</div>
+              <ul class="bul" style="display:flex;flex-direction:column;gap:10px;">
+                <li>자연환경·인문환경의 상호작용 이해.</li>
+                <li>경제·문화·정치가 여러 스케일에서 만드는 현상 해석.</li>
+                <li>기후변화·환경 문제를 생태적 관점으로 탐구하고 대안 제시.</li>
+                <li>불평등·빈곤·인권 문제에 공감하고 행동.</li>
+                <li>지리 정보를 수집·분석·시각화해 문제 해결.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;10 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 11 전 계열 추천 — 서울시교육청 ══ -->
+      <section>
+        <div class="s parch">
+          <div class="hd"><span>어느 진로든 연결된다 — 서울시교육청 추천</span><span>FOR EVERY PATH</span></div>
+          <div style="margin-bottom:14px;">
+            <div class="tag">진학 학과별 추천 과목</div>
+            <div class="h2">거의 모든 계열에서<br>추천되는 과목.</div>
+          </div>
+          <div class="fourcol">
+            <div class="card" style="background:#fff;gap:7px;">
+              <div class="h4" style="color:var(--blue);">상경계열</div>
+              <div class="bdsm mt">경제 · 경영 · 무역 · 호텔관광경영 · 광고홍보 · 언론정보 · 행정</div>
+            </div>
+            <div class="card" style="background:#fff;gap:7px;">
+              <div class="h4" style="color:var(--blue);">사회과학계열</div>
+              <div class="bdsm mt">국제 · 사회학 · 정치외교 · 지리학 · 항공서비스</div>
+            </div>
+            <div class="card" style="background:#fff;gap:7px;">
+              <div class="h4" style="color:var(--blue);">인문계열</div>
+              <div class="bdsm mt">고고학 · 문헌정보 · 사학 · 인류학 · 철학</div>
+            </div>
+            <div class="card" style="background:#fff;gap:7px;">
+              <div class="h4" style="color:var(--blue);">예술 · 교육계열</div>
+              <div class="bdsm mt">예술계열(체육 제외) 및 교육계열</div>
+            </div>
+          </div>
+          <div class="bdsm mt" style="margin-top:14px;">'기후변화와 지속가능한 세계'(2학년 2학기 융합선택)까지 들으면 자연과학계열(기상·지질·천문·통계)로 확장 — 문·이과를
+            가로지르는 진로 포트폴리오.</div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;11 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 12 진로별 닿는 지점 ══ -->
+      <section>
+        <div class="s wh">
+          <div class="hd"><span>네 진로에 정확히 닿는 지점</span><span>YOUR ANGLE</span></div>
+          <div style="margin-bottom:14px;">
+            <div class="tag">진로별 연결</div>
+            <div class="h2">어떤 꿈이든,<br>이 과목 안에 닿는 지점이 있다.</div>
+          </div>
+          <div class="fourcol">
+            <div class="card" style="background:var(--parch);gap:7px;">
+              <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;">경제 · 경영</div>
+              <div class="h4">공간 경제</div>
+              <div class="bdsm mt">산업 입지와 도시 형성을 경제로 분석.</div>
+            </div>
+            <div class="card" style="background:var(--parch);gap:7px;">
+              <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;">컴퓨터 · 통계</div>
+              <div class="h4">GeoAI · 데이터</div>
+              <div class="bdsm mt">Python · 머신러닝 · 시각화.</div>
+            </div>
+            <div class="card" style="background:var(--parch);gap:7px;">
+              <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;">환경 · 도시</div>
+              <div class="h4">기후 · 지속가능성</div>
+              <div class="bdsm mt">탄소중립과 도시 계획.</div>
+            </div>
+            <div class="card" style="background:var(--parch);gap:7px;">
+              <div style="font-size:11px;font-weight:700;color:var(--blue);letter-spacing:.06em;">국제 · 언론</div>
+              <div class="h4">지정학 · 세계 이슈</div>
+              <div class="bdsm mt">분쟁 · 자원 · 뉴스 분석.</div>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;12 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 13 탐구 활동 = 생기부 결과물 ══ -->
+      <section>
+        <div class="s dark">
+          <div class="hd"><span>탐구 활동 — 생기부로 남는 결과물</span><span>PORTFOLIO</span></div>
+          <div style="margin-bottom:16px;">
+            <div class="tag">수업의 결과물이 곧 기록</div>
+            <div class="h2" style="color:var(--white);">손에 잡히는 결과물이<br>그대로 세특의 한 줄.</div>
+          </div>
+          <div class="threecol">
+            <div class="card" style="gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--bludark);letter-spacing:.08em;">윤리적 소비 앱 개발</div>
+              <div class="h3" style="color:var(--white);">소비를 읽다</div>
+              <div class="bdsm" style="color:var(--mutdk);">소비 데이터 → 윤리적 선택을 돕는 애플리케이션 기획.</div>
+              <div style="margin-top:auto;font-size:14px;color:var(--dimdk);">경영 · 마케팅 · 창업</div>
+            </div>
+            <div class="card" style="gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--bludark);letter-spacing:.08em;">탄소 중립 도시 공간 계획</div>
+              <div class="h3" style="color:var(--white);">도시를 그리다</div>
+              <div class="bdsm" style="color:var(--mutdk);">공간 데이터 → 탄소를 줄이는 도시 계획 아이디어 제안.</div>
+              <div style="margin-top:auto;font-size:14px;color:var(--dimdk);">도시·부동산 · 정책</div>
+            </div>
+            <div class="card" style="gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--bludark);letter-spacing:.08em;">AI 기반 세계 분석</div>
+              <div class="h3" style="color:var(--white);">세계를 가늠하다</div>
+              <div class="bdsm" style="color:var(--mutdk);">공개 데이터 + 생성형 AI → 인구·무역·기후 패턴 분석.</div>
+              <div style="margin-top:auto;font-size:14px;color:var(--dimdk);">데이터 · 경제 · 국제</div>
+            </div>
+          </div>
+          <div class="pnum">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;13 / 14</div>
+        </div>
+      </section>
+
+
+      <!-- ══ 14 클로징 ══ -->
+      <section>
+        <div class="s dark" style="position:relative;overflow:hidden;">
+          <img src="assets/promo/library.jpg" alt=""
+            style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:30% 50%;opacity:.22;filter:grayscale(.3) contrast(1.05);">
+          <div style="position:absolute;inset:0;background:linear-gradient(255deg, rgba(0,0,0,.85) 40%, rgba(0,0,0,.55) 100%);">
+          </div>
+          <div style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;">
+            <div class="tag">선택의 순간</div>
+            <div class="h2" style="color:var(--white);font-size:42px;">넓게 본 만큼,<br>깊게 남는 기록.</div>
+            <div class="bd mt" style="max-width:820px;">한 의사가 지도에 점을 찍어 전염병을 멈췄듯, 지리는 세상을 다르게 보는 눈. 그 눈이 진로의 방향과 생기부의 깊이를
+              결정.</div>
+          </div>
+          <div class="factbar" style="position:relative;z-index:1;">
+            <div>
+              <div class="fac-lbl">한 과목에 — IN ONE</div>
+              <div class="fac-ttl">세계의 재주목 · 융합 · GeoAI · 전 계열</div>
+              <div class="fac-desc">진로와 생기부의 질을 함께 높이는 과목</div>
+            </div>
+            <div>
+              <div class="fac-lbl">남는 것 — YOU GET</div>
+              <div class="fac-ttl">세상을 읽는 도구</div>
+              <div class="fac-desc">겹치지 않는 탐구 기록과 넓은 진로 선택지</div>
+            </div>
+          </div>
+          <div class="pnum" style="position:relative;z-index:1;">세계시민과 지리 · 과목 선택 설명회&nbsp;&nbsp;&nbsp;&nbsp;14 / 14</div>
+        </div>
+      </section>
+
+
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      width: 1280, height: 720, margin: 0,
+      controls: true, controlsLayout: 'bottom-right',
+      progress: true, center: false, hash: true, transition: 'none'
+    });
+  </script>
+</body>
+
+</html>
