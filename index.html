@@ -20,10 +20,9 @@
 
 <style>
     /* ============================================================
-       GEOGRAPHIA — Academic Archival / Cartographic Editorial
-       Concept: an old atlas plate meets a modern field journal.
-       Paper-toned ground, ink contrast, contour-line motifs,
-       hand-set type. No emoji, no stock iconography.
+       GEOGRAPHIA — Atlas Plate, Single Sheet
+       Concept: 한 장의 고지도 도판. 스크롤 없이 모든 항로가
+       한 화면에 담긴 벤토(bento) 구성의 frontispiece.
        ============================================================ */
 
     :root {
@@ -52,8 +51,8 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
 
+    html, body { height: 100%; }
     body {
         font-family: var(--sans);
         background-color: var(--paper);
@@ -65,6 +64,10 @@
         line-height: 1.62;
         -webkit-font-smoothing: antialiased;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        min-height: 100dvh;
     }
     /* paper grain overlay — human-touch texture, not flat AI surface */
     body::before {
@@ -80,7 +83,6 @@
 
     a { text-decoration: none; color: inherit; }
     ul { list-style: none; padding: 0; margin: 0; }
-
     .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
     /* ============================================================
@@ -92,28 +94,29 @@
         -webkit-backdrop-filter: blur(14px) saturate(1.2);
         border-bottom: 1px solid var(--line);
         position: sticky; top: 0; z-index: 9999;
+        flex-shrink: 0;
     }
     .masthead-inner {
-        max-width: 1180px;
+        max-width: 1440px;
         margin: 0 auto;
         padding: 0 40px;
-        height: 66px;
+        height: 62px;
         display: flex;
         align-items: center;
         justify-content: space-between;
     }
     .brand { display: flex; align-items: center; gap: 13px; }
-    .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
+    .brand-seal { width: 36px; height: 36px; color: var(--terra); flex-shrink: 0; }
     .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
     .brand-text .ko {
         font-family: var(--serif);
         font-weight: 600;
-        font-size: 1.02rem;
+        font-size: 1rem;
         letter-spacing: -0.01em;
         color: var(--ink);
     }
     .brand-text .en {
-        font-size: 0.66rem;
+        font-size: 0.64rem;
         font-weight: 600;
         letter-spacing: 0.22em;
         text-transform: uppercase;
@@ -133,24 +136,32 @@
     .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
     .nav a.active { color: var(--paper); background: var(--ink); }
 
+    .theme-toggle { background: none; border: 1px solid var(--line); border-radius: 100px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-2); margin-left: 10px; padding: 0; transition: all 0.25s var(--ease); flex-shrink: 0; }
+    .theme-toggle:hover { border-color: var(--terra); color: var(--terra); }
+    .theme-toggle .sun { display: none; }
+    html[data-theme="dark"] .theme-toggle .moon { display: none; }
+    html[data-theme="dark"] .theme-toggle .sun { display: block; }
+
     /* ============================================================
-       HERO — atlas frontispiece
+       PLATE — 한 장의 도판 (좌: 표제 레일 / 우: 벤토 그리드)
        ============================================================ */
-    .hero {
-        max-width: 1180px;
+    .plate {
+        flex: 1;
+        width: 100%;
+        max-width: 1440px;
         margin: 0 auto;
-        padding: 88px 40px 64px;
-        position: relative;
-    }
-    .hero-grid {
+        padding: 30px 40px 34px;
         display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 40px;
-        align-items: end;
+        grid-template-columns: minmax(290px, 360px) 1fr;
+        gap: 44px;
+        min-height: 0;
     }
+
+    /* ── 좌측 표제 레일 ── */
+    .rail { display: flex; flex-direction: column; min-width: 0; }
     .plate-no {
         font-family: var(--serif);
-        font-size: 0.78rem;
+        font-size: 0.74rem;
         font-weight: 500;
         letter-spacing: 0.32em;
         text-transform: uppercase;
@@ -158,23 +169,23 @@
         display: flex;
         align-items: center;
         gap: 14px;
-        margin-bottom: 26px;
+        margin-bottom: 20px;
     }
     .plate-no::after {
         content: '';
-        height: 1px; width: 64px;
+        height: 1px; width: 58px;
         background: linear-gradient(90deg, var(--terra), transparent);
     }
-    .hero h1 {
+    .rail h1 {
         font-family: var(--serif);
         font-weight: 400;
-        font-size: clamp(3rem, 7vw, 6rem);
-        line-height: 0.98;
+        font-size: clamp(2.4rem, 3.6vw, 3.7rem);
+        line-height: 1.0;
         letter-spacing: -0.025em;
         margin: 0;
         color: var(--ink);
     }
-    .hero h1 .line2 {
+    .rail h1 .line2 {
         display: block;
         font-style: italic;
         font-weight: 400;
@@ -186,484 +197,263 @@
         0%   { opacity: 0; letter-spacing: 0.1em; filter: blur(10px); transform: translateY(10px); }
         100% { opacity: 1; letter-spacing: -0.025em; filter: blur(0); transform: translateY(0); }
     }
-    .hero h1 { animation: type-settle 1.3s var(--ease) both; }
-    .hero h1 .line2 { animation: type-settle 1.3s 0.22s var(--ease) both; }
+    .rail h1 { animation: type-settle 1.3s var(--ease) both; }
+    .rail h1 .line2 { animation: type-settle 1.3s 0.22s var(--ease) both; }
+
     .hero-sub {
-        margin: 30px 0 0;
-        font-size: 1.04rem;
+        margin: 22px 0 0;
+        font-size: 0.94rem;
         color: var(--ink-2);
-        max-width: 440px;
-        line-height: 1.72;
+        max-width: 330px;
+        line-height: 1.7;
         word-break: keep-all;
         border-left: 2px solid var(--terra);
-        padding-left: 20px;
+        padding-left: 18px;
     }
-    .compass { width: 132px; height: 132px; color: var(--ink-3); opacity: 0.9; align-self: center; }
+
+    .rail-foot { margin-top: auto; padding-top: 26px; }
+    .compass { width: 108px; height: 108px; color: var(--ink-3); opacity: 0.85; margin-bottom: 20px; }
     .compass .needle-n { fill: var(--terra); }
     .compass .needle-s { fill: var(--ink-2); }
-
-    .rule { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
-    .rule hr { border: none; border-top: 1px solid var(--line); margin: 0; }
-
-    /* ============================================================
-       SECTION SCAFFOLD
-       ============================================================ */
-    .sheet { max-width: 1180px; margin: 0 auto; padding: 56px 40px; }
-    .sheet-head {
-        display: flex;
-        align-items: baseline;
-        gap: 18px;
-        margin-bottom: 34px;
-    }
-    .sheet-num {
-        font-family: var(--serif);
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: var(--terra);
-        letter-spacing: 0.1em;
-    }
-    .sheet-title {
-        font-family: var(--serif);
-        font-size: 1.7rem;
-        font-weight: 500;
-        letter-spacing: -0.015em;
-        color: var(--ink);
-        margin: 0;
-    }
-    .sheet-meta {
-        margin-left: auto;
-        font-size: 0.74rem;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
+    .colophon-line {
+        font-size: 0.72rem;
         color: var(--ink-3);
-        align-self: center;
+        letter-spacing: 0.04em;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        max-width: 330px;
+    }
+    .colophon-line .mono { font-family: var(--serif); font-style: italic; }
+
+    /* ── 우측 벤토 그리드 ── */
+    .bento {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(3, minmax(148px, 1fr));
+        gap: 14px;
+        min-height: 0;
+        min-width: 0;
     }
 
-    /* ============================================================
-       PRIMARY ROW
-       ============================================================ */
-    .row {
-        display: grid;
-        grid-template-columns: 1.25fr 1fr 1fr;
-        gap: 18px;
-    }
-    .panel {
+    .cell {
         background: var(--surface);
         border: 1px solid var(--line);
         border-radius: 4px;
         position: relative;
-        transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
-    }
-    .panel:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 18px 40px -20px rgba(26,23,20,0.28);
-        border-color: var(--ink-faint);
-    }
-    .panel::before, .panel::after {
-        content: '';
-        position: absolute;
-        width: 9px; height: 9px;
-        border-color: var(--ink-faint);
-        opacity: 0.55;
-        transition: opacity 0.4s var(--ease), border-color 0.4s var(--ease);
-    }
-    .panel::before { top: 9px; left: 9px; border-left: 1.5px solid; border-top: 1.5px solid; }
-    .panel::after  { bottom: 9px; right: 9px; border-right: 1.5px solid; border-bottom: 1.5px solid; }
-    .panel:hover::before, .panel:hover::after { opacity: 1; border-color: var(--terra); }
-
-    .panel-qna {
-        background: var(--ink);
-        border-color: var(--ink);
-        color: var(--paper);
-        padding: 38px 34px;
+        padding: 20px 22px;
         display: flex;
         flex-direction: column;
+        min-height: 0;
+        min-width: 0;
         overflow: hidden;
-        min-height: 280px;
+        transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.35s var(--ease);
     }
-    .panel-qna::before, .panel-qna::after { border-color: rgba(244,240,232,0.3); }
-    .panel-qna:hover::before, .panel-qna:hover::after { border-color: var(--terra); }
-    .panel-qna .contour {
+    .cell:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 36px -20px rgba(26,23,20,0.3);
+        border-color: var(--ink-faint);
+    }
+    .cell::before, .cell::after {
+        content: '';
         position: absolute;
-        right: -60px; bottom: -70px;
-        width: 280px; height: 280px;
-        color: rgba(244,240,232,0.07);
+        width: 8px; height: 8px;
+        border-color: var(--ink-faint);
+        opacity: 0.55;
+        transition: opacity 0.35s var(--ease), border-color 0.35s var(--ease);
         pointer-events: none;
+        z-index: 2;
     }
-    .panel-qna .kicker {
-        font-family: var(--serif);
-        font-size: 0.74rem;
-        font-weight: 600;
-        letter-spacing: 0.26em;
-        text-transform: uppercase;
-        color: var(--terra);
-        margin-bottom: auto;
-    }
-    .panel-qna h3 {
-        font-family: var(--serif);
-        font-weight: 400;
-        font-size: 2rem;
-        line-height: 1.18;
-        letter-spacing: -0.02em;
-        margin: 30px 0 10px;
-        color: var(--paper);
-    }
-    .panel-qna h3 em { font-style: italic; color: var(--ink-faint); }
-    .panel-qna p {
-        font-size: 0.88rem;
-        color: rgba(244,240,232,0.55);
-        margin: 0 0 26px;
-        max-width: 80%;
-    }
-    .panel-qna .go {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        align-self: flex-start;
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        color: var(--paper);
-        padding-bottom: 4px;
-        border-bottom: 1.5px solid var(--terra);
-    }
-    .panel-qna .go .ico { transition: transform 0.35s var(--ease); }
-    .panel-qna:hover .go .ico { transform: translateX(6px); }
+    .cell::before { top: 8px; left: 8px; border-left: 1.5px solid; border-top: 1.5px solid; }
+    .cell::after  { bottom: 8px; right: 8px; border-right: 1.5px solid; border-bottom: 1.5px solid; }
+    .cell:hover::before, .cell:hover::after { opacity: 1; border-color: var(--terra); }
 
-    .panel-list { padding: 30px 28px; display: flex; flex-direction: column; }
-    .panel-list .col-label {
+    /* 진입 애니메이션 — 로드 시 순차 등장 */
+    @keyframes cell-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .cell { animation: cell-rise 0.8s var(--ease) both; }
+    .cell:nth-child(1) { animation-delay: 0.08s; }
+    .cell:nth-child(2) { animation-delay: 0.16s; }
+    .cell:nth-child(3) { animation-delay: 0.24s; }
+    .cell:nth-child(4) { animation-delay: 0.32s; }
+    .cell:nth-child(5) { animation-delay: 0.40s; }
+    .cell:nth-child(6) { animation-delay: 0.48s; }
+
+    .cell-label {
         font-family: var(--serif);
-        font-size: 0.76rem;
+        font-size: 0.72rem;
         font-weight: 600;
         letter-spacing: 0.2em;
         text-transform: uppercase;
         color: var(--ink-3);
-        padding-bottom: 14px;
-        margin-bottom: 6px;
-        border-bottom: 1px solid var(--line-soft);
         display: flex;
         align-items: center;
         gap: 9px;
+        padding-bottom: 10px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--line-soft);
+        flex-shrink: 0;
     }
+    .cell-label .ico { color: var(--terra); }
+
+    /* Q&A — 잉크판 (span 4) */
+    .cell-qna { grid-column: span 4; background: var(--ink); border-color: var(--ink); color: var(--paper); justify-content: flex-end; }
+    .cell-qna::before, .cell-qna::after { border-color: rgba(244,240,232,0.3); }
+    .cell-qna:hover::before, .cell-qna:hover::after { border-color: var(--terra); }
+    .cell-qna .contour {
+        position: absolute;
+        right: -50px; bottom: -60px;
+        width: 240px; height: 240px;
+        color: rgba(244,240,232,0.07);
+        pointer-events: none;
+    }
+    .cell-qna .kicker {
+        position: absolute; top: 20px; left: 22px;
+        font-family: var(--serif);
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.26em;
+        text-transform: uppercase;
+        color: var(--terra);
+    }
+    .cell-qna h3 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: clamp(1.4rem, 2vw, 1.9rem);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        margin: 0 0 6px;
+        color: var(--paper);
+    }
+    .cell-qna h3 em { font-style: italic; color: var(--ink-faint); }
+    .cell-qna p { font-size: 0.82rem; color: rgba(244,240,232,0.55); margin: 0 0 14px; }
+    .cell-qna .go {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        align-self: flex-start;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--paper);
+        padding-bottom: 3px;
+        border-bottom: 1.5px solid var(--terra);
+    }
+    .cell-qna .go .ico { transition: transform 0.35s var(--ease); }
+    .cell-qna:hover .go .ico { transform: translateX(5px); }
+
+    /* 자료실 (span 2) */
+    .cell-lib { grid-column: span 2; justify-content: flex-end; }
+    .cell-lib .lib-glyph { width: 40px; height: 40px; color: var(--terra); position: absolute; top: 20px; left: 22px; }
+    .cell-lib h4 { font-family: var(--serif); font-size: 1.2rem; font-weight: 500; letter-spacing: -0.01em; margin: 0 0 4px; }
+    .cell-lib p { font-size: 0.8rem; color: var(--ink-3); margin: 0 0 12px; }
+    .cell-lib .sync {
+        font-size: 0.64rem; font-weight: 700; letter-spacing: 0.16em;
+        text-transform: uppercase; color: var(--sea);
+        display: inline-flex; align-items: center; gap: 7px;
+    }
+    .sync .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sea); animation: pulse 2.4s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+
+    /* 시뮬레이터 (span 4) — 3분류 항로표 */
+    .cell-sims { grid-column: span 4; }
+    .sim-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 18px; flex: 1; min-height: 0; }
+    .sim-group h5 {
+        font-family: var(--serif);
+        font-size: 0.7rem;
+        font-weight: 600;
+        font-style: italic;
+        letter-spacing: 0.08em;
+        color: var(--terra);
+        margin: 6px 0 4px;
+    }
+    .sim-link {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--ink-2);
+        padding: 4px 0;
+        letter-spacing: -0.01em;
+        transition: color 0.2s var(--ease), padding-left 0.25s var(--ease);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .sim-link .ico { color: var(--ink-faint); transition: color 0.2s var(--ease); }
+    .sim-link:hover { color: var(--terra); padding-left: 4px; }
+    .sim-link:hover .ico { color: var(--terra); }
+
+    /* AI 대시보드 (span 2) — 잉크판 */
+    .cell-obs { grid-column: span 2; background: linear-gradient(135deg, rgba(180,80,46,0.08), transparent 60%), var(--ink); border-color: var(--ink); color: var(--paper); justify-content: flex-end; }
+    .cell-obs::before, .cell-obs::after { border-color: rgba(244,240,232,0.3); }
+    .cell-obs:hover::before, .cell-obs:hover::after { border-color: var(--terra); }
+    .cell-obs .orbit {
+        position: absolute;
+        right: -70px; top: -60px;
+        width: 220px; height: 220px;
+        color: rgba(244,240,232,0.07);
+        pointer-events: none;
+    }
+    .cell-obs .tag {
+        position: absolute; top: 20px; left: 22px;
+        font-family: var(--serif);
+        font-size: 0.64rem;
+        font-weight: 600;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+    }
+    .cell-obs h4 { font-family: var(--serif); font-weight: 400; font-size: 1.25rem; letter-spacing: -0.015em; line-height: 1.2; margin: 0 0 4px; color: var(--paper); }
+    .cell-obs h4 em { font-style: italic; color: var(--terra); }
+    .cell-obs p { font-size: 0.76rem; color: rgba(244,240,232,0.5); margin: 0 0 12px; word-break: keep-all; }
+    .cell-obs .go {
+        display: inline-flex; align-items: center; gap: 8px;
+        align-self: flex-start;
+        font-size: 0.78rem; font-weight: 700;
+        color: var(--paper);
+        padding-bottom: 3px;
+        border-bottom: 1.5px solid var(--terra);
+    }
+    .cell-obs .go .ico { transition: transform 0.35s var(--ease); }
+    .cell-obs:hover .go .ico { transform: translateX(5px); }
+
+    /* 학생지원 · 수행평가 (span 3) — 컴팩트 목록 */
+    .cell-list { grid-column: span 3; }
     .entry {
         display: flex;
         align-items: center;
-        gap: 15px;
-        padding: 15px 8px;
+        gap: 13px;
+        padding: 9px 4px;
         border-bottom: 1px solid var(--line-soft);
         color: var(--ink);
         transition: padding 0.3s var(--ease);
+        min-height: 0;
     }
     .entry:last-child { border-bottom: none; }
-    .entry:hover { padding-left: 14px; }
-    .entry-mark { width: 34px; height: 34px; color: var(--ink-2); flex-shrink: 0; transition: color 0.3s var(--ease); }
+    .entry:hover { padding-left: 10px; }
+    .entry-mark { width: 28px; height: 28px; color: var(--ink-2); flex-shrink: 0; transition: color 0.3s var(--ease); }
     .entry:hover .entry-mark { color: var(--terra); }
     .entry-body { flex: 1; min-width: 0; }
     .entry-body h4 {
-        margin: 0 0 1px;
-        font-size: 0.92rem;
+        margin: 0;
+        font-size: 0.87rem;
         font-weight: 700;
         letter-spacing: -0.01em;
         color: var(--ink);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .entry-body p { margin: 0; font-size: 0.78rem; color: var(--ink-3); }
+    .entry-body p { margin: 0; font-size: 0.73rem; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .entry-arrow {
-        width: 15px; height: 15px;
+        width: 14px; height: 14px;
         color: var(--ink-faint);
         opacity: 0;
         transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
         transform: translateX(-4px);
     }
     .entry:hover .entry-arrow { opacity: 1; transform: translateX(0); color: var(--terra); }
-
-    /* ============================================================
-       ARCHIVE (materials)
-       ============================================================ */
-    .archive {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 4px;
-        padding: 40px 44px;
-        position: relative;
-    }
-    .archive::before, .archive::after {
-        content: '';
-        position: absolute;
-        width: 10px; height: 10px;
-        border-color: var(--ink-faint);
-        opacity: 0.5;
-    }
-    .archive::before { top: 11px; left: 11px; border-left: 1.5px solid; border-top: 1.5px solid; }
-    .archive::after  { bottom: 11px; right: 11px; border-right: 1.5px solid; border-bottom: 1.5px solid; }
-    .archive-head {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        padding-bottom: 22px;
-        margin-bottom: 30px;
-        border-bottom: 1px solid var(--line);
-    }
-    .archive-head .t {
-        font-family: var(--serif);
-        font-size: 1.3rem;
-        font-weight: 500;
-        letter-spacing: -0.01em;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .archive-head .t .ico { color: var(--terra); }
-    .sync {
-        font-size: 0.68rem;
-        font-weight: 700;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: var(--sea);
-        display: flex;
-        align-items: center;
-        gap: 7px;
-    }
-    .sync .dot {
-        width: 6px; height: 6px;
-        border-radius: 50%;
-        background: var(--sea);
-        animation: pulse 2.4s ease-in-out infinite;
-    }
-    @keyframes pulse {
-        0%,100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(0.7); }
-    }
-    #material-list { display: flex; flex-direction: column; gap: 30px; }
-    .arch-group .arch-label {
-        font-family: var(--serif);
-        font-size: 0.82rem;
-        font-weight: 600;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: var(--ink-3);
-        margin: 0 0 16px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .arch-label::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
-    .file-row { display: flex; flex-wrap: wrap; gap: 9px; }
-    .file-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: var(--ink-2);
-        background: var(--paper);
-        border: 1px solid var(--line);
-        padding: 8px 15px;
-        border-radius: 3px;
-        transition: all 0.28s var(--ease);
-    }
-    .file-chip .ico { color: var(--ink-3); transition: color 0.28s var(--ease); }
-    .file-chip:hover { color: var(--terra); border-color: var(--terra); background: var(--terra-soft); }
-    .file-chip:hover .ico { color: var(--terra); }
-    .empty { font-size: 0.84rem; color: var(--ink-faint); font-style: italic; }
-
-    /* ============================================================
-       FIELD GUIDE (simulators)
-       ============================================================ */
-    .guide {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    .fold { border-bottom: 1px solid var(--line); transition: background 0.3s var(--ease); }
-    .fold:last-child { border-bottom: none; }
-    .fold[open] { background: var(--paper-2); }
-    .fold summary {
-        list-style: none;
-        cursor: pointer;
-        padding: 24px 36px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        user-select: none;
-    }
-    .fold summary::-webkit-details-marker { display: none; }
-    .fold .idx {
-        font-family: var(--serif);
-        font-size: 0.86rem;
-        font-weight: 600;
-        color: var(--ink-faint);
-        letter-spacing: 0.05em;
-        transition: color 0.3s var(--ease);
-    }
-    .fold[open] .idx { color: var(--terra); }
-    .fold .fold-name {
-        font-family: var(--serif);
-        font-size: 1.16rem;
-        font-weight: 500;
-        letter-spacing: -0.01em;
-        color: var(--ink);
-        display: flex;
-        align-items: center;
-        gap: 13px;
-        flex: 1;
-    }
-    .fold .fold-name .ico { color: var(--ink-3); transition: color 0.3s var(--ease); }
-    .fold[open] .fold-name .ico { color: var(--terra); }
-    .fold .chev { width: 18px; height: 18px; color: var(--ink-3); transition: transform 0.35s var(--ease); }
-    .fold[open] .chev { transform: rotate(180deg); color: var(--terra); }
-    .fold-body {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(252px, 1fr));
-        border-top: 1px solid var(--line-soft);
-        margin: 0 36px;
-        padding: 0 0 0 0;
-    }
-    .spec {
-        padding: 22px 24px;
-        border-right: 1px solid var(--line-soft);
-        border-bottom: 1px solid var(--line-soft);
-        color: var(--ink);
-        transition: background 0.3s var(--ease);
-        position: relative;
-    }
-    .spec:hover { background: var(--surface); }
-    .spec h4 {
-        margin: 0 0 7px;
-        font-size: 0.96rem;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: var(--ink);
-    }
-    .spec h4 .ico { color: var(--terra); }
-    .spec p {
-        margin: 0;
-        font-size: 0.81rem;
-        color: var(--ink-3);
-        line-height: 1.55;
-        padding-left: 28px;
-    }
-    .spec .open-tag {
-        position: absolute;
-        top: 22px; right: 22px;
-        font-size: 0.66rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--ink-faint);
-        opacity: 0;
-        transition: opacity 0.3s var(--ease);
-    }
-    .spec:hover .open-tag { opacity: 1; color: var(--terra); }
-
-    /* ============================================================
-       OBSERVATORY (AI dashboard)
-       ============================================================ */
-    .obs {
-        background:
-            linear-gradient(135deg, rgba(180,80,46,0.06), transparent 60%),
-            var(--ink);
-        border: 1px solid var(--ink);
-        border-radius: 4px;
-        padding: 48px 52px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 32px;
-        color: var(--paper);
-        position: relative;
-        overflow: hidden;
-        transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
-    }
-    .obs:hover { transform: translateY(-4px); box-shadow: 0 24px 60px -28px rgba(26,23,20,0.5); }
-    .obs .orbit {
-        position: absolute;
-        right: -90px; top: 50%;
-        transform: translateY(-50%);
-        width: 380px; height: 380px;
-        color: rgba(244,240,232,0.06);
-        pointer-events: none;
-    }
-    .obs-left { display: flex; align-items: center; gap: 30px; position: relative; z-index: 1; }
-    .obs-glyph { width: 62px; height: 62px; color: var(--terra); flex-shrink: 0; }
-    .obs-text .tag {
-        font-family: var(--serif);
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.24em;
-        text-transform: uppercase;
-        color: var(--ink-faint);
-        margin-bottom: 9px;
-    }
-    .obs-text h3 {
-        font-family: var(--serif);
-        font-weight: 400;
-        font-size: 1.7rem;
-        line-height: 1.2;
-        letter-spacing: -0.02em;
-        margin: 0 0 8px;
-        color: var(--paper);
-    }
-    .obs-text h3 em { font-style: italic; color: var(--terra); }
-    .obs-text p {
-        font-size: 0.86rem;
-        color: rgba(244,240,232,0.5);
-        margin: 0;
-        max-width: 400px;
-        word-break: keep-all;
-    }
-    .obs-go {
-        display: inline-flex;
-        align-items: center;
-        gap: 11px;
-        font-size: 0.86rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        color: var(--paper);
-        border: 1px solid rgba(244,240,232,0.25);
-        padding: 14px 26px;
-        border-radius: 3px;
-        white-space: nowrap;
-        position: relative;
-        z-index: 1;
-        transition: all 0.3s var(--ease);
-    }
-    .obs:hover .obs-go { background: var(--terra); border-color: var(--terra); }
-    .obs-go .ico { transition: transform 0.35s var(--ease); }
-    .obs:hover .obs-go .ico { transform: translateX(5px); }
-
-    /* ============================================================
-       COLOPHON
-       ============================================================ */
-    .colophon {
-        max-width: 1180px;
-        margin: 0 auto;
-        padding: 44px 40px 60px;
-        border-top: 1px solid var(--line);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.76rem;
-        color: var(--ink-3);
-        letter-spacing: 0.04em;
-    }
-    .colophon .mono { font-family: var(--serif); font-style: italic; font-size: 0.84rem; }
-
-    /* scroll reveal — 스크롤에 따라 섹션이 순차 등장 (JS 미지원 시 항상 표시) */
-    .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
-    .js .reveal.in { opacity: 1; transform: translateY(0); }
-    .js .d1 { transition-delay: 0.05s; }
-    .js .d2 { transition-delay: 0.15s; }
-    .js .d3 { transition-delay: 0.28s; }
-    @media (prefers-reduced-motion: reduce) {
-        .js .reveal { transition: none; opacity: 1; transform: none; }
-        .hero h1, .hero h1 .line2 { animation: none; opacity: 1; filter: none; letter-spacing: -0.025em; transform: none; }
-    }
 
     /* ============================================================
        DARK MODE — 야간 잉크 테마
@@ -687,32 +477,32 @@
     html[data-theme="dark"] body::before { mix-blend-mode: screen; opacity: 0.13; }
     html[data-theme="dark"] .masthead { background: rgba(22,19,14,0.85); }
 
-    .theme-toggle { background: none; border: 1px solid var(--line); border-radius: 100px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-2); margin-left: 10px; padding: 0; transition: all 0.25s var(--ease); flex-shrink: 0; }
-    .theme-toggle:hover { border-color: var(--terra); color: var(--terra); }
-    .theme-toggle .sun { display: none; }
-    html[data-theme="dark"] .theme-toggle .moon { display: none; }
-    html[data-theme="dark"] .theme-toggle .sun { display: block; }
+    @media (prefers-reduced-motion: reduce) {
+        .rail h1, .rail h1 .line2 { animation: none; opacity: 1; filter: none; letter-spacing: -0.025em; transform: none; }
+        .cell { animation: none; opacity: 1; transform: none; }
+    }
 
     /* ============================================================
-       RESPONSIVE
+       RESPONSIVE — 좁은 화면에서는 자연스럽게 세로 흐름
        ============================================================ */
-    @media (max-width: 940px) {
-        .masthead-inner, .hero, .sheet, .rule, .colophon { padding-left: 22px; padding-right: 22px; }
-        .hero-grid { grid-template-columns: 1fr; gap: 36px; }
+    @media (max-width: 1080px) {
+        html, body { height: auto; }
+        .plate { grid-template-columns: 1fr; gap: 30px; padding: 26px 24px 34px; }
+        .rail-foot { margin-top: 18px; }
         .compass { display: none; }
-        .row { grid-template-columns: 1fr; }
-        .archive { padding: 30px 24px; }
-        .obs { flex-direction: column; align-items: flex-start; padding: 36px 28px; }
-        .obs-left { flex-direction: column; align-items: flex-start; gap: 22px; }
-        .obs .orbit { display: none; }
-        .fold summary { padding: 20px 24px; gap: 14px; }
-        .fold-body { margin: 0 24px; grid-template-columns: 1fr; }
-        .sheet-meta { display: none; }
-        .colophon { flex-direction: column; gap: 12px; text-align: center; }
+        .bento { grid-template-rows: none; grid-auto-rows: auto; grid-template-columns: 1fr 1fr; }
+        .cell { min-height: 150px; }
+        .cell-qna { grid-column: span 2; min-height: 190px; }
+        .cell-lib { grid-column: span 1; }
+        .cell-obs { grid-column: span 1; }
+        .cell-sims { grid-column: span 2; }
+        .cell-list { grid-column: span 1; }
     }
-    @media (max-width: 520px) {
-        .hero h1 { font-size: 2.7rem; }
-        .sheet-head { flex-wrap: wrap; gap: 8px 14px; }
+    @media (max-width: 640px) {
+        .bento { grid-template-columns: 1fr; }
+        .cell-qna, .cell-lib, .cell-obs, .cell-sims, .cell-list { grid-column: span 1; }
+        .sim-cols { grid-template-columns: 1fr; }
+        .rail h1 { font-size: 2.3rem; }
     }
 
     /* ── 모바일 상단 메뉴 정돈 (공통) ── */
@@ -758,51 +548,50 @@
         </div>
     </header>
 
-    <!-- ══════════ HERO ══════════ -->
-    <section class="hero">
-        <div class="hero-grid">
-            <div>
-                <div class="plate-no reveal d1">Plate I · Frontispiece</div>
-                <h1>
-                    KGGHS
-                    <span class="line2">Society-C&nbsp;Class</span>
-                </h1>
-                <p class="hero-sub reveal d2">경기여자고등학교 통합사회 C — 수업 자료, 공간 시뮬레이터, 질문 게시판을 한곳에서.</p>
+    <!-- ══════════ PLATE — 한 장의 도판 ══════════ -->
+    <main class="plate">
+
+        <!-- ── 좌측 표제 레일 ── -->
+        <aside class="rail">
+            <div class="plate-no">Plate I · Frontispiece</div>
+            <h1>
+                KGGHS
+                <span class="line2">Society-C&nbsp;Class</span>
+            </h1>
+            <p class="hero-sub">경기여자고등학교 통합사회 C — 수업 자료, 공간 시뮬레이터, 질문 게시판을 한곳에서.</p>
+
+            <div class="rail-foot">
+                <svg class="compass ico" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="60" cy="60" r="54"/>
+                    <circle cx="60" cy="60" r="44" stroke-dasharray="1 4"/>
+                    <circle cx="60" cy="60" r="6"/>
+                    <g stroke-width="0.8">
+                        <line x1="60" y1="6" x2="60" y2="16"/>
+                        <line x1="60" y1="104" x2="60" y2="114"/>
+                        <line x1="6" y1="60" x2="16" y2="60"/>
+                        <line x1="104" y1="60" x2="114" y2="60"/>
+                        <line x1="22" y1="22" x2="29" y2="29"/>
+                        <line x1="98" y1="22" x2="91" y2="29"/>
+                        <line x1="22" y1="98" x2="29" y2="91"/>
+                        <line x1="98" y1="98" x2="91" y2="91"/>
+                    </g>
+                    <polygon class="needle-n" points="60,12 66,58 60,54 54,58" stroke="none"/>
+                    <polygon class="needle-s" points="60,108 54,62 60,66 66,62" stroke="none"/>
+                    <polygon points="12,60 58,54 54,60 58,66" stroke="none" fill="currentColor" opacity="0.35"/>
+                    <polygon points="108,60 62,66 66,60 62,54" stroke="none" fill="currentColor" opacity="0.35"/>
+                </svg>
+                <div class="colophon-line">
+                    <span>Leet's Geographia-Class</span>
+                    <span class="mono">2026 Leet <a href="vault.html" style="opacity: 0.18; cursor: default; text-decoration: none; color: inherit;">§</a></span>
+                </div>
             </div>
-            <svg class="compass ico reveal d3" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="60" cy="60" r="54"/>
-                <circle cx="60" cy="60" r="44" stroke-dasharray="1 4"/>
-                <circle cx="60" cy="60" r="6"/>
-                <g stroke-width="0.8">
-                    <line x1="60" y1="6" x2="60" y2="16"/>
-                    <line x1="60" y1="104" x2="60" y2="114"/>
-                    <line x1="6" y1="60" x2="16" y2="60"/>
-                    <line x1="104" y1="60" x2="114" y2="60"/>
-                    <line x1="22" y1="22" x2="29" y2="29"/>
-                    <line x1="98" y1="22" x2="91" y2="29"/>
-                    <line x1="22" y1="98" x2="29" y2="91"/>
-                    <line x1="98" y1="98" x2="91" y2="91"/>
-                </g>
-                <polygon class="needle-n" points="60,12 66,58 60,54 54,58" stroke="none"/>
-                <polygon class="needle-s" points="60,108 54,62 60,66 66,62" stroke="none"/>
-                <polygon points="12,60 58,54 54,60 58,66" stroke="none" fill="currentColor" opacity="0.35"/>
-                <polygon points="108,60 62,66 66,60 62,54" stroke="none" fill="currentColor" opacity="0.35"/>
-            </svg>
-        </div>
-    </section>
+        </aside>
 
-    <div class="rule"><hr></div>
+        <!-- ── 우측 벤토 그리드 ── -->
+        <section class="bento">
 
-    <!-- ══════════ SHEET 01 — ACCESS ══════════ -->
-    <section class="sheet">
-        <div class="sheet-head reveal">
-            <span class="sheet-num">§ 01</span>
-            <h2 class="sheet-title">Communication</h2>
-            </div>
-
-        <div class="row">
-
-            <a href="qna.html" class="panel panel-qna reveal d1">
+            <!-- Q&A -->
+            <a href="qna.html" class="cell cell-qna">
                 <svg class="contour" viewBox="0 0 280 280" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M40 200c20-50 70-70 110-50s60 70 100 50"/>
                     <path d="M30 160c30-50 80-60 120-35s70 60 110 30"/>
@@ -810,17 +599,70 @@
                     <path d="M50 85c35-35 75-30 110-10s55 30 90 15"/>
                 </svg>
                 <span class="kicker">Open Dialogue</span>
-                <h3>통합사회 C<br><em>Q&amp;A 게시판</em></h3>
-                <p>자유로운 질문 환영.</p>
+                <h3>통합사회 C <em>Q&amp;A 게시판</em></h3>
+                <p>자유로운 질문 환영 — 검색으로 지난 질문도 찾아보세요.</p>
                 <span class="go">
                     게시판으로 이동
-                    <svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                    <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
                 </span>
             </a>
 
-            <div class="panel panel-list reveal d2">
-                <div class="col-label">
-                    <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a8 8 0 0 1 16 0"/><rect x="2" y="14" width="4" height="7" rx="1.5"/><rect x="18" y="14" width="4" height="7" rx="1.5"/></svg>
+            <!-- 자료실 -->
+            <a href="library.html" class="cell cell-lib">
+                <svg class="lib-glyph ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H12v16H6.5A2.5 2.5 0 0 0 4 22.5Z"/><path d="M20 6.5A2.5 2.5 0 0 0 17.5 4H12v16h5.5a2.5 2.5 0 0 1 2.5 2.5Z"/></svg>
+                <h4>2026 통합사회 자료실</h4>
+                <p>학습지 · PPT · 참고자료 열람</p>
+                <span class="sync"><span class="dot"></span> Auto-Sync</span>
+            </a>
+
+            <!-- 시뮬레이터 -->
+            <div class="cell cell-sims">
+                <div class="cell-label">
+                    <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+                    공간 시뮬레이터 · Interactive Field Guide
+                </div>
+                <div class="sim-cols">
+                    <div class="sim-group">
+                        <h5>3.1 기후 환경</h5>
+                        <a href="climate_3d.html" class="sim-link"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>지구 공전과 계절</a>
+                        <a href="climate_itcz.html" class="sim-link"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="7 7 12 2 17 7"/><polyline points="7 17 12 22 17 17"/></svg>적도 수렴대 이동</a>
+                        <a href="climate_solar.html" class="sim-link"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2"/></svg>태양 고도와 입사각</a>
+                    </div>
+                    <div class="sim-group">
+                        <h5>3.2 지형 변화</h5>
+                        <a href="terrain.html" class="sim-link"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18c3-9 7-9 9-4s5 1 5-3"/><path d="M4 21h16"/></svg>지형의 형성 과정</a>
+                        <a href="dynamic_earth.html" class="sim-link"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-4 3 8 3-10 2 6h5"/></svg>지형 형성 작용</a>
+                        <a href="world_landforms.html" class="sim-link"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3Z"/><path d="M9 3v15M15 6v15"/></svg>지형 탐구 시뮬레이터</a>
+                    </div>
+                    <div class="sim-group">
+                        <h5>3.3 도시 공간</h5>
+                        <a href="seoul.html" class="sim-link"><svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l6-3v16M10 21V5l6 3v13M16 21V8l4 2v11M3 21h18"/></svg>서울 대도시권 팽창</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI 대시보드 -->
+            <a href="ai_dashboard.html" class="cell cell-obs">
+                <svg class="orbit" viewBox="0 0 380 380" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="190" cy="190" r="170"/>
+                    <ellipse cx="190" cy="190" rx="170" ry="64"/>
+                    <ellipse cx="190" cy="190" rx="64" ry="170"/>
+                    <circle cx="190" cy="20" r="5" fill="currentColor"/>
+                    <circle cx="350" cy="190" r="4" fill="currentColor"/>
+                </svg>
+                <span class="tag">Observatory</span>
+                <h4>AI 분석 <em>대시보드</em></h4>
+                <p>위성 데이터 기반 식생·열섬 분석, 미래 인구 예측</p>
+                <span class="go">
+                    대시보드 열기
+                    <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+                </span>
+            </a>
+
+            <!-- 학생 지원 센터 -->
+            <div class="cell cell-list">
+                <div class="cell-label">
+                    <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a8 8 0 0 1 16 0"/><rect x="2" y="14" width="4" height="7" rx="1.5"/><rect x="18" y="14" width="4" height="7" rx="1.5"/></svg>
                     학생 지원 센터
                 </div>
                 <a href="support.html" class="entry">
@@ -841,9 +683,10 @@
                 </a>
             </div>
 
-            <div class="panel panel-list reveal d3">
-                <div class="col-label">
-                    <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>
+            <!-- 수행평가 -->
+            <div class="cell cell-list">
+                <div class="cell-label">
+                    <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/></svg>
                     수행평가
                 </div>
                 <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" class="entry">
@@ -864,264 +707,11 @@
                 </a>
             </div>
 
-        </div>
-    </section>
-
-    <div class="rule"><hr></div>
-
-    <!-- ══════════ SHEET 02 — ARCHIVE ══════════ -->
-    <section class="sheet">
-        <div class="sheet-head reveal">
-            <span class="sheet-num">§ 02</span>
-            <h2 class="sheet-title">2026 통합사회 자료실</h2>
-            <span class="sheet-meta">Repository</span>
-        </div>
-
-        <div class="archive reveal d1">
-            <div class="archive-head">
-                <p class="t">
-                    <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H12v16H6.5A2.5 2.5 0 0 0 4 22.5Z"/><path d="M20 6.5A2.5 2.5 0 0 0 17.5 4H12v16h5.5a2.5 2.5 0 0 1 2.5 2.5Z"/></svg>
-                    수업 자료 열람
-                </p>
-                <span class="sync"><span class="dot"></span> Auto-Sync</span>
-            </div>
-            <div id="material-list">
-                <span class="empty">자료를 불러오는 중입니다…</span>
-            </div>
-        </div>
-    </section>
-
-    <div class="rule"><hr></div>
-
-    <!-- ══════════ SHEET 03 — FIELD GUIDE ══════════ -->
-    <section class="sheet">
-        <div class="sheet-head reveal">
-            <span class="sheet-num">§ 03</span>
-            <h2 class="sheet-title">공간 시뮬레이터</h2>
-            <span class="sheet-meta">Interactive Field Guide</span>
-        </div>
-
-        <div class="guide reveal d1">
-
-            <details class="fold" open>
-                <summary>
-                    <span class="idx">3.1</span>
-                    <span class="fold-name">
-                        <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3.5"/><path d="M2 18a6 6 0 0 1 6-5h2a5 5 0 0 1 5 4M14 8h8M18 5l4 3-4 3"/></svg>
-                        기후 환경 시뮬레이터
-                    </span>
-                    <svg class="chev ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </summary>
-                <div class="fold-body">
-                    <a href="climate_3d.html" class="spec">
-                        <span class="open-tag">열기 →</span>
-                        <h4><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg> 지구 공전과 계절</h4>
-                        <p>자전축 기울어짐에 따른 계절의 변화</p>
-                    </a>
-                    <a href="climate_itcz.html" class="spec">
-                        <span class="open-tag">열기 →</span>
-                        <h4><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="7 7 12 2 17 7"/><polyline points="7 17 12 22 17 17"/></svg> 적도 수렴대 이동</h4>
-                        <p>태양의 직사광선 이동에 따른 강수대 이동</p>
-                    </a>
-                    <a href="climate_solar.html" class="spec">
-                        <span class="open-tag">열기 →</span>
-                        <h4><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2"/></svg> 태양 고도와 입사각</h4>
-                        <p>위도 변화에 따른 태양 일사량의 기하학</p>
-                    </a>
-                </div>
-            </details>
-
-            <details class="fold">
-                <summary>
-                    <span class="idx">3.2</span>
-                    <span class="fold-name">
-                        <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l6-11 4 6 3-5 5 10z"/><circle cx="9" cy="6" r="1.6"/></svg>
-                        지형 변화 시뮬레이터
-                    </span>
-                    <svg class="chev ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </summary>
-                <div class="fold-body">
-                    <a href="terrain.html" class="spec">
-                        <span class="open-tag">열기 →</span>
-                        <h4><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 18c3-9 7-9 9-4s5 1 5-3"/><path d="M4 21h16"/></svg> 지형의 형성 과정</h4>
-                        <p>침식, 퇴적, 융기 시뮬레이터</p>
-                    </a>
-                    <a href="dynamic_earth.html" class="spec">
-                        <span class="open-tag">열기 →</span>
-                        <h4><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-4 3 8 3-10 2 6h5"/></svg> 지형 형성 작용</h4>
-                        <p>판구조론, 화산 및 지구 내·외적 작용</p>
-                    </a>
-                    <a href="world_landforms.html" class="spec">
-                        <span class="open-tag">열기 →</span>
-                        <h4><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3Z"/><path d="M9 3v15M15 6v15"/></svg> 지형 탐구 시뮬레이터</h4>
-                        <p>빙하, 카르스트, 해안 등 특수 지형 원리</p>
-                    </a>
-                </div>
-            </details>
-
-            <details class="fold">
-                <summary>
-                    <span class="idx">3.3</span>
-                    <span class="fold-name">
-                        <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l6-3v16M10 21V5l6 3v13M16 21V8l4 2v11M3 21h18"/><path d="M6 9h1M6 13h1M13 11h1M13 15h1"/></svg>
-                        도시 공간 시뮬레이터
-                    </span>
-                    <svg class="chev ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </summary>
-                <div class="fold-body">
-                    <a href="seoul.html" class="spec">
-                        <span class="open-tag">열기 →</span>
-                        <h4><svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3Z"/><path d="M9 3v15M15 6v15"/></svg> 서울 대도시권 팽창</h4>
-                        <p>신도시 및 광역 교통망(GTX) 확장 과정</p>
-                    </a>
-                </div>
-            </details>
-
-        </div>
-    </section>
-
-    <div class="rule"><hr></div>
-
-    <!-- ══════════ SHEET 04 — OBSERVATORY ══════════ -->
-    <section class="sheet">
-        <div class="sheet-head reveal">
-            <span class="sheet-num">§ 04</span>
-            <h2 class="sheet-title">AI 분석</h2>
-            <span class="sheet-meta">Observatory</span>
-        </div>
-
-        <a href="ai_dashboard.html" class="obs reveal d1">
-            <svg class="orbit" viewBox="0 0 380 380" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="190" cy="190" r="170"/>
-                <ellipse cx="190" cy="190" rx="170" ry="64"/>
-                <ellipse cx="190" cy="190" rx="64" ry="170"/>
-                <circle cx="190" cy="20" r="5" fill="currentColor"/>
-                <circle cx="350" cy="190" r="4" fill="currentColor"/>
-            </svg>
-            <div class="obs-left">
-                <svg class="obs-glyph ico" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="32" cy="32" r="11"/>
-                    <path d="M32 6v9M32 49v9M6 32h9M49 32h9M14 14l6 6M44 44l6 6M50 14l-6 6M20 44l-6 6"/>
-                    <circle cx="32" cy="32" r="3" fill="currentColor" stroke="none"/>
-                </svg>
-                <div class="obs-text">
-                    <div class="tag">Python Backend · Satellite Data</div>
-                    <h3>AI를 활용한 <em> 대시보드</em></h3>
-                    <p>위성 데이터 기반 식생·열섬 분석 및 미래 인구 예측 모델</p>
-                </div>
-            </div>
-            <span class="obs-go">
-                대시보드 열기
-                <svg class="ico" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
-            </span>
-        </a>
-    </section>
-
-    <!-- ══════════ COLOPHON ══════════ -->
-    <footer class="colophon">
-        <span>Leet's Geographia-Class</span>
-        <span class="mono">2026 Leet &mdash; All rights reserved <a href="vault.html" style="opacity: 0.18; cursor: default; margin-left: 6px; text-decoration: none; color: inherit;">§</a></span>
-    </footer>
+        </section>
+    </main>
 
     <!-- ══════════ SCRIPTS ══════════ -->
     <script>
-    // -----------------------------------------
-    // ★ 깃허브 자료실 자동 동기화 로직 (기존 로직 유지) ★
-    // -----------------------------------------
-    async function loadMaterials() {
-        const GITHUB_ID = "GIS-Leet";
-        const REPO_NAME = "kgghs-soc-c";
-
-        const ICON = {
-            doc: '<svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg>',
-            ppt: '<svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M9 20h6"/></svg>',
-            link: '<svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 6 .5l3-3a4 4 0 0 0-5.5-5.5L12 7"/><path d="M14 10a4 4 0 0 0-6-.5l-3 3a4 4 0 0 0 5.5 5.5L12 17"/></svg>'
-        };
-
-        const folders = [
-            { path: "학습지",   title: "수업 학습지",    icon: ICON.doc  },
-            { path: "PPT",     title: "수업 PPT 자료",   icon: ICON.ppt  },
-            { path: "참고자료", title: "학습 참고 자료", icon: ICON.link }
-        ];
-
-        const container = document.getElementById('material-list');
-        container.innerHTML = '';
-
-        for (const folder of folders) {
-            const group = document.createElement('div');
-            group.className = 'arch-group';
-
-            const label = document.createElement('p');
-            label.className = 'arch-label';
-            label.textContent = folder.title;
-            group.appendChild(label);
-
-            const row = document.createElement('div');
-            row.className = 'file-row';
-            group.appendChild(row);
-            container.appendChild(group);
-
-            try {
-                const response = await fetch(`https://api.github.com/repos/${GITHUB_ID}/${REPO_NAME}/contents/${folder.path}`);
-                if (!response.ok) throw new Error('폴더 없음');
-                const files = await response.json();
-
-                const materials = files.filter(f =>
-                    f.name.endsWith('.pdf') || f.name.endsWith('.ppt') ||
-                    f.name.endsWith('.pptx') || f.name.endsWith('.hwp')||
-                    f.name.endsWith('.html')
-                );
-
-                if (materials.length === 0) {
-                    row.innerHTML = `<span class="empty">업로드된 파일이 없습니다.</span>`;
-                } else {
-                    materials.forEach(file => {
-                      const a = document.createElement('a');
-                    
-                      let href = file.download_url;
-                      if (file.name.toLowerCase().endsWith('.html')) {
-                        // raw 주소 → GitHub Pages 주소 (경고 페이지 없이 바로 렌더링)
-                        href = file.download_url.replace(
-                          /^https:\/\/raw\.githubusercontent\.com\/GIS-Leet\/kgghs-soc-c\/[^/]+\//i,
-                          'https://gis-leet.github.io/kgghs-soc-c/'
-                        );
-                      }
-                      a.href = href;
-                      a.target = '_blank';
-                      a.className = 'file-chip';
-                      a.innerHTML = `${folder.icon}<span>${file.name}</span>`;
-                      row.appendChild(a);
-                    });
-                }
-            } catch {
-                row.innerHTML = `<span class="empty">아직 '${folder.path}' 폴더가 생성되지 않았습니다.</span>`;
-            }
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', loadMaterials);
-    </script>
-    <script>
-        // 스크롤 리빌 — 화면에 들어온 섹션부터 순차 등장
-        document.body.classList.add('js');
-        const revealEls = [...document.querySelectorAll('.reveal')];
-        if ('IntersectionObserver' in window) {
-            const revealObserver = new IntersectionObserver((entries) => {
-                entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealObserver.unobserve(en.target); } });
-            }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
-            revealEls.forEach(el => revealObserver.observe(el));
-            // 안전장치: 관찰이 지연되는 환경(일부 웹뷰)에서도 화면 안 요소는 반드시 표시
-            setTimeout(() => {
-                revealEls.forEach(el => {
-                    if (el.classList.contains('in')) return;
-                    const r = el.getBoundingClientRect();
-                    if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('in');
-                });
-            }, 900);
-        } else {
-            revealEls.forEach(el => el.classList.add('in'));
-        }
-
         // 다크 모드 토글
         document.getElementById('themeToggle')?.addEventListener('click', () => {
             const root = document.documentElement;
