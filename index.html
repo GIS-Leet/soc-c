@@ -152,10 +152,13 @@
         margin: 0 auto;
         padding: 30px 40px 34px;
         display: grid;
-        grid-template-columns: minmax(290px, 360px) 1fr;
+        grid-template-columns: 1fr minmax(290px, 360px);
         gap: 44px;
         min-height: 0;
     }
+    /* 데스크톱: 대시보드(벤토)를 왼쪽, 표제 레일을 오른쪽에 배치 */
+    .bento { order: 1; }
+    .rail { order: 2; }
 
     /* ── 좌측 표제 레일 ── */
     .rail { display: flex; flex-direction: column; min-width: 0; }
@@ -343,18 +346,52 @@
     .cell-qna .go .ico { transition: transform 0.35s var(--ease); }
     .cell-qna:hover .go .ico { transform: translateX(5px); }
 
-    /* 자료실 (span 2) */
-    .cell-lib { grid-column: span 2; justify-content: flex-end; }
-    .cell-lib .lib-glyph { width: 40px; height: 40px; color: var(--terra); position: absolute; top: 20px; left: 22px; }
-    .cell-lib h4 { font-family: var(--serif); font-size: 1.2rem; font-weight: 500; letter-spacing: -0.01em; margin: 0 0 4px; }
-    .cell-lib p { font-size: 0.8rem; color: var(--ink-3); margin: 0 0 12px; }
+    /* 수업 자료 열람 (span 2) — 깃허브 자동 동기화 목록 */
+    .cell-lib { grid-column: span 2; }
     .cell-lib .sync {
-        font-size: 0.64rem; font-weight: 700; letter-spacing: 0.16em;
+        margin-left: auto;
+        font-size: 0.6rem; font-weight: 700; letter-spacing: 0.14em;
         text-transform: uppercase; color: var(--sea);
-        display: inline-flex; align-items: center; gap: 7px;
+        display: inline-flex; align-items: center; gap: 6px;
     }
     .sync .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sea); animation: pulse 2.4s ease-in-out infinite; }
     @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+    .material-scroll { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-right: 4px; scrollbar-width: thin; scrollbar-color: var(--ink-faint) transparent; }
+    .material-scroll::-webkit-scrollbar { width: 5px; }
+    .material-scroll::-webkit-scrollbar-thumb { background: var(--ink-faint); border-radius: 3px; }
+    .arch-group .arch-label {
+        font-family: var(--serif);
+        font-size: 0.68rem;
+        font-weight: 600;
+        font-style: italic;
+        letter-spacing: 0.1em;
+        color: var(--terra);
+        margin: 0 0 7px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .arch-label::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
+    .file-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .file-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 0.74rem;
+        font-weight: 600;
+        color: var(--ink-2);
+        background: var(--paper);
+        border: 1px solid var(--line);
+        padding: 5px 10px;
+        border-radius: 3px;
+        max-width: 100%;
+        transition: all 0.25s var(--ease);
+    }
+    .file-chip span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-chip .ico { color: var(--ink-3); transition: color 0.25s var(--ease); }
+    .file-chip:hover { color: var(--terra); border-color: var(--terra); background: var(--terra-soft); }
+    .file-chip:hover .ico { color: var(--terra); }
+    .empty { font-size: 0.76rem; color: var(--ink-faint); font-style: italic; }
 
     /* 시뮬레이터 (span 4) — 3분류 항로표 */
     .cell-sims { grid-column: span 4; }
@@ -488,6 +525,9 @@
     @media (max-width: 1080px) {
         html, body { height: auto; }
         .plate { grid-template-columns: 1fr; gap: 30px; padding: 26px 24px 34px; }
+        /* 좁은 화면에서는 표제가 다시 위로 */
+        .rail { order: 1; }
+        .bento { order: 2; }
         .rail-foot { margin-top: 18px; }
         .compass { display: none; }
         .bento { grid-template-rows: none; grid-auto-rows: auto; grid-template-columns: 1fr 1fr; }
@@ -607,13 +647,17 @@
                 </span>
             </a>
 
-            <!-- 자료실 -->
-            <a href="library.html" class="cell cell-lib">
-                <svg class="lib-glyph ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H12v16H6.5A2.5 2.5 0 0 0 4 22.5Z"/><path d="M20 6.5A2.5 2.5 0 0 0 17.5 4H12v16h5.5a2.5 2.5 0 0 1 2.5 2.5Z"/></svg>
-                <h4>2026 통합사회 자료실</h4>
-                <p>학습지 · PPT · 참고자료 열람</p>
-                <span class="sync"><span class="dot"></span> Auto-Sync</span>
-            </a>
+            <!-- 수업 자료 열람 (깃허브 자동 동기화) -->
+            <div class="cell cell-lib">
+                <div class="cell-label">
+                    <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H12v16H6.5A2.5 2.5 0 0 0 4 22.5Z"/><path d="M20 6.5A2.5 2.5 0 0 0 17.5 4H12v16h5.5a2.5 2.5 0 0 1 2.5 2.5Z"/></svg>
+                    수업 자료 열람
+                    <span class="sync"><span class="dot"></span> Auto-Sync</span>
+                </div>
+                <div class="material-scroll" id="material-list">
+                    <span class="empty">자료를 불러오는 중입니다…</span>
+                </div>
+            </div>
 
             <!-- 시뮬레이터 -->
             <div class="cell cell-sims">
@@ -711,6 +755,83 @@
     </main>
 
     <!-- ══════════ SCRIPTS ══════════ -->
+    <script>
+    // -----------------------------------------
+    // ★ 깃허브 자료실 자동 동기화 로직 (기존 로직 유지) ★
+    // -----------------------------------------
+    async function loadMaterials() {
+        const GITHUB_ID = "GIS-Leet";
+        const REPO_NAME = "kgghs-soc-c";
+
+        const ICON = {
+            doc: '<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg>',
+            ppt: '<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M9 20h6"/></svg>',
+            link: '<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 6 .5l3-3a4 4 0 0 0-5.5-5.5L12 7"/><path d="M14 10a4 4 0 0 0-6-.5l-3 3a4 4 0 0 0 5.5 5.5L12 17"/></svg>'
+        };
+
+        const folders = [
+            { path: "학습지",   title: "수업 학습지",    icon: ICON.doc  },
+            { path: "PPT",     title: "수업 PPT 자료",   icon: ICON.ppt  },
+            { path: "참고자료", title: "학습 참고 자료", icon: ICON.link }
+        ];
+
+        const container = document.getElementById('material-list');
+        container.innerHTML = '';
+
+        for (const folder of folders) {
+            const group = document.createElement('div');
+            group.className = 'arch-group';
+
+            const label = document.createElement('p');
+            label.className = 'arch-label';
+            label.textContent = folder.title;
+            group.appendChild(label);
+
+            const row = document.createElement('div');
+            row.className = 'file-row';
+            group.appendChild(row);
+            container.appendChild(group);
+
+            try {
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_ID}/${REPO_NAME}/contents/${folder.path}`);
+                if (!response.ok) throw new Error('폴더 없음');
+                const files = await response.json();
+
+                const materials = files.filter(f =>
+                    f.name.endsWith('.pdf') || f.name.endsWith('.ppt') ||
+                    f.name.endsWith('.pptx') || f.name.endsWith('.hwp')||
+                    f.name.endsWith('.html')
+                );
+
+                if (materials.length === 0) {
+                    row.innerHTML = `<span class="empty">업로드된 파일이 없습니다.</span>`;
+                } else {
+                    materials.forEach(file => {
+                      const a = document.createElement('a');
+
+                      let href = file.download_url;
+                      if (file.name.toLowerCase().endsWith('.html')) {
+                        // raw 주소 → GitHub Pages 주소 (경고 페이지 없이 바로 렌더링)
+                        href = file.download_url.replace(
+                          /^https:\/\/raw\.githubusercontent\.com\/GIS-Leet\/kgghs-soc-c\/[^/]+\//i,
+                          'https://gis-leet.github.io/kgghs-soc-c/'
+                        );
+                      }
+                      a.href = href;
+                      a.target = '_blank';
+                      a.className = 'file-chip';
+                      a.innerHTML = `${folder.icon}<span>${file.name}</span>`;
+                      row.appendChild(a);
+                    });
+                }
+            } catch {
+                row.innerHTML = `<span class="empty">아직 '${folder.path}' 폴더가 생성되지 않았습니다.</span>`;
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadMaterials);
+    </script>
     <script>
         // 다크 모드 토글
         document.getElementById('themeToggle')?.addEventListener('click', () => {
