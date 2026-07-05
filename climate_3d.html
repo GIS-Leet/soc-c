@@ -161,7 +161,19 @@
             .controls-wrapper { max-width: 100%; flex: none; }
             .masthead-inner { padding: 0 20px; }
         }
-    </style>
+    
+    /* ── 모바일 상단 메뉴 정돈 (공통) ── */
+    @media (max-width: 640px) {
+        .masthead-inner { padding: 0 12px; height: 56px; }
+        .brand { gap: 9px; }
+        .brand-seal { width: 29px; height: 29px; }
+        .brand-text .ko { font-size: 0.86rem; }
+        .brand-text .en { display: none; }
+        .nav { gap: 0; }
+        .nav a { padding: 7px 9px; font-size: 0.76rem; letter-spacing: -0.02em; }
+        .theme-toggle { width: 30px; height: 30px; margin-left: 4px; }
+    }
+</style>
 </head>
 <body>
     <header class="masthead">
