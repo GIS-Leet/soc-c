@@ -145,6 +145,20 @@
     .image-preview-wrapper img { max-height: 150px; display: block; filter: sepia(0.2) contrast(0.9); }
     .image-remove-btn { position: absolute; top: -8px; right: -8px; background: var(--terra); color: var(--paper); border: none; width: 22px; height: 22px; border-radius: 50%; font-family: var(--sans); font-size: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
+    /* SEARCH (Card Catalogue) */
+    .search-bar { display: flex; align-items: center; gap: 0; margin-top: 40px; border: 1px solid var(--line); background: var(--surface); transition: border-color 0.2s; position: relative; }
+    .search-bar:focus-within { border-color: var(--ink); }
+    .search-bar .search-ico { color: var(--ink-3); margin: 0 4px 0 16px; flex-shrink: 0; }
+    .search-bar input { flex: 1; border: none; background: transparent; padding: 14px 12px; font-family: var(--sans); font-size: 0.95rem; color: var(--ink); outline: none; min-width: 0; }
+    .search-bar input::placeholder { color: var(--ink-faint); font-style: italic; }
+    .search-clear { display: none; background: none; border: none; color: var(--ink-3); font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; padding: 6px 16px; transition: color 0.2s; }
+    .search-clear:hover { color: var(--terra); }
+    .search-status { display: none; font-family: var(--serif); font-size: 0.8rem; font-style: italic; color: var(--ink-3); margin: 12px 4px 0; }
+    .search-status b { color: var(--terra); font-style: normal; }
+    .search-hit { display: block; font-size: 0.8rem; color: var(--ink-3); margin-top: 4px; line-height: 1.5; word-break: break-all; }
+    mark.hl { background: var(--terra-soft); color: var(--terra); padding: 0 2px; font-weight: 700; }
+    .no-result-row { display: none; padding: 40px 20px; text-align: center; font-family: var(--serif); font-style: italic; color: var(--ink-faint); font-size: 0.9rem; }
+
     /* BOARD LIST (Index) */
     .board-wrapper { border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); margin-top: 20px; }
     .board-header { display: flex; padding: 14px 20px; border-bottom: 1px solid var(--ink); font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--ink-2); background: rgba(26,23,20,0.02); }
@@ -277,6 +291,7 @@
             </a>
             <nav class="nav">
                 <a href="index.html">홈</a>
+                <a href="library.html">자료실</a>
                 <a href="qna.html" class="active">Q&amp;A 게시판</a>
             </nav>
         </div>
@@ -343,6 +358,13 @@
             </div>
         </div>
 
+        <div class="search-bar">
+            <svg class="search-ico ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+            <input type="search" id="searchInput" placeholder="질문 검색 — 키워드, 내용, 작성자" autocomplete="off">
+            <button class="search-clear" id="searchClearBtn" onclick="window.clearSearch()">Clear</button>
+        </div>
+        <p class="search-status" id="searchStatus"></p>
+
         <div class="board-wrapper">
             <div class="board-header">
                 <div class="col-title">Subject</div>
@@ -350,6 +372,7 @@
                 <div class="col-time">Date</div>
             </div>
             <ul class="board-list" id="qnaList"></ul>
+            <div class="no-result-row" id="noResultRow">검색 결과가 없습니다 — 다른 키워드로 시도해 보세요.</div>
         </div>
     </main>
 
@@ -503,7 +526,7 @@
 
         window.saveEdit = (id) => {
             const newTitle = document.getElementById(`edit-title-${id}`).value.trim(); const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
-            if (newTitle && newText) { update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText }); const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">Log Entry: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(newTitle); } else { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); }
+            if (newTitle && newText) { update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText }); const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">Log Entry: ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; li.dataset.sTitle = newTitle; li.dataset.sBody = isSecret ? '' : newText; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(newTitle); } else { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); }
         };
 
         window.handleDelete = (id) => { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (isAdmin) { window.AppModal.show({type: 'confirm', title:'Delete Entry', msg: '기록을 말소하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); } else { window.AppModal.show({type: 'prompt', title:'Delete Entry', msg: '삭제 암호를 입력하십시오.'}, (pw) => { if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '기록을 말소하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호 불일치'}); }); } };
@@ -552,15 +575,18 @@
         onChildChanged(questionsRef, (snapshot) => {
             const id = snapshot.key; const data = snapshot.val(); const titleSpan = document.getElementById(`title-text-${id}`); const bodyDiv = document.getElementById(`post-body-${id}`);
             if (titleSpan) titleSpan.innerHTML = (data.isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
-            if (bodyDiv && !bodyDiv.querySelector('textarea')) { let contentHtml = escapeHTML(data.text); if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">Log Entry: ${data.time}</div>`; bodyDiv.innerHTML = contentHtml; bodyDiv.dataset.text = data.text; bodyDiv.dataset.title = data.title; } 
+            if (bodyDiv && !bodyDiv.querySelector('textarea')) { let contentHtml = escapeHTML(data.text); if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">Log Entry: ${data.time}</div>`; bodyDiv.innerHTML = contentHtml; bodyDiv.dataset.text = data.text; bodyDiv.dataset.title = data.title; }
+            const postLi = document.getElementById(`post-${id}`); if (postLi) { postLi.dataset.sTitle = data.title || ''; postLi.dataset.sBody = data.isSecret ? '' : (data.text || ''); }
         });
 
         // ==========================================
         // ★ 화면 그리기 함수 (메인) ★
         // ==========================================
         function renderPost(id, data) {
-            const list = document.getElementById('qnaList'); const li = document.createElement('li'); li.className = 'board-item'; li.id = `post-${id}`; li.dataset.pw = data.password || ''; li.dataset.secret = data.isSecret || false; 
+            const list = document.getElementById('qnaList'); const li = document.createElement('li'); li.className = 'board-item'; li.id = `post-${id}`; li.dataset.pw = data.password || ''; li.dataset.secret = data.isSecret || false;
             const author = data.author || '익명'; const rawTitle = data.title || data.text.substring(0, 20) + '...';
+            // 검색용 데이터 (비밀글 본문은 검색 대상에서 제외)
+            li.dataset.sTitle = rawTitle; li.dataset.sAuthor = author; li.dataset.sBody = data.isSecret ? '' : (data.text || '');
             
             let displayTitleHtml = '';
             if (data.isSecret) displayTitleHtml += SVG_LOCK + ' ';
@@ -605,8 +631,82 @@
                         </div>
                     </div>
                 </div>`;
-            list.prepend(li); refreshAdminUI(); 
+            list.prepend(li); refreshAdminUI();
+            if (currentQuery) { applySearchToItem(li, currentQuery); updateSearchStatus(); }
         }
+
+        // ==========================================
+        // ★ 게시글 검색 (제목·내용·작성자) ★
+        // ==========================================
+        let currentQuery = '';
+        const searchInput = document.getElementById('searchInput');
+        const searchStatus = document.getElementById('searchStatus');
+        const searchClearBtn = document.getElementById('searchClearBtn');
+        const noResultRow = document.getElementById('noResultRow');
+
+        function highlightText(text, query) {
+            const safe = escapeHTML(text);
+            const safeQuery = escapeHTML(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return safe.replace(new RegExp(`(${safeQuery})`, 'gi'), '<mark class="hl">$1</mark>');
+        }
+
+        // 본문에서 검색어 주변 발췌문 생성
+        function makeExcerpt(body, query) {
+            const idx = body.toLowerCase().indexOf(query.toLowerCase());
+            if (idx === -1) return '';
+            const start = Math.max(0, idx - 24);
+            const end = Math.min(body.length, idx + query.length + 40);
+            return (start > 0 ? '…' : '') + body.substring(start, end) + (end < body.length ? '…' : '');
+        }
+
+        function applySearchToItem(li, query) {
+            const title = li.dataset.sTitle || '';
+            const author = li.dataset.sAuthor || '';
+            const body = li.dataset.sBody || '';
+            const q = query.toLowerCase();
+            const matched = title.toLowerCase().includes(q) || author.toLowerCase().includes(q) || body.toLowerCase().includes(q);
+            li.style.display = matched ? '' : 'none';
+
+            const old = li.querySelector('.search-hit');
+            if (old) old.remove();
+            if (matched && body.toLowerCase().includes(q) && !title.toLowerCase().includes(q)) {
+                const hit = document.createElement('span');
+                hit.className = 'search-hit';
+                hit.innerHTML = highlightText(makeExcerpt(body, query), query);
+                li.querySelector('.item-title-wrapper').appendChild(hit);
+            }
+            return matched;
+        }
+
+        function updateSearchStatus() {
+            const items = document.querySelectorAll('#qnaList > li');
+            if (!currentQuery) {
+                searchStatus.style.display = 'none'; noResultRow.style.display = 'none'; searchClearBtn.style.display = 'none';
+                return;
+            }
+            let count = 0;
+            items.forEach(li => { if (li.style.display !== 'none') count++; });
+            searchStatus.innerHTML = `&ldquo;${escapeHTML(currentQuery)}&rdquo; 검색 결과 &mdash; <b>${count}</b>건`;
+            searchStatus.style.display = 'block';
+            searchClearBtn.style.display = 'block';
+            noResultRow.style.display = count === 0 ? 'block' : 'none';
+        }
+
+        function runSearch() {
+            currentQuery = searchInput.value.trim();
+            const items = document.querySelectorAll('#qnaList > li');
+            if (!currentQuery) {
+                items.forEach(li => { li.style.display = ''; const old = li.querySelector('.search-hit'); if (old) old.remove(); });
+            } else {
+                items.forEach(li => applySearchToItem(li, currentQuery));
+            }
+            updateSearchStatus();
+        }
+
+        let searchTimer = null;
+        searchInput.addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 150); });
+        searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.clearSearch(); });
+        window.clearSearch = function() { searchInput.value = ''; runSearch(); searchInput.focus(); };
 
         // ==========================================
         // ★ 선생님 1차 답변 등록 & 그리기 ★
