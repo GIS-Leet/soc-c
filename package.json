@@ -1,0 +1,12 @@
+{
+  "name": "soc-c",
+  "version": "1.0.0",
+  "private": true,
+  "description": "경기여고 통합사회 홈페이지",
+  "license": "MIT",
+  "dependencies": {
+    "@astryxdesign/cli": "^0.1.4",
+    "@astryxdesign/core": "^0.1.4",
+    "@astryxdesign/theme-neutral": "^0.1.4"
+  }
+}

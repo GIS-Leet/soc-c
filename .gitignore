@@ -24,6 +24,9 @@ container_tmp/
 src/
 ppt/
 
+# Node
+node_modules/
+
 # macOS
 .DS_Store
 
