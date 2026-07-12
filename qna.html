@@ -164,20 +164,43 @@
         cursor: pointer; font-family: var(--font); text-transform: uppercase;
     }
 
-    /* ── Notice ── */
-    .notice-box {
-        background: var(--surface); border: 1px solid var(--hairline);
-        border-radius: var(--r-container); box-shadow: var(--shadow-low);
-        padding: 22px 26px; margin-bottom: 28px; position: relative; overflow: hidden;
-    }
-    .notice-box::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--acc); }
+    /* ── Notice — 이용 안내, 에디토리얼 파인 프린트 ── */
+    .notice-box { margin: 4px 0 36px; }
     .notice-box h2 {
-        margin: 0 0 12px 0; color: var(--ink);
+        margin: 0; color: var(--ink-3);
         font-size: 11px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase;
-        border-bottom: 1px solid var(--hairline); padding-bottom: 10px;
+        padding-bottom: 10px; border-bottom: 1px solid var(--hairline-2);
+        display: flex; align-items: center; gap: 8px;
     }
-    .notice-box ol { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 13.5px; line-height: 1.85; }
-    .notice-box b { color: var(--ink); font-weight: 700; }
+    .notice-box h2::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--acc); flex-shrink: 0; }
+    .notice-box ol {
+        margin: 0; padding: 0; list-style: none; counter-reset: notice;
+        color: var(--ink-2); font-size: 13.5px;
+    }
+    .notice-box ol li {
+        counter-increment: notice;
+        position: relative;
+        padding: 10px 2px 10px 38px;
+        border-bottom: 1px solid var(--hairline);
+        line-height: 1.65; word-break: keep-all;
+    }
+    .notice-box ol li:last-child { border-bottom: 0; }
+    .notice-box ol li::before {
+        content: counter(notice, decimal-leading-zero);
+        position: absolute; left: 2px; top: 13px;
+        font-size: 11px; color: var(--ink-3); letter-spacing: 0.05em;
+    }
+    .notice-box b { color: var(--ink); font-weight: 650; }
+    .kakao-chip {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #fee500; color: #191919;
+        font-size: 12px; font-weight: 700; letter-spacing: -0.01em;
+        padding: 3px 10px; border-radius: var(--r-full);
+        margin-left: 4px; vertical-align: 1px;
+        transition: filter 175ms var(--ease);
+    }
+    .kakao-chip:hover { filter: brightness(0.94); }
+    .kakao-chip svg { width: 12px; height: 12px; flex-shrink: 0; }
 
     /* ── Write form ── */
     .ledger-panel {
@@ -541,10 +564,7 @@
                 <li>급한 질문은 교무실로 방문해 주시기 바랍니다 (08:00 ~ 16:00).</li>
                 <li><b>사진 자료를 첨부</b>하여 질문하면 더 자세한 답변을 받을 수 있습니다.</li>
                 <li data-expires="2026-07-01"><b>기말고사 관련 질문은 <b>6월 30일 화요일 오후 9시까지</b> 받습니다.</li>
-                <li><b>진짜 정말 real로 당장 해결하지 않으면 안되는 급한 사항이다</b> -> <a href="https://open.kakao.com/o/siXWPozi" target="_blank" style="display: inline-flex; align-items: center; background-color: #FEE500; color: #191919; padding: 6px 14px; margin: 0 4px; border-radius: 6px; text-decoration: none; font-weight: 700; font-size: 0.9em; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.backgroundColor='#e6cf00'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.backgroundColor='#FEE500'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';">
-        <svg style="width: 14px; height: 14px; margin-right: 6px;" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-5.523 0-10 3.582-10 8 0 2.864 1.8 5.378 4.6 6.81l-1.135 3.99c-.114.398.334.708.68.513l4.63-3.134c.4.05.81.077 1.225.077 5.523 0 10-3.582 10-8s-4.477-8-10-8z"/></svg>
-        채팅방 바로가기
-    </a> .</li>
+                <li><b>진짜 정말 real로 당장 해결하지 않으면 안되는 급한 사항이다</b> → <a href="https://open.kakao.com/o/siXWPozi" target="_blank" class="kakao-chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-5.523 0-10 3.582-10 8 0 2.864 1.8 5.378 4.6 6.81l-1.135 3.99c-.114.398.334.708.68.513l4.63-3.134c.4.05.81.077 1.225.077 5.523 0 10-3.582 10-8s-4.477-8-10-8z"/></svg>채팅방 바로가기</a></li>
             </ol>
         </div>
         
