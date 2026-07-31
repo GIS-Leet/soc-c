@@ -9,258 +9,190 @@
   gtag('config', 'G-E1W226W5M4');
 </script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>지역 탐구 프로젝트 가이드 — Geographia Archive</title>
 
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<!-- 디자인 시스템 -->
+<link rel="stylesheet" href="design-system/stratum.css">
+<link rel="stylesheet" href="design-system/geo.css">
 
 <style>
-    /* ============================================================
-       GEOGRAPHIA — Academic Archival Editorial Concept
-    ============================================================ */
-    :root {
-        --ink:        #1a1714;
-        --ink-2:      #4a443c;
-        --ink-3:      #8c8479;
-        --ink-faint:  #b8b0a3;
+/* ============================================================================
+   지역 탐구 프로젝트 — 페이지 전용
+   골격·색·재질은 stratum.css + geo.css. 클래스 이름은 기존 마크업 그대로.
+   ========================================================================== */
+:root {
+  --ink: var(--st-label);
+  --line: var(--st-separator);
+  --surface: var(--st-surface);
+  --terra: var(--st-accent-ink);
+}
 
-        --paper:      #f4f0e8;
-        --paper-2:    #efe9dd;
-        --surface:    #fbf9f3;
+.sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x);
+         padding-bottom: clamp(48px, 7vw, 96px); }
 
-        --line:       #d8d0c0;
-        --line-soft:  #e6dfd0;
+/* ── 머리 ── */
+.hero { padding-block: clamp(40px, 7vw, 88px) clamp(28px, 4vw, 48px); }
+.badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+  text-transform: uppercase; color: var(--accent-ink);
+}
+.badge svg { width: 13px; height: 13px; }
+.hero h1 {
+  margin-top: 14px;
+  font-size: clamp(2.6rem, 9vw, 6.5rem); line-height: 0.92;
+  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
+}
+.hero h1 em { font-style: normal; color: var(--st-label-3); }
+.hero p { margin-top: 18px; max-width: 52ch; font-size: clamp(0.9rem, 1.4vw, 1.0625rem);
+          line-height: 1.7; color: var(--st-label-2); letter-spacing: var(--track-ko); }
 
-        --terra:      #b4502e;
-        --terra-soft: #f0e0d4;
-        --sea:        #2f5d50;
-        --gold:       #9a7b3f;
+/* ── 섹션 ── */
+section { margin-top: clamp(40px, 6vw, 76px); }
+.section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: clamp(1.05rem, 1.7vw, 1.35rem); font-weight: 700; letter-spacing: -0.022em;
+  color: var(--st-label);
+  padding-bottom: 14px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--st-separator);
+}
+.section-title svg { width: 19px; height: 19px; color: var(--accent); flex-shrink: 0; }
 
-        --serif: 'Fraunces', Georgia, serif;
-        --sans:  'Pretendard', -apple-system, sans-serif;
-        --ease: cubic-bezier(0.22, 1, 0.36, 1);
-    }
+.grid-4 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.grid-3 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
 
-    *, *::before, *::after { box-sizing: border-box; }
+.panel {
+  background: var(--st-surface); border: 1px solid var(--st-separator);
+  border-radius: var(--st-r-container); box-shadow: var(--st-shadow-low);
+  transition: border-color var(--st-dur-fast) var(--st-ease),
+              box-shadow var(--st-dur-fast) var(--st-ease),
+              transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
+}
+.panel:hover { transform: translateY(-2px); box-shadow: var(--st-shadow-med);
+               border-color: var(--st-separator-strong); }
 
-    body {
-        font-family: var(--sans);
-        background-color: var(--paper);
-        margin: 0; padding: 0;
-        color: var(--ink);
-        line-height: 1.62;
-        -webkit-font-smoothing: antialiased;
-        position: relative;
-    }
-    
-    /* Paper Grain Overlay */
-    body::before {
-        content: '';
-        position: fixed; inset: 0;
-        pointer-events: none;
-        z-index: 1;
-        opacity: 0.5;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
-        mix-blend-mode: multiply;
-    }
-    body > * { position: relative; z-index: 2; }
+/* ── 진행 단계 ── */
+.step-card { padding: 20px; }
+.step-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.step-icon {
+  width: 44px; height: 44px; border-radius: var(--st-r-element);
+  display: grid; place-items: center;
+  background: var(--st-accent-soft); color: var(--accent-ink);
+}
+.step-icon svg { width: 22px; height: 22px; }
+.step-num { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em; color: var(--st-label-4);
+            font-variant-numeric: tabular-nums; }
+.step-card h3 { font-size: 15px; font-weight: 700; letter-spacing: -0.018em; color: var(--st-label); }
+.step-card p { margin-top: 8px; font-size: 13px; line-height: 1.7; color: var(--st-label-2);
+               letter-spacing: var(--track-ko); }
 
-    a { text-decoration: none; color: inherit; }
-    ul { list-style: none; padding: 0; margin: 0; }
-    .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+/* ── 탐구 사례 ── */
+.ex-card { overflow: hidden; display: flex; flex-direction: column; }
+.ex-thumb {
+  position: relative; height: 128px; display: grid; place-items: center;
+  border-bottom: 1px solid var(--st-separator);
+}
+.pat-1 { background: linear-gradient(135deg, var(--st-blue), var(--st-indigo)); }
+.pat-2 { background: linear-gradient(135deg, var(--st-teal), var(--st-blue)); }
+.pat-3 { background: linear-gradient(135deg, var(--st-green), var(--st-teal)); }
+.ex-tag {
+  position: absolute; top: 12px; left: 12px;
+  padding: 3px 10px; border-radius: var(--st-r-full);
+  background: rgba(255,255,255,0.22); color: #fff;
+  -webkit-backdrop-filter: blur(8px) saturate(160%); backdrop-filter: blur(8px) saturate(160%);
+  box-shadow: inset 0 0.5px 0 0 rgba(255,255,255,0.6), inset 0 0 0 0.5px rgba(255,255,255,0.3);
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+}
+.ex-icon-box { color: rgba(255,255,255,0.92); }
+.ex-icon-box svg { width: 30px; height: 30px; }
+.ex-content { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
+.ex-content h3 { font-size: 15px; font-weight: 700; letter-spacing: -0.018em; line-height: 1.45;
+                 color: var(--st-label); }
+.ex-content p { margin-top: 9px; font-size: 13px; line-height: 1.7; color: var(--st-label-2);
+                letter-spacing: var(--track-ko); flex: 1; }
+.ex-tech { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.ex-tech span {
+  padding: 3px 9px; border-radius: var(--st-r-full);
+  background: var(--st-fill-2); color: var(--st-label-3);
+  font-size: 11px; font-weight: 600; letter-spacing: var(--track-ko);
+}
 
-    /* MASTHEAD */
-    .masthead {
-        background: rgba(244,240,232,0.82);
-        backdrop-filter: blur(14px) saturate(1.2);
-        -webkit-backdrop-filter: blur(14px) saturate(1.2);
-        border-bottom: 1px solid var(--line);
-        position: sticky; top: 0; z-index: 9999;
-    }
-    .masthead-inner {
-        max-width: 1180px; margin: 0 auto; padding: 0 40px; height: 66px;
-        display: flex; align-items: center; justify-content: space-between;
-    }
-    .brand { display: flex; align-items: center; gap: 13px; }
-    .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
-    .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
-    .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
-    .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
-    .nav { display: flex; align-items: center; gap: 2px; }
-    .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
-    .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
-    .nav a.active { color: var(--paper); background: var(--ink); }
+/* ── 마무리 유도 — 잉크 패널. 한 화면에 하나만 쓰는 강조 수단 ── */
+.obs-cta {
+  position: relative; overflow: hidden; text-align: center;
+  background: var(--st-ink); color: var(--st-on-ink);
+  border-radius: var(--st-r-page);
+  padding: clamp(40px, 6vw, 72px) clamp(24px, 4vw, 48px);
+}
+.obs-cta .orbit {
+  position: absolute; right: -14%; top: -46%; width: 520px; max-width: 90%;
+  color: var(--st-on-ink-3); opacity: 0.45; pointer-events: none;
+}
+.obs-cta-icon { width: 30px; height: 30px; color: var(--st-accent); position: relative; }
+.obs-cta h2 { margin-top: 16px; font-size: clamp(1.35rem, 3vw, 2.1rem); font-weight: 700;
+              letter-spacing: -0.03em; position: relative; }
+.obs-cta p { margin-top: 12px; font-size: clamp(0.8125rem, 1.3vw, 0.9375rem); line-height: 1.75;
+             color: var(--st-on-ink-2); letter-spacing: var(--track-ko); position: relative; }
+.obs-go {
+  position: relative; display: inline-flex; align-items: center; gap: 9px; margin-top: 26px;
+  height: 46px; padding: 0 24px; border-radius: var(--st-r-full);
+  background: var(--st-on-ink); color: var(--st-ink);
+  font-size: 14px; font-weight: 600; letter-spacing: var(--track-ko);
+  --lg-x: 0px; --lg-y: 0px;
+  transition: transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
+}
+.obs-go:hover { transform: translateY(-2px); }
+.obs-go:active { transform: translateY(0) scale(0.98); }
+.obs-go svg { width: 15px; height: 15px; transition: transform 0.4s var(--ease); }
+.obs-go:hover svg { transform: translateX(3px); }
 
-    /* LAYOUT & CONTAINERS */
-    .sheet { max-width: 1180px; margin: 0 auto; padding: 56px 40px 100px; }
-    .sheet-head { display: flex; align-items: baseline; gap: 18px; margin-bottom: 34px; position: relative; }
-    .sheet-num { font-family: var(--serif); font-size: 0.82rem; font-weight: 600; color: var(--terra); letter-spacing: 0.1em; }
-    .sheet-title { font-family: var(--serif); font-size: 1.7rem; font-weight: 500; letter-spacing: -0.015em; color: var(--ink); margin: 0; }
-    .sheet-meta { margin-left: auto; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); align-self: center; }
+.ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
-    /* HERO SECTION */
-    .hero { max-width: 900px; margin: 0 auto 60px; text-align: center; }
-    .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border: 1px solid var(--terra); color: var(--terra); font-family: var(--serif); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 24px; }
-    .hero h1 { font-family: var(--serif); font-size: 2.8rem; font-weight: 400; letter-spacing: -0.02em; margin: 0 0 16px 0; color: var(--ink); line-height: 1.1; }
-    .hero h1 em { color: var(--terra); font-style: italic; }
-    .hero p { font-size: 1.05rem; color: var(--ink-2); max-width: 650px; margin: 0 auto; word-break: keep-all; line-height: 1.7; }
-
-    /* SECTION TITLES */
-    .section-title { font-family: var(--serif); font-size: 1.3rem; font-weight: 500; display: flex; align-items: center; gap: 12px; margin: 60px 0 24px; color: var(--ink); border-bottom: 1px solid var(--line-soft); padding-bottom: 12px; }
-    .section-title .ico { color: var(--terra); }
-
-    /* PANEL STYLES (Used for cards) */
-    .panel {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 4px;
-        position: relative;
-        transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
-    }
-    .panel::before, .panel::after {
-        content: '';
-        position: absolute;
-        width: 9px; height: 9px;
-        border-color: var(--ink-faint);
-        opacity: 0.55;
-        transition: opacity 0.4s var(--ease), border-color 0.4s var(--ease);
-    }
-    .panel::before { top: 9px; left: 9px; border-left: 1.5px solid; border-top: 1.5px solid; }
-    .panel::after  { bottom: 9px; right: 9px; border-right: 1.5px solid; border-bottom: 1.5px solid; }
-
-    /* STEP GRID (Methodology) */
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-    .step-card { padding: 30px 24px; display: flex; flex-direction: column; }
-    .step-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -20px rgba(26,23,20,0.15); border-color: var(--ink-faint); }
-    .step-card:hover::before, .step-card:hover::after { opacity: 1; border-color: var(--terra); }
-    
-    .step-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px dashed var(--line); padding-bottom: 15px; }
-    .step-icon { width: 38px; height: 38px; color: var(--ink); display: flex; align-items: center; justify-content: center; }
-    .step-num { font-family: var(--serif); font-size: 1.2rem; font-weight: 500; font-style: italic; color: var(--terra); }
-    
-    .step-card h3 { margin: 0 0 10px 0; font-size: 1.05rem; font-weight: 700; color: var(--ink); letter-spacing: -0.01em; }
-    .step-card p { margin: 0; font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; }
-
-    /* EXAMPLE GRID (Archive) */
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .ex-card { display: flex; flex-direction: column; cursor: pointer; }
-    .ex-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -20px rgba(26,23,20,0.15); border-color: var(--ink-faint); }
-    .ex-card:hover::before, .ex-card:hover::after { opacity: 1; border-color: var(--sea); }
-    
-    .ex-thumb { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--line); }
-    /* Pattern Backgrounds */
-    .pat-1 { background-color: var(--paper-2); background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 10px 10px; }
-    .pat-2 { background-color: var(--paper-2); background-image: repeating-linear-gradient(45deg, var(--line) 0, var(--line) 1px, transparent 0, transparent 50%); background-size: 12px 12px; }
-    .pat-3 { background-color: var(--paper-2); background-image: repeating-radial-gradient(circle at 0 0, transparent 0, var(--paper-2) 10px, var(--line) 10px, var(--line) 11px); }
-    
-    .ex-icon-box { width: 56px; height: 56px; background: var(--paper); border: 1px solid var(--ink); display: flex; align-items: center; justify-content: center; color: var(--ink); position: relative; z-index: 2; box-shadow: 4px 4px 0 rgba(26,23,20,0.08); }
-    .ex-tag { position: absolute; top: 12px; left: 12px; font-family: var(--serif); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink); background: var(--paper); border: 1px solid var(--ink); padding: 3px 8px; z-index: 2; }
-    
-    .ex-content { padding: 24px; flex: 1; display: flex; flex-direction: column; }
-    .ex-content h3 { margin: 0 0 12px 0; font-size: 1.05rem; font-weight: 700; color: var(--ink); line-height: 1.4; letter-spacing: -0.01em; }
-    .ex-content p { margin: 0 0 18px 0; font-size: 0.88rem; color: var(--ink-2); line-height: 1.6; flex: 1; }
-    
-    .ex-tech { display: flex; gap: 8px; flex-wrap: wrap; border-top: 1px dashed var(--line); padding-top: 16px; }
-    .ex-tech span { font-family: var(--serif); font-size: 0.7rem; font-style: italic; color: var(--ink-3); }
-
-    /* CTA BOX (Observatory Style) */
-    .obs-cta {
-        background: linear-gradient(135deg, rgba(180,80,46,0.06), transparent 60%), var(--ink);
-        border: 1px solid var(--ink);
-        border-radius: 4px;
-        padding: 50px 40px;
-        text-align: center;
-        color: var(--paper);
-        position: relative;
-        overflow: hidden;
-        margin-top: 60px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .obs-cta .orbit { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; color: rgba(244,240,232,0.04); pointer-events: none; }
-    
-    .obs-cta-icon { width: 48px; height: 48px; color: var(--terra); margin-bottom: 20px; position: relative; z-index: 1; }
-    .obs-cta h2 { font-family: var(--serif); font-size: 1.8rem; font-weight: 400; margin: 0 0 12px; letter-spacing: -0.01em; position: relative; z-index: 1; }
-    .obs-cta p { font-size: 0.95rem; color: rgba(244,240,232,0.6); max-width: 500px; margin: 0 0 30px; position: relative; z-index: 1; word-break: keep-all; }
-    
-    .obs-go {
-        display: inline-flex; align-items: center; gap: 11px;
-        font-family: var(--serif); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
-        color: var(--paper); border: 1px solid rgba(244,240,232,0.25); padding: 12px 28px;
-        position: relative; z-index: 1; transition: all 0.3s var(--ease); cursor: pointer; background: transparent;
-    }
-    .obs-go:hover { background: var(--terra); border-color: var(--terra); }
-    .obs-go .ico { transition: transform 0.35s var(--ease); }
-    .obs-go:hover .ico { transform: translateX(5px); }
-
-    /* COLOPHON */
-    .colophon { max-width: 1180px; margin: 0 auto; padding: 44px 40px 60px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--ink-3); letter-spacing: 0.04em; }
-    .colophon .mono { font-family: var(--serif); font-style: italic; font-size: 0.84rem; }
-
-    @media (max-width: 900px) {
-        .grid-4 { grid-template-columns: repeat(2, 1fr); }
-        .grid-3 { grid-template-columns: 1fr; }
-        .hero h1 { font-size: 2.2rem; }
-    }
-    @media (max-width: 600px) {
-        .masthead-inner { padding: 0 20px; }
-        .sheet { padding: 40px 20px 80px; }
-        .grid-4 { grid-template-columns: 1fr; }
-        .obs-cta { padding: 40px 20px; }
-        .colophon { flex-direction: column; gap: 12px; text-align: center; }
-    }
-
-    /* ── 모바일 상단 메뉴 정돈 (공통) ── */
-    @media (max-width: 640px) {
-        .masthead-inner { padding: 0 12px; height: 56px; }
-        .brand { gap: 9px; }
-        .brand-seal { width: 29px; height: 29px; }
-        .brand-text .ko { font-size: 0.86rem; }
-        .brand-text .en { display: none; }
-        .nav { gap: 0; }
-        .nav a { padding: 7px 9px; font-size: 0.76rem; letter-spacing: -0.02em; }
-        .theme-toggle { width: 30px; height: 30px; margin-left: 4px; }
-    }
 </style>
 </head>
 <body>
 
-    <header class="masthead">
-        <div class="masthead-inner">
-            <a href="index.html" class="brand">
-                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="24" cy="24" r="20"/>
-                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
-                    <path d="M24 4v40M4 24h40"/>
-                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
-                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
-                </svg>
-                <span class="brand-text">
-                    <span class="ko">Leet's Geographia Class</span>
-                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
-                </span>
-            </a>
-            <nav class="nav">
-                <a href="index.html">홈</a>
-                <a href="library.html">자료실</a>
-                <a href="qna.html">Q&amp;A 게시판</a>
-            </nav>
-        </div>
-    </header>
+    <header class="st-glass st-bar">
+    <div class="geo-bar__in">
+      <a class="geo-logo lg" href="index.html" aria-label="Geographia 홈">
+        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+        <b>Geographia</b>
+      </a>
+      <nav class="geo-nav">
+        <a class="lg" href="library.html">자료실</a>
+        <a class="lg" href="qna.html">Q&amp;A</a>
+        <a class="lg on" href="project_guide.html">프로젝트</a>
+        <a class="lg" href="feedback.html">건의</a>
+      </nav>
+      <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
 
     <main class="sheet">
         
         <header class="hero">
             <div class="badge">
                 <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-                Performance Assessment
+                수행평가 · 지역 탐구
             </div>
-            <h1>지역 탐구 프로젝트 <br><em>Methodology Guide</em></h1>
-            <p>우리 동네의 지리적, 사회적 문제를 직접 발굴하고, 실증적 데이터 분석을 통해 창의적인 대안을 제시하는 통합사회 현장 연구 프로젝트입니다.</p>
+            <h1>Project<br><em>Guide</em></h1>
+            <p>지역 탐구 프로젝트 — 우리 동네의 지리적, 사회적 문제를 직접 발굴하고, 실증적 데이터 분석을 통해 창의적인 대안을 제시하는 통합사회 현장 연구 프로젝트입니다.</p>
         </header>
 
         <section>
@@ -396,10 +328,10 @@
 
     </main>
 
-    <footer class="colophon">
-        <span>Leet's Geographia-Class</span>
-        <span class="mono">2026 Leet &mdash; All rights reserved</span>
-    </footer>
+    <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
+    <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
+    <a class="lg" href="index.html">← 메인으로</a>
+  </footer>
 
     <script>
         // 1. 마우스 우클릭 차단
@@ -421,5 +353,54 @@
             if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
         });
     </script>
+<div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
+  <div class="geo-menu__top">
+    <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
+      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+      <b>Geographia</b>
+    </a>
+    <button class="geo-close" id="geoClose" aria-label="메뉴 닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="geo-menu__links">
+    <a class="lg" href="library.html">자료실</a>
+    <a class="lg" href="qna.html">Q&amp;A</a>
+    <a class="lg" href="project_guide.html">프로젝트</a>
+    <a class="lg" href="feedback.html">건의</a>
+  </div>
+  <div class="geo-group">
+    <h3>공간 시뮬레이터</h3>
+    <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
+    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
+    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+  </div>
+  <div class="geo-group">
+    <h3>수업 · 지원</h3>
+    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
+  </div>
+  <div class="geo-menu__foot">
+    <a class="geo-menu__cta lg" href="index.html">홈으로 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+    <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
+      <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="design-system/stratum.js"></script>
+<script src="design-system/geo.js"></script>
 </body>
 </html>
