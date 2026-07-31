@@ -39,6 +39,9 @@
   --track-ko: 0.055em;                /* 한글은 자간을 넓게 벌리면 가독성이 무너진다 */
   --scrim: 242,242,247;               /* 스크림 = 바탕색(--st-bedrock)의 RGB */
   --sans: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* 콘텐츠 최대 폭. 이게 없으면 QHD·울트라와이드에서 좌우 요소가 화면
+     양 끝으로 흩어지고 가운데가 텅 빈다. 지구 무대도 같은 폭을 쓴다. */
+  --wrap: 1680px;
 }
 :root[data-theme="dark"] { --scrim: 0,0,0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --scrim: 0,0,0; } }
@@ -50,36 +53,62 @@ body { font-family: var(--sans); overflow-x: hidden; }
 h1, h2, p { margin: 0; }
 button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
 
-/* ══════════ 배경 — 자전하는 지구 ══════════ */
+/* ══════════ 배경 — 자전하는 지구 ══════════
+   지구 무대를 콘텐츠와 같은 폭으로 묶는다. 그래야 화면이 아무리 넓어져도
+   지구와 글자의 상대 위치가 유지되고, 스크림 좌표도 한 번만 맞추면 된다. */
 .globe { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-/* 지구는 상단바 '아래로' 파고들어야 한다 — 유리 뒤에 아무것도 지나가지 않으면
-   backdrop-filter가 걸려 있어도 그냥 반투명한 띠로만 보인다. */
-.globe canvas {
+.globe-stage { position: relative; width: 100%; max-width: var(--wrap); height: 100%; margin: 0 auto; }
+.globe-stage canvas {
+  /* 세로·가로·상한을 모두 걸어 어떤 화면비에서도 과하거나 작지 않게 */
+  --gsize: min(78vh, 46vw, 980px);
   position: absolute;
-  left: 17%; top: 33%;
-  width: min(74vh, 680px); height: min(74vh, 680px);
-  transform: translate(-50%, -50%);
+  left: 21%;
+  /* 구는 캔버스 박스의 가운데 86%만 차지한다(위아래 7%씩 여백).
+     구의 '윗면'을 화면 13px에 고정해, 화면이 커져도 항상 상단바 아래로
+     파고들게 한다 — 유리 뒤에 지나갈 것이 있어야 굴절이 보인다. */
+  top: calc(13px - 0.07 * var(--gsize));
+  width: var(--gsize); height: var(--gsize);
+  transform: translateX(-50%);
   opacity: 0;
   animation: globeIn 1.8s var(--ease) 0.2s both;
 }
-@keyframes globeIn { from { opacity: 0; transform: translate(-50%,-50%) scale(0.93); }
-                     to   { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
+@keyframes globeIn { from { opacity: 0; transform: translateX(-50%) scale(0.93); }
+                     to   { opacity: 1; transform: translateX(-50%) scale(1); } }
 /* 글자가 놓이는 곳(우측·하단)의 배경을 정리해 대비를 확보한다.
    가로 방향은 헤드라인을, 세로 방향은 하단 문단을 위한 것. */
-.globe::after {
+/* 스크림도 무대 안에 둔다 — 좌표가 콘텐츠와 같은 기준을 쓰므로
+   1440이든 2560이든 글자와 스크림의 관계가 그대로 유지된다. */
+.globe-stage::after {
   content: ''; position: absolute; inset: 0;
   background:
     /* 태그라인 자리(좌측 중단)만 국소적으로 걷어낸다. 사실적인 지구는 바다가
        어두워 그 위의 검정 글자가 묻히기 때문. 자전으로 심해가 와도 4.5:1이
        유지되도록 중심 불투명도를 0.92로 잡았다(최악의 심해 기준 5.1:1). */
-    radial-gradient(20% 13% at 3.5% 54%, rgba(var(--scrim),0.92) 0%, rgba(var(--scrim),0.72) 45%,
+    radial-gradient(22% 15% at 3.5% 62%, rgba(var(--scrim),0.92) 0%, rgba(var(--scrim),0.72) 45%,
                                          rgba(var(--scrim),0) 100%),
     linear-gradient(to top, rgba(var(--scrim),0.94) 0%, rgba(var(--scrim),0.58) 13%, rgba(var(--scrim),0) 30%),
     linear-gradient(100deg, rgba(var(--scrim),0) 26%, rgba(var(--scrim),0.72) 54%, rgba(var(--scrim),0.94) 74%);
 }
+/* 무대 바깥(초광폭 화면의 좌우 여백)은 바탕색으로 덮어 지구가 새어나가지 않게 */
+.globe::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg,
+    rgba(var(--scrim),1) 0, rgba(var(--scrim),1) calc(50% - var(--wrap) / 2),
+    rgba(var(--scrim),0) calc(50% - var(--wrap) / 2), rgba(var(--scrim),0) calc(50% + var(--wrap) / 2),
+    rgba(var(--scrim),1) calc(50% + var(--wrap) / 2), rgba(var(--scrim),1) 100%);
+}
+/* 세로로 긴 화면(태블릿 세로 등)에서는 지구를 왼쪽에 두면 가운데가 비어 버린다.
+   가운데로 옮기고 폭 기준으로 키운다. 가로형은 위 규칙을 그대로 쓴다. */
+@media (min-width: 768px) and (max-aspect-ratio: 1/1) {
+  .globe-stage canvas { --gsize: min(84vw, 62vh, 820px); left: 50%; }
+  .globe-stage::after {
+    background: linear-gradient(180deg, rgba(var(--scrim),0.10) 0%, rgba(var(--scrim),0.38) 26%,
+                                        rgba(var(--scrim),0.84) 46%, rgba(var(--scrim),0.96) 64%);
+  }
+}
 @media (max-width: 767px) {
-  .globe canvas { left: 50%; top: 30%; width: min(68vw, 390px); height: min(68vw, 390px); }
-  .globe::after {
+  .globe-stage canvas { --gsize: min(80vw, 44vh, 420px); left: 50%; }
+  .globe-stage::after {
     background: linear-gradient(180deg, rgba(var(--scrim),0.12) 0%, rgba(var(--scrim),0.40) 22%,
                                         rgba(var(--scrim),0.86) 41%, rgba(var(--scrim),0.96) 60%);
   }
@@ -92,6 +121,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .bar-in {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 var(--pad-x); height: 58px; gap: 16px;
+  width: 100%; max-width: var(--wrap); margin: 0 auto;
 }
 .logo { display: flex; align-items: center; gap: 10px; }
 /* 기존 사이트에서 쓰던 경위선·나침반 씰. 색만 시스템 강조색으로 바꿔 쓴다 */
@@ -124,9 +154,15 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .stats {
   flex: 1; display: flex; align-items: center; justify-content: flex-end;
   padding: 32px var(--pad-x); gap: 20px;
+  width: 100%; max-width: var(--wrap); margin-inline: auto;
 }
 @media (min-width: 640px) { .stats { gap: 32px; } }
 @media (min-width: 768px) { .stats { gap: 40px; padding-top: 0; padding-bottom: 0; } }
+/* 세로가 긴 화면에서는 가운데 정렬이 통계를 허공에 띄운다.
+   아래 블록 쪽으로 붙여 무리를 짓고, 남는 여백은 지구가 있는 위쪽에 둔다. */
+@media (min-height: 820px) {
+  .stats { align-items: flex-end; padding-bottom: clamp(20px, 6vh, 96px); }
+}
 
 .stat { text-align: right; }
 .stat[hidden] { display: none; }
@@ -141,8 +177,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @media (min-width: 768px) { .stat-label { font-size: 14px; } }
 
 /* ── 하단 ── */
-.bottom { padding: 0 var(--pad-x) 32px; display: flex; flex-direction: column; gap: 24px; }
-@media (min-width: 768px) { .bottom { padding-bottom: 48px; gap: 48px; } }
+.bottom { padding: 0 var(--pad-x) 32px; display: flex; flex-direction: column; gap: 24px;
+          width: 100%; max-width: var(--wrap); margin-inline: auto; }
+@media (min-width: 768px) { .bottom { padding-bottom: 48px; gap: 40px; } }
 
 .row-a { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .tagline { font-size: 10px; font-weight: 600; letter-spacing: var(--track-ko); line-height: 1.55; max-width: 130px; }
@@ -249,7 +286,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 <body>
 
 <!-- ══════════ 배경 — 자전하는 지구 ══════════ -->
-<div class="globe" aria-hidden="true"><canvas id="globe"></canvas></div>
+<div class="globe" aria-hidden="true"><div class="globe-stage"><canvas id="globe"></canvas></div></div>
 
 <div class="page">
 
