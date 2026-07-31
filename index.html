@@ -12,92 +12,85 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>통합사회 C — Leet's Geographia</title>
 <meta name="description" content="경기여자고등학교 통합사회 C · 수업 자료와 공간 시뮬레이터">
+<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- STRATUM 디자인 시스템 — 색·재질(Liquid Glass)·모션 토큰 -->
+<link rel="stylesheet" href="design-system/stratum.css">
+
 <style>
 /* ============================================================================
    GEOGRAPHIA — Hero
-   기준 시안은 React + Tailwind + Framer Motion이지만, 이 사이트는 빌드 도구가
-   없는 정적 페이지라 같은 결과를 순수 CSS/JS로 구현했다.
+   히어로 시안(React + Tailwind + Framer Motion)을 정적 HTML/CSS/JS로 구현.
    간격·타이포·브레이크포인트(sm 640 / md 768)와 모션 커브·딜레이는 시안 그대로.
+   색과 재질은 STRATUM 디자인 시스템 토큰(--st-*)을 따른다.
    ========================================================================== */
 :root {
-  --accent: #5E0ED7;
-  --ink: #000000;
+  /* 히어로는 STRATUM의 시스템 컬러를 그대로 쓴다 */
+  --accent: var(--st-accent);         /* 면·점 — systemBlue */
+  --accent-ink: var(--st-accent-ink); /* 글자 — 대비 4.5:1 이상 */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --pad-x: 20px;                 /* px-5 */
-  --track-wide: 0.1em;           /* tracking-widest */
-  --track-ko: 0.055em;           /* 한글은 자간을 넓게 벌리면 가독성이 무너진다 */
+  --pad-x: 20px;                      /* px-5 */
+  --track-wide: 0.1em;                /* tracking-widest */
+  --track-ko: 0.055em;                /* 한글은 자간을 넓게 벌리면 가독성이 무너진다 */
+  --scrim: 242,242,247;               /* 스크림 = 바탕색(--st-bedrock)의 RGB */
+  --sans: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
+:root[data-theme="dark"] { --scrim: 0,0,0; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --scrim: 0,0,0; } }
+
 @media (min-width: 640px) { :root { --pad-x: 32px; } }   /* sm:px-8  */
 @media (min-width: 768px) { :root { --pad-x: 48px; } }   /* md:px-12 */
 
-*, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  margin: 0;
-  font-family: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: var(--ink);
-  background: #FBFAFE;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  word-break: keep-all;
-  overflow-x: hidden;
-}
-a { color: inherit; text-decoration: none; }
-h1, h2, p, figure { margin: 0; }
+body { font-family: var(--sans); overflow-x: hidden; }
+h1, h2, p { margin: 0; }
 button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
-/* ══════════ 배경 — 자전하는 지구 ══════════
-   시안의 배경 영상 대신, 좌측에 지구를 놓고 실제 자전 방향(서→동)으로 돌린다. */
-.globe {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  display: grid; place-items: center;
-}
+/* ══════════ 배경 — 자전하는 지구 ══════════ */
+.globe { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .globe canvas {
   position: absolute;
-  left: 16%; top: 43%;
-  width: min(68vh, 620px); height: min(68vh, 620px);
+  left: 17%; top: 44%;
+  width: min(70vh, 640px); height: min(70vh, 640px);
   transform: translate(-50%, -50%);
   opacity: 0;
-  animation: globeIn 1.6s var(--ease) 0.15s both;
+  animation: globeIn 1.8s var(--ease) 0.2s both;
 }
-@keyframes globeIn { from { opacity: 0; transform: translate(-50%,-50%) scale(0.94); }
+@keyframes globeIn { from { opacity: 0; transform: translate(-50%,-50%) scale(0.93); }
                      to   { opacity: 1; transform: translate(-50%,-50%) scale(1); } }
 /* 글자가 놓이는 곳(우측·하단)의 배경을 정리해 대비를 확보한다.
-   두 겹으로 나눈 이유: 가로 방향은 헤드라인을, 세로 방향은 하단 문단을 위한 것. */
+   가로 방향은 헤드라인을, 세로 방향은 하단 문단을 위한 것. */
 .globe::after {
   content: ''; position: absolute; inset: 0;
   background:
-    linear-gradient(to top, rgba(251,250,254,0.92) 0%, rgba(251,250,254,0.55) 14%, rgba(251,250,254,0) 32%),
-    linear-gradient(100deg, rgba(251,250,254,0) 26%, rgba(251,250,254,0.74) 54%, rgba(251,250,254,0.95) 74%);
+    /* 태그라인 자리(좌측 중단)만 국소적으로 걷어낸다. 사실적인 지구는 바다가
+       어두워 그 위의 검정 글자가 묻히기 때문. 자전으로 심해가 와도 4.5:1이
+       유지되도록 중심 불투명도를 0.92로 잡았다(최악의 심해 기준 5.1:1). */
+    radial-gradient(20% 13% at 3.5% 54%, rgba(var(--scrim),0.92) 0%, rgba(var(--scrim),0.72) 45%,
+                                         rgba(var(--scrim),0) 100%),
+    linear-gradient(to top, rgba(var(--scrim),0.94) 0%, rgba(var(--scrim),0.58) 13%, rgba(var(--scrim),0) 30%),
+    linear-gradient(100deg, rgba(var(--scrim),0) 26%, rgba(var(--scrim),0.72) 54%, rgba(var(--scrim),0.94) 74%);
 }
-/* 모바일에서는 지구를 위로 올려 숫자·헤드라인과 겹치는 면적을 줄이고,
-   그 아래는 스크림을 두껍게 깔아 글자가 항상 조용한 바탕 위에 놓이게 한다. */
 @media (max-width: 767px) {
-  .globe canvas { left: 50%; top: 29%; width: min(66vw, 380px); height: min(66vw, 380px); }
+  .globe canvas { left: 50%; top: 30%; width: min(68vw, 390px); height: min(68vw, 390px); }
   .globe::after {
-    background: linear-gradient(180deg, rgba(251,250,254,0.16) 0%, rgba(251,250,254,0.42) 22%,
-                                        rgba(251,250,254,0.86) 40%, rgba(251,250,254,0.96) 60%);
+    background: linear-gradient(180deg, rgba(var(--scrim),0.12) 0%, rgba(var(--scrim),0.40) 22%,
+                                        rgba(var(--scrim),0.86) 41%, rgba(var(--scrim),0.96) 60%);
   }
 }
 
 /* ══════════ 페이지 골격 ══════════ */
 .page { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
 
-/* ── 내비게이션 ── */
-.nav {
+/* ── 내비게이션 — Liquid Glass ── */
+.bar-in {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 20px var(--pad-x) 0;                 /* pt-5 */
-  gap: 16px;
+  padding: 0 var(--pad-x); height: 58px; gap: 16px;
 }
-@media (min-width: 768px) { .nav { padding-top: 24px; } }   /* md:pt-6 */
-
 .logo { display: flex; align-items: center; gap: 10px; }
 .logo-mark {
   width: 32px; height: 32px; border-radius: 50%;
@@ -112,7 +105,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @media (min-width: 768px) { .nav-links { display: flex; } }
 .nav-links a {
   font-size: 14px; font-weight: 600; letter-spacing: var(--track-ko);
-  text-transform: uppercase; color: var(--ink); position: relative; padding-bottom: 2px;
+  color: var(--st-label); position: relative; padding-bottom: 2px;
 }
 .nav-links a::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px;
@@ -122,28 +115,29 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .nav-links a:hover::after { transform: scaleX(1); }
 
 .burger {
-  width: 36px; height: 36px; border-radius: 50%; background: #000;
+  width: 36px; height: 36px; border-radius: 50%; background: var(--st-label);
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   flex-shrink: 0; transition: transform 0.3s var(--ease);
 }
 .burger:hover { transform: scale(1.06); }
-.burger span { display: block; width: 16px; height: 2px; background: #fff; }
+.burger span { display: block; width: 16px; height: 2px; background: var(--st-bedrock); }
 
 /* ── 통계 행 ── */
 .stats {
   flex: 1; display: flex; align-items: center; justify-content: flex-end;
-  padding: 32px var(--pad-x);
-  gap: 20px;                                    /* gap-5 */
+  padding: 32px var(--pad-x); gap: 20px;
 }
 @media (min-width: 640px) { .stats { gap: 32px; } }
 @media (min-width: 768px) { .stats { gap: 40px; padding-top: 0; padding-bottom: 0; } }
 
 .stat { text-align: right; }
-.stat-num { font-size: clamp(1.5rem, 5vw, 3.5rem); font-weight: 600; line-height: 1; letter-spacing: -0.02em; }
-.stat-num .plus { color: var(--accent); font-size: 0.5em; vertical-align: 0.55em; margin-right: 0.04em; }
+.stat[hidden] { display: none; }
+.stat-num { font-size: clamp(1.5rem, 5vw, 3.5rem); font-weight: 600; line-height: 1; letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums; }
+.stat-num .pre { color: var(--accent-ink); font-size: 0.5em; vertical-align: 0.55em; margin-right: 0.04em; letter-spacing: 0; }
 .stat-label {
   font-size: 10px; font-weight: 600; letter-spacing: var(--track-ko);
-  text-transform: uppercase; line-height: 1.15; white-space: pre-line; margin-top: 6px;
+  line-height: 1.15; white-space: pre-line; margin-top: 6px; color: var(--st-label);
 }
 @media (min-width: 640px) { .stat-label { font-size: 12px; } }
 @media (min-width: 768px) { .stat-label { font-size: 14px; } }
@@ -153,16 +147,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @media (min-width: 768px) { .bottom { padding-bottom: 48px; gap: 48px; } }
 
 .row-a { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.tagline {
-  font-size: 10px; font-weight: 600; letter-spacing: var(--track-ko);
-  line-height: 1.55; max-width: 130px;
-}
+.tagline { font-size: 10px; font-weight: 600; letter-spacing: var(--track-ko); line-height: 1.55; max-width: 130px; }
 @media (min-width: 640px) { .tagline { font-size: 12px; max-width: 160px; } }
 @media (min-width: 768px) { .tagline { font-size: 14px; max-width: 20rem; } }
 
 .cta {
   display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
-  font-size: 16px; font-weight: 600; color: var(--accent); letter-spacing: var(--track-ko);
+  font-size: 16px; font-weight: 600; color: var(--accent-ink); letter-spacing: var(--track-ko);
 }
 @media (min-width: 640px) { .cta { font-size: 20px; } }
 @media (min-width: 768px) { .cta { font-size: 24px; } }
@@ -175,21 +166,20 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .desc {
   width: 120px; flex-shrink: 0;
   font-size: 9px; font-weight: 600; letter-spacing: var(--track-ko);
-  text-transform: uppercase; line-height: 1.5; text-align: left;
+  line-height: 1.5; text-align: left;
 }
 @media (min-width: 640px) { .desc { width: 180px; font-size: 12px; } }
 @media (min-width: 768px) { .desc { width: 280px; font-size: 14px; text-align: right; } }
 
 .headline { text-align: right; min-width: 0; }
 .headline .line { overflow: hidden; }
-/* 시안의 행간은 0.88이지만, 그 값을 그대로 주면 clip 박스가 글자보다 낮아져
-   한글의 윗선·아랫선이 잘린다. 박스는 1.06으로 넉넉히 두고 음수 마진으로
-   실제 행간을 0.88로 되돌린다(1.06 − 0.18 = 0.88). */
+/* 시안의 행간은 0.88이지만 그대로 주면 clip 박스가 글자보다 낮아 윗선·아랫선이
+   잘린다. 박스는 1.06으로 넉넉히 두고 음수 마진으로 실제 행간만 0.88로 되돌린다. */
 .headline .line span {
   display: block;
-  font-size: clamp(2rem, 9vw, 9rem);
+  font-size: clamp(2.4rem, 11vw, 10rem);
   line-height: 1.06; margin-bottom: -0.18em;
-  font-weight: 600; letter-spacing: -0.035em;
+  font-weight: 600; letter-spacing: -0.04em;
   text-transform: uppercase;
 }
 .headline .line:last-child span { margin-bottom: -0.06em; }
@@ -198,65 +188,57 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
 @keyframes fadeUp   { from { opacity: 0; transform: translateY(32px); }  to { opacity: 1; transform: none; } }
 @keyframes slideUp  { from { transform: translateY(110%); }              to { transform: none; } }
-
 .fd { animation: fadeDown 0.5s var(--ease) both; animation-delay: calc(var(--i, 0) * 0.1s); }
 .fu { animation: fadeUp   0.6s var(--ease) both; animation-delay: calc(var(--i, 0) * 0.12s); }
 .headline .line span { animation: slideUp 0.7s var(--ease) both; animation-delay: calc(0.4s + var(--i, 0) * 0.14s); }
 
-/* ══════════ 모바일 메뉴 ══════════ */
+/* ══════════ 메뉴 오버레이 ══════════ */
 .menu {
-  position: fixed; inset: 0; z-index: 50; background: #fff;
+  position: fixed; inset: 0; z-index: 60;
+  background: var(--st-bedrock);
   display: flex; flex-direction: column;
-  padding: 20px var(--pad-x) 32px;
+  padding: 18px var(--pad-x) 32px;
   opacity: 0; visibility: hidden; transform: translateY(-8px);
   transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), visibility 0s linear 0.35s;
   overflow-y: auto;
 }
 .menu.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
-.menu-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.menu-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .menu-close {
-  width: 36px; height: 36px; border-radius: 50%; background: #000; color: #fff;
+  width: 36px; height: 36px; border-radius: 50%; background: var(--st-label); color: var(--st-bedrock);
   display: inline-grid; place-items: center; flex-shrink: 0;
 }
 .menu-close svg { width: 18px; height: 18px; }
 
-.menu-notice { margin-top: 40px; border-top: 1px solid #E8E3F5; padding-top: 14px; }
-.menu-notice .cap {
-  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--accent);
-}
+.menu-notice { margin-top: 36px; border-top: 1px solid var(--st-separator); padding-top: 14px; }
 .menu-notice .item { display: flex; gap: 12px; align-items: baseline; padding: 6px 0; }
-.menu-notice .item .d { font-size: 11px; color: #8B85A0; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.menu-notice .item .d { font-size: 11px; color: var(--st-label-3); flex-shrink: 0; font-variant-numeric: tabular-nums; }
 .menu-notice .item .m { font-size: 13px; font-weight: 500; }
 
-.menu-links { display: flex; flex-direction: column; gap: 32px; margin-top: 64px; }
-.menu-links > a {
-  font-size: 30px; font-weight: 600; letter-spacing: var(--track-ko); text-transform: uppercase; line-height: 1;
-}
+.menu-links { display: flex; flex-direction: column; gap: 28px; margin-top: 56px; }
+.menu-links > a { font-size: 30px; font-weight: 600; letter-spacing: var(--track-ko); line-height: 1; }
 @media (max-width: 400px) { .menu-links > a { font-size: 26px; } }
 
-.menu-group { margin-top: 40px; }
+.menu-group { margin-top: 36px; }
 .menu-group h3 {
   font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide); text-transform: uppercase;
-  color: #8B85A0; padding-bottom: 8px; border-bottom: 1px solid #E8E3F5;
+  color: var(--st-label-3); padding-bottom: 8px; border-bottom: 1px solid var(--st-separator);
 }
 .menu-group a {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 11px 0; border-bottom: 1px solid #F1EEF9;
+  padding: 11px 0; border-bottom: 1px solid var(--st-separator);
   font-size: 14px; font-weight: 600; letter-spacing: var(--track-ko);
 }
-.menu-group a small { font-weight: 500; color: #8B85A0; font-size: 11px; letter-spacing: 0; }
-.menu-group a:hover { color: var(--accent); }
+.menu-group a small { font-weight: 500; color: var(--st-label-3); font-size: 11px; letter-spacing: 0; }
+.menu-group a:hover { color: var(--accent-ink); }
 
-.menu-cta {
-  margin-top: auto; padding-top: 40px;
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 20px; font-weight: 600; color: var(--accent); letter-spacing: var(--track-ko);
-}
+.menu-foot { margin-top: auto; padding-top: 36px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.menu-cta { display: inline-flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 600;
+            color: var(--accent-ink); letter-spacing: var(--track-ko); }
 .menu-cta svg { width: 20px; height: 20px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .fd, .fu, .headline .line span, .globe canvas { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .fd, .fu, .headline .line span, .globe canvas { animation: none !important; opacity: 1 !important; }
   .globe canvas { transform: translate(-50%, -50%) !important; }
   .menu { transition-duration: 1ms; }
 }
@@ -269,50 +251,50 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 <div class="page">
 
-  <!-- ── 내비게이션 ── -->
-  <nav class="nav">
-    <a class="logo fd" style="--i:0" href="index.html" aria-label="Geographia 홈">
-      <span class="logo-mark"><i></i></span>
-      <span class="logo-text">Geographia</span>
-    </a>
-
-    <div class="nav-links">
-      <a class="fd" style="--i:1" href="library.html">자료실</a>
-      <a class="fd" style="--i:2" href="qna.html">Q&amp;A</a>
-      <a class="fd" style="--i:3" href="project_guide.html">프로젝트</a>
-      <a class="fd" style="--i:4" href="feedback.html">건의</a>
+  <!-- ── 내비게이션 (유리층) ── -->
+  <header class="st-glass st-bar">
+    <div class="bar-in">
+      <a class="logo fd" style="--i:0" href="index.html" aria-label="Geographia 홈">
+        <span class="logo-mark"><i></i></span>
+        <span class="logo-text">Geographia</span>
+      </a>
+      <div class="nav-links">
+        <a class="fd" style="--i:1" href="library.html">자료실</a>
+        <a class="fd" style="--i:2" href="qna.html">Q&amp;A</a>
+        <a class="fd" style="--i:3" href="project_guide.html">프로젝트</a>
+        <a class="fd" style="--i:4" href="feedback.html">건의</a>
+      </div>
+      <button class="burger fd" style="--i:5" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-
-    <button class="burger fd" style="--i:5" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
+  </header>
 
   <!-- ── 통계 ── -->
   <section class="stats">
-    <div class="stat fu" style="--i:2">
-      <div class="stat-num"><span class="plus">+</span>07</div>
-      <div class="stat-label">공간
-시뮬레이터</div>
+    <div class="stat fu" style="--i:2" id="stat-q" hidden>
+      <div class="stat-num"><span class="pre">+</span><span id="q-count">—</span></div>
+      <div class="stat-label">누적
+질문</div>
     </div>
-    <div class="stat fu" style="--i:3">
-      <div class="stat-num"><span class="plus">+</span><span id="stat-files">00</span></div>
+    <div class="stat fu" style="--i:3" id="stat-m" hidden>
+      <div class="stat-num"><span class="pre">+</span><span id="m-count">—</span></div>
       <div class="stat-label">공개
 수업 자료</div>
     </div>
-    <div class="stat fu" style="--i:4">
-      <div class="stat-num"><span class="plus">+</span>05</div>
-      <div class="stat-label">단원
-섹션</div>
+    <div class="stat fu" style="--i:4" id="stat-d" hidden>
+      <div class="stat-num"><span class="pre" id="d-pre">D−</span><span id="d-count">—</span></div>
+      <div class="stat-label" id="d-label">중간고사
+10.01</div>
     </div>
   </section>
 
   <!-- ── 하단 ── -->
   <section class="bottom">
     <div class="row-a">
-      <p class="tagline fu" style="--i:5">지도를 읽고<br>세상을 읽는<br>통합사회 C</p>
+      <p class="tagline fu" style="--i:5">공간을 통해<br>세상을</p>
       <a class="cta fu" style="--i:6" href="qna.html">
-        질문하러 가기
+        Q&amp;A
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
       </a>
     </div>
@@ -320,9 +302,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     <div class="row-b">
       <p class="desc fu" style="--i:7">경기여자고등학교 통합사회 C · 수업 자료와 공간 시뮬레이터를 한곳에서</p>
       <h1 class="headline">
-        <span class="line"><span style="--i:0">공간이</span></span>
-        <span class="line"><span style="--i:1">사회를</span></span>
-        <span class="line"><span style="--i:2">만든다</span></span>
+        <span class="line"><span style="--i:0">Of</span></span>
+        <span class="line"><span style="--i:1">Space</span></span>
       </h1>
     </div>
   </section>
@@ -341,8 +322,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   </div>
 
   <div class="menu-notice" id="menuNotice" hidden>
-    <div class="cap">공지사항</div>
-    <div id="noticeList"></div>
+    <div class="st-eyebrow st-eyebrow--accent">공지사항</div>
+    <div id="noticeList" style="margin-top:6px"></div>
   </div>
 
   <div class="menu-links">
@@ -370,20 +351,34 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
   </div>
 
-  <a class="menu-cta" href="qna.html">
-    질문하러 가기
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
-  </a>
+  <div class="menu-foot">
+    <a class="menu-cta" href="qna.html">
+      Q&amp;A
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+    </a>
+    <button class="st-btn st-btn--icon st-btn--outline" id="themeToggle" aria-label="라이트/다크 전환" title="테마 전환">
+      <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
 </div>
 
+<script src="design-system/stratum.js"></script>
 <script>
 /* ============================================================================
-   ★★★ 공지사항 — 이 배열만 수정하면 됩니다 ★★★
-   형식: { date: '연.월.일', text: '내용' }   ·   전부 지우면 공지 영역이 숨겨집니다
+   ★★★ 여기 두 개만 고치면 됩니다 ★★★
    ========================================================================== */
+
+/* 공지사항 — 형식: { date: '연.월.일', text: '내용' } · 비우면 영역이 숨겨집니다 */
 const NOTICES = [
   { date: '2026.07.12', text: '페이지 수정 중.' },
 ];
+
+/* D-Day — 시험이 끝나면 date만 다음 시험 날짜로 바꾸면 됩니다.
+   날짜가 지나면 해당 항목은 자동으로 숨겨집니다. */
+const DDAY = { label: '중간고사', date: '2026-10-01' };
+
+/* ========================================================================== */
 
 (function renderNotices(){
   if (!NOTICES.length) return;
@@ -392,7 +387,7 @@ const NOTICES = [
   document.getElementById('menuNotice').hidden = false;
 })();
 
-/* ── 메뉴 열고 닫기 ─────────────────────────────────────────────────────── */
+/* ── 메뉴 ─────────────────────────────────────────────────────────────── */
 (function menu(){
   const menu = document.getElementById('menu');
   const burger = document.getElementById('burger');
@@ -409,41 +404,82 @@ const NOTICES = [
   menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => open(false)));
 })();
 
-/* ── 공개 자료 수 — GitHub 저장소에서 실시간 집계 ────────────────────────
-   GitHub API는 비로그인 시 시간당 60회로 제한된다. 일부 폴더만 성공하면
-   합계가 실제보다 작아져 '틀린 숫자'가 그대로 보이므로, 세 폴더가 모두
-   성공했을 때만 표시한다. 실패하면 캐시를 쓰고, 그것도 없으면 항목을 숨긴다. */
-(async function countMaterials(){
-  const ID = "GIS-Leet", REPO = "kgghs-soc-c", folders = ["학습지", "PPT", "참고자료"];
-  const el = document.getElementById('stat-files');
-  const item = el.closest('.stat');
-  const CACHE = 'geo-material-count';
+/* ── 테마 전환 (기존 geo-theme 키 유지) ───────────────────────────────── */
+(function theme(){
+  const btn = document.getElementById('themeToggle');
+  const sync = () => {
+    const dark = Stratum.theme.get() === 'dark';
+    btn.querySelector('.moon').style.display = dark ? 'none' : '';
+    btn.querySelector('.sun').style.display  = dark ? '' : 'none';
+  };
+  btn.addEventListener('click', () => { Stratum.theme.toggle(); sync(); });
+  sync();
+})();
 
-  const counts = await Promise.all(folders.map(async (path) => {
+/* ── 통계 세 칸 ────────────────────────────────────────────────────────
+   값을 확실히 아는 항목만 보여준다. 네트워크가 실패했을 때 틀린 숫자를
+   내보내느니 그 칸을 숨기는 편이 낫다. */
+(function stats(){
+  const show = (id, value) => {
+    document.getElementById(id === 'stat-d' ? 'd-count' : id === 'stat-q' ? 'q-count' : 'm-count').textContent = value;
+    document.getElementById(id).hidden = false;
+  };
+
+  /* 1. 누적 질문 수 — Q&A 게시판(Firebase)에서 키만 얕게 읽어 센다 */
+  (async function questions(){
+    const CACHE = 'geo-q-count';
+    let n = null;
     try {
-      const res = await fetch(`https://api.github.com/repos/${ID}/${REPO}/contents/${path}`);
-      if (!res.ok) return null;
-      return (await res.json()).filter(f => /\.(pdf|pptx?|hwp|html)$/i.test(f.name)).length;
-    } catch (e) { return null; }
-  }));
+      const res = await fetch('https://soc-c-qna-default-rtdb.firebaseio.com/questions.json?shallow=true');
+      if (res.ok) { const d = await res.json(); if (d && typeof d === 'object') n = Object.keys(d).length; }
+    } catch (e) {}
+    if (n !== null) { try { sessionStorage.setItem(CACHE, String(n)); } catch (e) {} }
+    else { try { const c = sessionStorage.getItem(CACHE); if (c !== null) n = +c; } catch (e) {} }
+    if (n !== null) show('stat-q', String(n));
+  })();
 
-  let total = null;
-  if (counts.every(c => c !== null)) {
-    total = counts.reduce((a, b) => a + b, 0);
-    try { sessionStorage.setItem(CACHE, String(total)); } catch (e) {}
-  } else {
-    try { const c = sessionStorage.getItem(CACHE); if (c !== null) total = +c; } catch (e) {}
-  }
+  /* 2. 공개 수업 자료 수 — GitHub API는 시간당 60회 제한이라,
+        세 폴더가 모두 성공했을 때만 합계를 신뢰한다 */
+  (async function materials(){
+    const ID = "GIS-Leet", REPO = "kgghs-soc-c", folders = ["학습지", "PPT", "참고자료"];
+    const CACHE = 'geo-material-count';
+    const counts = await Promise.all(folders.map(async (path) => {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${ID}/${REPO}/contents/${path}`);
+        if (!res.ok) return null;
+        return (await res.json()).filter(f => /\.(pdf|pptx?|hwp|html)$/i.test(f.name)).length;
+      } catch (e) { return null; }
+    }));
+    let total = null;
+    if (counts.every(c => c !== null)) {
+      total = counts.reduce((a, b) => a + b, 0);
+      try { sessionStorage.setItem(CACHE, String(total)); } catch (e) {}
+    } else {
+      try { const c = sessionStorage.getItem(CACHE); if (c !== null) total = +c; } catch (e) {}
+    }
+    if (total !== null) show('stat-m', String(total).padStart(2, '0'));
+  })();
 
-  if (total === null) { if (item) item.hidden = true; }        // 정확한 값을 모르면 아예 내보내지 않는다
-  else el.textContent = String(total).padStart(2, '0');
+  /* 3. D-Day — 자정 기준으로 남은 날짜를 센다 */
+  (function dday(){
+    const t = new Date(DDAY.date + 'T00:00:00');
+    if (isNaN(t)) return;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const days = Math.round((t - today) / 86400000);
+    if (days < 0) return;                                  // 지난 날짜면 칸을 내보내지 않는다
+    const md = (t.getMonth() + 1).toString().padStart(2, '0') + '.' + t.getDate().toString().padStart(2, '0');
+    document.getElementById('d-label').textContent = DDAY.label + '\n' + md;
+    if (days === 0) { document.getElementById('d-pre').textContent = 'D'; show('stat-d', '-DAY'); }
+    else show('stat-d', String(days));
+  })();
 })();
 
 /* ============================================================================
-   자전하는 지구 — 정사도법(orthographic) 캔버스 렌더링
-   해안선은 Natural Earth 110m 데이터를 Douglas–Peucker로 간략화해 넣었다.
-   지구는 서→동으로 자전하므로, 우주에 고정된 시점에서는 중심 경도가 '감소'하고
-   지표의 지형은 화면에서 왼쪽 → 오른쪽으로 흘러간다.
+   자전하는 지구 — 구면 픽셀 렌더링
+   ① 해안선(Natural Earth 110m 간략화)으로 등장방형 지구 텍스처를 한 번 만들고
+   ② 원반의 각 픽셀에 대해 위경도와 음영을 미리 계산해 두고
+   ③ 매 프레임에는 경도만 밀어서 텍스처를 샘플링한다 — 그래서 빠르다.
+   지구는 서→동으로 자전하므로 지형이 화면 왼쪽에서 오른쪽으로 흐른다.
    ========================================================================== */
 const LAND=[
 "-180,69 -174.3,66.3 -169.9,66 -173,64.3 -179.9,65.9 -180,65 180,65 177.4,64.6 179.2,62.3 170.3,59.9 163.5,59.9 162,58.2 163.2,57.6 162.1,54.9 156.8,51 155.9,56.8 164.5,62.6 160.1,60.5 159.3,61.8 156.7,61.4 154.2,59.8 155,59.1 142.2,59 135.1,54.7 139.9,54.2 141.4,52.2 138.2,46.3 127.5,39.8 129.1,35.1 126.5,34.4 126.9,36.9 124.7,38.1 125.3,39.6 121.1,38.9 121.6,40.9 118,39.2 118.9,37.4 122.4,37.5 119.2,34.9 121.9,31.7 121.7,28.2 115.9,22.8 110.4,20.3 108.5,21.7 105.9,19.8 109.3,13.4 109.2,11.7 105.2,8.6 100.1,13.4 99.2,9.2 103,5.5 104.2,1.3 101.4,2.8 98.3,7.8 97.2,16.9 94.2,16 94.3,18.2 91.4,22.8 87,21.5 80.3,15.9 79.9,10.4 77.5,8 73.5,16 72.6,21.4 70.5,20.9 66.4,25.4 57.4,25.7 56.5,27.1 54.7,26.5 51.5,27.9 50.1,30.1 48,30 51.8,24 54,24.1 56.4,26.4 56.8,24.2 59.8,22.3 55.3,17.2 43.5,12.6 42.7,16.8 34.6,28.1 34.9,29.5 33.9,27.6 32.4,29.9 37.5,18.6 42.7,11.7 44.6,10.4 51.1,12 51,10.6 47.7,4.2 39.2,-4.7 40.8,-14.7 34.8,-19.8 35.5,-24.1 32.6,-25.7 32.2,-28.8 28.2,-32.8 19.6,-34.8 11.8,-18.1 13.7,-10.7 11.9,-5 8.8,-1.1 9.4,3.7 5.9,4.3 4.3,6.3 -9,4.8 -16.6,12.2 -17.6,14.7 -16.1,18.1 -17,21.9 -5.9,35.8 -2.2,35.2 9.5,37.4 11.1,36.9 10.3,33.8 19.1,30.3 21.5,32.8 33.8,31 36.2,36.7 27.6,36.7 26.2,39.5 33.5,42 38.3,40.9 41.7,42 36.7,45.2 39.1,47.3 35,46.3 36.3,45.1 33.9,44.4 32.5,45.3 33.3,46.1 30.7,46.6 27.7,42.6 28.8,41.1 22.6,40.3 24,37.7 22.5,36.4 19.5,41.7 13.1,45.7 12.6,44.1 18.5,40.2 16.9,40.4 16.1,38 15.4,40 8.9,44.4 3.1,43.1 -2.1,36.7 -8.9,36.9 -9.4,43 -1.4,44 -1.2,46 -4.6,48.7 -1.6,48.6 -1.9,49.8 8.1,53.5 8.5,57.1 10.6,57.7 9.6,55.5 10.9,54 19.7,54.4 21.3,55.2 21.6,57.4 24.1,57 23.3,59.2 29.1,60 21.3,60.7 21.5,63.2 25.4,65.1 22.2,65.7 17.8,62.7 17.1,61.3 18.8,60.1 15.9,56.1 12.9,55.4 10.4,59.5 5.7,58.6 5.9,62.6 19.2,69.8 24.5,71 28.2,71.2 41.1,67.5 38.4,66 33.2,66.6 37,63.9 37.2,65.1 39.6,64.5 42.1,66.5 44,66.1 43.5,68.6 46.3,68.2 46.3,66.7 53.7,68.9 59.9,68.3 60.6,69.9 68.5,68.1 66.7,71 69.2,72.8 72.6,72.8 71.8,71.4 73.7,68.4 71.3,66.3 72.4,66.2 75.1,67.8 73.1,71.4 74.7,72.8 76.4,71.2 77.6,72.3 81.5,71.7 80.5,73.6 104.4,77.7 114.1,75.8 109.4,74.2 127,73.6 131.3,70.8 132.3,71.8 139.9,71.5 139.1,72.4 140.5,72.8 159,70.9 160.9,69.4 178.6,69.4 -180,69",
@@ -476,121 +512,204 @@ const LAND=[
 (function globe(){
   const cv = document.getElementById('globe');
   if (!cv) return;
-  const ctx = cv.getContext('2d');
+  const ctx = cv.getContext('2d', { alpha: true });
   const RAD = Math.PI / 180;
 
-  // "lon,lat lon,lat …" 문자열을 좌표 배열로 복원
-  const rings = LAND.map(s => s.split(' ').map(p => {
-    const c = p.split(','); return [+c[0], +c[1]];
-  }));
+  const rings = LAND.map(s => s.split(' ').map(p => { const c = p.split(','); return [+c[0], +c[1]]; }));
 
-  const TILT = 21;                       // 지구를 살짝 위에서 내려다본 각도
-  const PERIOD = 72;                     // 1회전에 걸리는 시간(초)
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let lon0 = 128;                        // 처음엔 한반도가 보이도록
-  let R = 0, cx = 0, cy = 0, last = 0;
+  /* ── ① 등장방형 텍스처 ─────────────────────────────────────────────── */
+  const TW = 1024, TH = 512;
+  const tex = (function buildTexture(){
+    const c = document.createElement('canvas'); c.width = TW; c.height = TH;
+    const g = c.getContext('2d');
+    const X = lon => (lon + 180) / 360 * TW;
+    const Y = lat => (90 - lat) / 180 * TH;
 
-  function resize(){
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const size = cv.clientWidth;
-    if (!size) return;
-    cv.width = cv.height = Math.round(size * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    R = size / 2 * 0.92; cx = size / 2; cy = size / 2;
-  }
+    // 바다 — 위도에 따라 색이 달라진다(적도가 밝고 극지가 어둡다)
+    const og = g.createLinearGradient(0, 0, 0, TH);
+    og.addColorStop(0.00, '#12314e'); og.addColorStop(0.18, '#123f65');
+    og.addColorStop(0.50, '#14598c'); og.addColorStop(0.82, '#123f65');
+    og.addColorStop(1.00, '#12314e');
+    g.fillStyle = og; g.fillRect(0, 0, TW, TH);
 
-  function project(lon, lat, s0, c0){
-    const phi = lat * RAD, lam = (lon - lon0) * RAD;
-    const cosPhi = Math.cos(phi), sinPhi = Math.sin(phi), cosLam = Math.cos(lam);
-    const cosc = s0 * sinPhi + c0 * cosPhi * cosLam;          // >0 이면 보이는 반구
-    return [cx + R * cosPhi * Math.sin(lam),
-            cy - R * (c0 * sinPhi - s0 * cosPhi * cosLam),
-            cosc];
-  }
+    // 육지는 별도 캔버스에 그려 두고, 위도별 색을 source-atop으로 입힌다
+    const lc = document.createElement('canvas'); lc.width = TW; lc.height = TH;
+    const lg = lc.getContext('2d');
 
-  // 보이는 반구에 속한 구간만 이어서 그린다(림에서 끊는다)
-  function strokeOrFill(pts, s0, c0, fill){
-    let started = false;
-    ctx.beginPath();
-    for (let i = 0; i < pts.length; i++){
-      const [x, y, v] = project(pts[i][0], pts[i][1], s0, c0);
-      if (v <= 0) { if (started && fill) ctx.closePath(); started = false; continue; }
-      if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+    // 날짜변경선을 넘는 폴리곤이 가로줄로 번지지 않도록 경도를 연속으로 펴 준다
+    const unwrap = (ring) => {
+      const out = [ring[0].slice()];
+      for (let i = 1; i < ring.length; i++){
+        let lon = ring[i][0]; const prev = out[i - 1][0];
+        while (lon - prev >  180) lon -= 360;
+        while (prev - lon >  180) lon += 360;
+        out.push([lon, ring[i][1]]);
+      }
+      return out;
+    };
+    const unwrapped = rings.map(unwrap);
+
+    lg.fillStyle = '#4a7a45';
+    for (const shift of [-360, 0, 360]){
+      for (const r of unwrapped){
+        lg.beginPath();
+        for (let i = 0; i < r.length; i++){
+          const x = X(r[i][0] + shift), y = Y(r[i][1]);
+          i ? lg.lineTo(x, y) : lg.moveTo(x, y);
+        }
+        lg.closePath(); lg.fill();
+      }
     }
-    if (fill) { ctx.fill(); ctx.stroke(); } else ctx.stroke();
+
+    // 위도별 식생대 — 사막(20~32°)·침엽수림·빙설
+    lg.globalCompositeOperation = 'source-atop';
+    const bg = lg.createLinearGradient(0, 0, 0, TH);
+    const band = [[ 90,'#f2f6f8'],[ 76,'#e7eef2'],[ 66,'#6d7f63'],[ 52,'#4f7a49'],
+                  [ 40,'#5e8449'],[ 31,'#a6935f'],[ 22,'#c0aa6d'],[ 12,'#5a8a44'],
+                  [  0,'#3f7f3f'],[-12,'#4d8544'],[-24,'#b09a63'],[-36,'#6b8a4c'],
+                  [-52,'#4f7a49'],[-66,'#8fa08c'],[-78,'#e7eef2'],[-90,'#f2f6f8']];
+    for (const [lat, col] of band) bg.addColorStop(Math.min(1, Math.max(0, Y(lat) / TH)), col);
+    lg.fillStyle = bg; lg.fillRect(0, 0, TW, TH);
+
+    // 얼룩 — 완전히 균일한 색은 인쇄물처럼 보인다
+    for (let i = 0; i < 2600; i++){
+      const x = Math.random() * TW, y = Math.random() * TH, r = 3 + Math.random() * 26;
+      lg.fillStyle = `rgba(${Math.random() < 0.5 ? '0,0,0' : '255,255,255'},${0.015 + Math.random() * 0.05})`;
+      lg.beginPath(); lg.arc(x, y, r, 0, Math.PI * 2); lg.fill();
+    }
+    lg.globalCompositeOperation = 'source-over';
+
+    // 대륙붕 — 해안선 바깥에 옅은 물색을 깔아 경계를 부드럽게
+    g.save();
+    g.strokeStyle = 'rgba(90,170,205,0.55)'; g.lineWidth = 5; g.lineJoin = 'round';
+    for (const shift of [-360, 0, 360]){
+      for (const r of unwrapped){
+        g.beginPath();
+        for (let i = 0; i < r.length; i++){
+          const x = X(r[i][0] + shift), y = Y(r[i][1]);
+          i ? g.lineTo(x, y) : g.moveTo(x, y);
+        }
+        g.closePath(); g.stroke();
+      }
+    }
+    g.restore();
+
+    g.drawImage(lc, 0, 0);
+
+    // 극관 — 데이터가 닿지 않는 위도까지 얼음으로 덮는다
+    const cap = g.createLinearGradient(0, 0, 0, Y(72));
+    cap.addColorStop(0, 'rgba(244,249,252,0.95)'); cap.addColorStop(1, 'rgba(244,249,252,0)');
+    g.fillStyle = cap; g.fillRect(0, 0, TW, Y(72));
+    const cap2 = g.createLinearGradient(0, TH, 0, Y(-68));
+    cap2.addColorStop(0, 'rgba(244,249,252,0.98)'); cap2.addColorStop(1, 'rgba(244,249,252,0)');
+    g.fillStyle = cap2; g.fillRect(0, Y(-68), TW, TH - Y(-68));
+
+    return g.getImageData(0, 0, TW, TH).data;
+  })();
+
+  /* ── ② 픽셀별 위경도·음영 미리 계산 ─────────────────────────────────
+     내부 렌더 해상도는 실제 표시 크기에 맞춰 정한다. 폰에서 255px로 보이는
+     구를 560px로 그리면 픽셀 연산이 네 배가 되어 프레임을 떨어뜨린다. */
+  const TILT = 20 * RAD;               // 살짝 위에서 내려다본 각도
+  const sinT = Math.sin(TILT), cosT = Math.cos(TILT);
+
+  // 빛은 왼쪽 위 앞에서
+  const L = (function(){ const v = [-0.46, 0.40, 0.79]; const m = Math.hypot(...v); return v.map(k => k / m); })();
+
+  let S, R, CX, CY, img, buf, idx, rowOff, colBase, shade, rim, N = 0;
+
+  function setup(){
+    const shown = cv.clientWidth || 400;
+    S = Math.min(560, Math.max(320, Math.round(shown * 1.25)));
+    cv.width = cv.height = S;
+    R = S * 0.43; CX = S / 2; CY = S / 2;
+    img = ctx.createImageData(S, S);
+    buf = img.data;
+    N = 0;
+    const cap = S * S;
+    const _idx = new Int32Array(cap), _row = new Int32Array(cap), _col = new Float32Array(cap);
+    const _sh = new Float32Array(cap), _rm = new Float32Array(cap);
+    for (let py = 0; py < S; py++){
+      for (let px = 0; px < S; px++){
+        const x = (px + 0.5 - CX) / R, y = -(py + 0.5 - CY) / R;
+        const rho2 = x * x + y * y;
+        if (rho2 > 1) continue;
+        const nz = Math.sqrt(1 - rho2);                 // 시선 방향 법선 성분
+        const rho = Math.sqrt(rho2);
+        const c = Math.asin(Math.min(1, rho));
+        const sinc = Math.sin(c), cosc = Math.cos(c);
+        const lat = rho < 1e-9 ? TILT / RAD
+                  : Math.asin(cosc * sinT + (y * sinc * cosT) / rho) / RAD;
+        const lonRel = rho < 1e-9 ? 0
+                  : Math.atan2(x * sinc, rho * cosc * cosT - y * sinc * sinT) / RAD;
+
+        // 음영 — 램버트 + 환경광, 가장자리는 프레넬로 대기가 밝아진다
+        const diff = Math.max(0, x * L[0] + y * L[1] + nz * L[2]);
+        const fres = Math.pow(1 - nz, 3);
+        _idx[N] = (py * S + px) * 4;
+        _row[N] = Math.min(TH - 1, Math.max(0, Math.round((90 - lat) / 180 * TH))) * TW;
+        _col[N] = (lonRel + 180) / 360 * TW;
+        _sh[N]  = 0.20 + 0.95 * Math.pow(diff, 0.85);   // 환경광 0.20
+        _rm[N]  = fres * 0.85 + Math.pow(diff, 6) * 0.25;
+        N++;
+      }
+    }
+    idx = _idx.subarray(0, N); rowOff = _row.subarray(0, N);
+    colBase = _col.subarray(0, N); shade = _sh.subarray(0, N); rim = _rm.subarray(0, N);
   }
+  setup();
+
+  /* ── ③ 매 프레임: 경도만 밀어서 샘플링 ───────────────────────────── */
+  const RIM = [122, 176, 235];         // 대기 산란 색
+  let lon0 = 128;                      // 처음엔 한반도가 정면에
 
   function draw(){
-    const size = cv.clientWidth;
-    if (!size || !R) return;
-    const s0 = Math.sin(TILT * RAD), c0 = Math.cos(TILT * RAD);
-    ctx.clearRect(0, 0, size, size);
-
-    ctx.save();
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
-
-    // 바다 — 빛이 왼쪽 위에서 든다
-    const sea = ctx.createRadialGradient(cx - R * 0.34, cy - R * 0.40, R * 0.06, cx, cy, R * 1.05);
-    sea.addColorStop(0, '#FAF8FE');
-    sea.addColorStop(0.55, '#E7DEF9');
-    sea.addColorStop(1, '#CBB8F0');
-    ctx.fillStyle = sea;
-    ctx.fillRect(0, 0, size, size);
-
-    // 경위선
-    ctx.strokeStyle = 'rgba(94,14,215,0.13)';
-    ctx.lineWidth = 1;
-    for (let lat = -60; lat <= 60; lat += 30){
-      const pts = []; for (let lon = -180; lon <= 180; lon += 4) pts.push([lon, lat]);
-      strokeOrFill(pts, s0, c0, false);
+    const shift = lon0 / 360 * TW;
+    for (let i = 0; i < N; i++){
+      let col = colBase[i] + shift;
+      col %= TW; if (col < 0) col += TW;
+      const s = (rowOff[i] + (col | 0)) * 4;
+      const sh = shade[i], rm = rim[i];
+      const o = idx[i];
+      buf[o]     = Math.min(255, tex[s]     * sh + RIM[0] * rm);
+      buf[o + 1] = Math.min(255, tex[s + 1] * sh + RIM[1] * rm);
+      buf[o + 2] = Math.min(255, tex[s + 2] * sh + RIM[2] * rm);
+      buf[o + 3] = 255;
     }
-    for (let lon = -180; lon < 180; lon += 30){
-      const pts = []; for (let lat = -88; lat <= 88; lat += 4) pts.push([lon, lat]);
-      strokeOrFill(pts, s0, c0, false);
-    }
-    // 적도만 강조
-    ctx.strokeStyle = 'rgba(94,14,215,0.26)'; ctx.lineWidth = 1.2;
-    (function(){ const pts = []; for (let lon = -180; lon <= 180; lon += 4) pts.push([lon, 0]);
-      strokeOrFill(pts, s0, c0, false); })();
+    ctx.putImageData(img, 0, 0);
 
-    // 육지
-    ctx.fillStyle = 'rgba(94,14,215,0.30)';
-    ctx.strokeStyle = 'rgba(94,14,215,0.46)';
-    ctx.lineWidth = 0.9;
-    ctx.lineJoin = 'round';
-    for (const r of rings) strokeOrFill(r, s0, c0, true);
-
-    // 가장자리 어둡게 — 구(球)로 보이게 하는 핵심
-    const limb = ctx.createRadialGradient(cx - R * 0.28, cy - R * 0.32, R * 0.30, cx, cy, R);
-    limb.addColorStop(0, 'rgba(94,14,215,0)');
-    limb.addColorStop(0.72, 'rgba(72,10,160,0.05)');
-    limb.addColorStop(1, 'rgba(46,6,104,0.30)');
-    ctx.fillStyle = limb; ctx.fillRect(0, 0, size, size);
-    ctx.restore();
-
-    // 대기 — 얇은 바깥 링
-    ctx.beginPath(); ctx.arc(cx, cy, R + 1, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(94,14,215,0.22)'; ctx.lineWidth = 1.5; ctx.stroke();
-    const halo = ctx.createRadialGradient(cx, cy, R, cx, cy, R * 1.14);
-    halo.addColorStop(0, 'rgba(94,14,215,0.16)');
-    halo.addColorStop(1, 'rgba(94,14,215,0)');
-    ctx.beginPath(); ctx.arc(cx, cy, R * 1.14, 0, Math.PI * 2);
+    // 바깥 대기 헤일로
+    const halo = ctx.createRadialGradient(CX, CY, R, CX, CY, R * 1.13);
+    halo.addColorStop(0, 'rgba(122,176,235,0.34)');
+    halo.addColorStop(1, 'rgba(122,176,235,0)');
+    ctx.beginPath(); ctx.arc(CX, CY, R * 1.13, 0, Math.PI * 2);
     ctx.fillStyle = halo; ctx.fill();
   }
 
+  const PERIOD = 80;                   // 1회전 80초
+  let last = 0;
   function frame(now){
     if (!last) last = now;
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
-    lon0 -= (360 / PERIOD) * dt;               // 서→동 자전
+    lon0 -= (360 / PERIOD) * dt;       // 서→동 자전
     if (lon0 < -180) lon0 += 360;
     draw();
     requestAnimationFrame(frame);
   }
 
-  resize(); draw();
-  addEventListener('resize', () => { resize(); draw(); });
-  if (!reduce) requestAnimationFrame(frame);
+  draw();
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(frame);
+
+  // 화면 회전·창 크기 변경으로 표시 크기가 크게 달라지면 해상도를 다시 잡는다
+  let rt;
+  addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => {
+      const want = Math.min(560, Math.max(320, Math.round((cv.clientWidth || 400) * 1.25)));
+      if (Math.abs(want - S) > 40) { setup(); draw(); }
+    }, 250);
+  });
 })();
 
 /* ── 콘텐츠 보호 (기존 설정 유지) ───────────────────────────────────────── */
