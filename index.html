@@ -40,9 +40,49 @@
   --scrim: 242,242,247;               /* 스크림 = 바탕색(--st-bedrock)의 RGB */
   --sans: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --bar-h: 58px;
+  /* Liquid Glass 호버 알약 — 바 위에 얹히므로 바보다 밝아야 보인다 */
+  --lg-bg: rgba(255,255,255,0.92);
+  --lg-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 22px rgba(0,0,0,0.10);
 }
-:root[data-theme="dark"] { --scrim: 0,0,0; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --scrim: 0,0,0; } }
+:root[data-theme="dark"] {
+  --scrim: 0,0,0;
+  --lg-bg: rgba(255,255,255,0.15);
+  --lg-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 22px rgba(0,0,0,0.5);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --scrim: 0,0,0;
+    --lg-bg: rgba(255,255,255,0.15);
+    --lg-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 22px rgba(0,0,0,0.5);
+  }
+}
+
+/* ══════════ Liquid Glass 호버 ══════════
+   손끝을 따라 유리 알약이 떠오르는 느낌. 네 겹은 st-glass와 같은 구성이되,
+   ①backdrop-filter는 기본으로 넣지 않는다 — 상단바가 이미 유리라 그 안에서
+   또 흐리면 '유리 위 유리'가 되어 글자가 뭉갠다(STRATUM 규칙).
+   바 바깥에 놓이는 요소만 .lg--blur로 실제 굴절을 준다. */
+.lg { position: relative; isolation: isolate; }
+.lg::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  inset: calc(-1 * var(--lg-y, 9px)) calc(-1 * var(--lg-x, 16px));
+  border-radius: var(--st-r-full);
+  background: var(--st-glass-sheen), var(--lg-bg);
+  box-shadow:
+    inset 0 0.5px 0 0 var(--st-glass-specular),
+    inset 0 0 0 0.5px var(--st-glass-rim),
+    inset 0 -0.5px 0 0 var(--st-glass-under),
+    var(--lg-shadow);
+  opacity: 0; transform: scale(0.86);
+  transition: opacity 170ms var(--ease),
+              transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
+}
+.lg:hover::before, .lg:focus-visible::before { opacity: 1; transform: scale(1); }
+/* 누르는 순간 살짝 내려앉는다 — 피드백은 떼는 순간이 아니라 닿는 순간에 */
+.lg:active::before { transform: scale(0.965); transition-duration: 90ms; }
+.lg--blur:hover::before, .lg--blur:focus-visible::before {
+  -webkit-backdrop-filter: blur(14px) saturate(180%); backdrop-filter: blur(14px) saturate(180%);
+}
 
 @media (min-width: 640px) { :root { --pad-x: 32px; } }   /* sm:px-8  */
 @media (min-width: 768px) { :root { --pad-x: 48px; } }   /* md:px-12 */
@@ -112,7 +152,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 var(--pad-x); height: var(--bar-h); gap: 16px;
 }
-.logo { display: flex; align-items: center; gap: 10px; }
+.logo { display: flex; align-items: center; gap: 10px; --lg-x: 13px; --lg-y: 8px; }
 /* 기존 사이트에서 쓰던 경위선·나침반 씰. 색만 시스템 강조색으로 바꿔 쓴다 */
 .logo-seal { width: 32px; height: 32px; color: var(--accent); flex-shrink: 0; display: block; }
 .logo-text { font-size: 13px; font-weight: 600; letter-spacing: var(--track-wide); text-transform: uppercase; white-space: nowrap; }
@@ -122,19 +162,15 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @media (min-width: 768px) { .nav-links { display: flex; } }
 .nav-links a {
   font-size: 14px; font-weight: 600; letter-spacing: var(--track-ko);
-  color: var(--st-label); position: relative; padding-bottom: 2px;
+  color: var(--st-label);
+  --lg-x: 15px; --lg-y: 9px;
 }
-.nav-links a::after {
-  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px;
-  background: var(--accent); transform: scaleX(0); transform-origin: left;
-  transition: transform 0.4s var(--ease);
-}
-.nav-links a:hover::after { transform: scaleX(1); }
 
 .burger {
   width: 36px; height: 36px; border-radius: 50%; background: var(--st-label);
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   flex-shrink: 0; transition: transform 0.3s var(--ease);
+  --lg-x: 7px; --lg-y: 7px;
 }
 .burger:hover { transform: scale(1.06); }
 .burger span { display: block; width: 16px; height: 2px; background: var(--st-bedrock); }
@@ -176,6 +212,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .cta {
   display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
   font-size: 16px; font-weight: 600; color: var(--accent-ink); letter-spacing: var(--track-ko);
+  --lg-x: 20px; --lg-y: 13px;
 }
 @media (min-width: 640px) { .cta { font-size: 20px; } }
 @media (min-width: 768px) { .cta { font-size: 24px; } }
@@ -245,7 +282,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .menu-notice .item .m { font-size: 13px; font-weight: 500; }
 
 .menu-links { display: flex; flex-direction: column; gap: 28px; margin-top: 56px; }
-.menu-links > a { font-size: 30px; font-weight: 600; letter-spacing: var(--track-ko); line-height: 1; }
+.menu-links > a { font-size: 30px; font-weight: 600; letter-spacing: var(--track-ko); line-height: 1;
+                  align-self: flex-start; --lg-x: 22px; --lg-y: 14px; }
 @media (max-width: 400px) { .menu-links > a { font-size: 26px; } }
 
 .menu-group { margin-top: 36px; }
@@ -263,10 +301,17 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .menu-foot { margin-top: auto; padding-top: 36px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .menu-cta { display: inline-flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 600;
-            color: var(--accent-ink); letter-spacing: var(--track-ko); }
+            color: var(--accent-ink); letter-spacing: var(--track-ko);
+            --lg-x: 20px; --lg-y: 13px; }
 .menu-cta svg { width: 20px; height: 20px; }
 
+/* 좁은 화면에서는 호버 알약이 화면 가장자리에 닿으므로 좌우 여유를 줄인다.
+   (요소별 --lg-x 선언보다 뒤에 있어야 이긴다 — 같은 specificity라 순서가 결정한다) */
+@media (max-width: 767px) { .cta, .menu-cta, .menu-links > a { --lg-x: 13px; } }
+
 @media (prefers-reduced-motion: reduce) {
+  /* 알약이 튀어나오는 대신 조용히 나타나기만 한다 */
+  .lg::before { transition: opacity 140ms linear; transform: none !important; }
   .fd, .fu, .headline .line span, .globe canvas { animation: none !important; opacity: 1 !important; }
   .globe canvas { transform: translate(-50%, -50%) !important; }
   .menu { transition-duration: 1ms; }
@@ -283,7 +328,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   <!-- ── 내비게이션 (유리층) ── -->
   <header class="st-glass st-bar">
     <div class="bar-in">
-      <a class="logo fd" style="--i:0" href="index.html" aria-label="Geographia 홈">
+      <a class="logo fd lg" style="--i:0" href="index.html" aria-label="Geographia 홈">
         <svg class="logo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="24" cy="24" r="20"/>
           <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
@@ -294,12 +339,12 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
         <span class="logo-text">Geographia</span>
       </a>
       <div class="nav-links">
-        <a class="fd" style="--i:1" href="library.html">자료실</a>
-        <a class="fd" style="--i:2" href="qna.html">Q&amp;A</a>
-        <a class="fd" style="--i:3" href="project_guide.html">프로젝트</a>
-        <a class="fd" style="--i:4" href="feedback.html">건의</a>
+        <a class="fd lg" style="--i:1" href="library.html">자료실</a>
+        <a class="fd lg" style="--i:2" href="qna.html">Q&amp;A</a>
+        <a class="fd lg" style="--i:3" href="project_guide.html">프로젝트</a>
+        <a class="fd lg" style="--i:4" href="feedback.html">건의</a>
       </div>
-      <button class="burger fd" style="--i:5" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="menu">
+      <button class="burger fd lg" style="--i:5" id="burger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="menu">
         <span></span><span></span><span></span>
       </button>
     </div>
@@ -328,7 +373,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   <section class="bottom">
     <div class="row-a">
       <p class="tagline fu" style="--i:5">공간을 통해<br>세상을</p>
-      <a class="cta fu" style="--i:6" href="qna.html">
+      <a class="cta fu lg lg--blur" style="--i:6" href="qna.html">
         Q&amp;A
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
       </a>
@@ -368,10 +413,10 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   </div>
 
   <div class="menu-links">
-    <a href="library.html">자료실</a>
-    <a href="qna.html">Q&amp;A</a>
-    <a href="project_guide.html">프로젝트</a>
-    <a href="feedback.html">건의</a>
+    <a class="lg" href="library.html">자료실</a>
+    <a class="lg" href="qna.html">Q&amp;A</a>
+    <a class="lg" href="project_guide.html">프로젝트</a>
+    <a class="lg" href="feedback.html">건의</a>
   </div>
 
   <div class="menu-group">
@@ -393,7 +438,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   </div>
 
   <div class="menu-foot">
-    <a class="menu-cta" href="qna.html">
+    <a class="menu-cta lg" href="qna.html">
       Q&amp;A
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
     </a>
