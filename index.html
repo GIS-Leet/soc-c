@@ -52,10 +52,12 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 /* ══════════ 배경 — 자전하는 지구 ══════════ */
 .globe { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+/* 지구는 상단바 '아래로' 파고들어야 한다 — 유리 뒤에 아무것도 지나가지 않으면
+   backdrop-filter가 걸려 있어도 그냥 반투명한 띠로만 보인다. */
 .globe canvas {
   position: absolute;
-  left: 17%; top: 44%;
-  width: min(70vh, 640px); height: min(70vh, 640px);
+  left: 17%; top: 33%;
+  width: min(74vh, 680px); height: min(74vh, 680px);
   transform: translate(-50%, -50%);
   opacity: 0;
   animation: globeIn 1.8s var(--ease) 0.2s both;
@@ -92,12 +94,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   padding: 0 var(--pad-x); height: 58px; gap: 16px;
 }
 .logo { display: flex; align-items: center; gap: 10px; }
-.logo-mark {
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 2px solid var(--accent);
-  display: grid; place-items: center; flex-shrink: 0;
-}
-.logo-mark i { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); display: block; }
+/* 기존 사이트에서 쓰던 경위선·나침반 씰. 색만 시스템 강조색으로 바꿔 쓴다 */
+.logo-seal { width: 32px; height: 32px; color: var(--accent); flex-shrink: 0; display: block; }
 .logo-text { font-size: 13px; font-weight: 600; letter-spacing: var(--track-wide); text-transform: uppercase; white-space: nowrap; }
 @media (max-width: 380px) { .logo-text { display: none; } }
 
@@ -163,13 +161,17 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .row-b { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
 @media (min-width: 640px) { .row-b { gap: 16px; } }
+/* 저작권 한 줄 — 있는 줄은 알되 시선을 끌지 않는 무게로.
+   overflow-wrap을 normal로 되돌린다(시스템 기본값 anywhere가 'Lee.'를
+   'Lee' + '.'로 쪼갠다). 줄바꿈은 공백에서만. */
 .desc {
-  width: 120px; flex-shrink: 0;
-  font-size: 9px; font-weight: 600; letter-spacing: var(--track-ko);
-  line-height: 1.5; text-align: left;
+  width: 165px; flex-shrink: 0;
+  font-size: 9px; font-weight: 500; letter-spacing: 0.02em;
+  line-height: 1.55; text-align: left; color: var(--st-label-3);
+  overflow-wrap: normal; word-break: keep-all;
 }
-@media (min-width: 640px) { .desc { width: 180px; font-size: 12px; } }
-@media (min-width: 768px) { .desc { width: 280px; font-size: 14px; text-align: right; } }
+@media (min-width: 640px) { .desc { width: 230px; font-size: 10px; } }
+@media (min-width: 768px) { .desc { width: 320px; font-size: 11px; text-align: right; } }
 
 .headline { text-align: right; min-width: 0; }
 .headline .line { overflow: hidden; }
@@ -255,7 +257,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   <header class="st-glass st-bar">
     <div class="bar-in">
       <a class="logo fd" style="--i:0" href="index.html" aria-label="Geographia 홈">
-        <span class="logo-mark"><i></i></span>
+        <svg class="logo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
         <span class="logo-text">Geographia</span>
       </a>
       <div class="nav-links">
@@ -300,7 +308,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     </div>
 
     <div class="row-b">
-      <p class="desc fu" style="--i:7">경기여자고등학교 통합사회 C · 수업 자료와 공간 시뮬레이터를 한곳에서</p>
+      <p class="desc fu" style="--i:7">KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</p>
       <h1 class="headline">
         <span class="line"><span style="--i:0">Of</span></span>
         <span class="line"><span style="--i:1">Space</span></span>
@@ -313,7 +321,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 <div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="menu-top">
     <a class="logo" href="index.html" aria-label="Geographia 홈">
-      <span class="logo-mark"><i></i></span>
+      <svg class="logo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="24" cy="24" r="20"/>
+        <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+        <path d="M24 4v40M4 24h40"/>
+        <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+        <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+      </svg>
       <span class="logo-text">Geographia</span>
     </a>
     <button class="menu-close" id="menuClose" aria-label="메뉴 닫기">
