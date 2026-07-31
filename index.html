@@ -14,10 +14,14 @@
 <meta name="description" content="경기여자고등학교 통합사회 C · 수업 자료와 공간 시뮬레이터">
 <script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<!-- 라틴: Space Grotesk — 큰 대문자에서 버티는 성격이 있고 라틴 서브셋 18KB.
+     한글: Pretendard Variable 동적 서브셋 — 쓰는 글자가 든 조각만 내려받는다.
+     (정적 전체판은 굵기 하나당 750KB라 5벌이면 3.7MB였다) -->
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
 <!-- STRATUM 디자인 시스템 — 색·재질(Liquid Glass)·모션 토큰 -->
 <link rel="stylesheet" href="design-system/stratum.css">
@@ -38,7 +42,12 @@
   --track-wide: 0.1em;                /* tracking-widest */
   --track-ko: 0.055em;                /* 한글은 자간을 넓게 벌리면 가독성이 무너진다 */
   --scrim: 242,242,247;               /* 스크림 = 바탕색(--st-bedrock)의 RGB */
-  --sans: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* 라틴은 Space Grotesk, 한글은 Pretendard가 자동으로 이어받는다
+     (Space Grotesk에 한글 글리프가 없으므로 폴백이 그대로 작동) */
+  --sans: 'Space Grotesk', 'Pretendard Variable', 'Pretendard',
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --st-font-sans: var(--sans);   /* STRATUM 컴포넌트도 같은 스택을 쓰도록 */
+  --st-font-kr:   var(--sans);
   --bar-h: 58px;
   /* Liquid Glass 호버 알약 — 바 위에 얹히므로 바보다 밝아야 보인다 */
   --lg-bg: rgba(255,255,255,0.92);
