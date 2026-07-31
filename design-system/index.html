@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>STRATUM — Leet's Geographia 디자인 시스템</title>
+<meta name="description" content="Astryx의 토큰 구조와 Apple HIG의 레이어·재질·유동적 모션을 합친 디자인 시스템">
+<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="stratum.css">
+
+<style>
+  /* 이 문서 전용 레이아웃. 시스템 토큰만 사용한다. */
+  .doc-bar__in { height: 56px; display: flex; align-items: center; justify-content: space-between; gap: var(--st-sp-4); }
+  .doc-mark { display: flex; align-items: baseline; gap: var(--st-sp-2); }
+  .doc-mark b { font-size: 0.9375rem; font-weight: var(--st-fw-heavy); letter-spacing: 0.02em; white-space: nowrap; }
+  .doc-mark .st-eyebrow { white-space: nowrap; }
+  .doc-nav { display: flex; align-items: center; gap: var(--st-sp-1); flex-wrap: nowrap; }
+  .doc-nav a {
+    font-size: var(--st-t-caption-size); font-weight: var(--st-fw-semibold); color: var(--st-label-3);
+    padding: var(--st-sp-15) var(--st-sp-3); border-radius: var(--st-r-full); white-space: nowrap;
+    transition: color var(--st-dur-fast) var(--st-ease), background var(--st-dur-fast) var(--st-ease);
+  }
+  .doc-nav a:hover { color: var(--st-label); background: var(--st-fill-2); }
+  /* 좁아질수록 하나씩 덜어낸다 — 줄바꿈시키지 않고 항목을 줄인다 */
+  @media (max-width: 900px) { .doc-nav a[data-opt] { display: none; } }
+  @media (max-width: 620px) { .doc-mark .st-eyebrow { display: none; } .doc-nav a { padding: var(--st-sp-15) var(--st-sp-2); } }
+  @media (max-width: 420px) { .doc-nav a { display: none; } }
+
+  .doc-hero { padding-block: var(--st-sp-16) var(--st-sp-12); position: relative; overflow: hidden; }
+  .doc-hero__contour { position: absolute; right: -8%; top: -20%; width: 620px; max-width: 90vw; color: var(--st-accent); opacity: 0.09; pointer-events: none; }
+  .doc-hero h1 .thin { font-weight: var(--st-fw-regular); color: var(--st-label-2); letter-spacing: -0.028em; }
+
+  .doc-sec { padding-block: var(--st-sp-12); border-top: var(--st-border) solid var(--st-separator); }
+  .doc-sec__head { margin-bottom: var(--st-sp-8); }
+  .doc-sec__head h2 { margin-top: var(--st-sp-2); }
+  .doc-sec__head p { margin-top: var(--st-sp-3); color: var(--st-label-2); }
+
+  /* 3층 다이어그램 */
+  .doc-layers { display: grid; gap: var(--st-sp-3); }
+  .doc-layer { display: flex; align-items: center; gap: var(--st-sp-4); padding: var(--st-sp-4) var(--st-sp-5); border-radius: var(--st-r-container); }
+  .doc-layer__n { font-size: var(--st-t-title2-size); font-weight: var(--st-fw-heavy); letter-spacing: -0.03em; opacity: 0.35; min-width: 2ch; }
+  .doc-layer__t { flex: 1; min-width: 0; }
+  .doc-layer__t b { font-size: var(--st-t-headline-size); font-weight: var(--st-fw-bold); letter-spacing: -0.015em; }
+  .doc-layer__t span { display: block; font-size: var(--st-t-footnote-size); color: var(--st-label-2); margin-top: 2px; }
+  .doc-layer--bedrock { background: var(--st-bedrock-sunken); border: var(--st-border) dashed var(--st-separator-strong); }
+  .doc-layer--sediment { background: var(--st-surface); border: var(--st-border) solid var(--st-separator); box-shadow: var(--st-shadow-low); }
+  .doc-layer--glass { margin-inline: var(--st-sp-6); border-radius: var(--st-r-glass); }
+
+  /* 색 스와치 */
+  .doc-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--st-sp-3); }
+  .doc-sw { border-radius: var(--st-r-element); overflow: hidden; border: var(--st-border) solid var(--st-separator); }
+  .doc-sw__chip { height: 56px; }
+  .doc-sw__meta { padding: var(--st-sp-2) var(--st-sp-15); background: var(--st-surface); }
+  .doc-sw__meta code { display: block; font-family: var(--st-font-mono); font-size: 0.6875rem; color: var(--st-label); letter-spacing: 0; overflow: hidden; text-overflow: ellipsis; }
+  .doc-sw__meta small { display: block; font-size: var(--st-t-micro-size); color: var(--st-label-3); margin-top: 1px; font-variant-numeric: tabular-nums; }
+
+  /* 타입 견본 */
+  .doc-type { display: grid; gap: 0; }
+  .doc-type__row { display: grid; grid-template-columns: 132px 1fr; gap: var(--st-sp-5); align-items: baseline;
+                   padding: var(--st-sp-4) 0; border-bottom: var(--st-border) solid var(--st-separator); }
+  .doc-type__row:last-child { border-bottom: 0; }
+  .doc-type__spec { font-family: var(--st-font-mono); font-size: 0.6875rem; color: var(--st-label-3); letter-spacing: 0; line-height: 1.7; }
+  .doc-type__spec b { display: block; color: var(--st-label-2); font-weight: var(--st-fw-semibold); }
+  @media (max-width: 620px) { .doc-type__row { grid-template-columns: 1fr; gap: var(--st-sp-2); } }
+
+  /* 재질 데모 — 유리 아래로 지나가는 '콘텐츠' */
+  .doc-mat { position: relative; border-radius: var(--st-r-container); overflow: hidden; border: var(--st-border) solid var(--st-separator); }
+  .doc-mat__bg { position: absolute; inset: 0; background:
+      radial-gradient(120% 90% at 15% 20%, var(--st-clay-400) 0%, transparent 55%),
+      radial-gradient(100% 80% at 85% 75%, var(--st-slate-500) 0%, transparent 55%),
+      linear-gradient(140deg, var(--st-moss-500), var(--st-stone-900)); }
+  .doc-mat__grid { position: absolute; inset: 0; opacity: 0.25;
+      background-image: linear-gradient(#fff2 1px, transparent 1px), linear-gradient(90deg, #fff2 1px, transparent 1px);
+      background-size: 28px 28px; }
+  .doc-mat__stage { position: relative; padding: var(--st-sp-8) var(--st-sp-5); display: grid; gap: var(--st-sp-3);
+                    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+  .doc-mat__tile { padding: var(--st-sp-4); border-radius: var(--st-r-element); text-align: center;
+                   border: var(--st-border) solid var(--st-mat-edge-b); border-top-color: var(--st-mat-edge); }
+  .doc-mat__tile b { display: block; font-size: var(--st-t-subhead-size); font-weight: var(--st-fw-bold); }
+  /* 얇은 재질 위에서는 회색 글자가 묻힌다 — Apple의 'vibrancy' 규칙대로
+     대비를 한 단계 올리고 굵기를 더한다 */
+  .doc-mat__tile small { display: block; font-size: var(--st-t-micro-size); letter-spacing: 0.08em; text-transform: uppercase; color: var(--st-label-2); font-weight: var(--st-fw-semibold); margin-top: 3px; }
+
+  /* 모션 데모 */
+  .doc-track { display: grid; grid-template-columns: 108px 1fr; gap: var(--st-sp-4); align-items: center; padding: var(--st-sp-2) 0; }
+  .doc-track__label { font-family: var(--st-font-mono); font-size: 0.6875rem; color: var(--st-label-2); letter-spacing: 0; }
+  /* overflow:hidden — 점이 어떤 이유로든 레일 밖으로 나가 페이지를 넓히지 못하게 */
+  .doc-track__rail { position: relative; height: 30px; border-radius: var(--st-r-full); background: var(--st-fill-2); overflow: hidden; }
+  .doc-track__dot { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: var(--st-r-full);
+                    background: var(--st-accent); will-change: transform; }
+  .doc-track__dot--2 { background: var(--st-slate-500); }
+  .doc-track__dot--3 { background: var(--st-moss-500); }
+  .doc-track__dot--4 { background: var(--st-amber-500); }
+
+  /* do / don't */
+  .doc-rules { display: grid; gap: var(--st-sp-3); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .doc-rule { padding: var(--st-sp-4); border-radius: var(--st-r-element); border-left: 3px solid var(--st-separator-strong); background: var(--st-fill-3); }
+  .doc-rule--do { border-left-color: var(--st-success); }
+  .doc-rule--dont { border-left-color: var(--st-danger); }
+  .doc-rule b { display: block; font-size: var(--st-t-subhead-size); font-weight: var(--st-fw-bold); margin-bottom: 3px; }
+  .doc-rule p { font-size: var(--st-t-footnote-size); color: var(--st-label-2); }
+
+  /* 코드 블록 */
+  .doc-code { background: var(--st-ink); color: var(--st-on-ink); border-radius: var(--st-r-container);
+              padding: var(--st-sp-4) var(--st-sp-5); overflow-x: auto; }
+  .doc-code pre { margin: 0; font-family: var(--st-font-mono); font-size: 0.75rem; line-height: 1.75; letter-spacing: 0; white-space: pre; }
+  .doc-code .c { color: var(--st-on-ink-3); }
+  .doc-code .k { color: var(--st-clay-400); }
+
+  .doc-foot { padding-block: var(--st-sp-10) var(--st-sp-16); border-top: var(--st-border) solid var(--st-separator);
+              font-size: var(--st-t-footnote-size); color: var(--st-label-3); }
+</style>
+</head>
+<body>
+
+<!-- ══════════ GLASS LAYER — 상단 내비 ══════════ -->
+<header class="st-glass st-bar">
+  <div class="st-shell doc-bar__in">
+    <a class="doc-mark" href="#top">
+      <b>STRATUM</b>
+      <span class="st-eyebrow">Design System v1.0</span>
+    </a>
+    <nav class="doc-nav">
+      <a href="#principles">원칙</a>
+      <a href="#color">색</a>
+      <a href="#type">타이포</a>
+      <a href="#material" data-opt>재질</a>
+      <a href="#motion" data-opt>모션</a>
+      <a href="#components" data-opt>컴포넌트</a>
+      <button class="st-btn st-btn--icon st-btn--outline st-btn--sm" data-st-theme-toggle aria-label="라이트/다크 전환" title="테마 전환">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ══════════ HERO ══════════ -->
+<section class="st-shell doc-hero">
+  <svg class="doc-hero__contour" viewBox="0 0 400 300" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+    <path d="M10 250c40-70 110-95 175-70s95 90 205 60"/><path d="M0 215c50-70 120-88 185-62s100 84 215 54"/>
+    <path d="M5 180c55-64 125-72 190-46s95 74 205 44"/><path d="M20 145c55-52 120-56 180-32s90 60 200 32"/>
+    <path d="M40 110c50-42 110-42 165-20s85 46 195 22"/><path d="M65 78c45-32 100-30 150-12s78 34 185 14"/>
+  </svg>
+  <div class="st-eyebrow st-eyebrow--accent st-reveal"><i class="st-dot st-dot--live"></i>Astryx × Apple HIG</div>
+  <h1 class="st-display st-reveal" style="margin-top:var(--st-sp-4);max-width:16ch">
+    지층처럼 쌓는<br><span class="thin">인터페이스</span>
+  </h1>
+  <p class="st-body st-dim st-measure st-reveal" style="margin-top:var(--st-sp-5)">
+    STRATUM은 경기여고 통합사회 수업 사이트를 위한 디자인 시스템입니다.
+    Astryx에서 <b>토큰 구조와 정보 밀도</b>를, Apple 휴먼 인터페이스 가이드라인에서
+    <b>레이어·재질·유동적인 모션</b>을 가져와 하나의 언어로 합쳤습니다.
+  </p>
+  <div class="st-cluster st-reveal" style="margin-top:var(--st-sp-6)">
+    <span class="st-badge st-badge--accent">토큰 190+</span>
+    <span class="st-badge">3개 레이어</span>
+    <span class="st-badge">4종 재질</span>
+    <span class="st-badge">4종 스프링</span>
+    <span class="st-badge">라이트 · 다크 · 고대비</span>
+  </div>
+</section>
+
+<!-- ══════════ 원칙 ══════════ -->
+<section class="st-shell doc-sec" id="principles">
+  <div class="doc-sec__head st-reveal">
+    <div class="st-eyebrow">01 — Foundations</div>
+    <h2 class="st-title-1">세 개의 지층</h2>
+    <p class="st-body st-measure">
+      화면의 모든 요소는 셋 중 하나에 속합니다. 이 구분이 시스템 전체를 지탱합니다.
+      Apple의 원칙 하나만 기억하면 됩니다 — <b>유리는 조작에만 쓰고, 콘텐츠에는 쓰지 않는다.</b>
+    </p>
+  </div>
+
+  <div class="doc-layers">
+    <div class="doc-layer doc-layer--glass st-glass st-reveal">
+      <div class="doc-layer__n">03</div>
+      <div class="doc-layer__t">
+        <b>GLASS · 유리층</b>
+        <span>내비게이션 · 툴바 · 시트 · 팝오버. 반투명 재질로 떠 있고, 콘텐츠가 그 아래로 지나갑니다.</span>
+      </div>
+      <span class="st-badge st-badge--accent">기능</span>
+    </div>
+    <div class="doc-layer doc-layer--sediment st-reveal">
+      <div class="doc-layer__n">02</div>
+      <div class="doc-layer__t">
+        <b>SEDIMENT · 퇴적층</b>
+        <span>카드 · 패널 · 리스트. 불투명한 표면 + 헤어라인 + 낮은 그림자. 읽을 것은 전부 여기 있습니다.</span>
+      </div>
+      <span class="st-badge">콘텐츠</span>
+    </div>
+    <div class="doc-layer doc-layer--bedrock st-reveal">
+      <div class="doc-layer__n">01</div>
+      <div class="doc-layer__t">
+        <b>BEDROCK · 기반층</b>
+        <span>페이지 바탕. 화면 끝까지 채우고, 스크롤은 여기서 일어납니다.</span>
+      </div>
+      <span class="st-badge">배경</span>
+    </div>
+  </div>
+
+  <div class="doc-rules" style="margin-top:var(--st-sp-8)">
+    <div class="doc-rule doc-rule--do st-reveal"><b>목적이 값을 정한다</b><p>모든 간격·시간·반경은 설명할 수 있어야 합니다. "그냥 예뻐서"는 이유가 아닙니다.</p></div>
+    <div class="doc-rule doc-rule--do st-reveal"><b>피드백은 누르는 순간</b><p>손을 떼는 순간이 아니라 닿는 순간에 반응합니다. 지연이 생기면 직접 만지는 느낌이 무너집니다.</p></div>
+    <div class="doc-rule doc-rule--do st-reveal"><b>들어온 길로 나간다</b><p>오른쪽에서 들어온 패널은 오른쪽으로 사라집니다. 시작점이 곧 끝점입니다.</p></div>
+    <div class="doc-rule doc-rule--dont st-reveal"><b>유리 위에 유리를 얹지 않는다</b><p>반투명이 겹치면 글자가 읽히지 않습니다. 재질은 한 겹만.</p></div>
+    <div class="doc-rule doc-rule--dont st-reveal"><b>색만으로 뜻을 전하지 않는다</b><p>상태는 점·아이콘·글자를 함께 씁니다. 색각 이상 사용자에게도 같은 정보가 닿아야 합니다.</p></div>
+    <div class="doc-rule doc-rule--dont st-reveal"><b>자주 하는 동작에 시간을 넣지 않는다</b><p>행 hover, 목록 하이라이트에 400ms를 쓰면 인터페이스가 커서를 쫓아옵니다.</p></div>
+  </div>
+</section>
+
+<!-- ══════════ 색 ══════════ -->
+<section class="st-shell doc-sec" id="color">
+  <div class="doc-sec__head st-reveal">
+    <div class="st-eyebrow">02 — Color</div>
+    <h2 class="st-title-1">따뜻한 중립색과 테라코타</h2>
+    <p class="st-body st-measure">
+      바탕은 종이와 암석 계열의 웜 그레이, 강조색은 지도 등고선에서 가져온 테라코타입니다.
+      색은 <b>의미로 이름</b> 짓습니다 — <code class="st-mono">--st-label</code>은 "가장 진한 글자색"이지
+      "검정"이 아닙니다. 그래서 다크 모드에서 값이 뒤집혀도 이름이 그대로입니다.
+    </p>
+  </div>
+
+  <div class="st-eyebrow" style="margin-bottom:var(--st-sp-3)">배경 계층 — 아래에서 위로</div>
+  <div class="doc-swatches" id="sw-bg"></div>
+
+  <div class="st-eyebrow" style="margin:var(--st-sp-8) 0 var(--st-sp-3)">전경(Label) — 대비 4단계</div>
+  <div class="doc-swatches" id="sw-label"></div>
+
+  <div class="st-eyebrow" style="margin:var(--st-sp-8) 0 var(--st-sp-3)">강조와 신호색</div>
+  <div class="doc-swatches" id="sw-accent"></div>
+
+  <div class="st-card st-reveal" style="margin-top:var(--st-sp-6)">
+    <div class="st-eyebrow st-eyebrow--accent">한 가지 더</div>
+    <p class="st-callout st-dim" style="margin-top:var(--st-sp-2)">
+      Apple은 색을 <b>기본 · 증가 대비 · 다크</b> 세 벌로 정의합니다. STRATUM도 같습니다 —
+      <code class="st-mono">prefers-contrast: more</code>에서는 보조 글자색이 한 단계씩 진해지고,
+      헤어라인이 또렷해지며, 유리가 거의 불투명해집니다. 별도로 켤 것이 없습니다.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════ 타이포 ══════════ -->
+<section class="st-shell doc-sec" id="type">
+  <div class="doc-sec__head st-reveal">
+    <div class="st-eyebrow">03 — Typography</div>
+    <h2 class="st-title-1">크기마다 다른 자간</h2>
+    <p class="st-body st-measure">
+      Apple의 iOS 텍스트 스타일 램프를 기반으로 하되 두 가지를 바꿨습니다.
+      첫째, <b>자간은 크기마다 다릅니다</b> — 큰 글자는 음수(-0.032em), 작은 글자는 양수(+0.01em).
+      하나의 letter-spacing 값은 어딘가에서 반드시 틀립니다.
+      둘째, <b>행간을 한글에 맞게 늘렸습니다</b> — Apple의 본문 행간 1.29는 라틴 기준이라
+      받침이 있는 한글에는 답답합니다. 본문은 1.65로 잡았습니다.
+    </p>
+  </div>
+  <div class="doc-type" id="type-specimen"></div>
+</section>
+
+<!-- ══════════ 재질 ══════════ -->
+<section class="st-shell doc-sec" id="material">
+  <div class="doc-sec__head st-reveal">
+    <div class="st-eyebrow">04 — Materials</div>
+    <h2 class="st-title-1">두께가 위계를 만든다</h2>
+    <p class="st-body st-measure">
+      재질은 네 종류입니다. 두꺼울수록 대비가 높아 글자가 잘 읽히고, 얇을수록 뒤가 비쳐
+      "지금 어디에 있는지"를 알려줍니다. 글이 많은 표면일수록 두꺼운 재질을 씁니다.
+    </p>
+  </div>
+
+  <div class="doc-mat st-reveal">
+    <div class="doc-mat__bg"></div><div class="doc-mat__grid"></div>
+    <div class="doc-mat__stage">
+      <div class="doc-mat__tile st-glass--clear"><b style="color:#fff">Clear</b><small style="color:#fff9">사진·영상 위</small></div>
+      <div class="doc-mat__tile st-glass--thin"><b>Thin</b><small>얇은 오버레이</small></div>
+      <div class="doc-mat__tile st-glass"><b>Regular</b><small>기본 · 내비</small></div>
+      <div class="doc-mat__tile st-glass--thick"><b>Thick</b><small>시트 · 모달</small></div>
+    </div>
+  </div>
+
+  <div class="doc-rules" style="margin-top:var(--st-sp-5)">
+    <div class="doc-rule doc-rule--do st-reveal"><b>Clear는 밝은 배경 위에서 딤을 깐다</b><p>Apple 권장 35% 어두운 레이어. <code class="st-mono">.st-glass--dimmed</code>가 처리합니다.</p></div>
+    <div class="doc-rule doc-rule--do st-reveal"><b>구분선 대신 스크롤 엣지</b><p>떠 있는 바 아래에서는 1px 선을 긋지 말고 콘텐츠가 페이드로 사라지게 합니다.</p></div>
+    <div class="doc-rule doc-rule--dont st-reveal"><b>투명도 감소를 무시하지 않는다</b><p><code class="st-mono">prefers-reduced-transparency</code>에서 흐림은 사라지고 배경은 불투명해집니다.</p></div>
+  </div>
+</section>
+
+<!-- ══════════ 모션 ══════════ -->
+<section class="st-shell doc-sec" id="motion">
+  <div class="doc-sec__head st-reveal">
+    <div class="st-eyebrow">05 — Motion</div>
+    <h2 class="st-title-1">시간이 아니라 물성</h2>
+    <p class="st-body st-measure">
+      정해진 시간 동안 재생되는 애니메이션은 도중에 사용자의 입력에 반응하지 못합니다.
+      그래서 움직임은 <b>스프링</b>으로 기술합니다 — 파라미터는 두 개뿐입니다.
+      <b>감쇠비</b>(튕김 정도)와 <b>response</b>(목표에 닿는 빠르기).
+      기본은 감쇠비 1.0, 튕김 없음. <b>튕김은 제스처가 있었을 때만</b> 허용합니다.
+    </p>
+  </div>
+
+  <div class="st-card st-reveal">
+    <div class="st-between" style="margin-bottom:var(--st-sp-4)">
+      <div><div class="st-eyebrow">스프링 비교</div><div class="st-headline" style="margin-top:2px">같은 거리, 다른 물성</div></div>
+      <button class="st-btn st-btn--tinted" id="spring-run">다시 실행</button>
+    </div>
+    <div class="doc-track"><div class="doc-track__label">snappy<br>1.0 · 0.30s</div><div class="doc-track__rail"><div class="doc-track__dot" id="dot1"></div></div></div>
+    <div class="doc-track"><div class="doc-track__label">smooth<br>1.0 · 0.40s</div><div class="doc-track__rail"><div class="doc-track__dot doc-track__dot--2" id="dot2"></div></div></div>
+    <div class="doc-track"><div class="doc-track__label">bouncy<br>0.8 · 0.40s</div><div class="doc-track__rail"><div class="doc-track__dot doc-track__dot--3" id="dot3"></div></div></div>
+    <div class="doc-track"><div class="doc-track__label">playful<br>0.68 · 0.45s</div><div class="doc-track__rail"><div class="doc-track__dot doc-track__dot--4" id="dot4"></div></div></div>
+    <p class="st-footnote st-dimmer" style="margin-top:var(--st-sp-3)">
+      아래 두 개는 목표를 지나쳤다가 돌아옵니다. 손가락이 던진 것이 아니라면 이 오버슛은 어색합니다.
+    </p>
+  </div>
+
+  <div class="st-grid st-grid--2" style="margin-top:var(--st-sp-4)">
+    <div class="st-card st-reveal">
+      <div class="st-eyebrow">중단 가능성</div>
+      <div class="st-headline" style="margin-top:2px;margin-bottom:var(--st-sp-3)">움직이는 중에도 잡을 수 있다</div>
+      <p class="st-footnote st-dim" style="margin-bottom:var(--st-sp-4)">
+        시트를 끌어내리다가 도중에 다시 올려보세요. 닫히는 것을 끝까지 기다렸다가 다시 여는 게 아니라,
+        지금 화면에 보이는 위치에서 그대로 손가락을 따라옵니다. 손을 떼면 그 순간의 속도로 던져집니다.
+      </p>
+      <button class="st-btn st-btn--filled" id="sheet-open">시트 열어보기</button>
+    </div>
+    <div class="st-card st-reveal">
+      <div class="st-eyebrow">관성 투사</div>
+      <div class="st-headline" style="margin-top:2px;margin-bottom:var(--st-sp-3)">놓은 자리가 아니라 갈 자리로</div>
+      <p class="st-footnote st-dim">
+        시트를 살짝만 내려도 빠르게 튕기면 닫힙니다. 가장 가까운 지점이 아니라
+        <b>관성으로 도달했을 지점</b>을 계산해서 목적지를 정하기 때문입니다.
+      </p>
+      <div class="doc-code" style="margin-top:var(--st-sp-4)"><pre><span class="c">// Apple 샘플 코드의 감쇠 투사식</span>
+<span class="k">project</span>(v) = (v/1000) × 0.998 / (1 − 0.998)
+목적지 = <span class="k">nearestSnap</span>(현재 + project(속도))</pre></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 컴포넌트 ══════════ -->
+<section class="st-shell doc-sec" id="components">
+  <div class="doc-sec__head st-reveal">
+    <div class="st-eyebrow">06 — Components</div>
+    <h2 class="st-title-1">컴포넌트</h2>
+    <p class="st-body st-measure">
+      조밀한 데이터는 카드로 감싸지 않고 <b>행</b>으로 놓습니다(Astryx 규칙).
+      카드는 대시보드 위젯 · 설정 묶음 · 갤러리에만 씁니다.
+    </p>
+  </div>
+
+  <div class="st-grid st-grid--2">
+    <div class="st-card st-reveal">
+      <div class="st-eyebrow" style="margin-bottom:var(--st-sp-3)">버튼</div>
+      <div class="st-cluster st-cluster--sm">
+        <button class="st-btn st-btn--filled">저장</button>
+        <button class="st-btn st-btn--tinted">자료 열기</button>
+        <button class="st-btn st-btn--outline">취소</button>
+        <button class="st-btn st-btn--plain">더보기</button>
+        <button class="st-btn st-btn--danger">삭제</button>
+        <button class="st-btn" disabled>비활성</button>
+      </div>
+      <p class="st-footnote st-dimmer" style="margin-top:var(--st-sp-3)">
+        보이는 높이는 36px이지만 히트 영역은 항상 44px입니다. 손가락은 픽셀을 못 봅니다.
+      </p>
+    </div>
+
+    <div class="st-card st-reveal">
+      <div class="st-eyebrow" style="margin-bottom:var(--st-sp-3)">세그먼티드 · 배지</div>
+      <div class="st-segmented" data-st-segmented role="tablist">
+        <button class="st-segmented__item is-on" role="tab">학습지</button>
+        <button class="st-segmented__item" role="tab">PPT</button>
+        <button class="st-segmented__item" role="tab">참고자료</button>
+      </div>
+      <div class="st-cluster st-cluster--sm" style="margin-top:var(--st-sp-4)">
+        <span class="st-badge st-badge--accent">신규</span>
+        <span class="st-badge st-badge--success">제출완료</span>
+        <span class="st-badge st-badge--warning">마감임박</span>
+        <span class="st-badge st-badge--danger">미제출</span>
+        <span class="st-badge">12</span>
+      </div>
+    </div>
+
+    <div class="st-card st-reveal">
+      <div class="st-eyebrow" style="margin-bottom:var(--st-sp-3)">입력</div>
+      <div class="st-stack st-stack--sm">
+        <input class="st-field" placeholder="질문을 입력하세요">
+        <textarea class="st-field" rows="2" placeholder="자세한 내용"></textarea>
+      </div>
+    </div>
+
+    <div class="st-card st-reveal">
+      <div class="st-eyebrow" style="margin-bottom:var(--st-sp-3)">상태와 수치</div>
+      <div class="st-cluster" style="gap:var(--st-sp-6)">
+        <div><div class="st-stat__value">07</div><div class="st-stat__label">시뮬레이터</div></div>
+        <div><div class="st-stat__value">24</div><div class="st-stat__label">공개 자료</div></div>
+        <div><div class="st-stat__value">05</div><div class="st-stat__label">섹션</div></div>
+      </div>
+      <hr class="st-divider">
+      <div class="st-cluster st-cluster--sm st-footnote">
+        <span class="st-cluster st-cluster--sm"><i class="st-dot st-dot--live"></i>동기화 중</span>
+        <span class="st-cluster st-cluster--sm"><i class="st-dot st-dot--success"></i>정상</span>
+        <span class="st-cluster st-cluster--sm"><i class="st-dot st-dot--warning"></i>확인 필요</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="st-card st-card--flush st-reveal" style="margin-top:var(--st-sp-4)">
+    <div class="st-between" style="padding:var(--st-sp-4) var(--st-sp-5) var(--st-sp-2)">
+      <div class="st-eyebrow">리스트 — 조밀한 데이터는 행으로</div>
+      <span class="st-eyebrow st-eyebrow--accent"><i class="st-dot st-dot--live"></i>Auto-sync</span>
+    </div>
+    <div class="st-list" style="padding:0 var(--st-sp-5) var(--st-sp-3)">
+      <a class="st-row" href="#components"><span class="st-badge">PDF</span><span class="st-row__title">3-1 기후 환경과 인간 생활 학습지</span><span class="st-row__meta">2.4MB</span><svg class="st-row__chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></a>
+      <a class="st-row" href="#components"><span class="st-badge">PPTX</span><span class="st-row__title">지형 형성 작용 — 수업 슬라이드</span><span class="st-row__meta">8.1MB</span><svg class="st-row__chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></a>
+      <a class="st-row" href="#components"><span class="st-badge">HTML</span><span class="st-row__title">서울 대도시권 팽창 시뮬레이터</span><span class="st-row__meta">웹</span><svg class="st-row__chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg></a>
+    </div>
+  </div>
+
+  <div class="st-card st-card--ink st-reveal" style="margin-top:var(--st-sp-4)">
+    <div class="st-eyebrow st-eyebrow--accent"><i class="st-dot st-dot--live"></i>반전 패널</div>
+    <h3 class="st-title-2" style="margin-top:var(--st-sp-3)">잉크 카드는 한 화면에 하나만</h3>
+    <p class="st-callout st-dim st-measure" style="margin-top:var(--st-sp-2)">
+      가장 강한 강조 수단입니다. 두 개를 나란히 놓으면 둘 다 강조가 아니게 됩니다.
+    </p>
+  </div>
+</section>
+
+<!-- ══════════ 접근성 · 사용법 ══════════ -->
+<section class="st-shell doc-sec" id="usage">
+  <div class="doc-sec__head st-reveal">
+    <div class="st-eyebrow">07 — Usage</div>
+    <h2 class="st-title-1">쓰는 법</h2>
+    <p class="st-body st-measure">두 줄이면 됩니다. 빌드 도구도, 번들러도 필요 없습니다.</p>
+  </div>
+
+  <div class="doc-code st-reveal">
+<pre><span class="c">&lt;!-- &lt;head&gt; 안에 --&gt;</span>
+<span class="c">&lt;!-- 첫 페인트 깜빡임 방지: 스타일보다 먼저 --&gt;</span>
+&lt;script&gt;(function(){try{var t=localStorage.getItem('geo-theme');
+  if(t)document.documentElement.dataset.theme=t;}catch(e){}})();&lt;/script&gt;
+&lt;link rel="stylesheet" href="design-system/<span class="k">stratum.css</span>"&gt;
+
+<span class="c">&lt;!-- &lt;/body&gt; 직전에 --&gt;</span>
+&lt;script src="design-system/<span class="k">stratum.js</span>"&gt;&lt;/script&gt;
+
+<span class="c">// 스프링으로 무엇이든 움직이기</span>
+<span class="k">const</span> s = <span class="k">new</span> Stratum.Spring({
+  damping: 1.0, response: 0.4,
+  onUpdate: v =&gt; el.style.transform = `translateY(${v}px)`
+});
+s.animateTo(0, releaseVelocity);   <span class="c">// 손을 뗀 속도를 그대로 인계</span>
+
+<span class="c">// 끌어서 닫는 시트</span>
+<span class="k">const</span> sheet = <span class="k">new</span> Stratum.Sheet('#my-sheet', { scrim: '#my-scrim' });
+sheet.open();</pre>
+  </div>
+
+  <div class="st-grid st-grid--2" style="margin-top:var(--st-sp-4)">
+    <div class="st-card st-reveal">
+      <div class="st-eyebrow">접근성 — 기본값으로 지킨다</div>
+      <ul class="st-footnote st-dim" style="margin:var(--st-sp-3) 0 0;padding-left:1.1em;line-height:1.9">
+        <li>본문·보조·메타 글자색 전부 <b>4.5:1 이상</b> (라이트 5.1~17.4, 다크 5.2~14.2)</li>
+        <li>조작 요소의 테두리는 3:1 이상 — 장식용 헤어라인과 토큰을 분리</li>
+        <li>터치 타깃 최소 44px — 시각 크기와 무관하게 확보</li>
+        <li>키보드 포커스 링 2px + 오프셋 2px, 마우스에는 안 보임</li>
+        <li><code class="st-mono">prefers-reduced-motion</code> — 이동·스프링을 페이드로 교체</li>
+        <li><code class="st-mono">prefers-reduced-transparency</code> — 유리를 불투명하게</li>
+        <li><code class="st-mono">prefers-contrast: more</code> — 글자·경계 대비 상향</li>
+        <li>본문 크기는 rem — 사용자 글자 크기 설정을 따라 커짐</li>
+      </ul>
+    </div>
+    <div class="st-card st-reveal">
+      <div class="st-eyebrow">기존 페이지와의 호환</div>
+      <p class="st-footnote st-dim" style="margin-top:var(--st-sp-3)">
+        다크 모드는 기존 사이트와 같은 <code class="st-mono">geo-theme</code> localStorage 키를 씁니다.
+        메인 페이지에서 다크로 바꾸고 이 문서로 오면 그대로 다크입니다.
+        토큰 이름은 전부 <code class="st-mono">--st-</code> 접두사라 기존 CSS 변수와 충돌하지 않습니다.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="st-shell doc-foot">
+  <div class="st-between">
+    <div>
+      <b>STRATUM</b> v1.0 — Leet's Geographia 디자인 시스템<br>
+      Astryx v0.1.4 토큰 구조 · Apple Human Interface Guidelines 기반
+    </div>
+    <a class="st-btn st-btn--plain st-btn--sm" href="../index.html">← 메인으로</a>
+  </div>
+</footer>
+
+<!-- ══════════ 시트 (모션 데모) ══════════ -->
+<div class="st-scrim" id="demo-scrim"></div>
+<div class="st-sheet" id="demo-sheet" role="dialog" aria-modal="true" aria-hidden="true" aria-label="시트 데모">
+  <div class="st-sheet__grabber"></div>
+  <div class="st-sheet__body">
+    <div class="st-eyebrow st-eyebrow--accent">Fluid Interface</div>
+    <h3 class="st-title-2" style="margin-top:var(--st-sp-2)">끌어내려 닫아보세요</h3>
+    <p class="st-body st-dim" style="margin-top:var(--st-sp-3)">
+      지금 이 시트는 네 가지 원리를 동시에 쓰고 있습니다.
+    </p>
+    <div class="st-list" style="margin-top:var(--st-sp-4)">
+      <div class="st-row"><span class="st-badge st-badge--accent">1:1</span><span class="st-row__title" style="white-space:normal">손가락과 정확히 같은 거리만큼 움직입니다</span></div>
+      <div class="st-row"><span class="st-badge st-badge--accent">고무줄</span><span class="st-row__title" style="white-space:normal">위로 끌면 점점 저항이 커집니다 — 딱 멈추지 않습니다</span></div>
+      <div class="st-row"><span class="st-badge st-badge--accent">투사</span><span class="st-row__title" style="white-space:normal">놓은 위치가 아니라 관성으로 갈 위치로 목적지를 정합니다</span></div>
+      <div class="st-row"><span class="st-badge st-badge--accent">인계</span><span class="st-row__title" style="white-space:normal">손을 뗀 속도가 스프링의 초기 속도가 됩니다 — 이음매가 없습니다</span></div>
+    </div>
+    <div class="st-cluster" style="margin-top:var(--st-sp-5)">
+      <button class="st-btn st-btn--filled" id="sheet-close">닫기</button>
+      <span class="st-footnote st-dimmer">Esc 또는 배경 탭으로도 닫힙니다</span>
+    </div>
+  </div>
+</div>
+
+<script src="stratum.js"></script>
+<script>
+/* ── 색 스와치 자동 생성 ─────────────────────────────────────────────── */
+const SWATCHES = {
+  'sw-bg': [
+    ['--st-bedrock', '페이지 바탕'], ['--st-bedrock-sunken', '움푹한 그룹'],
+    ['--st-surface', '카드 표면'], ['--st-surface-raised', '팝오버'],
+    ['--st-fill', '채움 1'], ['--st-fill-2', '채움 2'],
+    ['--st-separator', '헤어라인'], ['--st-separator-strong', '강한 경계'],
+    ['--st-ink', '반전 패널']
+  ],
+  'sw-label': [
+    ['--st-label', '본문 · 제목'], ['--st-label-2', '보조 설명'],
+    ['--st-label-3', '메타 · 라벨'], ['--st-label-4', '플레이스홀더']
+  ],
+  'sw-accent': [
+    ['--st-accent', '강조 · 링크'], ['--st-accent-soft', '강조 배경'],
+    ['--st-success', '성공'], ['--st-warning', '주의'],
+    ['--st-danger', '오류'], ['--st-info', '정보']
+  ]
+};
+function paintSwatches() {
+  const cs = getComputedStyle(document.documentElement);
+  for (const [id, list] of Object.entries(SWATCHES)) {
+    const box = document.getElementById(id);
+    if (!box) continue;
+    box.innerHTML = list.map(([token, label]) => {
+      const val = cs.getPropertyValue(token).trim();
+      return `<div class="doc-sw">
+          <div class="doc-sw__chip" style="background:var(${token})"></div>
+          <div class="doc-sw__meta"><code>${token.replace('--st-', '')}</code><small>${label} · ${val}</small></div>
+        </div>`;
+    }).join('');
+  }
+}
+paintSwatches();
+document.documentElement.addEventListener('stratum:theme', () => requestAnimationFrame(paintSwatches));
+
+/* ── 타입 견본 자동 생성 (실제 계산값을 읽어 표기) ────────────────────── */
+const TYPE = [
+  ['st-display',  'Display',  '지층처럼 쌓는'],
+  ['st-title-1',  'Title 1',  '세 개의 지층'],
+  ['st-title-2',  'Title 2',  '두께가 위계를 만든다'],
+  ['st-title-3',  'Title 3',  '시간이 아니라 물성'],
+  ['st-headline', 'Headline', '피드백은 누르는 순간에'],
+  ['st-body',     'Body',     '화면의 모든 요소는 셋 중 하나에 속합니다. 이 구분이 시스템 전체를 지탱합니다.'],
+  ['st-callout',  'Callout',  '조밀한 데이터는 카드가 아니라 행으로 놓습니다.'],
+  ['st-subhead',  'Subhead',  '3-1 기후 환경과 인간 생활'],
+  ['st-footnote', 'Footnote', '손가락은 픽셀을 못 봅니다.'],
+  ['st-caption',  'Caption',  '2026.07.31 · 자동 동기화'],
+  ['st-eyebrow',  'Eyebrow',  'Interactive field guide']
+];
+(function specimen() {
+  const box = document.getElementById('type-specimen');
+  box.innerHTML = TYPE.map(([cls, name, text]) =>
+    `<div class="doc-type__row st-reveal">
+       <div class="doc-type__spec"><b>${name}</b><span data-spec="${cls}">—</span></div>
+       <div class="${cls}">${text}</div>
+     </div>`).join('');
+  // 실제 렌더된 값 읽기
+  box.querySelectorAll('.doc-type__row').forEach(row => {
+    const sample = row.lastElementChild;
+    const cs = getComputedStyle(sample);
+    const size = parseFloat(cs.fontSize);
+    const lh = parseFloat(cs.lineHeight) / size;
+    const tr = (parseFloat(cs.letterSpacing) / size) || 0;
+    row.querySelector('[data-spec]').textContent =
+      `${size.toFixed(1)}px / ${lh.toFixed(2)} / ${tr >= 0 ? '+' : ''}${tr.toFixed(3)}em / ${cs.fontWeight}`;
+  });
+})();
+
+/* ── 스프링 비교 데모 ────────────────────────────────────────────────── */
+const dots = [
+  { el: document.getElementById('dot1'), damping: 1.0,  response: 0.30 },
+  { el: document.getElementById('dot2'), damping: 1.0,  response: 0.40 },
+  { el: document.getElementById('dot3'), damping: 0.80, response: 0.40 },
+  { el: document.getElementById('dot4'), damping: 0.68, response: 0.45 }
+].map(d => ({
+  ...d,
+  spring: new Stratum.Spring({
+    damping: d.damping, response: d.response,
+    onUpdate: v => { d.el.style.transform = `translateX(${v}px)`; }
+  })
+}));
+let springAt = 0;
+function runSprings() {
+  const rail = document.querySelector('.doc-track__rail');
+  const dist = Math.max(40, rail.clientWidth - 30);
+  springAt = springAt ? 0 : dist;
+  dots.forEach(d => d.spring.animateTo(springAt));
+}
+document.getElementById('spring-run').addEventListener('click', runSprings);
+// 창 크기가 바뀌면 이동 거리가 달라진다. 지난 위치를 그대로 두면 레일을 벗어난다
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => { springAt = 0; dots.forEach(d => d.spring.set(0)); }, 120);
+});
+// 처음 화면에 들어올 때 한 번 시연
+new IntersectionObserver((e, o) => {
+  if (e[0].isIntersecting) { setTimeout(runSprings, 300); o.disconnect(); }
+}, { threshold: 0.5 }).observe(document.getElementById('spring-run').closest('.st-card'));
+
+/* ── 시트 데모 ───────────────────────────────────────────────────────── */
+const sheet = new Stratum.Sheet('#demo-sheet', { scrim: '#demo-scrim' });
+document.getElementById('sheet-open').addEventListener('click', () => sheet.open());
+document.getElementById('sheet-close').addEventListener('click', () => sheet.close());
+
+/* reveal은 stratum.js가 자동 초기화하지만, 위에서 동적으로 만든 노드는 다시 걸어준다 */
+Stratum.reveal('.doc-type__row.st-reveal', 35);
+</script>
+</body>
+</html>

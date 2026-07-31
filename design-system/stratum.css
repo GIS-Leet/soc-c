@@ -1,0 +1,686 @@
+/* ============================================================================
+   STRATUM — Leet's Geographia Design System  v1.0
+   ----------------------------------------------------------------------------
+   Astryx(토큰 구조·밀도·절제) × Apple HIG(레이어·재질·유동적 모션)
+
+   설계 원칙 — 세 개의 지층(stratum)
+     ① BEDROCK  기반층 : 페이지 배경. 스크롤되는 바탕.
+     ② SEDIMENT 퇴적층 : 콘텐츠 표면(카드·패널·리스트). 불투명 + 헤어라인.
+     ③ GLASS    유리층 : 떠 있는 기능층(내비·툴바·시트·팝오버). 반투명 재질.
+
+   Apple 원칙: "Liquid Glass는 콘텐츠 레이어에 쓰지 않는다."
+   → 유리는 '조작'에만, 콘텐츠는 항상 퇴적층(불투명)으로.
+
+   모든 값은 토큰. raw hex/px 금지. (Astryx 규칙 승계)
+   ========================================================================== */
+
+/* ══════════════════════════════════════════════════════════════════════════
+   1. PRIMITIVE TOKENS — 원시 팔레트 (직접 사용 금지, 의미 토큰의 재료)
+   ══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* ── Warm stone ramp — 종이·암석 계열 중립색 ───────────────────────── */
+  --st-stone-0:   #fffefc;
+  --st-stone-50:  #faf9f7;
+  --st-stone-100: #f7f6f4;
+  --st-stone-150: #f0eeeb;
+  --st-stone-200: #e6e3de;
+  --st-stone-300: #d1cdc6;
+  --st-stone-400: #b0aaa1;
+  --st-stone-500: #9c968e;
+  --st-stone-600: #7a746b;
+  --st-stone-700: #57534d;
+  --st-stone-800: #3a3733;
+  --st-stone-900: #262320;
+  --st-stone-950: #1b1917;
+  --st-stone-1000:#141311;
+
+  /* ── Clay — 브랜드 강조색(테라코타). 지도 등고선에서 온 색 ───────────── */
+  --st-clay-400: #d87a4a;
+  --st-clay-500: #b4451f;
+  --st-clay-600: #933616;
+
+  /* ── Semantic hues — 따뜻한 팔레트에 맞춰 채도를 낮춘 신호색 ────────── */
+  --st-moss-500:  #3f7a4e;   --st-moss-400:  #6fb37f;   /* 성공 */
+  --st-amber-500: #b07a16;   --st-amber-400: #e0a93f;   /* 주의 */
+  --st-rust-500:  #a11d33;   --st-rust-400:  #f0637a;   /* 오류 — 강조색과 구분되도록 crimson 계열 */
+  --st-slate-500: #2c5f7c;   --st-slate-400: #6fa8c8;   /* 정보·링크 */
+
+  /* ── Spacing — 4px 그리드 (Astryx 스케일 승계) ──────────────────────── */
+  --st-sp-0:   0px;
+  --st-sp-05:  2px;
+  --st-sp-1:   4px;
+  --st-sp-15:  6px;
+  --st-sp-2:   8px;
+  --st-sp-3:  12px;
+  --st-sp-4:  16px;
+  --st-sp-5:  20px;
+  --st-sp-6:  24px;
+  --st-sp-7:  28px;
+  --st-sp-8:  32px;
+  --st-sp-10: 40px;
+  --st-sp-12: 48px;
+  --st-sp-16: 64px;
+  --st-sp-20: 80px;
+
+  /* ── Radius — Astryx 4dp 스케일 + Apple 동심원(concentric) 규칙 ─────── */
+  --st-r-none:      0px;
+  --st-r-inner:     4px;   /* 배지·태그 */
+  --st-r-element:   8px;   /* 버튼·입력 */
+  --st-r-container:12px;   /* 카드·패널 */
+  --st-r-page:     20px;   /* 시트·모달 */
+  --st-r-glass:    26px;   /* 떠 있는 유리 캡슐 */
+  --st-r-full:   9999px;
+
+  /* ── Control heights — Astryx 밀도(28/32/36) + Apple 최소 히트 44 ──── */
+  --st-h-sm: 28px;
+  --st-h-md: 32px;
+  --st-h-lg: 36px;
+  --st-h-xl: 44px;
+  --st-hit:  44px;   /* 터치 최소 타깃. 시각 크기와 별개로 항상 확보 */
+
+  --st-border: 1px;
+
+  /* ── Type — Apple iOS 램프를 rem으로, 한글 leading으로 재보정 ──────── */
+  /* Apple의 body leading은 17/22 = 1.29(라틴 기준).
+     한글은 받침·조합형 특성상 그대로 쓰면 답답하므로 +0.25~0.35 보정. */
+  --st-font-sans: 'Figtree', 'Pretendard', -apple-system, BlinkMacSystemFont,
+                  'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  --st-font-kr:   'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+                  'Segoe UI', system-ui, sans-serif;
+  --st-font-mono: 'SF Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  --st-fw-regular:  400;
+  --st-fw-medium:   500;
+  --st-fw-semibold: 600;
+  --st-fw-bold:     700;
+  --st-fw-heavy:    800;
+
+  /* size / leading / tracking — 크기별 트래킹은 Apple 원칙(큰 글자는 음수) */
+  --st-t-display-size:   2.625rem; --st-t-display-lh:  1.06; --st-t-display-tr:  -0.032em;
+  --st-t-title1-size:    1.875rem; --st-t-title1-lh:   1.16; --st-t-title1-tr:   -0.026em;
+  --st-t-title2-size:    1.4375rem;--st-t-title2-lh:   1.26; --st-t-title2-tr:   -0.021em;
+  --st-t-title3-size:    1.1875rem;--st-t-title3-lh:   1.36; --st-t-title3-tr:   -0.016em;
+  --st-t-headline-size:  1rem;     --st-t-headline-lh: 1.45; --st-t-headline-tr: -0.011em;
+  --st-t-body-size:      1rem;     --st-t-body-lh:     1.65; --st-t-body-tr:     -0.004em;
+  --st-t-callout-size:   0.9375rem;--st-t-callout-lh:  1.6;  --st-t-callout-tr:   0em;
+  --st-t-subhead-size:   0.875rem; --st-t-subhead-lh:  1.55; --st-t-subhead-tr:   0em;
+  --st-t-footnote-size:  0.8125rem;--st-t-footnote-lh: 1.5;  --st-t-footnote-tr:  0.004em;
+  --st-t-caption-size:   0.75rem;  --st-t-caption-lh:  1.45; --st-t-caption-tr:   0.01em;
+  --st-t-micro-size:     0.65625rem;--st-t-micro-lh:   1.4;  --st-t-micro-tr:     0.13em;
+
+  /* ── Motion — 스프링(감쇠비 + response). Apple 값 그대로 CSS linear()로 ─
+     snappy  : damping 1.0 / response 0.30  — 기본 UI. 오버슛 없음
+     smooth  : damping 1.0 / response 0.40  — 큰 표면 이동
+     bouncy  : damping 0.8 / response 0.40  — 제스처(플릭·드래그 놓기) 후에만
+     playful : damping 0.68 / response 0.45 — 강조 1회성 연출. 남용 금지     */
+  --st-spring-snappy: linear(0 0.0%, 0.0617 4.5%, 0.1917 9.1%, 0.3381 13.6%, 0.4759 18.2%, 0.5948 22.7%, 0.6924 27.3%, 0.7697 31.8%, 0.8295 36.4%, 0.8749 40.9%, 0.9089 45.5%, 0.9341 50.0%, 0.9526 54.5%, 0.966 59.1%, 0.9758 63.6%, 0.9828 68.2%, 0.9878 72.7%, 0.9914 77.3%, 0.9939 81.8%, 0.9957 86.4%, 0.997 90.9%, 0.9979 95.5%, 0.9985 100.0%);
+  --st-spring-snappy-dur: 420ms;
+  --st-spring-smooth: linear(0 0.0%, 0.062 4.5%, 0.1924 9.1%, 0.3391 13.6%, 0.4772 18.2%, 0.5962 22.7%, 0.6937 27.3%, 0.7709 31.8%, 0.8305 36.4%, 0.8757 40.9%, 0.9096 45.5%, 0.9347 50.0%, 0.953 54.5%, 0.9664 59.1%, 0.9761 63.6%, 0.983 68.2%, 0.988 72.7%, 0.9915 77.3%, 0.994 81.8%, 0.9958 86.4%, 0.9971 90.9%, 0.9979 95.5%, 0.9986 100.0%);
+  --st-spring-smooth-dur: 560ms;
+  --st-spring-bouncy: linear(0 0.0%, 0.0574 4.5%, 0.1874 9.1%, 0.3436 13.6%, 0.498 18.2%, 0.6351 22.7%, 0.7485 27.3%, 0.837 31.8%, 0.9026 36.4%, 0.9488 40.9%, 0.9795 45.5%, 0.9985 50.0%, 1.0091 54.5%, 1.014 59.1%, 1.0152 63.6%, 1.0142 68.2%, 1.0123 72.7%, 1.0099 77.3%, 1.0075 81.8%, 1.0055 86.4%, 1.0038 90.9%, 1.0024 95.5%, 1.0014 100.0%);
+  --st-spring-bouncy-dur: 525ms;
+  --st-spring-playful: linear(0 0.0%, 0.0836 4.5%, 0.2677 9.1%, 0.4779 13.6%, 0.6703 18.2%, 0.8239 22.7%, 0.9334 27.3%, 1.0025 31.8%, 1.0393 36.4%, 1.0532 40.9%, 1.0526 45.5%, 1.0443 50.0%, 1.0331 54.5%, 1.0221 59.1%, 1.0128 63.6%, 1.0058 68.2%, 1.0012 72.7%, 0.9985 77.3%, 0.9973 81.8%, 0.9971 86.4%, 0.9974 90.9%, 0.9979 95.5%, 0.9986 100.0%);
+  --st-spring-playful-dur: 715ms;
+
+  /* 비-제스처(색·투명도)에는 스프링 대신 표준 이징. Astryx 값 승계 */
+  --st-ease: cubic-bezier(0.24, 1, 0.4, 1);
+  --st-dur-instant: 90ms;    /* 눌림 피드백 — 지각 한계 아래 */
+  --st-dur-fast:   175ms;    /* hover·색 변화 */
+  --st-dur-medium: 410ms;    /* 진입·퇴장 */
+  --st-dur-slow:   975ms;    /* 지속형 연출 */
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   2. SEMANTIC TOKENS — LIGHT (Apple의 의미 기반 명명: label / fill / separator)
+   ══════════════════════════════════════════════════════════════════════════ */
+:root {
+  color-scheme: light;
+
+  /* 배경 계층 — 아래에서 위로 */
+  --st-bedrock:        var(--st-stone-100);  /* 페이지 바탕 */
+  --st-bedrock-sunken: var(--st-stone-150);  /* 움푹한 영역(그룹 배경) */
+  --st-surface:        var(--st-stone-0);    /* 카드·패널 */
+  --st-surface-raised: #ffffff;              /* 팝오버·시트 내부 */
+  --st-fill:           #05365914;            /* 채움 1 — 트랙·비활성 배경 */
+  --st-fill-2:         #0536590c;            /* 채움 2 */
+  --st-fill-3:         #05365906;            /* 채움 3 */
+
+  /* 전경(label) — 대비 순서대로 4단계.
+     label~label-3은 본문 기준 4.5:1 이상, label-4는 장식·아이콘용으로 3:1 이상.
+     (읽어야 하는 글자에는 label-4를 쓰지 않는다 — 플레이스홀더 포함) */
+  --st-label:    var(--st-stone-950);   /* 17.4:1 */
+  --st-label-2:  var(--st-stone-700);   /*  7.6:1 */
+  --st-label-3:  #736d64;               /*  5.1:1 */
+  --st-label-4:  #8a847b;               /*  3.7:1 — 텍스트 금지 */
+
+  /* 경계 — 두 종류를 구분한다.
+     separator/…-strong은 '장식적 구획'(카드 테두리·행 구분선)이라 연해도 된다.
+     border-control은 '이것이 조작 가능한 요소임을 알려주는 유일한 단서'이므로
+     WCAG 1.4.11에 따라 배경 대비 3:1 이상을 지킨다. */
+  --st-separator:        var(--st-stone-200);
+  --st-separator-strong: var(--st-stone-300);
+  --st-border-control:   var(--st-label-4);   /* 3.7:1 */
+
+  /* 강조 */
+  --st-accent:       var(--st-clay-500);
+  --st-accent-hover: var(--st-clay-600);
+  --st-accent-soft:  #b4451f14;
+  --st-accent-line:  #b4451f38;
+  --st-on-accent:    #ffffff;
+
+  /* 신호색 */
+  --st-success: var(--st-moss-500);  --st-success-soft: #3f7a4e1a;
+  --st-warning: #94640d;             --st-warning-soft: #b07a161f;  /* amber-500은 흰 배경에서 3.7:1로 미달 */
+  --st-danger:  var(--st-rust-500);  --st-danger-soft:  #a11d331a;
+  --st-info:    var(--st-slate-500); --st-info-soft:    #2c5f7c1a;
+
+  /* 반전 패널(잉크) — 메인 페이지의 Q&A 패널 계열 */
+  --st-ink:      var(--st-stone-900);
+  --st-on-ink:   #f4f1ec;
+  --st-on-ink-2: #f4f1ec94;
+  --st-on-ink-3: #f4f1ec5c;
+  --st-on-ink-line: #f4f1ec1a;
+
+  /* ── MATERIALS — 유리층 재질 4종 (Apple: ultraThin/thin/regular/thick) ──
+     blur + saturate + 반투명 배경. 위로 갈수록 두껍고 대비가 높다. */
+  --st-mat-clear-bg:    #f7f6f440;   --st-mat-clear-blur:   blur(6px)  saturate(150%);
+  --st-mat-thin-bg:     #f7f6f499;   --st-mat-thin-blur:    blur(14px) saturate(160%);
+  --st-mat-regular-bg:  #f7f6f4d6;   --st-mat-regular-blur: blur(24px) saturate(180%);
+  --st-mat-thick-bg:    #fffefcf2;   --st-mat-thick-blur:   blur(40px) saturate(150%);
+  /* 재질 위쪽에 빛이 걸리는 밝은 모서리 — 두께감의 핵심 */
+  --st-mat-edge:  #ffffffa8;
+  --st-mat-edge-b:#1b191712;
+  /* clear 재질을 밝은 사진 위에 쓸 때 덧대는 딤 레이어 (Apple 권장 35%) */
+  --st-mat-dim: #1b191759;
+
+  /* ── ELEVATION — 그림자는 순검정이 아니라 따뜻한 잉크색 ─────────────── */
+  --st-shadow-low:  0 1px 1px #18141008, 0 2px 8px #1814100d;
+  --st-shadow-med:  0 1px 2px #1814100d, 0 6px 20px #18141014;
+  --st-shadow-high: 0 2px 4px #18141012, 0 14px 40px #1814101f;
+  --st-shadow-glass:0 1px 2px #1814100f, 0 10px 34px #1814101a;
+  --st-ring: 0 0 0 3px var(--st-accent-line);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   3. SEMANTIC TOKENS — DARK
+   data-theme="dark"가 우선. 지정이 없으면 OS 설정을 따른다.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { color-scheme: dark; }
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --st-bedrock: var(--st-stone-1000); --st-bedrock-sunken: #0f0e0d;
+    --st-surface: #1c1a18; --st-surface-raised: #232120;
+    --st-fill: #dfe2e51a; --st-fill-2: #dfe2e510; --st-fill-3: #dfe2e508;
+    --st-label: #ece8e1; --st-label-2: #a8a298; --st-label-3: #928c83; --st-label-4: #7a746b;
+    --st-separator: #2c2925; --st-separator-strong: #3d3934;
+    --st-accent: var(--st-clay-400); --st-accent-hover: #e59464;
+    --st-accent-soft: #d87a4a1f; --st-accent-line: #d87a4a45; --st-on-accent: #1b1917;
+    --st-success: var(--st-moss-400);  --st-success-soft: #6fb37f1f;
+    --st-warning: var(--st-amber-400); --st-warning-soft: #e0a93f1f;
+    --st-danger:  var(--st-rust-400);  --st-danger-soft:  #f0637a1f;
+    --st-info:    var(--st-slate-400); --st-info-soft:    #6fa8c81f;
+    --st-ink: #26221e; --st-on-ink: #f0ece5;
+    --st-on-ink-2: #f0ece594; --st-on-ink-3: #f0ece55c; --st-on-ink-line: #f0ece51f;
+    --st-mat-clear-bg: #14131140; --st-mat-thin-bg: #1413119e;
+    --st-mat-regular-bg: #141311d6; --st-mat-thick-bg: #1c1a18f2;
+    --st-mat-edge: #ffffff17; --st-mat-edge-b: #00000038;
+    --st-mat-dim: #00000073;
+    --st-shadow-low:  0 1px 1px #0000004d, 0 2px 8px #00000059;
+    --st-shadow-med:  0 1px 2px #00000059, 0 6px 20px #00000080;
+    --st-shadow-high: 0 2px 4px #00000066, 0 14px 40px #00000099;
+    --st-shadow-glass:0 1px 2px #00000059, 0 10px 34px #00000080;
+  }
+}
+:root[data-theme="dark"] {
+  --st-bedrock: var(--st-stone-1000); --st-bedrock-sunken: #0f0e0d;
+  --st-surface: #1c1a18; --st-surface-raised: #232120;
+  --st-fill: #dfe2e51a; --st-fill-2: #dfe2e510; --st-fill-3: #dfe2e508;
+  --st-label: #ece8e1; --st-label-2: #a8a298; --st-label-3: #928c83; --st-label-4: #7a746b;
+  --st-separator: #2c2925; --st-separator-strong: #3d3934;
+  --st-accent: var(--st-clay-400); --st-accent-hover: #e59464;
+  --st-accent-soft: #d87a4a1f; --st-accent-line: #d87a4a45; --st-on-accent: #1b1917;
+  --st-success: var(--st-moss-400);  --st-success-soft: #6fb37f1f;
+  --st-warning: var(--st-amber-400); --st-warning-soft: #e0a93f1f;
+  --st-danger:  var(--st-rust-400);  --st-danger-soft:  #f0637a1f;
+  --st-info:    var(--st-slate-400); --st-info-soft:    #6fa8c81f;
+  --st-ink: #26221e; --st-on-ink: #f0ece5;
+  --st-on-ink-2: #f0ece594; --st-on-ink-3: #f0ece55c; --st-on-ink-line: #f0ece51f;
+  --st-mat-clear-bg: #14131140; --st-mat-thin-bg: #1413119e;
+  --st-mat-regular-bg: #141311d6; --st-mat-thick-bg: #1c1a18f2;
+  --st-mat-edge: #ffffff17; --st-mat-edge-b: #00000038;
+  --st-mat-dim: #00000073;
+  --st-shadow-low:  0 1px 1px #0000004d, 0 2px 8px #00000059;
+  --st-shadow-med:  0 1px 2px #00000059, 0 6px 20px #00000080;
+  --st-shadow-high: 0 2px 4px #00000066, 0 14px 40px #00000099;
+  --st-shadow-glass:0 1px 2px #00000059, 0 10px 34px #00000080;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   4. ACCESSIBILITY OVERRIDES
+   Apple은 색을 3종(기본/증가대비/투명도감소)으로 정의한다. 우리도 그렇게.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-contrast: more) {
+  :root {
+    --st-label-2: var(--st-stone-800);
+    --st-label-3: var(--st-stone-700);
+    --st-label-4: var(--st-stone-600);
+    --st-separator: var(--st-stone-400);
+    --st-separator-strong: var(--st-stone-600);
+    --st-accent: var(--st-clay-600);
+    --st-mat-regular-bg: var(--st-stone-50);
+    --st-mat-thin-bg: var(--st-stone-50);
+    --st-mat-thick-bg: var(--st-stone-0);
+  }
+  :root[data-theme="dark"] {
+    --st-label-2: #d6d1c9; --st-label-3: #b3ada4; --st-label-4: #8b857c;
+    --st-separator: #4a463f; --st-separator-strong: #6b665e;
+    --st-mat-regular-bg: #141311; --st-mat-thin-bg: #141311; --st-mat-thick-bg: #1c1a18;
+  }
+  .st-glass, .st-sheet { border-color: var(--st-separator-strong) !important; }
+}
+
+/* 투명도 감소 — 유리를 불투명하게. 흐림은 제거 */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --st-mat-clear-blur: none; --st-mat-thin-blur: none;
+    --st-mat-regular-blur: none; --st-mat-thick-blur: none;
+    --st-mat-clear-bg: var(--st-bedrock); --st-mat-thin-bg: var(--st-bedrock);
+    --st-mat-regular-bg: var(--st-bedrock); --st-mat-thick-bg: var(--st-surface);
+  }
+}
+
+/* 모션 감소 — 스프링/이동을 교차 페이드로 대체 (사라지는 게 아니라 순해진다) */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --st-spring-snappy: ease; --st-spring-smooth: ease;
+    --st-spring-bouncy: ease; --st-spring-playful: ease;
+    --st-spring-snappy-dur: 1ms; --st-spring-smooth-dur: 1ms;
+    --st-spring-bouncy-dur: 1ms; --st-spring-playful-dur: 1ms;
+  }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: var(--st-dur-fast) !important;
+    scroll-behavior: auto !important;
+  }
+  .st-reveal { opacity: 1 !important; transform: none !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   5. BASE
+   ══════════════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;  /* 사용자 텍스트 크기 설정 존중 */
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--st-bedrock);
+  color: var(--st-label);
+  font-family: var(--st-font-sans);
+  font-size: var(--st-t-body-size);
+  line-height: var(--st-t-body-lh);
+  letter-spacing: var(--st-t-body-tr);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'tnum' 1, 'case' 1;
+  text-rendering: optimizeLegibility;
+  word-break: keep-all;            /* 한글 어절 단위 줄바꿈 */
+  overflow-wrap: anywhere;
+}
+
+:lang(ko), .st-kr { font-family: var(--st-font-kr); }
+
+h1, h2, h3, h4, h5, h6, p, figure, blockquote { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+img, svg, video { display: block; max-width: 100%; }
+::selection { background: var(--st-accent-soft); color: var(--st-accent); }
+
+/* 포커스 링 — 키보드 사용자에게만. 항상 2px 이상 + 배경 대비 확보 */
+:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+  border-radius: var(--st-r-inner);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   6. TYPOGRAPHY — 크기·굵기·행간·트래킹을 한 세트로
+   ══════════════════════════════════════════════════════════════════════════ */
+.st-display  { font-size: clamp(2rem, 5.2vw, var(--st-t-display-size)); line-height: var(--st-t-display-lh); letter-spacing: var(--st-t-display-tr); font-weight: var(--st-fw-heavy); }
+.st-title-1  { font-size: clamp(1.5rem, 3.4vw, var(--st-t-title1-size)); line-height: var(--st-t-title1-lh); letter-spacing: var(--st-t-title1-tr); font-weight: var(--st-fw-bold); }
+.st-title-2  { font-size: var(--st-t-title2-size); line-height: var(--st-t-title2-lh); letter-spacing: var(--st-t-title2-tr); font-weight: var(--st-fw-bold); }
+.st-title-3  { font-size: var(--st-t-title3-size); line-height: var(--st-t-title3-lh); letter-spacing: var(--st-t-title3-tr); font-weight: var(--st-fw-semibold); }
+.st-headline { font-size: var(--st-t-headline-size); line-height: var(--st-t-headline-lh); letter-spacing: var(--st-t-headline-tr); font-weight: var(--st-fw-semibold); }
+.st-body     { font-size: var(--st-t-body-size); line-height: var(--st-t-body-lh); letter-spacing: var(--st-t-body-tr); font-weight: var(--st-fw-regular); }
+.st-callout  { font-size: var(--st-t-callout-size); line-height: var(--st-t-callout-lh); letter-spacing: var(--st-t-callout-tr); }
+.st-subhead  { font-size: var(--st-t-subhead-size); line-height: var(--st-t-subhead-lh); letter-spacing: var(--st-t-subhead-tr); font-weight: var(--st-fw-medium); }
+.st-footnote { font-size: var(--st-t-footnote-size); line-height: var(--st-t-footnote-lh); letter-spacing: var(--st-t-footnote-tr); }
+.st-caption  { font-size: var(--st-t-caption-size); line-height: var(--st-t-caption-lh); letter-spacing: var(--st-t-caption-tr); font-weight: var(--st-fw-medium); }
+
+/* eyebrow — 시스템의 서명. 섹션 위 작은 대문자 라벨 */
+.st-eyebrow {
+  font-size: var(--st-t-micro-size);
+  line-height: var(--st-t-micro-lh);
+  letter-spacing: var(--st-t-micro-tr);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  color: var(--st-label-3);
+  display: inline-flex; align-items: center; gap: var(--st-sp-15);
+}
+.st-eyebrow--accent { color: var(--st-accent); }
+
+/* 색 유틸 */
+.st-dim   { color: var(--st-label-2); }
+.st-dimmer{ color: var(--st-label-3); }
+.st-tint  { color: var(--st-accent); }
+.st-mono  { font-family: var(--st-font-mono); font-size: 0.8125rem; letter-spacing: 0; }
+.st-measure { max-width: 34em; }        /* 본문 줄길이 상한 */
+.st-measure-tight { max-width: 26em; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   7. LAYER ② SEDIMENT — 콘텐츠 표면
+   불투명 + 헤어라인 + 낮은 그림자. 유리를 절대 여기 쓰지 않는다.
+   ══════════════════════════════════════════════════════════════════════════ */
+.st-card {
+  --st-pad: var(--st-sp-5);
+  background: var(--st-surface);
+  border: var(--st-border) solid var(--st-separator);
+  border-radius: var(--st-r-container);
+  box-shadow: var(--st-shadow-low);
+  padding: var(--st-pad);
+  position: relative;
+  transition: border-color var(--st-dur-fast) var(--st-ease),
+              box-shadow var(--st-dur-fast) var(--st-ease),
+              transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
+}
+.st-card--flush { padding: 0; overflow: hidden; }
+.st-card--sunken { background: var(--st-bedrock-sunken); box-shadow: none; }
+.st-card--ink {
+  background: var(--st-ink); color: var(--st-on-ink);
+  border-color: transparent;
+}
+.st-card--ink .st-dim   { color: var(--st-on-ink-2); }
+.st-card--ink .st-dimmer{ color: var(--st-on-ink-3); }
+.st-card--ink .st-eyebrow { color: var(--st-on-ink-3); }
+
+/* 링크형 카드만 들어올린다. 정적 카드는 hover에 반응하지 않는다 */
+a.st-card:hover, button.st-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--st-shadow-med);
+  border-color: var(--st-separator-strong);
+}
+a.st-card:active, button.st-card:active {
+  transform: translateY(-1px) scale(0.995);
+  transition-duration: var(--st-dur-instant);
+}
+
+/* 동심원 반경 — Apple 규칙: 안쪽 반경 = 바깥 반경 − 패딩 */
+.st-nested { border-radius: max(var(--st-r-inner), calc(var(--st-r-container) - var(--st-pad))); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   8. LAYER ③ GLASS — 떠 있는 기능층
+   ══════════════════════════════════════════════════════════════════════════ */
+.st-glass {
+  background: var(--st-mat-regular-bg);
+  -webkit-backdrop-filter: var(--st-mat-regular-blur);
+  backdrop-filter: var(--st-mat-regular-blur);
+  border: var(--st-border) solid var(--st-mat-edge-b);
+  border-top-color: var(--st-mat-edge);       /* 위쪽에 빛이 걸린 모서리 */
+  box-shadow: var(--st-shadow-glass);
+}
+.st-glass--thin    { background: var(--st-mat-thin-bg);  -webkit-backdrop-filter: var(--st-mat-thin-blur);  backdrop-filter: var(--st-mat-thin-blur); }
+.st-glass--thick   { background: var(--st-mat-thick-bg); -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur); }
+/* clear — 사진·영상 위에서만. 텍스트가 많으면 쓰지 않는다 */
+.st-glass--clear   { background: var(--st-mat-clear-bg); -webkit-backdrop-filter: var(--st-mat-clear-blur); backdrop-filter: var(--st-mat-clear-blur); box-shadow: none; }
+.st-glass--clear.st-glass--dimmed { background: linear-gradient(var(--st-mat-dim), var(--st-mat-dim)), var(--st-mat-clear-bg); }
+
+/* 상단 내비 — 콘텐츠가 아래로 흘러 지나간다 */
+.st-bar {
+  position: sticky; top: 0; z-index: 50;
+  border-width: 0 0 var(--st-border) 0;
+  border-radius: 0;
+}
+/* 떠 있는 캡슐형 툴바 (하단 고정 등) */
+.st-bar--floating {
+  position: fixed; left: 50%; bottom: max(var(--st-sp-5), env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  border-radius: var(--st-r-glass);
+  border-width: var(--st-border);
+  padding: var(--st-sp-15);
+}
+
+/* 스크롤 엣지 — 1px 구분선 대신 콘텐츠가 재질 아래로 사라지게 */
+.st-scroll-edge {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--st-sp-6),
+                       #000 calc(100% - var(--st-sp-6)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--st-sp-6),
+               #000 calc(100% - var(--st-sp-6)), transparent 100%);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   9. CONTROLS
+   ══════════════════════════════════════════════════════════════════════════ */
+.st-btn {
+  --btn-h: var(--st-h-lg);
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--st-sp-2);
+  height: var(--btn-h); padding: 0 var(--st-sp-4);
+  border: var(--st-border) solid transparent;
+  border-radius: var(--st-r-element);
+  background: var(--st-fill-2); color: var(--st-label);
+  font-size: var(--st-t-subhead-size); font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.008em; white-space: nowrap;
+  cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: background var(--st-dur-fast) var(--st-ease),
+              color var(--st-dur-fast) var(--st-ease),
+              border-color var(--st-dur-fast) var(--st-ease),
+              transform var(--st-dur-instant) var(--st-ease);
+}
+/* 터치 타깃 44px 보장 — 시각 크기는 그대로 두고 히트 영역만 넓힌다 */
+.st-btn::after {
+  content: ''; position: absolute; inset: 50% 0 auto 0;
+  height: max(100%, var(--st-hit)); transform: translateY(-50%);
+}
+/* 피드백은 '누르는 순간'. 떼는 순간이 아니다 */
+.st-btn:active { transform: scale(0.97); }
+.st-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.st-btn--filled  { background: var(--st-accent); color: var(--st-on-accent); }
+.st-btn--filled:hover { background: var(--st-accent-hover); }
+.st-btn--tinted  { background: var(--st-accent-soft); color: var(--st-accent); }
+.st-btn--tinted:hover { background: var(--st-accent-line); }
+.st-btn--outline { background: transparent; border-color: var(--st-border-control); color: var(--st-label); }
+.st-btn--outline:hover { border-color: var(--st-label-3); background: var(--st-fill-3); }
+.st-btn--plain   { background: transparent; color: var(--st-label-2); padding: 0 var(--st-sp-3); }
+.st-btn--plain:hover { color: var(--st-label); background: var(--st-fill-2); }
+/* 유리 버튼 — 기능층 위에서만 */
+.st-btn--glass {
+  background: var(--st-mat-thin-bg); color: var(--st-label);
+  -webkit-backdrop-filter: var(--st-mat-thin-blur); backdrop-filter: var(--st-mat-thin-blur);
+  border-color: var(--st-mat-edge-b); border-top-color: var(--st-mat-edge);
+}
+.st-btn--danger  { background: var(--st-danger-soft); color: var(--st-danger); }
+
+.st-btn--sm { --btn-h: var(--st-h-sm); padding: 0 var(--st-sp-3); font-size: var(--st-t-caption-size); }
+.st-btn--md { --btn-h: var(--st-h-md); }
+.st-btn--xl { --btn-h: var(--st-h-xl); padding: 0 var(--st-sp-5); font-size: var(--st-t-callout-size); }
+.st-btn--pill { border-radius: var(--st-r-full); }
+.st-btn--icon { width: var(--btn-h); padding: 0; border-radius: var(--st-r-full); }
+
+/* 세그먼티드 컨트롤 — Astryx 탭 밀도 + Apple 슬라이딩 인디케이터 */
+.st-segmented {
+  display: inline-flex; gap: var(--st-sp-05);
+  padding: 3px; border-radius: var(--st-r-element);
+  background: var(--st-fill-2);
+  position: relative;
+}
+.st-segmented__item {
+  border: 0; background: transparent; cursor: pointer;
+  padding: var(--st-sp-15) var(--st-sp-3);
+  border-radius: max(var(--st-r-inner), calc(var(--st-r-element) - 3px));
+  font-size: var(--st-t-caption-size); font-weight: var(--st-fw-semibold);
+  color: var(--st-label-3); white-space: nowrap; position: relative; z-index: 1;
+  transition: color var(--st-dur-fast) var(--st-ease);
+}
+.st-segmented__item:hover { color: var(--st-label-2); }
+.st-segmented__item[aria-selected="true"], .st-segmented__item.is-on { color: var(--st-label); }
+.st-segmented__thumb {
+  position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0;
+  background: var(--st-surface); border-radius: max(var(--st-r-inner), calc(var(--st-r-element) - 3px));
+  box-shadow: var(--st-shadow-low);
+  transition: transform var(--st-spring-snappy-dur) var(--st-spring-snappy),
+              width var(--st-spring-snappy-dur) var(--st-spring-snappy);
+}
+
+/* 입력 */
+.st-field {
+  width: 100%; height: var(--st-h-xl);
+  padding: 0 var(--st-sp-3);
+  background: var(--st-surface);
+  border: var(--st-border) solid var(--st-border-control);
+  border-radius: var(--st-r-element);
+  color: var(--st-label);
+  font-size: var(--st-t-callout-size);
+  transition: border-color var(--st-dur-fast) var(--st-ease),
+              box-shadow var(--st-dur-fast) var(--st-ease);
+}
+textarea.st-field { height: auto; padding: var(--st-sp-3); line-height: var(--st-t-body-lh); resize: vertical; }
+/* 플레이스홀더도 '읽어야 하는 글자'다. label-4(3.7:1)가 아니라 label-3(5.1:1) */
+.st-field::placeholder { color: var(--st-label-3); }
+.st-field:focus { outline: none; border-color: var(--st-accent); box-shadow: var(--st-ring); }
+.st-field[aria-invalid="true"] { border-color: var(--st-danger); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   10. DATA — 조밀한 데이터는 카드가 아니라 '행'으로 (Astryx 규칙)
+   ══════════════════════════════════════════════════════════════════════════ */
+.st-list { display: flex; flex-direction: column; }
+.st-row {
+  display: flex; align-items: center; gap: var(--st-sp-3);
+  min-height: var(--st-hit);
+  padding: var(--st-sp-2) var(--st-sp-1);
+  border-bottom: var(--st-border) solid var(--st-separator);
+  min-width: 0;
+  transition: padding-left var(--st-spring-snappy-dur) var(--st-spring-snappy),
+              background var(--st-dur-fast) var(--st-ease);
+}
+.st-row:last-child { border-bottom: 0; }
+a.st-row:hover, button.st-row:hover { padding-left: var(--st-sp-15); }
+.st-row__title { flex: 1; min-width: 0; font-size: var(--st-t-subhead-size); font-weight: var(--st-fw-semibold);
+                 color: var(--st-label-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                 transition: color var(--st-dur-fast) var(--st-ease); }
+a.st-row:hover .st-row__title { color: var(--st-label); }
+.st-row__meta { font-size: var(--st-t-caption-size); color: var(--st-label-3); flex-shrink: 0; }
+.st-row__chevron { color: var(--st-label-4); opacity: 0; transform: translateX(-4px); flex-shrink: 0;
+                   transition: opacity var(--st-dur-fast) var(--st-ease), transform var(--st-spring-snappy-dur) var(--st-spring-snappy), color var(--st-dur-fast) var(--st-ease); }
+a.st-row:hover .st-row__chevron { opacity: 1; transform: translateX(0); color: var(--st-accent); }
+
+/* 상태 표시 — 색만으로 뜻을 전하지 않는다. 항상 텍스트를 동반 */
+.st-dot { width: 6px; height: 6px; border-radius: var(--st-r-full); background: var(--st-label-3); flex-shrink: 0; }
+.st-dot--live    { background: var(--st-accent); animation: st-pulse 2.8s ease-in-out infinite; }
+.st-dot--success { background: var(--st-success); }
+.st-dot--warning { background: var(--st-warning); }
+.st-dot--danger  { background: var(--st-danger); }
+@keyframes st-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+.st-badge {
+  display: inline-flex; align-items: center; gap: var(--st-sp-1);
+  padding: 2px var(--st-sp-15); border-radius: var(--st-r-inner);
+  font-size: var(--st-t-micro-size); font-weight: var(--st-fw-bold);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--st-fill-2); color: var(--st-label-3);
+  border: var(--st-border) solid var(--st-separator);
+}
+.st-badge--accent  { background: var(--st-accent-soft);  color: var(--st-accent);  border-color: var(--st-accent-line); }
+.st-badge--success { background: var(--st-success-soft); color: var(--st-success); border-color: transparent; }
+.st-badge--warning { background: var(--st-warning-soft); color: var(--st-warning); border-color: transparent; }
+.st-badge--danger  { background: var(--st-danger-soft);  color: var(--st-danger);  border-color: transparent; }
+
+.st-stat__value { font-size: var(--st-t-title2-size); font-weight: var(--st-fw-bold); letter-spacing: -0.02em; line-height: 1.1; }
+.st-stat__label { font-size: var(--st-t-caption-size); color: var(--st-label-3); margin-top: 2px; }
+
+.st-divider { height: var(--st-border); background: var(--st-separator); border: 0; margin: var(--st-sp-4) 0; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   11. SHEET — 드래그로 닫히는 시트. 유동적 인터페이스의 시연장
+   위치는 JS가 1:1로 제어하고, CSS는 놓았을 때의 스프링만 담당한다.
+   ══════════════════════════════════════════════════════════════════════════ */
+.st-scrim {
+  position: fixed; inset: 0; z-index: 90;
+  background: #14131100; backdrop-filter: blur(0px);
+  transition: background var(--st-dur-medium) var(--st-ease),
+              backdrop-filter var(--st-dur-medium) var(--st-ease);
+  pointer-events: none;
+}
+.st-scrim.is-open { background: #14131173; backdrop-filter: blur(2px); pointer-events: auto; }
+
+.st-sheet {
+  position: fixed; z-index: 91;
+  left: 50%; bottom: 0;
+  width: min(560px, 100%);
+  max-height: min(82dvh, 720px);
+  display: flex; flex-direction: column;
+  padding: var(--st-sp-3) var(--st-sp-5) max(var(--st-sp-6), env(safe-area-inset-bottom));
+  border-radius: var(--st-r-page) var(--st-r-page) 0 0;
+  background: var(--st-mat-thick-bg);
+  -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur);
+  border: var(--st-border) solid var(--st-mat-edge-b);
+  border-top-color: var(--st-mat-edge);
+  box-shadow: var(--st-shadow-high);
+  /* 시작 상태: 화면 아래. transform은 JS가 --st-y로 조종한다 */
+  --st-y: 100%;
+  transform: translate(-50%, var(--st-y));
+  touch-action: none;
+  visibility: hidden;
+}
+.st-sheet.is-open { visibility: visible; }
+/* 드래그 중이 아닐 때만 스프링. 드래그 중에는 손가락과 1:1 */
+.st-sheet:not(.is-dragging) {
+  transition: transform var(--st-spring-bouncy-dur) var(--st-spring-bouncy),
+              visibility 0s linear var(--st-spring-bouncy-dur);
+}
+.st-sheet.is-open:not(.is-dragging) { transition-delay: 0s; }
+.st-sheet__grabber {
+  width: 36px; height: 5px; border-radius: var(--st-r-full);
+  background: var(--st-separator-strong); margin: 0 auto var(--st-sp-4);
+  flex-shrink: 0; cursor: grab;
+}
+.st-sheet.is-dragging .st-sheet__grabber { cursor: grabbing; }
+.st-sheet__body { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   12. LAYOUT UTILITIES
+   ══════════════════════════════════════════════════════════════════════════ */
+.st-shell { max-width: 1360px; margin: 0 auto; padding-inline: var(--st-sp-6); }
+.st-shell--narrow { max-width: 860px; }        /* Apple의 본문 폭 기준 860pt */
+.st-section { padding-block: var(--st-sp-16); }
+
+.st-stack { display: flex; flex-direction: column; gap: var(--st-sp-4); }
+.st-stack--sm { gap: var(--st-sp-2); }
+.st-stack--lg { gap: var(--st-sp-6); }
+.st-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--st-sp-3); }
+.st-cluster--sm { gap: var(--st-sp-2); }
+.st-between { display: flex; align-items: center; justify-content: space-between; gap: var(--st-sp-3); }
+.st-grid { display: grid; gap: var(--st-sp-4); grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.st-grid--2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.st-spacer { flex: 1; }
+
+/* 진입 연출 — 스크롤로 들어올 때 한 번. 반복 애니메이션 금지 */
+.st-reveal { opacity: 0; transform: translateY(14px); }
+.st-reveal.is-in {
+  opacity: 1; transform: none;
+  transition: opacity var(--st-dur-medium) var(--st-ease),
+              transform var(--st-spring-smooth-dur) var(--st-spring-smooth);
+}
+
+.st-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
