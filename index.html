@@ -39,9 +39,7 @@
   --track-ko: 0.055em;                /* 한글은 자간을 넓게 벌리면 가독성이 무너진다 */
   --scrim: 242,242,247;               /* 스크림 = 바탕색(--st-bedrock)의 RGB */
   --sans: 'Inter', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  /* 콘텐츠 최대 폭. 이게 없으면 QHD·울트라와이드에서 좌우 요소가 화면
-     양 끝으로 흩어지고 가운데가 텅 빈다. 지구 무대도 같은 폭을 쓴다. */
-  --wrap: 1680px;
+  --bar-h: 58px;
 }
 :root[data-theme="dark"] { --scrim: 0,0,0; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --scrim: 0,0,0; } }
@@ -57,16 +55,16 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
    지구 무대를 콘텐츠와 같은 폭으로 묶는다. 그래야 화면이 아무리 넓어져도
    지구와 글자의 상대 위치가 유지되고, 스크림 좌표도 한 번만 맞추면 된다. */
 .globe { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-.globe-stage { position: relative; width: 100%; max-width: var(--wrap); height: 100%; margin: 0 auto; }
+.globe-stage { position: relative; width: 100%; height: 100%; }
 .globe-stage canvas {
   /* 세로·가로·상한을 모두 걸어 어떤 화면비에서도 과하거나 작지 않게 */
   --gsize: min(78vh, 46vw, 980px);
   position: absolute;
   left: 21%;
   /* 구는 캔버스 박스의 가운데 86%만 차지한다(위아래 7%씩 여백).
-     구의 '윗면'을 화면 13px에 고정해, 화면이 커져도 항상 상단바 아래로
-     파고들게 한다 — 유리 뒤에 지나갈 것이 있어야 굴절이 보인다. */
-  top: calc(13px - 0.07 * var(--gsize));
+     구의 '윗면'을 상단바 바로 아래에 둔다 — 구가 바에 잘리지 않으면서도
+     대기 헤일로(반지름의 13%)는 바 뒤로 걸쳐, 유리가 굴절할 대상이 남는다. */
+  top: calc(var(--bar-h) + 8px - 0.07 * var(--gsize));
   width: var(--gsize); height: var(--gsize);
   transform: translateX(-50%);
   opacity: 0;
@@ -88,14 +86,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
                                          rgba(var(--scrim),0) 100%),
     linear-gradient(to top, rgba(var(--scrim),0.94) 0%, rgba(var(--scrim),0.58) 13%, rgba(var(--scrim),0) 30%),
     linear-gradient(100deg, rgba(var(--scrim),0) 26%, rgba(var(--scrim),0.72) 54%, rgba(var(--scrim),0.94) 74%);
-}
-/* 무대 바깥(초광폭 화면의 좌우 여백)은 바탕색으로 덮어 지구가 새어나가지 않게 */
-.globe::after {
-  content: ''; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(90deg,
-    rgba(var(--scrim),1) 0, rgba(var(--scrim),1) calc(50% - var(--wrap) / 2),
-    rgba(var(--scrim),0) calc(50% - var(--wrap) / 2), rgba(var(--scrim),0) calc(50% + var(--wrap) / 2),
-    rgba(var(--scrim),1) calc(50% + var(--wrap) / 2), rgba(var(--scrim),1) 100%);
 }
 /* 세로로 긴 화면(태블릿 세로 등)에서는 지구를 왼쪽에 두면 가운데가 비어 버린다.
    가운데로 옮기고 폭 기준으로 키운다. 가로형은 위 규칙을 그대로 쓴다. */
@@ -120,8 +110,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 /* ── 내비게이션 — Liquid Glass ── */
 .bar-in {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 var(--pad-x); height: 58px; gap: 16px;
-  width: 100%; max-width: var(--wrap); margin: 0 auto;
+  padding: 0 var(--pad-x); height: var(--bar-h); gap: 16px;
 }
 .logo { display: flex; align-items: center; gap: 10px; }
 /* 기존 사이트에서 쓰던 경위선·나침반 씰. 색만 시스템 강조색으로 바꿔 쓴다 */
@@ -154,7 +143,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .stats {
   flex: 1; display: flex; align-items: center; justify-content: flex-end;
   padding: 32px var(--pad-x); gap: 20px;
-  width: 100%; max-width: var(--wrap); margin-inline: auto;
 }
 @media (min-width: 640px) { .stats { gap: 32px; } }
 @media (min-width: 768px) { .stats { gap: 40px; padding-top: 0; padding-bottom: 0; } }
@@ -177,8 +165,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @media (min-width: 768px) { .stat-label { font-size: 14px; } }
 
 /* ── 하단 ── */
-.bottom { padding: 0 var(--pad-x) 32px; display: flex; flex-direction: column; gap: 24px;
-          width: 100%; max-width: var(--wrap); margin-inline: auto; }
+.bottom { padding: 0 var(--pad-x) 32px; display: flex; flex-direction: column; gap: 24px; }
 @media (min-width: 768px) { .bottom { padding-bottom: 48px; gap: 40px; } }
 
 .row-a { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
@@ -211,7 +198,10 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 @media (min-width: 768px) { .desc { width: 320px; font-size: 11px; text-align: right; } }
 
 .headline { text-align: right; min-width: 0; }
-.headline .line { overflow: hidden; }
+/* span은 기본이 인라인이라 overflow:hidden이 적용되지 않는다.
+   block으로 바꿔야 슬라이드업 리빌이 실제로 마스킹되고, 글자가 박스 밖으로
+   삐져나와 페이지 높이를 밀어내는 일도 없어진다. */
+.headline .line { display: block; overflow: hidden; }
 /* 시안의 행간은 0.88이지만 그대로 주면 clip 박스가 글자보다 낮아 윗선·아랫선이
    잘린다. 박스는 1.06으로 넉넉히 두고 음수 마진으로 실제 행간만 0.88로 되돌린다. */
 .headline .line span {
@@ -729,11 +719,12 @@ const LAND=[
     }
     ctx.putImageData(img, 0, 0);
 
-    // 바깥 대기 헤일로
-    const halo = ctx.createRadialGradient(CX, CY, R, CX, CY, R * 1.13);
-    halo.addColorStop(0, 'rgba(122,176,235,0.34)');
+    // 바깥 대기 헤일로 — 구가 상단바에 닿지 않으므로, 유리가 굴절할 대상은
+    // 이 헤일로다. 그래서 조금 진하게 잡는다.
+    const halo = ctx.createRadialGradient(CX, CY, R, CX, CY, R * 1.15);
+    halo.addColorStop(0, 'rgba(122,176,235,0.46)');
     halo.addColorStop(1, 'rgba(122,176,235,0)');
-    ctx.beginPath(); ctx.arc(CX, CY, R * 1.13, 0, Math.PI * 2);
+    ctx.beginPath(); ctx.arc(CX, CY, R * 1.15, 0, Math.PI * 2);
     ctx.fillStyle = halo; ctx.fill();
   }
 
