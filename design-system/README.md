@@ -1,7 +1,7 @@
-# STRATUM — Leet's Geographia 디자인 시스템 v1.0
+# STRATUM — Leet's Geographia 디자인 시스템 v1.1
 
-Astryx(토큰 구조 · 정보 밀도)와 Apple 휴먼 인터페이스 가이드라인(레이어 · 재질 · 유동적 모션)을
-하나로 합친 디자인 시스템. 빌드 도구 없이 정적 HTML에 바로 붙는다.
+Astryx(토큰 구조 · 정보 밀도)와 Apple 휴먼 인터페이스 가이드라인(레이어 · 재질 · Liquid Glass ·
+유동적 모션)을 하나로 합친 디자인 시스템. 빌드 도구 없이 정적 HTML에 바로 붙는다.
 
 문서 페이지: [`design-system/index.html`](index.html) — 모든 토큰과 컴포넌트를 시스템 자신으로 만든 살아있는 스타일 가이드.
 
@@ -38,6 +38,42 @@ Astryx(토큰 구조 · 정보 밀도)와 Apple 휴먼 인터페이스 가이드
 **유리는 조작에만 쓰고 콘텐츠에는 쓰지 않는다.** 읽어야 하는 것은 전부 퇴적층(불투명)에 둔다.
 유리 위에 유리를 겹치지 않는다.
 
+## Liquid Glass
+
+유리로 보이게 하는 것은 blur가 아니라 **빛의 처리**다. `.st-glass`는 네 겹을 쌓는다.
+
+| | 역할 |
+| --- | --- |
+| ① backdrop-filter | 뒤 배경을 흐리고 채도를 올리고 살짝 밝힌다. 채도를 안 올리면 회색으로 죽는다 |
+| ② sheen | 표면에 흐르는 옅은 광택 그라디언트 |
+| ③ specular rim | 0.5px 반사광 테두리. **이 한 줄이 두께를 만든다** |
+| ④ shadow | 넓고 옅은 그림자 — 떠 있다는 신호 |
+
+```html
+<header class="st-glass st-bar">…</header>        <!-- 상단 내비 -->
+<div class="st-glass st-bar--floating">…</div>     <!-- 떠 있는 캡슐 툴바 -->
+<button class="st-btn st-btn--glass">…</button>
+```
+
+변종: `--thin` `--thick` `--clear` `--tinted` `--capsule`.
+`clear`는 사진·영상 위에서만 쓰고, 배경이 밝으면 `--dimmed`로 35% 딤을 깐다.
+
+## 색
+
+Apple의 **2025 통합 시스템 컬러**를 그대로 쓴다. 회색 램프는 따뜻하지 않고 아주 살짝
+푸른 기가 도는 뉴트럴(systemGray 1~6).
+
+**중요 — 채움색과 글자색은 다르다.** 시스템 컬러는 fill용이라 흰 배경 위 본문 글자로 쓰면
+Blue 3.5:1, Green 2.2:1로 전부 WCAG 미달이다. 그래서 의미마다 세 가지를 둔다.
+
+| 토큰 | 용도 |
+| --- | --- |
+| `--st-accent` | 면 · 유리 틴트 · 점 (장식) |
+| `--st-accent-ink` | 글자 · 아이콘 (4.5:1 이상) |
+| `--st-accent-solid` | 채운 버튼의 배경 (흰 글자 4.5:1 이상) |
+
+`success` / `warning` / `danger` / `info`도 같은 구조(`-ink`, `-soft`)다.
+
 ## 토큰 규칙
 
 - 모든 값은 토큰. raw hex / px 금지.
@@ -73,8 +109,10 @@ px 단위든 0~1 정규화 단위든 같은 상대 정밀도로 멈춘다 — �
 
 ## 접근성 (기본값으로 보장)
 
-- 본문 · 보조 · 메타 글자색 전부 **4.5:1 이상** (라이트 5.1~17.4 · 다크 5.2~14.2)
+- 본문 · 보조 · 메타 · 신호색 글자 전부 **4.5:1 이상** (라이트 5.1~21 · 다크 4.8~17)
+- 채운 버튼도 4.5:1 — systemBlue에 흰 글자는 3.5:1이라 `--st-accent-solid`로 한 단계 깊은 파랑을 씀
 - 조작 요소 테두리 `--st-border-control`은 3:1 이상. 장식용 헤어라인(`--st-separator`)과 분리
+- `prefers-contrast: more`에서는 Apple이 따로 발표한 고대비 값으로 교체
 - 터치 타깃 최소 44px — 버튼의 시각 높이(36px)와 무관하게 `::after`로 확보
 - `prefers-reduced-motion` / `prefers-reduced-transparency` / `prefers-contrast: more` 모두 대응
 - 크기는 rem — 사용자 글자 크기 설정을 따라 커진다

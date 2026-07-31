@@ -18,32 +18,35 @@
    1. PRIMITIVE TOKENS — 원시 팔레트 (직접 사용 금지, 의미 토큰의 재료)
    ══════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── Warm stone ramp — 종이·암석 계열 중립색 ───────────────────────── */
-  --st-stone-0:   #fffefc;
-  --st-stone-50:  #faf9f7;
-  --st-stone-100: #f7f6f4;
-  --st-stone-150: #f0eeeb;
-  --st-stone-200: #e6e3de;
-  --st-stone-300: #d1cdc6;
-  --st-stone-400: #b0aaa1;
-  --st-stone-500: #9c968e;
-  --st-stone-600: #7a746b;
-  --st-stone-700: #57534d;
-  --st-stone-800: #3a3733;
-  --st-stone-900: #262320;
-  --st-stone-950: #1b1917;
-  --st-stone-1000:#141311;
+  /* ── System gray ramp — Apple의 systemGray 1~6을 그대로 ──────────────
+     따뜻한 회색이 아니라 아주 살짝 푸른 기가 도는 뉴트럴이다.
+     이 미세한 한기가 Apple 화면 특유의 '기계적으로 깨끗한' 인상을 만든다. */
+  --st-gray-0:  #ffffff;
+  --st-gray-6:  #f2f2f7;   /* systemGray6  — 그룹 배경 */
+  --st-gray-5:  #e5e5ea;   /* systemGray5 */
+  --st-gray-4:  #d1d1d6;   /* systemGray4  — 구분선 */
+  --st-gray-3:  #c7c7cc;   /* systemGray3 */
+  --st-gray-2:  #aeaeb2;   /* systemGray2 */
+  --st-gray-1:  #8e8e93;   /* systemGray   — 3:1 경계선 */
+  --st-gray-d1: #6c6c70;   /* 고대비 systemGray — 4.5:1을 넘는 가장 밝은 회색 */
+  --st-gray-d2: #55555a;
+  --st-gray-d3: #48484a;
+  --st-gray-d4: #3a3a3c;
+  --st-gray-d5: #2c2c2e;
+  --st-gray-d6: #1c1c1e;
+  --st-gray-d7: #000000;
 
-  /* ── Clay — 브랜드 강조색(테라코타). 지도 등고선에서 온 색 ───────────── */
-  --st-clay-400: #d87a4a;
-  --st-clay-500: #b4451f;
-  --st-clay-600: #933616;
-
-  /* ── Semantic hues — 따뜻한 팔레트에 맞춰 채도를 낮춘 신호색 ────────── */
-  --st-moss-500:  #3f7a4e;   --st-moss-400:  #6fb37f;   /* 성공 */
-  --st-amber-500: #b07a16;   --st-amber-400: #e0a93f;   /* 주의 */
-  --st-rust-500:  #a11d33;   --st-rust-400:  #f0637a;   /* 오류 — 강조색과 구분되도록 crimson 계열 */
-  --st-slate-500: #2c5f7c;   --st-slate-400: #6fa8c8;   /* 정보·링크 */
+  /* ── System colors — 2025 통합 팔레트 (Apple HIG 실측값) ─────────────
+     주의: 이 값들은 '채움(fill)'용이다. 흰 배경 위 본문 글자로 쓰면
+     Blue 3.5:1, Green 2.2:1로 전부 WCAG 미달이다. 그래서 아래 의미
+     토큰에서 fill과 ink(글자용)를 반드시 분리한다. */
+  --st-blue:   #0088ff;  --st-blue-dk:   #0091ff;  --st-blue-ink:   #0069d9;
+  --st-green:  #34c759;  --st-green-dk:  #30d158;  --st-green-ink:  #177c36;
+  --st-orange: #ff8d28;  --st-orange-dk: #ff9230;  --st-orange-ink: #a34900;
+  --st-red:    #ff383c;  --st-red-dk:    #ff4245;  --st-red-ink:    #c9000f;
+  --st-indigo: #6155f5;  --st-indigo-dk: #6d7cff;
+  --st-teal:   #00c3d0;  --st-teal-dk:   #00d2e0;
+  --st-purple: #cb30e0;  --st-purple-dk: #db34f2;
 
   /* ── Spacing — 4px 그리드 (Astryx 스케일 승계) ──────────────────────── */
   --st-sp-0:   0px;
@@ -136,69 +139,85 @@
 :root {
   color-scheme: light;
 
-  /* 배경 계층 — 아래에서 위로 */
-  --st-bedrock:        var(--st-stone-100);  /* 페이지 바탕 */
-  --st-bedrock-sunken: var(--st-stone-150);  /* 움푹한 영역(그룹 배경) */
-  --st-surface:        var(--st-stone-0);    /* 카드·패널 */
-  --st-surface-raised: #ffffff;              /* 팝오버·시트 내부 */
-  --st-fill:           #05365914;            /* 채움 1 — 트랙·비활성 배경 */
-  --st-fill-2:         #0536590c;            /* 채움 2 */
-  --st-fill-3:         #05365906;            /* 채움 3 */
+  /* 배경 계층 — 아래에서 위로.
+     Apple은 그룹 배경(#F2F2F7)을 바닥에 깔고 카드를 순백으로 띄운다.
+     흰 카드가 회색 위에 올라앉는 이 반전이 iOS 설정 화면의 기본 구조다. */
+  --st-bedrock:        var(--st-gray-6);   /* systemGroupedBackground */
+  --st-bedrock-sunken: var(--st-gray-5);
+  --st-surface:        var(--st-gray-0);   /* 카드·패널 — 순백 */
+  --st-surface-raised: var(--st-gray-0);
+  /* 채움 — Apple systemFill 계열. 회색을 '섞지' 않고 반투명으로 얹어
+     어떤 배경 위에서도 같은 인상이 나오게 한다 */
+  --st-fill:           rgba(120,120,128,0.20);
+  --st-fill-2:         rgba(120,120,128,0.12);
+  --st-fill-3:         rgba(120,120,128,0.07);
 
   /* 전경(label) — 대비 순서대로 4단계.
-     label~label-3은 본문 기준 4.5:1 이상, label-4는 장식·아이콘용으로 3:1 이상.
-     (읽어야 하는 글자에는 label-4를 쓰지 않는다 — 플레이스홀더 포함) */
-  --st-label:    var(--st-stone-950);   /* 17.4:1 */
-  --st-label-2:  var(--st-stone-700);   /*  7.6:1 */
-  --st-label-3:  #736d64;               /*  5.1:1 */
-  --st-label-4:  #8a847b;               /*  3.7:1 — 텍스트 금지 */
+     Apple의 secondaryLabel(60% 불투명)은 흰 배경에서 3.5:1로 WCAG 미달이라
+     같은 회색 계열에서 대비를 만족하는 단계로 올려 잡았다. */
+  --st-label:    var(--st-gray-d7);     /* 21.0:1 */
+  --st-label-2:  var(--st-gray-d2);     /*  7.4:1 */
+  --st-label-3:  var(--st-gray-d1);     /*  5.2:1 — Apple 고대비 systemGray */
+  --st-label-4:  var(--st-gray-1);      /*  3.3:1 — 텍스트 금지, 장식·아이콘만 */
 
   /* 경계 — 두 종류를 구분한다.
      separator/…-strong은 '장식적 구획'(카드 테두리·행 구분선)이라 연해도 된다.
      border-control은 '이것이 조작 가능한 요소임을 알려주는 유일한 단서'이므로
      WCAG 1.4.11에 따라 배경 대비 3:1 이상을 지킨다. */
-  --st-separator:        var(--st-stone-200);
-  --st-separator-strong: var(--st-stone-300);
-  --st-border-control:   var(--st-label-4);   /* 3.7:1 */
+  --st-separator:        var(--st-gray-4);
+  --st-separator-strong: var(--st-gray-3);
+  --st-border-control:   var(--st-gray-1);   /* 3.3:1 */
 
-  /* 강조 */
-  --st-accent:       var(--st-clay-500);
-  --st-accent-hover: var(--st-clay-600);
-  --st-accent-soft:  #b4451f14;
-  --st-accent-line:  #b4451f38;
+  /* 강조 — fill과 ink를 분리한다.
+     fill은 Apple systemBlue 그대로(면·유리 틴트용),
+     ink는 흰 배경에서 4.5:1을 넘는 같은 계열 파랑(글자·아이콘용). */
+  --st-accent:       var(--st-blue);         /* 면·유리 틴트·점 (장식) */
+  --st-accent-ink:   var(--st-blue-ink);     /* 글자 — 5.2:1 */
+  /* 채운 버튼의 배경. systemBlue에 흰 글자는 3.5:1로 미달이라
+     한 단계 깊은 파랑을 쓴다 — 흰 글자 5.2:1 */
+  --st-accent-solid: var(--st-blue-ink);
+  --st-accent-hover: #0074dd;
+  --st-accent-soft:  rgba(0,136,255,0.12);
+  --st-accent-line:  rgba(0,136,255,0.35);
   --st-on-accent:    #ffffff;
 
-  /* 신호색 */
-  --st-success: var(--st-moss-500);  --st-success-soft: #3f7a4e1a;
-  --st-warning: #94640d;             --st-warning-soft: #b07a161f;  /* amber-500은 흰 배경에서 3.7:1로 미달 */
-  --st-danger:  var(--st-rust-500);  --st-danger-soft:  #a11d331a;
-  --st-info:    var(--st-slate-500); --st-info-soft:    #2c5f7c1a;
+  /* 신호색 — 같은 원칙. -soft는 배경, -ink는 그 위의 글자 */
+  --st-success: var(--st-green);   --st-success-ink: var(--st-green-ink);   --st-success-soft: rgba(52,199,89,0.14);
+  --st-warning: var(--st-orange);  --st-warning-ink: var(--st-orange-ink);  --st-warning-soft: rgba(255,141,40,0.16);
+  --st-danger:  var(--st-red);     --st-danger-ink:  var(--st-red-ink);     --st-danger-soft:  rgba(255,56,60,0.13);
+  --st-info:    var(--st-indigo);  --st-info-ink:    var(--st-indigo);      --st-info-soft:    rgba(97,85,245,0.12);
 
-  /* 반전 패널(잉크) — 메인 페이지의 Q&A 패널 계열 */
-  --st-ink:      var(--st-stone-900);
-  --st-on-ink:   #f4f1ec;
-  --st-on-ink-2: #f4f1ec94;
-  --st-on-ink-3: #f4f1ec5c;
-  --st-on-ink-line: #f4f1ec1a;
+  /* 반전 패널 */
+  --st-ink:      #1c1c1e;
+  --st-on-ink:   #ffffff;
+  --st-on-ink-2: rgba(235,235,245,0.62);
+  --st-on-ink-3: rgba(235,235,245,0.38);
+  --st-on-ink-line: rgba(235,235,245,0.14);
 
   /* ── MATERIALS — 유리층 재질 4종 (Apple: ultraThin/thin/regular/thick) ──
-     blur + saturate + 반투명 배경. 위로 갈수록 두껍고 대비가 높다. */
-  --st-mat-clear-bg:    #f7f6f440;   --st-mat-clear-blur:   blur(6px)  saturate(150%);
-  --st-mat-thin-bg:     #f7f6f499;   --st-mat-thin-blur:    blur(14px) saturate(160%);
-  --st-mat-regular-bg:  #f7f6f4d6;   --st-mat-regular-blur: blur(24px) saturate(180%);
-  --st-mat-thick-bg:    #fffefcf2;   --st-mat-thick-blur:   blur(40px) saturate(150%);
-  /* 재질 위쪽에 빛이 걸리는 밝은 모서리 — 두께감의 핵심 */
-  --st-mat-edge:  #ffffffa8;
-  --st-mat-edge-b:#1b191712;
-  /* clear 재질을 밝은 사진 위에 쓸 때 덧대는 딤 레이어 (Apple 권장 35%) */
-  --st-mat-dim: #1b191759;
+     Liquid Glass의 핵심은 blur가 아니라 '빛의 처리'다.
+     뒤 배경을 흐리고(blur) 채도를 올리고(saturate) 살짝 밝힌 뒤(brightness),
+     테두리에 반사광(specular)을 얹어야 유리처럼 보인다. */
+  --st-mat-clear-bg:   rgba(255,255,255,0.16);  --st-mat-clear-blur:   blur(8px)  saturate(180%) brightness(1.08);
+  --st-mat-thin-bg:    rgba(255,255,255,0.52);  --st-mat-thin-blur:    blur(18px) saturate(190%) brightness(1.06);
+  --st-mat-regular-bg: rgba(255,255,255,0.72);  --st-mat-regular-blur: blur(28px) saturate(200%) brightness(1.04);
+  --st-mat-thick-bg:   rgba(255,255,255,0.92);  --st-mat-thick-blur:   blur(44px) saturate(180%);
 
-  /* ── ELEVATION — 그림자는 순검정이 아니라 따뜻한 잉크색 ─────────────── */
-  --st-shadow-low:  0 1px 1px #18141008, 0 2px 8px #1814100d;
-  --st-shadow-med:  0 1px 2px #1814100d, 0 6px 20px #18141014;
-  --st-shadow-high: 0 2px 4px #18141012, 0 14px 40px #1814101f;
-  --st-shadow-glass:0 1px 2px #1814100f, 0 10px 34px #1814101a;
-  --st-ring: 0 0 0 3px var(--st-accent-line);
+  /* Liquid Glass 반사 — 위 모서리는 빛을 받고, 아래 모서리는 되비친다 */
+  --st-glass-specular: rgba(255,255,255,0.85);   /* 상단 하이라이트 */
+  --st-glass-rim:      rgba(255,255,255,0.45);   /* 굴절되는 테두리 */
+  --st-glass-under:    rgba(255,255,255,0.22);   /* 하단 반사 */
+  --st-glass-sheen:    linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.04) 44%, rgba(255,255,255,0.10));
+  --st-mat-edge-b:     rgba(0,0,0,0.06);
+  /* clear 재질을 밝은 사진 위에 쓸 때 덧대는 딤 레이어 (Apple 권장 35%) */
+  --st-mat-dim: rgba(0,0,0,0.35);
+
+  /* ── ELEVATION — 그림자는 순검정이 아니라 살짝 푸른 회색 ─────────────── */
+  --st-shadow-low:  0 1px 1px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.05);
+  --st-shadow-med:  0 1px 2px rgba(0,0,0,0.05), 0 6px 20px rgba(0,0,0,0.08);
+  --st-shadow-high: 0 2px 4px rgba(0,0,0,0.06), 0 16px 44px rgba(0,0,0,0.12);
+  --st-shadow-glass:0 1px 2px rgba(0,0,0,0.05), 0 12px 36px rgba(0,0,0,0.10);
+  --st-ring: 0 0 0 3.5px var(--st-accent-line);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -212,51 +231,67 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --st-bedrock: var(--st-stone-1000); --st-bedrock-sunken: #0f0e0d;
-    --st-surface: #1c1a18; --st-surface-raised: #232120;
-    --st-fill: #dfe2e51a; --st-fill-2: #dfe2e510; --st-fill-3: #dfe2e508;
-    --st-label: #ece8e1; --st-label-2: #a8a298; --st-label-3: #928c83; --st-label-4: #7a746b;
-    --st-separator: #2c2925; --st-separator-strong: #3d3934;
-    --st-accent: var(--st-clay-400); --st-accent-hover: #e59464;
-    --st-accent-soft: #d87a4a1f; --st-accent-line: #d87a4a45; --st-on-accent: #1b1917;
-    --st-success: var(--st-moss-400);  --st-success-soft: #6fb37f1f;
-    --st-warning: var(--st-amber-400); --st-warning-soft: #e0a93f1f;
-    --st-danger:  var(--st-rust-400);  --st-danger-soft:  #f0637a1f;
-    --st-info:    var(--st-slate-400); --st-info-soft:    #6fa8c81f;
-    --st-ink: #26221e; --st-on-ink: #f0ece5;
-    --st-on-ink-2: #f0ece594; --st-on-ink-3: #f0ece55c; --st-on-ink-line: #f0ece51f;
-    --st-mat-clear-bg: #14131140; --st-mat-thin-bg: #1413119e;
-    --st-mat-regular-bg: #141311d6; --st-mat-thick-bg: #1c1a18f2;
-    --st-mat-edge: #ffffff17; --st-mat-edge-b: #00000038;
-    --st-mat-dim: #00000073;
-    --st-shadow-low:  0 1px 1px #0000004d, 0 2px 8px #00000059;
-    --st-shadow-med:  0 1px 2px #00000059, 0 6px 20px #00000080;
-    --st-shadow-high: 0 2px 4px #00000066, 0 14px 40px #00000099;
-    --st-shadow-glass:0 1px 2px #00000059, 0 10px 34px #00000080;
+    --st-bedrock: var(--st-gray-d7); --st-bedrock-sunken: #000000;
+    --st-surface: var(--st-gray-d6); --st-surface-raised: var(--st-gray-d5);
+    --st-fill: rgba(120,120,128,0.36); --st-fill-2: rgba(120,120,128,0.24); --st-fill-3: rgba(120,120,128,0.14);
+    --st-label: #ffffff; --st-label-2: var(--st-gray-2); --st-label-3: var(--st-gray-1); --st-label-4: var(--st-gray-d1);
+    --st-separator: #38383a; --st-separator-strong: var(--st-gray-d3);
+    --st-border-control: var(--st-gray-1);
+    --st-accent: var(--st-blue-dk); --st-accent-ink: var(--st-blue-dk); --st-accent-hover: #3ca5ff;
+    --st-accent-solid: #0071e3;   /* 다크에서도 흰 글자 4.7:1 */
+    --st-accent-soft: rgba(0,145,255,0.20); --st-accent-line: rgba(0,145,255,0.45); --st-on-accent: #ffffff;
+    --st-success: var(--st-green-dk);  --st-success-ink: var(--st-green-dk);  --st-success-soft: rgba(48,209,88,0.18);
+    --st-warning: var(--st-orange-dk); --st-warning-ink: var(--st-orange-dk); --st-warning-soft: rgba(255,146,48,0.18);
+    --st-danger:  var(--st-red-dk);    --st-danger-ink:  var(--st-red-dk);    --st-danger-soft:  rgba(255,66,69,0.20);
+    --st-info:    var(--st-indigo-dk); --st-info-ink:    var(--st-indigo-dk); --st-info-soft:    rgba(109,124,255,0.20);
+    --st-ink: var(--st-gray-d5); --st-on-ink: #ffffff;
+    --st-on-ink-2: rgba(235,235,245,0.62); --st-on-ink-3: rgba(235,235,245,0.38); --st-on-ink-line: rgba(235,235,245,0.14);
+    --st-mat-clear-bg: rgba(30,30,32,0.28);   --st-mat-clear-blur: blur(8px) saturate(180%) brightness(1.15);
+    --st-mat-thin-bg: rgba(30,30,32,0.62);    --st-mat-thin-blur: blur(18px) saturate(190%) brightness(1.10);
+    --st-mat-regular-bg: rgba(28,28,30,0.76); --st-mat-regular-blur: blur(28px) saturate(200%) brightness(1.06);
+    --st-mat-thick-bg: rgba(28,28,30,0.94);   --st-mat-thick-blur: blur(44px) saturate(180%);
+    --st-glass-specular: rgba(255,255,255,0.30);
+    --st-glass-rim: rgba(255,255,255,0.14);
+    --st-glass-under: rgba(255,255,255,0.06);
+    --st-glass-sheen: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.01) 44%, rgba(255,255,255,0.04));
+    --st-mat-edge-b: rgba(0,0,0,0.5);
+    --st-mat-dim: rgba(0,0,0,0.45);
+    --st-shadow-low:  0 1px 1px rgba(0,0,0,0.30), 0 2px 8px rgba(0,0,0,0.35);
+    --st-shadow-med:  0 1px 2px rgba(0,0,0,0.35), 0 6px 20px rgba(0,0,0,0.50);
+    --st-shadow-high: 0 2px 4px rgba(0,0,0,0.40), 0 16px 44px rgba(0,0,0,0.60);
+    --st-shadow-glass:0 1px 2px rgba(0,0,0,0.35), 0 12px 36px rgba(0,0,0,0.50);
   }
 }
 :root[data-theme="dark"] {
-  --st-bedrock: var(--st-stone-1000); --st-bedrock-sunken: #0f0e0d;
-  --st-surface: #1c1a18; --st-surface-raised: #232120;
-  --st-fill: #dfe2e51a; --st-fill-2: #dfe2e510; --st-fill-3: #dfe2e508;
-  --st-label: #ece8e1; --st-label-2: #a8a298; --st-label-3: #928c83; --st-label-4: #7a746b;
-  --st-separator: #2c2925; --st-separator-strong: #3d3934;
-  --st-accent: var(--st-clay-400); --st-accent-hover: #e59464;
-  --st-accent-soft: #d87a4a1f; --st-accent-line: #d87a4a45; --st-on-accent: #1b1917;
-  --st-success: var(--st-moss-400);  --st-success-soft: #6fb37f1f;
-  --st-warning: var(--st-amber-400); --st-warning-soft: #e0a93f1f;
-  --st-danger:  var(--st-rust-400);  --st-danger-soft:  #f0637a1f;
-  --st-info:    var(--st-slate-400); --st-info-soft:    #6fa8c81f;
-  --st-ink: #26221e; --st-on-ink: #f0ece5;
-  --st-on-ink-2: #f0ece594; --st-on-ink-3: #f0ece55c; --st-on-ink-line: #f0ece51f;
-  --st-mat-clear-bg: #14131140; --st-mat-thin-bg: #1413119e;
-  --st-mat-regular-bg: #141311d6; --st-mat-thick-bg: #1c1a18f2;
-  --st-mat-edge: #ffffff17; --st-mat-edge-b: #00000038;
-  --st-mat-dim: #00000073;
-  --st-shadow-low:  0 1px 1px #0000004d, 0 2px 8px #00000059;
-  --st-shadow-med:  0 1px 2px #00000059, 0 6px 20px #00000080;
-  --st-shadow-high: 0 2px 4px #00000066, 0 14px 40px #00000099;
-  --st-shadow-glass:0 1px 2px #00000059, 0 10px 34px #00000080;
+  --st-bedrock: var(--st-gray-d7); --st-bedrock-sunken: #000000;
+  --st-surface: var(--st-gray-d6); --st-surface-raised: var(--st-gray-d5);
+  --st-fill: rgba(120,120,128,0.36); --st-fill-2: rgba(120,120,128,0.24); --st-fill-3: rgba(120,120,128,0.14);
+  --st-label: #ffffff; --st-label-2: var(--st-gray-2); --st-label-3: var(--st-gray-1); --st-label-4: var(--st-gray-d1);
+  --st-separator: #38383a; --st-separator-strong: var(--st-gray-d3);
+  --st-border-control: var(--st-gray-1);
+  --st-accent: var(--st-blue-dk); --st-accent-ink: var(--st-blue-dk); --st-accent-hover: #3ca5ff;
+    --st-accent-solid: #0071e3;   /* 다크에서도 흰 글자 4.7:1 */
+  --st-accent-soft: rgba(0,145,255,0.20); --st-accent-line: rgba(0,145,255,0.45); --st-on-accent: #ffffff;
+  --st-success: var(--st-green-dk);  --st-success-ink: var(--st-green-dk);  --st-success-soft: rgba(48,209,88,0.18);
+  --st-warning: var(--st-orange-dk); --st-warning-ink: var(--st-orange-dk); --st-warning-soft: rgba(255,146,48,0.18);
+  --st-danger:  var(--st-red-dk);    --st-danger-ink:  var(--st-red-dk);    --st-danger-soft:  rgba(255,66,69,0.20);
+  --st-info:    var(--st-indigo-dk); --st-info-ink:    var(--st-indigo-dk); --st-info-soft:    rgba(109,124,255,0.20);
+  --st-ink: var(--st-gray-d5); --st-on-ink: #ffffff;
+  --st-on-ink-2: rgba(235,235,245,0.62); --st-on-ink-3: rgba(235,235,245,0.38); --st-on-ink-line: rgba(235,235,245,0.14);
+  --st-mat-clear-bg: rgba(30,30,32,0.28);   --st-mat-clear-blur: blur(8px) saturate(180%) brightness(1.15);
+  --st-mat-thin-bg: rgba(30,30,32,0.62);    --st-mat-thin-blur: blur(18px) saturate(190%) brightness(1.10);
+  --st-mat-regular-bg: rgba(28,28,30,0.76); --st-mat-regular-blur: blur(28px) saturate(200%) brightness(1.06);
+  --st-mat-thick-bg: rgba(28,28,30,0.94);   --st-mat-thick-blur: blur(44px) saturate(180%);
+  --st-glass-specular: rgba(255,255,255,0.30);
+  --st-glass-rim: rgba(255,255,255,0.14);
+  --st-glass-under: rgba(255,255,255,0.06);
+  --st-glass-sheen: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.01) 44%, rgba(255,255,255,0.04));
+  --st-mat-edge-b: rgba(0,0,0,0.5);
+  --st-mat-dim: rgba(0,0,0,0.45);
+  --st-shadow-low:  0 1px 1px rgba(0,0,0,0.30), 0 2px 8px rgba(0,0,0,0.35);
+  --st-shadow-med:  0 1px 2px rgba(0,0,0,0.35), 0 6px 20px rgba(0,0,0,0.50);
+  --st-shadow-high: 0 2px 4px rgba(0,0,0,0.40), 0 16px 44px rgba(0,0,0,0.60);
+  --st-shadow-glass:0 1px 2px rgba(0,0,0,0.35), 0 12px 36px rgba(0,0,0,0.50);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -264,23 +299,34 @@
    Apple은 색을 3종(기본/증가대비/투명도감소)으로 정의한다. 우리도 그렇게.
    ══════════════════════════════════════════════════════════════════════════ */
 @media (prefers-contrast: more) {
+  /* Apple이 고대비 모드용으로 따로 정의한 값을 그대로 쓴다 */
   :root {
-    --st-label-2: var(--st-stone-800);
-    --st-label-3: var(--st-stone-700);
-    --st-label-4: var(--st-stone-600);
-    --st-separator: var(--st-stone-400);
-    --st-separator-strong: var(--st-stone-600);
-    --st-accent: var(--st-clay-600);
-    --st-mat-regular-bg: var(--st-stone-50);
-    --st-mat-thin-bg: var(--st-stone-50);
-    --st-mat-thick-bg: var(--st-stone-0);
+    --st-label-2: #3a3a3c;
+    --st-label-3: #48484a;
+    --st-label-4: #6c6c70;
+    --st-separator: var(--st-gray-2);
+    --st-separator-strong: var(--st-gray-1);
+    --st-border-control: #6c6c70;
+    --st-accent: #1e6ef4; --st-accent-ink: #1e6ef4; --st-accent-solid: #0062cc;
+    --st-success-ink: #008932; --st-warning-ink: #c55300; --st-danger-ink: #e9152d;
+    --st-mat-regular-bg: rgba(255,255,255,0.97);
+    --st-mat-thin-bg: rgba(255,255,255,0.95);
+    --st-mat-thick-bg: #ffffff;
+    --st-glass-rim: rgba(0,0,0,0.28);
   }
   :root[data-theme="dark"] {
-    --st-label-2: #d6d1c9; --st-label-3: #b3ada4; --st-label-4: #8b857c;
-    --st-separator: #4a463f; --st-separator-strong: #6b665e;
-    --st-mat-regular-bg: #141311; --st-mat-thin-bg: #141311; --st-mat-thick-bg: #1c1a18;
+    --st-label-2: #ebebf5; --st-label-3: #aeaeb2; --st-label-4: #7c7c80;
+    --st-separator: #545456; --st-separator-strong: #6c6c70;
+    --st-accent: #5cb8ff; --st-accent-ink: #5cb8ff; --st-accent-solid: #005bbf;
+    --st-success-ink: #4ad968; --st-warning-ink: #ffa056; --st-danger-ink: #ff6165;
+    --st-mat-regular-bg: rgba(28,28,30,0.97); --st-mat-thin-bg: rgba(28,28,30,0.95);
+    --st-mat-thick-bg: #1c1c1e;
+    --st-glass-rim: rgba(255,255,255,0.4);
   }
-  .st-glass, .st-sheet { border-color: var(--st-separator-strong) !important; }
+  /* 고대비에서는 유리의 은은한 반사광 대신 또렷한 테두리를 준다 */
+  .st-glass, .st-sheet, .st-btn--glass {
+    box-shadow: inset 0 0 0 1px var(--st-glass-rim), var(--st-shadow-med) !important;
+  }
 }
 
 /* 투명도 감소 — 유리를 불투명하게. 흐림은 제거 */
@@ -342,7 +388,7 @@ h1, h2, h3, h4, h5, h6, p, figure, blockquote { margin: 0; }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 img, svg, video { display: block; max-width: 100%; }
-::selection { background: var(--st-accent-soft); color: var(--st-accent); }
+::selection { background: var(--st-accent-soft); color: var(--st-accent-ink); }
 
 /* 포커스 링 — 키보드 사용자에게만. 항상 2px 이상 + 배경 대비 확보 */
 :focus-visible {
@@ -375,12 +421,12 @@ img, svg, video { display: block; max-width: 100%; }
   color: var(--st-label-3);
   display: inline-flex; align-items: center; gap: var(--st-sp-15);
 }
-.st-eyebrow--accent { color: var(--st-accent); }
+.st-eyebrow--accent { color: var(--st-accent-ink); }
 
 /* 색 유틸 */
 .st-dim   { color: var(--st-label-2); }
 .st-dimmer{ color: var(--st-label-3); }
-.st-tint  { color: var(--st-accent); }
+.st-tint  { color: var(--st-accent-ink); }
 .st-mono  { font-family: var(--st-font-mono); font-size: 0.8125rem; letter-spacing: 0; }
 .st-measure { max-width: 34em; }        /* 본문 줄길이 상한 */
 .st-measure-tight { max-width: 26em; }
@@ -428,32 +474,59 @@ a.st-card:active, button.st-card:active {
 /* ══════════════════════════════════════════════════════════════════════════
    8. LAYER ③ GLASS — 떠 있는 기능층
    ══════════════════════════════════════════════════════════════════════════ */
+/* LIQUID GLASS
+   유리로 보이게 하는 것은 blur가 아니라 '빛의 처리'다. 네 겹을 쌓는다.
+     ① backdrop-filter — 뒤 배경을 흐리고 채도를 올리고 살짝 밝힌다
+     ② sheen           — 표면에 흐르는 옅은 광택 그라디언트
+     ③ specular rim    — 위 모서리의 반사광, 아래 모서리의 되비침 (inset shadow)
+     ④ shadow          — 떠 있음을 만드는 바깥 그림자
+   ①만 쓰면 '반투명한 판'이지 유리가 아니다. ③이 두께를 만든다. */
 .st-glass {
-  background: var(--st-mat-regular-bg);
+  position: relative;
+  background: var(--st-glass-sheen), var(--st-mat-regular-bg);
   -webkit-backdrop-filter: var(--st-mat-regular-blur);
   backdrop-filter: var(--st-mat-regular-blur);
-  border: var(--st-border) solid var(--st-mat-edge-b);
-  border-top-color: var(--st-mat-edge);       /* 위쪽에 빛이 걸린 모서리 */
-  box-shadow: var(--st-shadow-glass);
+  border: 0;
+  box-shadow:
+    inset 0 0.5px 0 0 var(--st-glass-specular),   /* 상단 반사광 */
+    inset 0 0 0 0.5px var(--st-glass-rim),        /* 굴절되는 테두리 */
+    inset 0 -0.5px 0 0 var(--st-glass-under),     /* 하단 되비침 */
+    var(--st-shadow-glass);
 }
-.st-glass--thin    { background: var(--st-mat-thin-bg);  -webkit-backdrop-filter: var(--st-mat-thin-blur);  backdrop-filter: var(--st-mat-thin-blur); }
-.st-glass--thick   { background: var(--st-mat-thick-bg); -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur); }
+.st-glass--thin    { background: var(--st-glass-sheen), var(--st-mat-thin-bg);  -webkit-backdrop-filter: var(--st-mat-thin-blur);  backdrop-filter: var(--st-mat-thin-blur); }
+.st-glass--thick   { background: var(--st-glass-sheen), var(--st-mat-thick-bg); -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur); }
 /* clear — 사진·영상 위에서만. 텍스트가 많으면 쓰지 않는다 */
-.st-glass--clear   { background: var(--st-mat-clear-bg); -webkit-backdrop-filter: var(--st-mat-clear-blur); backdrop-filter: var(--st-mat-clear-blur); box-shadow: none; }
-.st-glass--clear.st-glass--dimmed { background: linear-gradient(var(--st-mat-dim), var(--st-mat-dim)), var(--st-mat-clear-bg); }
+.st-glass--clear   { background: var(--st-glass-sheen), var(--st-mat-clear-bg); -webkit-backdrop-filter: var(--st-mat-clear-blur); backdrop-filter: var(--st-mat-clear-blur);
+                     box-shadow: inset 0 0.5px 0 0 var(--st-glass-specular), inset 0 0 0 0.5px var(--st-glass-rim); }
+.st-glass--clear.st-glass--dimmed { background: linear-gradient(var(--st-mat-dim), var(--st-mat-dim)), var(--st-glass-sheen), var(--st-mat-clear-bg); }
 
-/* 상단 내비 — 콘텐츠가 아래로 흘러 지나간다 */
+/* 유리에 색을 입힌 것 — Apple의 '착색 유리'. 주요 액션 하나에만 쓴다 */
+.st-glass--tinted {
+  background: var(--st-glass-sheen), var(--st-accent-soft), var(--st-mat-thin-bg);
+  color: var(--st-accent-ink);
+}
+
+/* 캡슐형 — Liquid Glass는 각진 사각형보다 완전히 둥근 형태에서 가장 자연스럽다 */
+.st-glass--capsule { border-radius: var(--st-r-full); }
+
+/* 유리가 눌릴 때 — 빛이 한 번 모였다 퍼진다 */
+.st-glass-press { transition: box-shadow var(--st-dur-fast) var(--st-ease), transform var(--st-dur-instant) var(--st-ease); }
+.st-glass-press:active { transform: scale(0.98); }
+
+/* 상단 내비 — 콘텐츠가 아래로 흘러 지나간다.
+   화면 끝까지 닿는 바는 위/옆 반사광이 없다. 아래 모서리 한 줄만 남긴다 */
 .st-bar {
   position: sticky; top: 0; z-index: 50;
-  border-width: 0 0 var(--st-border) 0;
   border-radius: 0;
+  box-shadow:
+    inset 0 -0.5px 0 0 var(--st-mat-edge-b),
+    0 1px 24px rgba(0,0,0,0.04);
 }
-/* 떠 있는 캡슐형 툴바 (하단 고정 등) */
+/* 떠 있는 캡슐형 툴바 — 사방이 떠 있으므로 반사광을 전부 살린다 */
 .st-bar--floating {
   position: fixed; left: 50%; bottom: max(var(--st-sp-5), env(safe-area-inset-bottom));
   transform: translateX(-50%);
-  border-radius: var(--st-r-glass);
-  border-width: var(--st-border);
+  border-radius: var(--st-r-full);
   padding: var(--st-sp-15);
 }
 
@@ -493,9 +566,9 @@ a.st-card:active, button.st-card:active {
 .st-btn:active { transform: scale(0.97); }
 .st-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-.st-btn--filled  { background: var(--st-accent); color: var(--st-on-accent); }
+.st-btn--filled  { background: var(--st-accent-solid); color: var(--st-on-accent); }
 .st-btn--filled:hover { background: var(--st-accent-hover); }
-.st-btn--tinted  { background: var(--st-accent-soft); color: var(--st-accent); }
+.st-btn--tinted  { background: var(--st-accent-soft); color: var(--st-accent-ink); }
 .st-btn--tinted:hover { background: var(--st-accent-line); }
 .st-btn--outline { background: transparent; border-color: var(--st-border-control); color: var(--st-label); }
 .st-btn--outline:hover { border-color: var(--st-label-3); background: var(--st-fill-3); }
@@ -503,11 +576,16 @@ a.st-card:active, button.st-card:active {
 .st-btn--plain:hover { color: var(--st-label); background: var(--st-fill-2); }
 /* 유리 버튼 — 기능층 위에서만 */
 .st-btn--glass {
-  background: var(--st-mat-thin-bg); color: var(--st-label);
+  background: var(--st-glass-sheen), var(--st-mat-thin-bg); color: var(--st-label);
   -webkit-backdrop-filter: var(--st-mat-thin-blur); backdrop-filter: var(--st-mat-thin-blur);
-  border-color: var(--st-mat-edge-b); border-top-color: var(--st-mat-edge);
+  border-color: transparent;
+  box-shadow:
+    inset 0 0.5px 0 0 var(--st-glass-specular),
+    inset 0 0 0 0.5px var(--st-glass-rim),
+    inset 0 -0.5px 0 0 var(--st-glass-under),
+    0 1px 3px rgba(0,0,0,0.06), 0 6px 18px rgba(0,0,0,0.07);
 }
-.st-btn--danger  { background: var(--st-danger-soft); color: var(--st-danger); }
+.st-btn--danger  { background: var(--st-danger-soft); color: var(--st-danger-ink); }
 
 .st-btn--sm { --btn-h: var(--st-h-sm); padding: 0 var(--st-sp-3); font-size: var(--st-t-caption-size); }
 .st-btn--md { --btn-h: var(--st-h-md); }
@@ -580,7 +658,7 @@ a.st-row:hover .st-row__title { color: var(--st-label); }
 .st-row__meta { font-size: var(--st-t-caption-size); color: var(--st-label-3); flex-shrink: 0; }
 .st-row__chevron { color: var(--st-label-4); opacity: 0; transform: translateX(-4px); flex-shrink: 0;
                    transition: opacity var(--st-dur-fast) var(--st-ease), transform var(--st-spring-snappy-dur) var(--st-spring-snappy), color var(--st-dur-fast) var(--st-ease); }
-a.st-row:hover .st-row__chevron { opacity: 1; transform: translateX(0); color: var(--st-accent); }
+a.st-row:hover .st-row__chevron { opacity: 1; transform: translateX(0); color: var(--st-accent-ink); }
 
 /* 상태 표시 — 색만으로 뜻을 전하지 않는다. 항상 텍스트를 동반 */
 .st-dot { width: 6px; height: 6px; border-radius: var(--st-r-full); background: var(--st-label-3); flex-shrink: 0; }
@@ -598,10 +676,10 @@ a.st-row:hover .st-row__chevron { opacity: 1; transform: translateX(0); color: v
   background: var(--st-fill-2); color: var(--st-label-3);
   border: var(--st-border) solid var(--st-separator);
 }
-.st-badge--accent  { background: var(--st-accent-soft);  color: var(--st-accent);  border-color: var(--st-accent-line); }
-.st-badge--success { background: var(--st-success-soft); color: var(--st-success); border-color: transparent; }
-.st-badge--warning { background: var(--st-warning-soft); color: var(--st-warning); border-color: transparent; }
-.st-badge--danger  { background: var(--st-danger-soft);  color: var(--st-danger);  border-color: transparent; }
+.st-badge--accent  { background: var(--st-accent-soft);  color: var(--st-accent-ink);  border-color: transparent; }
+.st-badge--success { background: var(--st-success-soft); color: var(--st-success-ink); border-color: transparent; }
+.st-badge--warning { background: var(--st-warning-soft); color: var(--st-warning-ink); border-color: transparent; }
+.st-badge--danger  { background: var(--st-danger-soft);  color: var(--st-danger-ink);  border-color: transparent; }
 
 .st-stat__value { font-size: var(--st-t-title2-size); font-weight: var(--st-fw-bold); letter-spacing: -0.02em; line-height: 1.1; }
 .st-stat__label { font-size: var(--st-t-caption-size); color: var(--st-label-3); margin-top: 2px; }
@@ -629,11 +707,13 @@ a.st-row:hover .st-row__chevron { opacity: 1; transform: translateX(0); color: v
   display: flex; flex-direction: column;
   padding: var(--st-sp-3) var(--st-sp-5) max(var(--st-sp-6), env(safe-area-inset-bottom));
   border-radius: var(--st-r-page) var(--st-r-page) 0 0;
-  background: var(--st-mat-thick-bg);
+  background: var(--st-glass-sheen), var(--st-mat-thick-bg);
   -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur);
-  border: var(--st-border) solid var(--st-mat-edge-b);
-  border-top-color: var(--st-mat-edge);
-  box-shadow: var(--st-shadow-high);
+  border: 0;
+  box-shadow:
+    inset 0 0.5px 0 0 var(--st-glass-specular),
+    inset 0 0 0 0.5px var(--st-glass-rim),
+    var(--st-shadow-high);
   /* 시작 상태: 화면 아래. transform은 JS가 --st-y로 조종한다 */
   --st-y: 100%;
   transform: translate(-50%, var(--st-y));
