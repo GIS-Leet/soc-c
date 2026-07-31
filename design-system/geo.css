@@ -1,0 +1,208 @@
+/* ============================================================================
+   GEOGRAPHIA — 사이트 공통 껍데기
+   ----------------------------------------------------------------------------
+   메인 페이지에서 확립한 언어를 모든 하위 페이지가 공유하기 위한 파일.
+   STRATUM(stratum.css)이 색·재질·모션 토큰을 담당하고, 여기서는 그 위에
+   '이 사이트의 모습'을 얹는다 — 유리 상단바, 전체 메뉴, 호버 알약,
+   페이지 전환, 문서형 페이지의 골격.
+
+   불러오는 순서: stratum.css → geo.css → (페이지별 style)
+   ========================================================================== */
+:root {
+  --accent: var(--st-accent);
+  --accent-ink: var(--st-accent-ink);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --pad-x: 20px;
+  --track-wide: 0.1em;     /* 라틴 소문자 대문자화용 */
+  --track-ko: 0.055em;     /* 한글은 넓게 벌리면 가독성이 무너진다 */
+  --bar-h: 58px;
+  --scrim: 242,242,247;
+
+  --sans: 'Space Grotesk', 'Pretendard Variable', 'Pretendard',
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --st-font-sans: var(--sans);
+  --st-font-kr:   var(--sans);
+
+  /* 호버 알약 */
+  --lg-bg: rgba(255,255,255,0.92);
+  --lg-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 6px 14px rgba(0,0,0,0.10), 0 16px 38px rgba(0,0,0,0.17);
+  --lg-rim: rgba(146,192,255,0.80);
+  --lg-specular: rgba(238,247,255,0.96);
+  --lg-glow: 0 0 0 0.5px rgba(146,192,255,0.30), 0 0 20px rgba(96,158,255,0.26);
+}
+:root[data-theme="dark"] {
+  --scrim: 0,0,0;
+  --lg-bg: rgba(255,255,255,0.16);
+  --lg-shadow: 0 1px 3px rgba(0,0,0,0.45), 0 6px 14px rgba(0,0,0,0.45), 0 16px 38px rgba(0,0,0,0.60);
+  --lg-rim: rgba(150,196,255,0.55);
+  --lg-specular: rgba(226,240,255,0.42);
+  --lg-glow: 0 0 0 0.5px rgba(150,196,255,0.22), 0 0 24px rgba(96,158,255,0.34);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --scrim: 0,0,0;
+    --lg-bg: rgba(255,255,255,0.16);
+    --lg-shadow: 0 1px 3px rgba(0,0,0,0.45), 0 6px 14px rgba(0,0,0,0.45), 0 16px 38px rgba(0,0,0,0.60);
+    --lg-rim: rgba(150,196,255,0.55);
+    --lg-specular: rgba(226,240,255,0.42);
+    --lg-glow: 0 0 0 0.5px rgba(150,196,255,0.22), 0 0 24px rgba(96,158,255,0.34);
+  }
+}
+@media (min-width: 640px) { :root { --pad-x: 32px; } }
+@media (min-width: 768px) { :root { --pad-x: 48px; } }
+
+body { font-family: var(--sans); overflow-x: hidden; }
+h1, h2, h3, h4, p, figure, ul, ol { margin: 0; }
+button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+
+/* ══════════ 호버 — Liquid Glass 알약 ══════════
+   상단바가 이미 유리라, 그 안에서 또 흐리면 '유리 위 유리'가 되어 글자가
+   뭉갠다(STRATUM 규칙). 그래서 backdrop-filter는 기본으로 넣지 않는다. */
+.lg { position: relative; isolation: isolate; }
+.lg::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  inset: calc(-1 * var(--lg-y, 9px)) calc(-1 * var(--lg-x, 16px));
+  border-radius: var(--st-r-full);
+  background: var(--st-glass-sheen), var(--lg-bg);
+  box-shadow:
+    inset 0 0.6px 0 0 var(--lg-specular),
+    inset 0 0 0 0.8px var(--lg-rim),
+    inset 0 -0.6px 0 0 var(--st-glass-under),
+    var(--lg-glow), var(--lg-shadow);
+  opacity: 0; transform: scale(0.86);
+  transition: opacity 170ms var(--ease),
+              transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
+}
+.lg:hover::before, .lg:focus-visible::before { opacity: 1; transform: scale(1); }
+.lg:active::before { transform: scale(0.965); transition-duration: 90ms; }
+.lg--blur:hover::before, .lg--blur:focus-visible::before {
+  -webkit-backdrop-filter: blur(14px) saturate(180%); backdrop-filter: blur(14px) saturate(180%);
+}
+
+/* ══════════ 상단바 — 유리층 ══════════ */
+.geo-bar__in {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--pad-x); height: var(--bar-h); gap: 16px;
+}
+.geo-logo { display: flex; align-items: center; gap: 10px; --lg-x: 13px; --lg-y: 8px; }
+.geo-seal { width: 32px; height: 32px; color: var(--accent); flex-shrink: 0; display: block; }
+.geo-logo b { font-size: 13px; font-weight: 600; letter-spacing: var(--track-wide);
+              text-transform: uppercase; white-space: nowrap; }
+@media (max-width: 380px) { .geo-logo b { display: none; } }
+
+.geo-nav { display: none; align-items: center; gap: 32px; }
+@media (min-width: 768px) { .geo-nav { display: flex; } }
+.geo-nav a {
+  font-size: 14px; font-weight: 600; letter-spacing: var(--track-ko);
+  color: var(--st-label); --lg-x: 15px; --lg-y: 9px;
+}
+.geo-nav a.on { color: var(--accent-ink); }
+
+.geo-burger {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--st-label);
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  flex-shrink: 0; transition: transform 0.3s var(--ease); --lg-x: 7px; --lg-y: 7px;
+}
+.geo-burger:hover { transform: scale(1.06); }
+.geo-burger span { display: block; width: 16px; height: 2px; background: var(--st-bedrock); }
+
+/* ══════════ 전체 메뉴 ══════════ */
+.geo-menu {
+  position: fixed; inset: 0; z-index: 60; background: var(--st-bedrock);
+  display: flex; flex-direction: column; padding: 18px var(--pad-x) 32px;
+  opacity: 0; visibility: hidden; transform: translateY(-8px);
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease), visibility 0s linear 0.35s;
+  overflow-y: auto;
+}
+.geo-menu.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.geo-menu__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.geo-close {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--st-label); color: var(--st-bedrock);
+  display: inline-grid; place-items: center; flex-shrink: 0;
+}
+.geo-close svg { width: 18px; height: 18px; }
+.geo-menu__links { display: flex; flex-direction: column; gap: 28px; margin-top: 56px; }
+.geo-menu__links > a { font-size: 30px; font-weight: 600; letter-spacing: var(--track-ko);
+                       line-height: 1; align-self: flex-start; --lg-x: 22px; --lg-y: 14px; }
+@media (max-width: 400px) { .geo-menu__links > a { font-size: 26px; } }
+.geo-group { margin-top: 36px; }
+.geo-group h3 {
+  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide); text-transform: uppercase;
+  color: var(--st-label-3); padding-bottom: 8px; border-bottom: 1px solid var(--st-separator);
+}
+.geo-group a {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 11px 0; border-bottom: 1px solid var(--st-separator);
+  font-size: 14px; font-weight: 600; letter-spacing: var(--track-ko);
+}
+.geo-group a small { font-weight: 500; color: var(--st-label-3); font-size: 11px; letter-spacing: 0; }
+.geo-group a:hover { color: var(--accent-ink); }
+.geo-menu__foot { margin-top: auto; padding-top: 36px; display: flex; align-items: center;
+                  justify-content: space-between; gap: 16px; }
+.geo-menu__cta { display: inline-flex; align-items: center; gap: 8px; font-size: 20px; font-weight: 600;
+                 color: var(--accent-ink); letter-spacing: var(--track-ko); --lg-x: 20px; --lg-y: 13px; }
+.geo-menu__cta svg { width: 20px; height: 20px; }
+
+/* ══════════ 페이지 전환 — 누른 자리에서 화면이 열린다 ══════════ */
+.launch { position: fixed; inset: 0; z-index: 200; pointer-events: none;
+          background: var(--st-bedrock); will-change: clip-path; }
+.launch i { position: absolute; inset: 0; display: block; background: var(--st-glass-sheen);
+            box-shadow: inset 0 0 0 1px var(--lg-rim), inset 0 1.5px 0 0 var(--lg-specular); }
+body.is-launching .geo-page { transform: scale(0.965); opacity: 0.5; transform-origin: 50% 44%;
+                              transition: transform 600ms var(--ease), opacity 420ms var(--ease); }
+
+/* ══════════ 문서형 페이지 골격 ══════════ */
+.geo-page { position: relative; z-index: 1; min-height: 100vh; min-height: 100dvh;
+            display: flex; flex-direction: column; }
+.geo-shell { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
+
+/* 페이지 머리 — 메인의 거대 활자 언어를 축소해서 이어받는다 */
+.geo-hero { padding-block: clamp(40px, 7vw, 92px) clamp(28px, 4vw, 52px); position: relative; }
+.geo-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+  text-transform: uppercase; color: var(--st-label-3);
+}
+.geo-eyebrow--accent { color: var(--accent-ink); }
+.geo-hero h1 {
+  margin-top: 14px;
+  font-size: clamp(2.6rem, 8vw, 6rem); line-height: 0.94;
+  font-weight: 600; letter-spacing: -0.04em; text-transform: uppercase;
+}
+.geo-hero h1 .thin { color: var(--st-label-3); }
+.geo-hero__sub { margin-top: 18px; max-width: 46ch; font-size: clamp(0.875rem, 1.4vw, 1rem);
+                 line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.geo-hero__rule { margin-top: clamp(28px, 4vw, 46px); height: 1px; background: var(--st-separator); }
+
+/* 페이지 상단 배경 — 메인의 지구 대신 옅은 대기광으로 연결감만 남긴다 */
+.geo-aura {
+  position: absolute; inset: -20% -10% auto -10%; height: 560px; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(46% 60% at 18% 30%, rgba(0,136,255,0.13), transparent 70%),
+    radial-gradient(40% 55% at 78% 12%, rgba(97,85,245,0.10), transparent 70%);
+  filter: blur(6px);
+}
+
+.geo-main { flex: 1; padding-bottom: clamp(48px, 7vw, 96px); }
+
+.geo-foot {
+  border-top: 1px solid var(--st-separator);
+  padding-block: 26px 34px;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--st-label-3);
+  line-height: 1.6; overflow-wrap: normal; word-break: keep-all;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.geo-foot a { color: var(--st-label-3); --lg-x: 12px; --lg-y: 7px; }
+.geo-foot a:hover { color: var(--accent-ink); }
+
+/* 섹션 제목 */
+.geo-sec { margin-top: clamp(34px, 5vw, 64px); }
+.geo-sec__head { display: flex; align-items: baseline; justify-content: space-between;
+                 gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.geo-sec__head h2 { font-size: clamp(1.05rem, 1.6vw, 1.3rem); font-weight: 700;
+                    letter-spacing: -0.02em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lg::before { transition: opacity 140ms linear; transform: none !important; }
+  .geo-menu { transition-duration: 1ms; }
+}
