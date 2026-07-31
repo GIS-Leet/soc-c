@@ -42,12 +42,18 @@
   --bar-h: 58px;
   /* Liquid Glass 호버 알약 — 바 위에 얹히므로 바보다 밝아야 보인다 */
   --lg-bg: rgba(255,255,255,0.92);
-  --lg-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 8px 22px rgba(0,0,0,0.10);
+  --lg-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 6px 14px rgba(0,0,0,0.10), 0 16px 38px rgba(0,0,0,0.17);
+  --lg-rim: rgba(146,192,255,0.80);        /* 테두리에 도는 아주 연한 푸른빛 */
+  --lg-specular: rgba(238,247,255,0.96);   /* 위쪽 반사광 */
+  --lg-glow: 0 0 0 0.5px rgba(146,192,255,0.30), 0 0 20px rgba(96,158,255,0.26);
 }
 :root[data-theme="dark"] {
   --scrim: 0,0,0;
-  --lg-bg: rgba(255,255,255,0.15);
-  --lg-shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 22px rgba(0,0,0,0.5);
+  --lg-bg: rgba(255,255,255,0.16);
+  --lg-shadow: 0 1px 3px rgba(0,0,0,0.45), 0 6px 14px rgba(0,0,0,0.45), 0 16px 38px rgba(0,0,0,0.60);
+  --lg-rim: rgba(150,196,255,0.55);
+  --lg-specular: rgba(226,240,255,0.42);
+  --lg-glow: 0 0 0 0.5px rgba(150,196,255,0.22), 0 0 24px rgba(96,158,255,0.34);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -69,9 +75,10 @@
   border-radius: var(--st-r-full);
   background: var(--st-glass-sheen), var(--lg-bg);
   box-shadow:
-    inset 0 0.5px 0 0 var(--st-glass-specular),
-    inset 0 0 0 0.5px var(--st-glass-rim),
-    inset 0 -0.5px 0 0 var(--st-glass-under),
+    inset 0 0.6px 0 0 var(--lg-specular),      /* 위쪽에 걸리는 반사광 */
+    inset 0 0 0 0.8px var(--lg-rim),           /* 테두리에 도는 연푸른 굴절광 */
+    inset 0 -0.6px 0 0 var(--st-glass-under),  /* 아래쪽 되비침 */
+    var(--lg-glow),                            /* 바깥으로 번지는 푸른 발광 */
     var(--lg-shadow);
   opacity: 0; transform: scale(0.86);
   transition: opacity 170ms var(--ease),
@@ -305,6 +312,24 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
             --lg-x: 20px; --lg-y: 13px; }
 .menu-cta svg { width: 20px; height: 20px; }
 
+/* ══════════ 페이지 전환 — macOS 앱이 아이콘에서 열리듯 ══════════
+   누른 링크의 자리에서 유리면이 열려 화면 전체로 퍼지고, 그 뒤에서 지금 페이지가
+   살짝 뒤로 물러나며 흐려진다. clip-path만 애니메이션하므로 레이아웃을 건드리지 않는다. */
+.launch {
+  position: fixed; inset: 0; z-index: 200; pointer-events: none;
+  background: var(--st-bedrock);
+  will-change: clip-path;
+}
+.launch i {
+  position: absolute; inset: 0; display: block;
+  background: var(--st-glass-sheen);
+  box-shadow: inset 0 0 0 1px var(--lg-rim), inset 0 1.5px 0 0 var(--lg-specular);
+}
+body.is-launching .page, body.is-launching .globe {
+  transform: scale(0.965); opacity: 0.5; transform-origin: 50% 44%;
+  transition: transform 600ms var(--ease), opacity 420ms var(--ease);
+}
+
 /* 좁은 화면에서는 호버 알약이 화면 가장자리에 닿으므로 좌우 여유를 줄인다.
    (요소별 --lg-x 선언보다 뒤에 있어야 이긴다 — 같은 specificity라 순서가 결정한다) */
 @media (max-width: 767px) { .cta, .menu-cta, .menu-links > a { --lg-x: 13px; } }
@@ -490,6 +515,46 @@ const DDAY = { label: '중간고사', date: '2026-10-01' };
   menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => open(false)));
 })();
 
+/* ── 페이지 전환 — 링크를 누르면 그 자리에서 화면이 열린다 ───────────── */
+(function launch(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.addEventListener('click', (e) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;  // 새 탭 등은 그대로
+    const a = e.target.closest('a[href]');
+    if (!a || a.target === '_blank' || a.hasAttribute('download')) return;
+    let url;
+    try { url = new URL(a.href, location.href); } catch (err) { return; }
+    if (url.origin !== location.origin) return;          // 외부 링크는 건드리지 않는다
+    if (url.hash && url.pathname === location.pathname) return;  // 같은 페이지 앵커
+    e.preventDefault();
+    open(a, url.href);
+  });
+
+  function open(el, href){
+    if (reduce) { location.href = href; return; }        // 모션 최소화면 바로 이동
+    const r = el.getBoundingClientRect();
+    const veil = document.createElement('div');
+    veil.className = 'launch';
+    veil.innerHTML = '<i></i>';
+    veil.style.clipPath =
+      `inset(${r.top}px ${innerWidth - r.right}px ${innerHeight - r.bottom}px ${r.left}px` +
+      ` round ${Math.min(r.height / 2, 40)}px)`;
+    document.body.appendChild(veil);
+    document.body.classList.add('is-launching');
+
+    let gone = false;
+    const go = () => { if (!gone) { gone = true; location.href = href; } };
+
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      veil.style.transition = 'clip-path 620ms var(--st-spring-smooth)';
+      veil.style.clipPath = 'inset(0px 0px 0px 0px round 0px)';
+    }));
+    veil.addEventListener('transitionend', go);
+    setTimeout(go, 900);   // 애니메이션이 돌지 않아도 반드시 이동시킨다
+  }
+})();
+
 /* ── 테마 전환 (기존 geo-theme 키 유지) ───────────────────────────────── */
 (function theme(){
   const btn = document.getElementById('themeToggle');
@@ -613,9 +678,9 @@ const LAND=[
 
     // 바다 — 위도에 따라 색이 달라진다(적도가 밝고 극지가 어둡다)
     const og = g.createLinearGradient(0, 0, 0, TH);
-    og.addColorStop(0.00, '#12314e'); og.addColorStop(0.18, '#123f65');
-    og.addColorStop(0.50, '#14598c'); og.addColorStop(0.82, '#123f65');
-    og.addColorStop(1.00, '#12314e');
+    og.addColorStop(0.00, '#0c2440'); og.addColorStop(0.18, '#0d3358');
+    og.addColorStop(0.50, '#10497b'); og.addColorStop(0.82, '#0d3358');
+    og.addColorStop(1.00, '#0c2440');
     g.fillStyle = og; g.fillRect(0, 0, TW, TH);
 
     // 육지는 별도 캔버스에 그려 두고, 위도별 색을 source-atop으로 입힌다
@@ -693,6 +758,48 @@ const LAND=[
     return g.getImageData(0, 0, TW, TH).data;
   })();
 
+  /* ── ①-2 구름층 ────────────────────────────────────────────────────
+     우주에서 찍은 지구가 '사진처럼' 보이는 결정적 차이는 구름이다.
+     값 노이즈를 여러 겹 쌓되, 위도별 구름대를 곱한다 — 적도 수렴대와
+     한대 전선에는 구름이 몰리고 아열대 고압대(사막 위도)는 비어 있다.
+     실제 대기 대순환과 같은 배치라 수업에서 그대로 짚어줄 수 있다. */
+  const CW = 512, CH = 256;
+  const cloudTex = (function buildClouds(){
+    const out = new Uint8Array(CW * CH);
+    const mk = (n) => { const g = new Float32Array(n * n); for (let i = 0; i < g.length; i++) g[i] = Math.random(); return g; };
+    // 경도 방향은 순환, 위도 방향은 고정 — 이음매가 생기지 않도록
+    function noise(g, n, u, v){
+      const x = u * n, y = v * n;
+      const x0 = Math.floor(x), y0 = Math.min(Math.floor(y), n - 1);
+      const fx = x - x0, fy = y - y0;
+      const xa = ((x0 % n) + n) % n, xb = (xa + 1) % n;
+      const ya = y0 * n, yb = Math.min(y0 + 1, n - 1) * n;
+      const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+      const top = g[ya + xa] + (g[ya + xb] - g[ya + xa]) * sx;
+      const bot = g[yb + xa] + (g[yb + xb] - g[yb + xa]) * sx;
+      return top + (bot - top) * sy;
+    }
+    const oct = [[6, 0.50], [12, 0.26], [24, 0.15], [48, 0.09]];
+    const grids = oct.map(o => mk(o[0]));
+    for (let y = 0; y < CH; y++){
+      const lat = 90 - (y + 0.5) / CH * 180, al = Math.abs(lat);
+      const band = 0.42
+                 + 0.58 * Math.exp(-Math.pow(al / 14, 2))            // 적도 수렴대
+                 + 0.52 * Math.exp(-Math.pow((al - 55) / 20, 2))     // 한대 전선
+                 - 0.30 * Math.exp(-Math.pow((al - 27) / 12, 2));    // 아열대 고압대(사막 위도)
+      const v = (y + 0.5) / CH;
+      for (let x = 0; x < CW; x++){
+        const u = (x + 0.5) / CW;
+        let n = 0;
+        for (let k = 0; k < oct.length; k++) n += noise(grids[k], oct[k][0], u, v) * oct[k][1];
+        let a = n * band * 2.3 - 0.34;
+        a = a <= 0 ? 0 : a >= 1 ? 1 : a * a * (3 - 2 * a);
+        out[y * CW + x] = a * 255;
+      }
+    }
+    return out;
+  })();
+
   /* ── ② 픽셀별 위경도·음영 미리 계산 ─────────────────────────────────
      내부 렌더 해상도는 실제 표시 크기에 맞춰 정한다. 폰에서 255px로 보이는
      구를 560px로 그리면 픽셀 연산이 네 배가 되어 프레임을 떨어뜨린다. */
@@ -702,7 +809,7 @@ const LAND=[
   // 빛은 왼쪽 위 앞에서
   const L = (function(){ const v = [-0.46, 0.40, 0.79]; const m = Math.hypot(...v); return v.map(k => k / m); })();
 
-  let S, R, CX, CY, img, buf, idx, rowOff, colBase, shade, rim, N = 0;
+  let S, R, CX, CY, img, buf, idx, rowOff, colBase, shade, rim, cRow, cCol, N = 0;
 
   function setup(){
     const shown = cv.clientWidth || 400;
@@ -715,6 +822,7 @@ const LAND=[
     const cap = S * S;
     const _idx = new Int32Array(cap), _row = new Int32Array(cap), _col = new Float32Array(cap);
     const _sh = new Float32Array(cap), _rm = new Float32Array(cap);
+    const _cr = new Int32Array(cap), _cc = new Float32Array(cap);
     for (let py = 0; py < S; py++){
       for (let px = 0; px < S; px++){
         const x = (px + 0.5 - CX) / R, y = -(py + 0.5 - CY) / R;
@@ -735,31 +843,41 @@ const LAND=[
         _idx[N] = (py * S + px) * 4;
         _row[N] = Math.min(TH - 1, Math.max(0, Math.round((90 - lat) / 180 * TH))) * TW;
         _col[N] = (lonRel + 180) / 360 * TW;
+        _cr[N]  = Math.min(CH - 1, Math.max(0, Math.round((90 - lat) / 180 * CH))) * CW;
+        _cc[N]  = (lonRel + 180) / 360 * CW;
         _sh[N]  = 0.20 + 0.95 * Math.pow(diff, 0.85);   // 환경광 0.20
-        _rm[N]  = fres * 0.85 + Math.pow(diff, 6) * 0.25;
+        _rm[N]  = fres * 1.00 + Math.pow(diff, 6) * 0.25;
         N++;
       }
     }
     idx = _idx.subarray(0, N); rowOff = _row.subarray(0, N);
     colBase = _col.subarray(0, N); shade = _sh.subarray(0, N); rim = _rm.subarray(0, N);
+    cRow = _cr.subarray(0, N); cCol = _cc.subarray(0, N);
   }
   setup();
 
   /* ── ③ 매 프레임: 경도만 밀어서 샘플링 ───────────────────────────── */
-  const RIM = [122, 176, 235];         // 대기 산란 색
+  const RIM = [130, 185, 245];         // 대기 산란 색
   let lon0 = 128;                      // 처음엔 한반도가 정면에
+  let cloudLon = 128;                  // 구름은 지표보다 아주 조금 빠르게 흐른다
 
   function draw(){
     const shift = lon0 / 360 * TW;
+    const cShift = cloudLon / 360 * CW;
     for (let i = 0; i < N; i++){
       let col = colBase[i] + shift;
       col %= TW; if (col < 0) col += TW;
       const s = (rowOff[i] + (col | 0)) * 4;
-      const sh = shade[i], rm = rim[i];
-      const o = idx[i];
-      buf[o]     = Math.min(255, tex[s]     * sh + RIM[0] * rm);
-      buf[o + 1] = Math.min(255, tex[s + 1] * sh + RIM[1] * rm);
-      buf[o + 2] = Math.min(255, tex[s + 2] * sh + RIM[2] * rm);
+
+      let cc = cCol[i] + cShift;
+      cc %= CW; if (cc < 0) cc += CW;
+      const a = cloudTex[cRow[i] + (cc | 0)] * 0.00392;   // 0~1
+
+      const sh = shade[i], rm = rim[i], o = idx[i];
+      // 지표색 위에 구름을 얹고, 그 결과에 음영과 대기광을 입힌다
+      buf[o]     = Math.min(255, (tex[s]     + (252 - tex[s])     * a) * sh + RIM[0] * rm);
+      buf[o + 1] = Math.min(255, (tex[s + 1] + (253 - tex[s + 1]) * a) * sh + RIM[1] * rm);
+      buf[o + 2] = Math.min(255, (tex[s + 2] + (255 - tex[s + 2]) * a) * sh + RIM[2] * rm);
       buf[o + 3] = 255;
     }
     ctx.putImageData(img, 0, 0);
@@ -780,6 +898,8 @@ const LAND=[
     const dt = Math.min((now - last) / 1000, 0.05);
     last = now;
     lon0 -= (360 / PERIOD) * dt;       // 서→동 자전
+    cloudLon -= (360 / PERIOD) * 1.09 * dt;
+    if (cloudLon < -180) cloudLon += 360;
     if (lon0 < -180) lon0 += 360;
     draw();
     requestAnimationFrame(frame);
