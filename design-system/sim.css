@@ -258,6 +258,19 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: inset 0 0 
   outline: none; border-color: var(--accent); box-shadow: var(--st-ring); background: var(--st-surface);
 }
 
+/* ── 제목 안의 아이콘 ───────────────────────────────────────────────────
+   width/height 속성이 없는 인라인 SVG는 컨테이너를 꽉 채운다.
+   실제로 서울 페이지에서 479x479짜리 검은 아이콘이 되어 있었다.
+   아래는 그 교정이자, 같은 실수가 다시 나오지 않게 하는 안전망이다. */
+.info-card h3, .caption-title { display: flex; align-items: center; gap: 8px; }
+.info-card h3 svg, .caption-title svg, .sheet-title svg, .info-header svg,
+.control-group > label svg {
+  width: 17px; height: 17px; flex-shrink: 0; color: var(--accent);
+}
+.controls-wrapper svg:not([width]):not(.geo-seal),
+.info-card svg:not([width]),
+.layout-wrapper h3 svg:not([width]) { width: 17px; height: 17px; }
+
 /* 카드 묶음 — 수치 타일로도, 설명 글 카드로도 쓰인다 */
 .info-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .info-card { padding: 16px 18px; }

@@ -29,23 +29,23 @@
            GEOGRAPHIA — Academic Archival Editorial Concept
         ============================================================ */
         :root {
-            --ink:        #1a1714;
-            --ink-2:      #4a443c;
-            --ink-3:      #8c8479;
-            --ink-faint:  #b8b0a3;
+            --ink:        #0a0a0c;
+            --ink-2:      #48484a;
+            --ink-3:      #8e8e93;
+            --ink-faint:  #aeaeb2;
 
-            --paper:      #f4f0e8;
-            --paper-2:    #efe9dd;
-            --surface:    #fbf9f3;
+            --paper:      #f2f2f7;
+            --paper-2:    #e9ecf4;
+            --surface:    #ffffff;
 
-            --line:       #d8d0c0;
-            --line-soft:  #e6dfd0;
+            --line:       #cbd5e6;
+            --line-soft:  #dde4f0;
 
-            --terra:      #b4502e;
+            --terra:      #0088ff;
             --terra-soft: #f0e0d4;
-            --sea:        #2f5d50;
+            --sea:        #0069d9;
             --sea-soft:   #dde8e2;
-            --gold:       #9a7b3f;
+            --gold:       #e0a020;
             --gold-soft:  #f3ebd8;
 
             --serif: 'Fraunces', Georgia, serif;
@@ -160,6 +160,7 @@
   --radius:var(--st-r-container);
 }
 </style>
+    <script src="design-system/canvas2d.js"></script>
 </head>
 <body>
     <header class="st-glass st-bar">
@@ -194,7 +195,7 @@
                 <span>Geometry of Insolation</span>
             </div>
             <div class="canvas-inner">
-                <canvas id="simCanvas" width="700" height="450"></canvas>
+                <canvas id="simCanvas"></canvas>
             </div>
         </div>
 
@@ -255,17 +256,17 @@
             eqAltTxt.innerText = altitude; 
             eqIncTxt.innerText = incidence;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            Geo.beginFrame(ctx);   // 설계 공간(700x450)을 컨테이너에 맞춰 얹는다
             
             // 지표면 선 (Ground)
             ctx.beginPath(); ctx.moveTo(60, cy); ctx.lineTo(640, cy); 
-            ctx.lineWidth = 3; ctx.strokeStyle = '#1a1714'; ctx.stroke();
-            ctx.fillStyle = '#4a443c'; ctx.font = '600 14px "Fraunces", serif'; ctx.fillText("GROUND LEVEL", 540, cy + 25);
+            ctx.lineWidth = 3; ctx.strokeStyle = '#0a0a0c'; ctx.stroke();
+            ctx.fillStyle = '#48484a'; ctx.font = '600 14px "Space Grotesk", "Pretendard Variable", sans-serif'; ctx.fillText("GROUND LEVEL", 540, cy + 25);
             
             // 법선 (Normal Line - 수직 점선)
             ctx.beginPath(); ctx.setLineDash([6, 6]); ctx.moveTo(cx, cy); ctx.lineTo(cx, 60); 
-            ctx.lineWidth = 1.5; ctx.strokeStyle = '#8c8479'; ctx.stroke();
-            ctx.setLineDash([]); ctx.fillStyle = '#8c8479'; ctx.font = 'italic 14px "Fraunces", serif'; ctx.fillText("Normal Line (Zenith)", cx - 65, 45);
+            ctx.lineWidth = 1.5; ctx.strokeStyle = '#8e8e93'; ctx.stroke();
+            ctx.setLineDash([]); ctx.fillStyle = '#8e8e93'; ctx.font = '14px "Space Grotesk", "Pretendard Variable", sans-serif'; ctx.fillText("Normal Line (Zenith)", cx - 65, 45);
 
             // 태양광선 벡터 계산
             const radAlt = altitude * (Math.PI / 180);
@@ -274,7 +275,7 @@
             
             // 태양광선 그리기 (Ray)
             ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(sunX, sunY); 
-            ctx.lineWidth = 3; ctx.strokeStyle = '#9a7b3f'; ctx.stroke();
+            ctx.lineWidth = 3; ctx.strokeStyle = '#e0a020'; ctx.stroke();
             
             // 화살표 머리 (빛 방향)
             const headlen = 16;
@@ -283,13 +284,13 @@
             ctx.moveTo(cx, cy);
             ctx.lineTo(cx - headlen * Math.cos(angle - Math.PI / 7), cy - headlen * Math.sin(angle - Math.PI / 7));
             ctx.lineTo(cx - headlen * Math.cos(angle + Math.PI / 7), cy - headlen * Math.sin(angle + Math.PI / 7));
-            ctx.fillStyle = '#9a7b3f';
+            ctx.fillStyle = '#e0a020';
             ctx.fill();
 
             // 클래식한 태양 심볼 그리기 (이모지 대체)
             ctx.beginPath(); ctx.arc(sunX, sunY, 14, 0, Math.PI * 2); 
-            ctx.fillStyle = '#f4f0e8'; ctx.fill();
-            ctx.lineWidth = 2.5; ctx.strokeStyle = '#9a7b3f'; ctx.stroke();
+            ctx.fillStyle = '#f2f2f7'; ctx.fill();
+            ctx.lineWidth = 2.5; ctx.strokeStyle = '#e0a020'; ctx.stroke();
             // 태양 햇살
             for(let i=0; i<8; i++) {
                 const rayAngle = i * (Math.PI / 4);
@@ -303,37 +304,41 @@
             // 고도각 (Altitude - Terra Color)
             if (altitude > 0) {
                 ctx.beginPath(); ctx.arc(cx, cy, 110, 0, -radAlt, true); 
-                ctx.lineWidth = 2.5; ctx.strokeStyle = '#b4502e'; ctx.stroke();
+                ctx.lineWidth = 2.5; ctx.strokeStyle = '#0088ff'; ctx.stroke();
                 
                 // 호 내부 반투명 채우기
                 ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 110, 0, -radAlt, true); ctx.lineTo(cx, cy);
                 ctx.fillStyle = 'rgba(180, 80, 46, 0.08)'; ctx.fill();
 
-                const altMidRad = radAlt / 2; ctx.fillStyle = '#b4502e'; ctx.font = '500 16px "Fraunces", serif';
+                const altMidRad = radAlt / 2; ctx.fillStyle = '#0088ff'; ctx.font = '500 16px "Space Grotesk", "Pretendard Variable", sans-serif';
                 ctx.fillText(`Alt ${altitude}°`, cx + 130 * Math.cos(altMidRad), cy - 130 * Math.sin(altMidRad) + 5);
             }
             
             // 입사각 (Incidence - Sea Color)
             if (incidence > 0) {
                 ctx.beginPath(); ctx.arc(cx, cy, 160, -Math.PI / 2, -radAlt, false); 
-                ctx.lineWidth = 2.5; ctx.strokeStyle = '#2f5d50'; ctx.stroke();
+                ctx.lineWidth = 2.5; ctx.strokeStyle = '#0069d9'; ctx.stroke();
                 
                 // 호 내부 반투명 채우기
                 ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, 160, -Math.PI / 2, -radAlt, false); ctx.lineTo(cx, cy);
                 ctx.fillStyle = 'rgba(47, 93, 80, 0.08)'; ctx.fill();
 
-                const incMidRad = (Math.PI / 2 + radAlt) / 2; ctx.fillStyle = '#2f5d50'; ctx.font = '500 16px "Fraunces", serif';
+                const incMidRad = (Math.PI / 2 + radAlt) / 2; ctx.fillStyle = '#0069d9'; ctx.font = '500 16px "Space Grotesk", "Pretendard Variable", sans-serif';
                 ctx.fillText(`Inc ${incidence}°`, cx + 180 * Math.cos(incMidRad), cy - 180 * Math.sin(incMidRad) + 5);
             }
 
             // 중심점 (관측자 위치)
-            ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fillStyle = '#1a1714'; ctx.fill();
+            ctx.beginPath(); ctx.arc(cx, cy, 5, 0, 2 * Math.PI); ctx.fillStyle = '#0a0a0c'; ctx.fill();
         }
         
         slider.addEventListener('input', drawSimulation); 
         // 초기 로딩 시 한 번 그려주기
         // 폰트(Fraunces)가 로딩된 후 정확한 렌더링을 위해 약간 지연
         setTimeout(drawSimulation, 100);
+        // 캔버스를 컨테이너 크기와 화면 배율에 맞춘다(선명도 · 반응형).
+        // 초기화가 모두 끝난 뒤에 불러야 한다 — 앞에서 부르면 아직 선언되지
+        // 않은 변수(slider 등)를 건드려 스크립트 전체가 죽는다.
+        Geo.fitCanvas(canvas, 700, 450, drawSimulation);
         drawSimulation();
     </script>
 <script>
