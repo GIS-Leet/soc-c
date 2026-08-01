@@ -45,6 +45,20 @@
   --serif: var(--sans);
   --terra: var(--st-danger-ink);
   --terra-soft: var(--st-danger-soft);
+
+  /* ── 그래프 색 ──
+     '답변 완료 / 답변 전'은 정체성(카테고리)이 아니라 상태다. 그래서 목록의
+     상태 칩과 똑같은 초록·회색을 쓴다 — 색이 가리키는 대상이 같아야 한다.
+     흰 배경(#ffffff) 기준으로 검산한 값이다: 색각 이상 분리 ΔE 10.6(deutan),
+     정상 시각 17.2, 배경 대비 3:1 이상. 회색은 '대기'라는 뜻이므로 채도가
+     없는 것이 의도다. */
+  --c-done: #1f8f43;
+  --c-wait: #8e8e93;
+}
+/* 다크는 뒤집는 게 아니라 그 배경(#1c1c1e)에서 다시 고른 값이다 */
+:root[data-theme="dark"] { --c-done: #28ad4b; --c-wait: #84848a; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --c-done: #28ad4b; --c-wait: #84848a; }
 }
 
 .sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
@@ -82,24 +96,216 @@
   letter-spacing: var(--track-ko);
 }
 
-/* ══════════ 현황 세 칸 ══════════
-   숫자는 tnum으로. 값이 바뀔 때 칸이 흔들리면 게시판이 불안해 보인다. */
-.q-stats {
-  margin-top: clamp(22px, 3vw, 34px);
-  display: flex; align-items: stretch; gap: 0;
-  border-top: 1px solid var(--st-separator-strong);
+/* ══════════ 페이지 머리의 깊이 ══════════
+   납작한 흰 화면에 공기를 넣는다. 대기광 두 겹과, 아주 느리게 도는 나침반 씰.
+   둘 다 z-index 음수라 글자 뒤에 있고, 클릭을 가로채지 않는다. */
+.head-aura {
+  position: absolute; inset: -34% -6% auto -18%; height: 640px; z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 56% at 14% 34%, rgba(0,136,255,0.17), transparent 68%),
+    radial-gradient(38% 50% at 70% 6%,  rgba(97,85,245,0.13), transparent 70%),
+    radial-gradient(32% 46% at 48% 66%, rgba(52,199,89,0.09), transparent 72%);
+  filter: blur(10px);
+}
+.head-seal {
+  position: absolute; right: 0; top: clamp(30px, 5vw, 66px);
+  width: clamp(160px, 26vw, 300px); height: clamp(160px, 26vw, 300px);
+  z-index: -1; color: var(--accent); opacity: 0.07; pointer-events: none;
+  animation: sealSpin 120s linear infinite;
+}
+@keyframes sealSpin { to { transform: rotate(360deg); } }
+@media (max-width: 700px) { .head-seal { opacity: 0.05; top: auto; bottom: -20px; } }
+
+/* ══════════ 현황 패널 ══════════ */
+.panel {
+  position: relative; margin-top: clamp(24px, 3.4vw, 40px);
+  background: var(--st-surface); border: 1px solid var(--st-separator);
+  border-radius: var(--st-r-page); box-shadow: var(--st-shadow-med);
+}
+.panel__head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 15px clamp(18px, 2.4vw, 26px);
   border-bottom: 1px solid var(--st-separator);
 }
-.q-stat { flex: 1; padding: 14px 0 15px; }
-.q-stat + .q-stat { border-left: 1px solid var(--st-separator); padding-left: clamp(14px, 3vw, 30px); }
-.q-stat__n {
-  font-size: clamp(1.35rem, 4.2vw, 2rem); font-weight: 600; line-height: 1;
-  letter-spacing: -0.025em; font-variant-numeric: tabular-nums;
+.panel__cap {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+  text-transform: uppercase; color: var(--st-label-3);
 }
-.q-stat__n.is-done { color: var(--st-success-ink); }
-.q-stat__n.is-wait { color: var(--st-label-3); }
-.q-stat__l { margin-top: 7px; font-size: 11px; font-weight: 600; color: var(--st-label-3);
-             letter-spacing: var(--track-ko); }
+.panel__spacer { flex: 1; }
+.panel__toggle {
+  font-size: 11.5px; font-weight: 600; color: var(--st-label-3);
+  padding: 6px 12px; border-radius: var(--st-r-full); letter-spacing: var(--track-ko);
+  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease);
+}
+.panel__toggle:hover { background: var(--st-fill-2); color: var(--st-label); }
+.panel__toggle[aria-pressed="true"] { background: var(--st-accent-soft); color: var(--accent-ink); }
+
+.dash { display: grid; grid-template-columns: minmax(0, 290px) minmax(0, 1fr); }
+@media (max-width: 800px) { .dash { grid-template-columns: 1fr; } }
+.dash__rate { padding: clamp(20px, 2.6vw, 28px); border-right: 1px solid var(--st-separator); }
+.dash__chart { padding: clamp(20px, 2.6vw, 28px); min-width: 0; }
+@media (max-width: 800px) {
+  .dash__rate { border-right: 0; border-bottom: 1px solid var(--st-separator); }
+}
+
+/* 이 화면이 이끄는 단 하나의 숫자. 비례 숫자(tnum 아님) — 큰 활자에서
+   모든 자리를 0폭으로 맞추면 '121' 같은 수가 헐렁해 보인다. */
+.rate__n {
+  font-size: clamp(2.6rem, 7vw, 3.6rem); font-weight: 600; line-height: 1;
+  letter-spacing: -0.035em; color: var(--st-label);
+}
+.rate__n i { font-style: normal; font-size: 0.4em; font-weight: 600;
+             letter-spacing: -0.01em; color: var(--st-label-3); margin-left: 3px; }
+.rate__l { margin-top: 9px; font-size: 12.5px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+
+/* 미터 — 두 조각 사이는 선이 아니라 2px의 '면 색' 틈이 가른다 */
+.meter { display: flex; gap: 2px; height: 10px; margin-top: 20px; }
+.meter__seg { height: 100%; min-width: 3px; transition: width 760ms var(--st-spring-smooth); }
+.meter__seg--done { background: var(--c-done); border-radius: 5px 0 0 5px; }
+.meter__seg--wait { background: var(--c-wait); border-radius: 0 5px 5px 0; }
+.meter[data-wait="0"] .meter__seg--done { border-radius: 5px; }
+.meter[data-wait="0"] .meter__seg--wait { display: none; }
+
+.legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; }
+.legend span { display: inline-flex; align-items: center; gap: 7px;
+               font-size: 12px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.legend i { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+.legend b { color: var(--st-label); font-weight: 700; font-variant-numeric: tabular-nums; }
+.legend .k--done { background: var(--c-done); }
+.legend .k--wait { background: var(--c-wait); }
+
+.dash__title { font-size: 12.5px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label); }
+.dash__sub { margin-top: 4px; font-size: 11px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.dash__sub b { color: var(--st-label-2); font-weight: 600; }
+
+/* ── 월별 기둥 ── */
+/* 기둥은 24px을 넘지 않는다. 그런데 달이 넉 달뿐일 때 판을 끝까지 늘리면
+   기둥 넷이 허허벌판에 서 있는 꼴이 된다. 판 자체를 달 수에 맞춰 줄인다. */
+.chart { position: relative; margin-top: 22px; padding: 22px 0 0 32px;
+         max-width: calc(32px + var(--bands, 12) * 78px); }
+.chart__grid { position: absolute; left: 0; right: 0; top: 22px; height: 140px; pointer-events: none; }
+.chart__rule { position: absolute; left: 32px; right: 0; height: 1px; background: var(--st-separator); }
+.chart__rule--top  { top: 0; }
+.chart__rule--base { bottom: 0; background: var(--st-separator-strong); }
+.chart__rule b {
+  position: absolute; left: -32px; top: -7px; width: 26px; text-align: right;
+  font-size: 10px; font-weight: 500; color: var(--st-label-4);
+  font-variant-numeric: tabular-nums;
+}
+.chart__plot { display: flex; align-items: flex-end; gap: 2px; }
+.chart__band {
+  position: relative; flex: 1 1 0; min-width: 0;
+  border-radius: var(--st-r-inner) var(--st-r-inner) 0 0;
+  transition: background var(--st-dur-fast) var(--st-ease);
+}
+.chart__band:hover, .chart__band:focus-visible { background: var(--st-fill-3); outline: none; }
+.chart__stack {
+  position: relative; height: 140px; width: 100%; max-width: 24px; margin: 0 auto;
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 2px;
+}
+/* 높이는 인라인 style로 바로 박힌다. 자라 오르는 연출은 키프레임이 맡는다 —
+   'height 0을 그렸다가 다음 프레임에 진짜 값을 넣는' 방식은 그 프레임이
+   오지 않는 상황(백그라운드 탭 등)에서 기둥이 0인 채로 남는다. */
+.chart__seg { width: 100%; min-height: 2px; }
+.chart__seg--done { background: var(--c-done); }
+.chart__seg--wait { background: var(--c-wait); }
+.chart__seg.is-top { border-radius: 4px 4px 0 0; }   /* 데이터 끝만 둥글게, 기준선은 각지게 */
+@keyframes chartGrow { from { height: 0; } }
+.chart__plot.is-first .chart__seg {
+  animation: chartGrow 700ms var(--st-spring-smooth) backwards;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+@media (prefers-reduced-motion: reduce) { .chart__plot.is-first .chart__seg { animation: none; } }
+.chart__peak {
+  position: absolute; top: -19px; left: 50%; transform: translateX(-50%);
+  font-size: 10.5px; font-weight: 700; color: var(--st-label);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.chart__x { margin-top: 10px; text-align: center; font-size: 10.5px; color: var(--st-label-3);
+            letter-spacing: 0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.chart__tip {
+  position: absolute; bottom: 100%; left: 50%; margin-bottom: 8px;
+  transform: translate(-50%, 4px);
+  padding: 9px 12px; border-radius: var(--st-r-element);
+  background: var(--st-ink); color: var(--st-on-ink);
+  font-size: 11.5px; line-height: 1.55; letter-spacing: var(--track-ko); white-space: nowrap;
+  box-shadow: var(--st-shadow-med); z-index: 5;
+  opacity: 0; pointer-events: none;
+  transition: opacity 140ms var(--st-ease), transform 240ms var(--st-ease);
+}
+.chart__tip b { display: block; color: var(--st-on-ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.chart__tip u { display: block; text-decoration: none; color: var(--st-on-ink-2); font-variant-numeric: tabular-nums; }
+.chart__band:hover .chart__tip, .chart__band:focus-visible .chart__tip {
+  opacity: 1; transform: translate(-50%, 0);
+}
+/* 양 끝 기둥의 말풍선은 패널 밖으로 삐져나가지 않게 붙여 세운다 */
+.chart__band:first-child .chart__tip { left: 0; transform: translate(0, 4px); }
+.chart__band:first-child:hover .chart__tip,
+.chart__band:first-child:focus-visible .chart__tip { transform: translate(0, 0); }
+.chart__band:last-child .chart__tip { left: auto; right: 0; transform: translate(0, 4px); }
+.chart__band:last-child:hover .chart__tip,
+.chart__band:last-child:focus-visible .chart__tip { transform: translate(0, 0); }
+
+/* ── 표로 보기 — 색에만 기대지 않기 위한 같은 값의 텍스트판 ── */
+.dtable-wrap { display: none; padding: clamp(18px, 2.4vw, 26px); overflow-x: auto; }
+.panel.is-table .dtable-wrap { display: block; }
+.panel.is-table .dash { display: none; }
+.dtable { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.dtable th, .dtable td { padding: 9px 12px; text-align: right; font-size: 12.5px;
+                         border-bottom: 1px solid var(--st-separator); letter-spacing: var(--track-ko); }
+.dtable th { font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+             text-transform: uppercase; color: var(--st-label-3); }
+.dtable th:first-child, .dtable td:first-child { text-align: left; }
+.dtable tfoot td { font-weight: 700; border-bottom: 0; }
+.dtable td { color: var(--st-label-2); }
+.dtable td:first-child, .dtable tfoot td { color: var(--st-label); }
+
+/* ══════════ 최근 답변 ══════════
+   게시판은 '목록'이라 훑기는 좋지만 들여다볼 이유를 주지 않는다.
+   방금 답이 달린 것 몇 개를 카드로 꺼내 두면 들어오자마자 읽을 것이 생긴다. */
+.recent { margin-top: clamp(24px, 3.2vw, 38px); }
+.recent[hidden] { display: none; }
+.recent__head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 13px; }
+.recent__head h2 { font-size: 12.5px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label); }
+.recent__head span { font-size: 11px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.recent__rail {
+  display: flex; gap: 12px; overflow-x: auto; padding: 2px 0 8px;
+  scroll-snap-type: x proximity; scrollbar-width: thin;
+  margin-inline: calc(-1 * var(--pad-x)); padding-inline: var(--pad-x);
+}
+.recent__card {
+  flex: 0 0 clamp(228px, 64vw, 292px); scroll-snap-align: start;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 9px;
+  padding: 16px 17px 15px; text-align: left; cursor: pointer;
+  border-radius: var(--st-r-container);
+  background: var(--st-surface); border: 1px solid var(--st-separator);
+  box-shadow: var(--st-shadow-low);
+  transition: transform var(--st-spring-snappy-dur) var(--st-spring-snappy),
+              box-shadow var(--st-dur-fast) var(--st-ease),
+              border-color var(--st-dur-fast) var(--st-ease);
+}
+.recent__card:hover, .recent__card:focus-visible {
+  transform: translateY(-3px); box-shadow: var(--st-shadow-med);
+  border-color: var(--accent); outline: none;
+}
+.recent__top { display: flex; align-items: center; gap: 8px; width: 100%; }
+.recent__date { margin-left: auto; font-size: 10.5px; color: var(--st-label-3);
+                font-variant-numeric: tabular-nums; }
+.recent__t {
+  font-size: 14px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label);
+  line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: keep-all;
+}
+.recent__a {
+  font-size: 12px; line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko);
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: keep-all;
+}
+.recent__go { margin-top: auto; padding-top: 4px; font-size: 11.5px; font-weight: 600;
+              color: var(--accent-ink); letter-spacing: var(--track-ko); }
 
 /* ══════════ 안내 — 접히는 디스클로저 ══════════ */
 .guide { margin-top: 18px; border: 1px solid var(--st-separator); border-radius: var(--st-r-container);
@@ -307,14 +513,24 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 .board-list:empty { border-top: 0; }
 .q-item { border-bottom: 1px solid var(--st-separator); }
 .q-row {
+  position: relative;
   display: grid; grid-template-columns: 92px minmax(0, 1fr) 16px;
   align-items: center; gap: 14px;
   padding: 14px 12px; cursor: pointer; min-height: 44px;
   transition: background var(--st-dur-fast) var(--st-ease),
               padding-left var(--st-spring-snappy-dur) var(--st-spring-snappy);
 }
+/* 손이 닿은 줄에 얇은 강조 레일이 선다 — 어디를 읽고 있는지 잃지 않게 */
+.q-row::before {
+  content: ''; position: absolute; left: 0; top: 9px; bottom: 9px; width: 2px;
+  border-radius: 2px; background: var(--accent);
+  opacity: 0; transform: scaleY(0.4); transform-origin: center;
+  transition: opacity var(--st-dur-fast) var(--st-ease),
+              transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
+}
 .q-row:hover { background: var(--st-fill-3); padding-left: 18px; }
-.q-item.is-open > .q-row { background: var(--st-fill-3); }
+.q-row:hover::before, .q-item.is-open > .q-row::before { opacity: 1; transform: scaleY(1); }
+.q-item.is-open > .q-row { background: var(--st-fill-3); padding-left: 18px; }
 
 .q-state {
   display: inline-flex; align-items: center; gap: 6px; justify-self: start;
@@ -553,6 +769,16 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
   <main class="sheet">
     <div class="sheet-head">
+      <div class="head-aura" aria-hidden="true"></div>
+      <svg class="head-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="24" cy="24" r="22"/>
+        <circle cx="24" cy="24" r="20"/>
+        <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+        <circle cx="24" cy="24" r="8"/>
+        <path d="M24 2v44M2 24h44"/>
+        <path d="M24 10l4.5 14L24 20.5 19.5 24z" fill="currentColor" stroke="none"/>
+        <path d="M24 38l-4.5-14L24 27.5 28.5 24z" opacity="0.45" fill="currentColor" stroke="none"/>
+      </svg>
       <span class="sheet-num"><i class="st-dot st-dot--live"></i>질문과 답변</span>
       <h1 class="sheet-title">Q&amp;A</h1>
       <p class="sheet-meta">수업 중 궁금했던 것을 자유롭게 물어보세요.<br>지난 질문과 답변도 검색으로 찾을 수 있습니다.</p>
@@ -568,21 +794,61 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
       </div>
     </div>
 
-    <!-- 현황 -->
-    <div class="q-stats">
-      <div class="q-stat">
-        <div class="q-stat__n" id="statAll">—</div>
-        <div class="q-stat__l">전체 질문</div>
+    <!-- 현황 — 아래 검색·필터와 무관하게 언제나 전체를 보여 준다 -->
+    <section class="panel st-reveal" id="dashPanel" aria-labelledby="dashCap">
+      <div class="panel__head">
+        <span class="panel__cap" id="dashCap"><i class="st-dot st-dot--live"></i>전체 현황</span>
+        <span class="panel__spacer"></span>
+        <button class="panel__toggle" id="tableToggle" type="button" aria-pressed="false"
+                aria-controls="dashTable" onclick="window.toggleDashTable()">표로 보기</button>
       </div>
-      <div class="q-stat">
-        <div class="q-stat__n is-done" id="statDone">—</div>
-        <div class="q-stat__l">답변 완료</div>
+
+      <div class="dash">
+        <div class="dash__rate">
+          <div class="rate__n"><span id="rateVal">—</span><i>%</i></div>
+          <div class="rate__l">질문 <b id="rateAll">—</b>건 중 <b id="rateDone">—</b>건에 답변했습니다</div>
+
+          <div class="meter" id="meter" role="img" aria-labelledby="meterDesc">
+            <div class="meter__seg meter__seg--done" id="meterDone" style="width:0%"></div>
+            <div class="meter__seg meter__seg--wait" id="meterWait" style="width:0%"></div>
+          </div>
+          <div class="legend" id="meterDesc">
+            <span><i class="k--done"></i>답변 완료 <b id="legDone">—</b></span>
+            <span><i class="k--wait"></i>답변 전 <b id="legWait">—</b></span>
+          </div>
+        </div>
+
+        <div class="dash__chart">
+          <div class="dash__title">월별 질문 수</div>
+          <div class="dash__sub">막대에 마우스를 올리거나, 위 <b>표로 보기</b>에서 정확한 숫자를 볼 수 있습니다</div>
+          <div class="chart" id="chart">
+            <div class="chart__grid">
+              <div class="chart__rule chart__rule--top"><b id="chartMax">—</b></div>
+              <div class="chart__rule chart__rule--base"><b>0</b></div>
+            </div>
+            <div class="chart__plot" id="chartPlot"></div>
+          </div>
+        </div>
       </div>
-      <div class="q-stat">
-        <div class="q-stat__n is-wait" id="statWait">—</div>
-        <div class="q-stat__l">답변 전</div>
+
+      <div class="dtable-wrap" id="dashTable">
+        <table class="dtable">
+          <caption class="st-sr-only">월별 질문 수와 답변 여부</caption>
+          <thead><tr><th scope="col">월</th><th scope="col">질문</th><th scope="col">답변 완료</th><th scope="col">답변 전</th></tr></thead>
+          <tbody id="dashTableBody"></tbody>
+          <tfoot id="dashTableFoot"></tfoot>
+        </table>
       </div>
-    </div>
+    </section>
+
+    <!-- 최근 답변 -->
+    <section class="recent st-reveal" id="recent" hidden aria-labelledby="recentCap">
+      <div class="recent__head">
+        <h2 id="recentCap">최근 답변</h2>
+        <span>방금 답이 달린 질문부터</span>
+      </div>
+      <div class="recent__rail" id="recentRail"></div>
+    </section>
 
     <!-- 안내 -->
     <details class="guide">
@@ -1005,6 +1271,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             renderComment(id, rep.key, rep.val());
             updateReplyCount(id, 1);
             noteAnswer(id, rep.key, true);
+            noteAnswerText(id, rep.key, rep.val());
 
             const subRepliesRef = dbRef(db, `questions/${id}/replies/${rep.key}/subReplies`);
             onChildAdded(subRepliesRef, (sub) => {
@@ -1020,11 +1287,12 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             document.getElementById(`reply-${id}-${rep.key}`)?.remove();
             updateReplyCount(id, -1);
             noteAnswer(id, rep.key, false);
+            noteAnswerText(id, rep.key, null);
         });
-        onChildChanged(repliesRef, (rep) => { const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`); if (textContainer && !textContainer.querySelector('textarea')) { textContainer.textContent = rep.val().text; document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text; } });
+        onChildChanged(repliesRef, (rep) => { const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`); if (textContainer && !textContainer.querySelector('textarea')) { textContainer.textContent = rep.val().text; document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text; } noteAnswerText(id, rep.key, rep.val()); scheduleRefresh(); });
     });
 
-    onChildRemoved(questionsRef, (snapshot) => { document.getElementById(`post-${snapshot.key}`)?.remove(); answerKeys.delete(snapshot.key); scheduleRefresh(); });
+    onChildRemoved(questionsRef, (snapshot) => { document.getElementById(`post-${snapshot.key}`)?.remove(); answerKeys.delete(snapshot.key); answerTexts.delete(snapshot.key); scheduleRefresh(); });
     onChildChanged(questionsRef, (snapshot) => {
         const id = snapshot.key; const data = snapshot.val(); const titleSpan = document.getElementById(`title-text-${id}`); const bodyDiv = document.getElementById(`post-body-${id}`);
         if (titleSpan) titleSpan.innerHTML = (data.isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
@@ -1046,6 +1314,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         li.dataset.pw = data.password || '';
         li.dataset.secret = data.isSecret || false;
         li.dataset.answers = 0;
+        li.dataset.ts = postTime(data);
 
         const author = data.author || '익명';
         const rawTitle = data.title || (data.text || '').substring(0, 20) + '...';
@@ -1159,6 +1428,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     function refreshBoard() {
         const filtering = !!currentQuery || statusFilter !== 'all';
         let all = 0, done = 0, matchedTotal = 0;
+        const rows = [];   // 그래프용 — 검색·필터와 무관하게 전체를 담는다
 
         SEMESTERS.forEach((s, i) => {
             const sec = document.getElementById(`sem-${s.id}`);
@@ -1168,6 +1438,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             items.forEach(li => {
                 const isDone = (+li.dataset.answers || 0) > 0;
                 all++; if (isDone) { done++; groupDone++; }
+                rows.push({ ts: +li.dataset.ts || 0, done: isDone });
                 const okStatus = statusFilter === 'all' || (statusFilter === 'done') === isDone;
                 if (okStatus && matchQuery(li)) {
                     matched++;
@@ -1196,9 +1467,8 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             if (remaining > 0) more.innerHTML = `이전 질문 더 보기 &mdash; <b>${remaining}</b>건 남음`;
         });
 
-        document.getElementById('statAll').textContent = all;
-        document.getElementById('statDone').textContent = done;
-        document.getElementById('statWait').textContent = all - done;
+        renderDash(rows, all, done);
+        renderRecent();
 
         boardEmpty.hidden = all > 0;
         noResultRow.style.display = (all > 0 && matchedTotal === 0) ? 'block' : 'none';
@@ -1212,6 +1482,221 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             searchClearBtn.style.display = 'none';
         }
     }
+
+    // ==========================================
+    // ★ 현황 그래프 ★
+    //   ① 답변률 — 이 화면이 이끄는 단 하나의 숫자(히어로) + 두 조각 미터
+    //   ② 월별 질문 수 — 시간에 따른 크기라 기둥. 답변 완료/전으로 쌓는다.
+    //   목록 위의 검색·필터는 '목록'만 거른다. 이 패널은 언제나 전체다.
+    // ==========================================
+    const MONTH_CAP = 12;
+    let dashSig = '', dashDrawn = false;
+
+    /* 눈금 상한 — 1·2·5만 쓰면 122가 200이 되어 기둥이 판의 6할밖에 못 쓴다.
+       사다리를 촘촘히 두어 가장 높은 기둥이 늘 8할 위로 올라오게 한다. */
+    const NICE = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
+    function niceMax(v) {
+        if (v <= 0) return 1;
+        const e = Math.pow(10, Math.floor(Math.log10(v)));
+        const n = v / e;
+        return (NICE.find(s => n <= s) || 10) * e;
+    }
+
+    // 값이 굴러 올라간다 — 애플 제품 페이지의 그 느낌. 모션을 줄인 설정은 존중한다.
+    function countUp(el, to, decimals) {
+        const prev = parseFloat(el.dataset.v);
+        if (prev === to) return;
+        el.dataset.v = to;
+        // 안 보이는 탭에서는 rAF가 돌지 않는다 — 굴리지 말고 바로 값을 넣는다
+        if (document.hidden || (window.Stratum && Stratum.reduceMotion())) { el.textContent = to.toFixed(decimals); return; }
+        const from = isNaN(prev) ? 0 : prev, t0 = performance.now(), dur = 720;
+        (function step(now) {
+            const p = Math.min(1, (now - t0) / dur);
+            const e = 1 - Math.pow(1 - p, 3);
+            el.textContent = (from + (to - from) * e).toFixed(decimals);
+            if (p < 1) requestAnimationFrame(step);
+        })(performance.now());
+    }
+
+    function renderDash(rows, all, done) {
+        const wait = all - done;
+
+        countUp(document.getElementById('rateVal'), all ? done / all * 100 : 0, 1);
+        countUp(document.getElementById('rateAll'), all, 0);
+        countUp(document.getElementById('rateDone'), done, 0);
+        countUp(document.getElementById('legDone'), done, 0);
+        countUp(document.getElementById('legWait'), wait, 0);
+
+        // 미터 — 사이의 2px 틈만큼 각 조각에서 1px씩 뺀다
+        const meter = document.getElementById('meter');
+        meter.dataset.wait = wait;
+        document.getElementById('meterDone').style.width = `calc(${all ? done / all * 100 : 0}% - 1px)`;
+        document.getElementById('meterWait').style.width = `calc(${all ? wait / all * 100 : 0}% - 1px)`;
+
+        /* 달별로 모은다. 글이 없던 달도 자리를 비워 둔다 —
+           시간축에 구멍이 있으면 추이를 잘못 읽는다. */
+        const bucket = new Map();
+        rows.forEach(r => {
+            if (!r.ts) return;
+            const d = new Date(r.ts);
+            const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            let b = bucket.get(key);
+            if (!b) { b = { y: d.getFullYear(), m: d.getMonth() + 1, all: 0, done: 0 }; bucket.set(key, b); }
+            b.all++; if (r.done) b.done++;
+        });
+        const keys = [...bucket.keys()].sort();
+        let months = [];
+        if (keys.length) {
+            const [y0, m0] = keys[0].split('-').map(Number);
+            const [y1, m1] = keys[keys.length - 1].split('-').map(Number);
+            for (let y = y0, m = m0; y < y1 || (y === y1 && m <= m1);) {
+                const k = y + '-' + String(m).padStart(2, '0');
+                months.push(bucket.get(k) || { y, m, all: 0, done: 0 });
+                if (++m > 12) { m = 1; y++; }
+            }
+            months = months.slice(-MONTH_CAP);
+        }
+
+        // 내용이 그대로면 DOM을 건드리지 않는다(파이어베이스가 256번 흘려 주므로)
+        const sig = months.map(b => `${b.y}.${b.m}:${b.all}.${b.done}`).join('|');
+        if (sig === dashSig) return;
+        dashSig = sig;
+
+        const peak = months.reduce((a, b) => Math.max(a, b.all), 0);
+        const max = niceMax(peak);
+        document.getElementById('chartMax').textContent = max;
+        document.getElementById('chart').style.setProperty('--bands', months.length);
+
+        /* 값이 0인 조각은 아예 만들지 않는다 — 높이 0짜리를 남겨 두면
+           둘 사이의 2px 틈만 유령처럼 떠서 기준선이 어긋나 보인다.
+           반대로 값이 있는데 1px도 안 되는 조각은 2px을 바닥으로 준다.
+           있는 것이 없어 보이는 쪽이 0.7%의 과장보다 나쁜 오류다. */
+        const seg = (kind, v, isTop) => {
+            if (v <= 0) return '';
+            const h = Math.max(max ? v / max * 100 : 0, 0);
+            return `<div class="chart__seg chart__seg--${kind}${isTop ? ' is-top' : ''}" style="height:${h}%"></div>`;
+        };
+
+        let peakUsed = false, bandNo = 0;
+        document.getElementById('chartPlot').innerHTML = months.map(b => {
+            const i = bandNo++;
+            const w = b.all - b.done;
+            const topIsWait = w > 0;
+            // 최댓값 하나만 직접 라벨한다 — 모든 기둥에 숫자를 붙이면 아무도 안 읽는다
+            const showPeak = !peakUsed && b.all === peak && peak > 0 && (peakUsed = true);
+            const label = (b.m === 1 || b === months[0]) ? `${String(b.y).slice(2)}.${b.m}월` : `${b.m}월`;
+            return `<div class="chart__band" style="--i:${i}" tabindex="0" role="group"
+                 aria-label="${b.y}년 ${b.m}월 — 질문 ${b.all}건, 답변 완료 ${b.done}건, 답변 전 ${w}건">
+                <div class="chart__stack">
+                    ${showPeak ? `<span class="chart__peak">${b.all}</span>` : ''}
+                    <div class="chart__tip" aria-hidden="true"><b>${b.y}년 ${b.m}월</b><u>질문 ${b.all} · 완료 ${b.done} · 대기 ${w}</u></div>
+                    ${seg('wait', w, topIsWait)}${seg('done', b.done, !topIsWait)}
+                </div>
+                <div class="chart__x">${label}</div>
+            </div>`;
+        }).join('');
+
+        // 첫 그림에서만 기둥이 자라 오른다. 답변 하나 달릴 때마다 다시 자라면 산만하다.
+        document.getElementById('chartPlot').classList.toggle('is-first', !dashDrawn);
+        dashDrawn = true;
+
+        // 색에만 기대지 않도록 같은 값을 표로도 둔다
+        document.getElementById('dashTableBody').innerHTML = months.map(b =>
+            `<tr><td>${b.y}.${String(b.m).padStart(2, '0')}</td><td>${b.all}</td><td>${b.done}</td><td>${b.all - b.done}</td></tr>`).join('');
+        const sum = months.reduce((a, b) => ({ all: a.all + b.all, done: a.done + b.done }), { all: 0, done: 0 });
+        document.getElementById('dashTableFoot').innerHTML =
+            `<tr><td>합계</td><td>${sum.all}</td><td>${sum.done}</td><td>${sum.all - sum.done}</td></tr>`;
+    }
+
+    window.toggleDashTable = function() {
+        const panel = document.getElementById('dashPanel');
+        const btn = document.getElementById('tableToggle');
+        const on = !panel.classList.contains('is-table');
+        panel.classList.toggle('is-table', on);
+        btn.setAttribute('aria-pressed', String(on));
+        btn.textContent = on ? '그래프로 보기' : '표로 보기';
+    };
+
+    // ==========================================
+    // ★ 최근 답변 카드 ★
+    // ==========================================
+    const answerTexts = new Map();   // qId -> Map(replyId -> { text, time, ts })
+    let recentSig = '';
+
+    // "2026/07/14 PM 3:05" → 밀리초
+    function parseTimeStr(s) {
+        const m = /^(\d{4})\/(\d{2})\/(\d{2})\s+(AM|PM)\s+(\d{1,2}):(\d{2})/.exec(s || '');
+        if (!m) return 0;
+        let h = +m[5] % 12; if (m[4] === 'PM') h += 12;
+        return new Date(+m[1], +m[2] - 1, +m[3], h, +m[6]).getTime();
+    }
+
+    /* 답변을 통째로 들고 있다가 그때그때 가장 최근 것을 고른다.
+       '최근 것 하나만' 저장해 두면 그게 지워졌을 때 되돌릴 수가 없다. */
+    function noteAnswerText(qId, replyId, data) {
+        let m = answerTexts.get(qId);
+        if (!m) { m = new Map(); answerTexts.set(qId, m); }
+        if (data === null) m.delete(replyId);
+        else m.set(replyId, { text: (data.text || '').trim() || '(사진 답변)', time: data.time || '', ts: parseTimeStr(data.time) });
+    }
+    function latestAnswerOf(qId) {
+        const m = answerTexts.get(qId);
+        if (!m || !m.size) return null;
+        let best = null;
+        m.forEach(v => { if (!best || v.ts >= best.ts) best = v; });
+        return best;
+    }
+
+    function renderRecent() {
+        const rows = [];
+        answerTexts.forEach((_m, qId) => {
+            const li = document.getElementById(`post-${qId}`);
+            if (!li || li.dataset.secret === 'true') return;   // 비밀글은 꺼내 놓지 않는다
+            const a = latestAnswerOf(qId);
+            if (!a) return;
+            rows.push({ qId, title: li.dataset.sTitle || '(제목 없음)', text: a.text, time: a.time, ts: a.ts });
+        });
+        rows.sort((x, y) => y.ts - x.ts);
+        const top = rows.slice(0, 6);
+
+        const sig = top.map(r => r.qId + r.ts).join('|');
+        if (sig === recentSig) return;
+        recentSig = sig;
+
+        const sec = document.getElementById('recent');
+        sec.hidden = top.length < 2;
+        if (sec.hidden) return;
+
+        document.getElementById('recentRail').innerHTML = top.map(r => {
+            const d = (r.time.split(' ')[0] || '').substring(5).replace('/', '.');
+            return `<button class="recent__card" type="button" onclick="window.jumpToPost('${r.qId}')">
+                <span class="recent__top">
+                    <span class="q-state q-state--done">답변 완료</span>
+                    <span class="recent__date">${d}</span>
+                </span>
+                <span class="recent__t">${escapeHTML(r.title)}</span>
+                <span class="recent__a">${escapeHTML(r.text)}</span>
+                <span class="recent__go">답변 보기 →</span>
+            </button>`;
+        }).join('');
+        // 이 구역만 다시 관찰한다 — 전체를 다시 걸면 관찰자가 계속 쌓인다
+        if (window.Stratum) Stratum.reveal('#recent.st-reveal');
+    }
+
+    // 카드에서 그 질문으로 — 걸려 있던 검색·필터·접힘·페이지네이션을 모두 풀어 준다
+    window.jumpToPost = (id) => {
+        const li = document.getElementById(`post-${id}`);
+        if (!li) return;
+        if (currentQuery) { searchInput.value = ''; currentQuery = ''; }
+        if (statusFilter !== 'all') { statusFilter = 'all'; if (segCtl) segCtl.select(segCtl.items[0]); }
+        const semId = li.closest('.sem').id.replace('sem-', '');
+        openState[semId] = true;
+        const idx = Array.prototype.indexOf.call(li.parentElement.children, li);
+        if (idx >= limits[semId]) limits[semId] = Math.ceil((idx + 1) / PAGE_SIZE) * PAGE_SIZE;
+        refreshBoard();
+        li.classList.add('is-open');
+        li.scrollIntoView({ behavior: (window.Stratum && Stratum.reduceMotion()) ? 'auto' : 'smooth', block: 'center' });
+    };
 
     // 파이어베이스가 글을 하나씩 흘려 주므로, 한 틱 모았다가 한 번만 다시 그린다
     let refreshTimer = null;
@@ -1228,7 +1713,9 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.clearSearch(); });
     window.clearSearch = function() { searchInput.value = ''; currentQuery = ''; refreshBoard(); searchInput.focus(); };
 
-    if (window.Stratum) Stratum.segmented('#qFilter', (value) => { statusFilter = value; refreshBoard(); });
+    const segCtl = window.Stratum
+        ? Stratum.segmented('#qFilter', (value) => { statusFilter = value; refreshBoard(); })
+        : null;
 
     // ==========================================
     // ★ 선생님 1차 답변 등록 & 그리기 ★
