@@ -54,19 +54,6 @@
 
 .admin-header-row { position: absolute; top: clamp(38px, 6.5vw, 82px); right: 0;
                     display: flex; align-items: flex-start; gap: 8px; }
-.admin-login-box { display: none; }
-.admin-login-box input {
-  width: 130px; height: 34px; padding: 0 12px;
-  background: var(--st-surface); color: var(--st-label);
-  border: 1px solid var(--st-border-control); border-radius: var(--st-r-full);
-  font-size: 13px; letter-spacing: 0;
-}
-.admin-login-box input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); }
-.admin-login-box button {
-  height: 34px; padding: 0 14px; border-radius: var(--st-r-full);
-  background: var(--st-accent-solid); color: #fff; font-size: 12px; font-weight: 600;
-  letter-spacing: var(--track-ko);
-}
 
 /* ── 버튼 ── */
 .btn-solid, .btn-outline, .btn-sub {
@@ -361,12 +348,6 @@ body.is-admin .admin-tools { display: block; }
 
       <div class="admin-header-row">
         <button id="adminBtn" class="btn-outline" onclick="window.toggleAdminPanel()">관리자</button>
-        <div class="admin-login-box" id="adminLoginBox">
-          <div style="display:flex; gap:6px;">
-            <input type="password" id="adminPwInput" placeholder="관리자 암호" onkeypress="window.handlePwKeyPress(event)">
-            <button onclick="window.loginAdmin()">확인</button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -538,6 +519,8 @@ body.is-admin .admin-tools { display: block; }
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getDatabase, ref as dbRef, push, set, update, remove, onValue }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
@@ -551,11 +534,16 @@ body.is-admin .admin-tools { display: block; }
        반의 진도를 '마친 차시 번호' 하나로 잡은 것은 의도적이다.
        칸을 하나하나 체크하게 만들면 아무도 갱신하지 않는다. 수업 끝나고
        '여기까지' 한 번 누르면 끝나야 이 페이지가 살아 있다.
+
+       ★ 잠금은 Q&A식 암호가 아니라 vault.html과 같은 구글 로그인이다.
+         진도표는 학생이 쓸 일이 전혀 없으므로 '누구나 읽고 선생님만 쓴다'가
+         맞다. 암호 방식은 해시가 소스에 있고 DB도 열려 있어서 화면만 가릴 뿐
+         실제로 막지 못한다. 규칙(.write)이 진짜 자물쇠다.
        ====================================================================== */
 
     const firebaseConfig = {
       apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
-      authDomain: "soc-c-qna.firebaseapp.com",
+      authDomain: "soc-c-qna.web.app",          // vault.html과 같은 값 (구글 로그인이 통과하는 도메인)
       databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
       projectId: "soc-c-qna",
       storageBucket: "soc-c-qna.firebasestorage.app",
@@ -564,18 +552,15 @@ body.is-admin .admin-tools { display: block; }
       measurementId: "G-5KMMM2T0ED"
     };
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
     const db = getDatabase(app);
     const rootRef    = dbRef(db, 'progress');
     const lessonsRef = dbRef(db, 'progress/lessons');
     const classesRef = dbRef(db, 'progress/classes');
     const examRef    = dbRef(db, 'progress/exam');
 
-    // Q&A와 같은 관리자 암호 (해시로만 보관)
-    const ADMIN_PW_HASH = "26df012690d85cf35dbee2aaf099170724b635625f34b552d6a2933bca6c5480";
-    async function sha256Hex(str) {
-        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-        return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+    const ADMIN_EMAIL = 'leetae712@gmail.com';
     let isAdmin = false;
 
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>'"]/g,
@@ -603,33 +588,48 @@ body.is-admin .admin-tools { display: block; }
     document.getElementById('modalCancelBtn').onclick = () => AppModal.cancel();
     document.getElementById('modalInput').onkeypress = (e) => { if (e.key === 'Enter') AppModal.submit(); };
 
-    /* ── 관리자 ──────────────────────────────────────────────────────── */
+    /* ── 관리자 — 구글 로그인 ──────────────────────────────────────────
+       버튼 하나가 상태에 따라 '로그인 / 로그아웃'을 겸한다. */
+    const adminBtn = document.getElementById('adminBtn');
+
     window.toggleAdminPanel = function() {
-        if (isAdmin) {
-            isAdmin = false; document.body.classList.remove('is-admin');
-            const b = document.getElementById('adminBtn'); b.textContent = '관리자'; b.classList.remove('active');
-            render();
-        } else {
-            const box = document.getElementById('adminLoginBox');
-            box.style.display = box.style.display === 'block' ? 'none' : 'block';
-            if (box.style.display === 'block') document.getElementById('adminPwInput').focus();
-        }
+        if (auth.currentUser) { signOut(auth); return; }
+        adminBtn.textContent = '여는 중…';
+        adminBtn.disabled = true;
+        signInWithPopup(auth, provider).catch((err) => {
+            // 사용자가 팝업을 그냥 닫은 경우는 오류가 아니다
+            if (!/popup-closed|cancelled-popup/.test(err.code || '')) {
+                AppModal.show({ type: 'alert', title: '로그인 실패', msg: err.message || String(err) });
+            }
+        }).finally(() => { adminBtn.disabled = false; syncAdminBtn(); });
     };
-    window.loginAdmin = async function() {
-        const input = document.getElementById('adminPwInput');
-        if (await sha256Hex(input.value) === ADMIN_PW_HASH) {
-            isAdmin = true; document.body.classList.add('is-admin');
-            const b = document.getElementById('adminBtn'); b.textContent = '로그인됨'; b.classList.add('active');
-            document.getElementById('adminLoginBox').style.display = 'none'; input.value = '';
-            render();
-        } else {
-            const b = document.getElementById('adminBtn');
-            b.textContent = '불일치'; b.style.color = 'var(--st-danger-ink)';
-            setTimeout(() => { b.textContent = '관리자'; b.style.color = ''; }, 1500);
-            input.value = '';
+
+    function syncAdminBtn() {
+        if (isAdmin) { adminBtn.textContent = '선생님 · 로그아웃'; adminBtn.classList.add('active'); }
+        else { adminBtn.textContent = '관리자'; adminBtn.classList.remove('active'); }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.email !== ADMIN_EMAIL) {
+            // 다른 계정으로 들어온 경우 — 조용히 되돌린다
+            signOut(auth);
+            AppModal.show({ type: 'alert', title: '접근 권한 없음', msg: '이 페이지를 편집할 수 있는 계정이 아닙니다.' });
+            return;
         }
-    };
-    window.handlePwKeyPress = (e) => { if (e.key === 'Enter') window.loginAdmin(); };
+        isAdmin = !!user;
+        document.body.classList.toggle('is-admin', isAdmin);
+        syncAdminBtn();
+        render();
+    });
+
+    /* 규칙(.write)이 진짜 자물쇠라, 로그인이 풀렸으면 저장이 거부된다.
+       '저장 실패'만 띄우면 왜인지 알 수 없으므로 이유를 나눠서 알린다. */
+    function saveFailed(err) {
+        const denied = /permission|PERMISSION_DENIED/i.test(err && (err.message || err.code) || '');
+        AppModal.show({ type: 'alert', title: '저장하지 못했습니다',
+            msg: denied ? '로그인이 풀렸거나 편집 권한이 없습니다. 오른쪽 위에서 다시 로그인해 주세요.'
+                        : '네트워크 상태를 확인하고 다시 시도해 주세요.' });
+    }
 
     /* ── 상태 ────────────────────────────────────────────────────────── */
     let lessons = [];   // [{ id, unit, title, goal, sheet, sim, order }] — order 순
@@ -683,8 +683,9 @@ body.is-admin .admin-tools { display: block; }
             empty.querySelector('b').textContent = '진도표가 아직 열리지 않았습니다';
             document.getElementById('emptyMsg').innerHTML = isAdmin
                 ? '파이어베이스 실시간 데이터베이스 <b>규칙</b>에 <code>progress</code> 항목이 아직 없습니다.<br>' +
-                  'Firebase 콘솔 → Realtime Database → 규칙에서 기존 <code>questions</code> 옆에<br>' +
-                  '<code>"progress": { ".read": true, ".write": true }</code> 를 추가하고 게시하면 바로 열립니다.'
+                  'Firebase 콘솔 → Realtime Database → 규칙에 아래를 추가하고 게시하면 바로 열립니다.<br>' +
+                  '<code>"progress": { ".read": true, ".write": "auth != null &amp;&amp; ' +
+                  'auth.token.email === \'leetae712@gmail.com\'" }</code>'
                 : '수업 진도표를 준비하고 있습니다. 곧 열립니다.';
         } else if (loadError === 'network') {
             empty.querySelector('b').textContent = '진도표를 불러오지 못했습니다';
@@ -888,9 +889,11 @@ body.is-admin .admin-tools { display: block; }
             return;
         }
         const c = classes.find(x => x.id === picked);
+        // 저장이 끝난 뒤에 알린다 — 거부됐는데 '기록했습니다'가 뜨면 최악이다
         update(dbRef(db, `progress/classes/${picked}`), { done: no })
-            .catch(() => AppModal.show({ type: 'alert', msg: '저장하지 못했습니다.' }));
-        AppModal.show({ type: 'alert', msg: `${c ? c.name : '이 반'} 진도를 ${no}차시까지로 기록했습니다.` });
+            .then(() => AppModal.show({ type: 'alert',
+                msg: `${c ? c.name : '이 반'} 진도를 ${no}차시까지로 기록했습니다.` }))
+            .catch(saveFailed);
     }
 
     function editLesson(id) {
@@ -900,7 +903,7 @@ body.is-admin .admin-tools { display: block; }
             const title = v.trim(); if (!title) return;
             AppModal.show({ type: 'prompt', title: '학습 목표', msg: '비워 두면 지워집니다.', value: l.goal || '' }, (g) => {
                 if (g === null) return;
-                update(dbRef(db, `progress/lessons/${id}`), { title, goal: g.trim() });
+                update(dbRef(db, `progress/lessons/${id}`), { title, goal: g.trim() }).catch(saveFailed);
             });
         });
     }
@@ -908,7 +911,7 @@ body.is-admin .admin-tools { display: block; }
     function deleteLesson(id) {
         const l = lessons.find(x => x.id === id); if (!l) return;
         AppModal.show({ type: 'confirm', title: '차시 삭제', msg: `'${l.title}' 차시를 삭제할까요?`, confirmText: '삭제' }, (ok) => {
-            if (ok) remove(dbRef(db, `progress/lessons/${id}`));
+            if (ok) remove(dbRef(db, `progress/lessons/${id}`)).catch(saveFailed);
         });
     }
 
@@ -927,7 +930,7 @@ body.is-admin .admin-tools { display: block; }
         }).then(() => {
             ['newTitle', 'newGoal', 'newSheet', 'newSim'].forEach(id => document.getElementById(id).value = '');
             document.getElementById('newTitle').focus();
-        }).catch(() => AppModal.show({ type: 'alert', msg: '저장하지 못했습니다.' }));
+        }).catch(saveFailed);
     };
 
     window.addClass = function() {
@@ -936,7 +939,7 @@ body.is-admin .admin-tools { display: block; }
         if (!name) { AppModal.show({ type: 'alert', msg: '반 이름을 적어 주세요.' }); return; }
         push(classesRef, { name, done: 0, order: classes.length + 1 })
             .then(() => { document.getElementById('newClass').value = ''; })
-            .catch(() => AppModal.show({ type: 'alert', msg: '저장하지 못했습니다.' }));
+            .catch(saveFailed);
     };
 
     window.removeClass = function() {
@@ -944,7 +947,7 @@ body.is-admin .admin-tools { display: block; }
         if (picked === 'all') { AppModal.show({ type: 'alert', msg: '삭제할 반을 먼저 골라 주세요.' }); return; }
         const c = classes.find(x => x.id === picked);
         AppModal.show({ type: 'confirm', title: '반 삭제', msg: `'${c ? c.name : ''}' 반을 삭제할까요?`, confirmText: '삭제' }, (ok) => {
-            if (ok) { remove(dbRef(db, `progress/classes/${picked}`)); picked = 'all'; }
+            if (ok) { remove(dbRef(db, `progress/classes/${picked}`)).catch(saveFailed); picked = 'all'; }
         });
     };
 
@@ -957,12 +960,12 @@ body.is-admin .admin-tools { display: block; }
         if (!date) { AppModal.show({ type: 'alert', msg: '시험 날짜를 골라 주세요.' }); return; }
         if (to < from) { AppModal.show({ type: 'alert', msg: '범위 끝이 시작보다 앞설 수 없습니다.' }); return; }
         set(examRef, { label: label || '시험', date, from, to })
-            .catch(() => AppModal.show({ type: 'alert', msg: '저장하지 못했습니다.' }));
+            .catch(saveFailed);
     };
     window.clearExam = function() {
         if (!isAdmin) return;
         AppModal.show({ type: 'confirm', title: '시험 지우기', msg: '등록된 시험 일정을 지울까요?', confirmText: '지우기' },
-            (ok) => { if (ok) remove(examRef); });
+            (ok) => { if (ok) remove(examRef).catch(saveFailed); });
     };
 
     window.toggleDashTable = function() {
