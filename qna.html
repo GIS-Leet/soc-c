@@ -613,7 +613,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
       </svg>
       <span class="sheet-num"><i class="st-dot st-dot--live"></i>질문과 답변</span>
       <h1 class="sheet-title">Q&amp;A</h1>
-      <p class="sheet-meta">수업 중 궁금했던 것을 자유롭게 물어보세요.<br>지난 질문과 답변도 검색으로 찾을 수 있습니다.</p>
+      <p class="sheet-meta">수업 중 궁금했던 것을 자유롭게 질문하세요.<br>지난 질문과 답변도 검색으로 찾을 수 있습니다.</p>
 
       <div class="admin-header-row">
         <button id="adminBtn" class="btn-outline" onclick="window.toggleAdminPanel()">관리자</button>
@@ -638,7 +638,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
       <div class="dash">
         <div class="dash__rate">
           <div class="rate__n"><span id="rateVal">—</span><i>%</i></div>
-          <div class="rate__l">질문 <b id="rateAll">—</b>건 중 <b id="rateDone">—</b>건에 답변했습니다</div>
+          <div class="rate__l">질문 <b id="rateAll">—</b>건 중 <b id="rateDone">—</b>건에 답변</div>
 
           <div class="meter" id="meter" role="img" aria-labelledby="meterDesc">
             <div class="meter__seg meter__seg--done" id="meterDone" style="width:0%"></div>
@@ -652,7 +652,6 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
         <div class="dash__chart">
           <div class="dash__title">월별 질문 수</div>
-          <div class="dash__sub">막대에 마우스를 올리거나, 위 <b>표로 보기</b>에서 정확한 숫자를 볼 수 있습니다</div>
           <div class="chart" id="chart">
             <div class="chart__grid">
               <div class="chart__rule chart__rule--top"><b id="chartMax">—</b></div>
@@ -695,7 +694,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     <section class="recent st-reveal" id="recent" hidden aria-labelledby="recentCap">
       <div class="recent__head">
         <h2 id="recentCap">최근 답변</h2>
-        <span>방금 답이 달린 질문부터</span>
+        <span>최근 답이 달린 질문부터</span>
       </div>
       <div class="recent__rail" id="recentRail"></div>
     </section>
@@ -706,7 +705,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </span>
       <span class="compose-bar__t">질문 작성하기</span>
-      <span class="compose-bar__s">제목 · 비밀번호 · 내용을 적으면 됩니다</span>
+      <span class="compose-bar__s">제목 · 비밀번호 · 내용</span>
     </button>
 
     <div class="composer" id="composer"><div class="composer__in">
@@ -1544,7 +1543,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     function scheduleRefresh() { clearTimeout(refreshTimer); refreshTimer = setTimeout(refreshBoard, 60); }
     refreshBoard();
     // 정말 한 건도 없는 것과 아직 못 받아온 것은 다르다 — 잠깐 기다렸다 문구를 바꾼다
-    setTimeout(() => { if (!boardEmpty.hidden) boardEmpty.textContent = '아직 등록된 질문이 없습니다. 첫 질문을 남겨 보세요.'; }, 4000);
+    setTimeout(() => { if (!boardEmpty.hidden) boardEmpty.textContent = '아직 등록된 질문이 없습니다.'; }, 4000);
 
     let searchTimer = null;
     searchInput.addEventListener('input', () => {
