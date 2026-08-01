@@ -38,22 +38,10 @@
 .sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x);
          padding-bottom: clamp(48px, 7vw, 96px); }
 
-/* ── 머리 ── */
-.hero { padding-block: clamp(40px, 7vw, 88px) clamp(28px, 4vw, 48px); }
-.badge {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--accent-ink);
-}
-.badge svg { width: 13px; height: 13px; }
-.hero h1 {
-  margin-top: 14px;
-  font-size: clamp(2.6rem, 9vw, 6.5rem); line-height: 0.92;
-  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
-}
-.hero h1 em { font-style: normal; color: var(--st-label-3); }
-.hero p { margin-top: 18px; max-width: 52ch; font-size: clamp(0.9rem, 1.4vw, 1.0625rem);
-          line-height: 1.7; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+/* ── 머리 ──
+   골격은 geo.css의 .sheet-* 를 쓴다. 'Project Guide'는 두 줄이라
+   기본 크기로는 화면을 넘긴다. 크기만 덮어쓴다. */
+.sheet-head { --sheet-title-size: clamp(2.6rem, 9vw, 6.5rem); }
 
 /* ── 섹션 ── */
 section { margin-top: clamp(40px, 6vw, 76px); }
@@ -187,13 +175,13 @@ section { margin-top: clamp(40px, 6vw, 76px); }
 
     <main class="sheet">
         
-        <header class="hero">
-            <div class="badge">
-                <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+        <header class="sheet-head">
+            <div class="sheet-num">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
                 수행평가 · 지역 탐구
             </div>
-            <h1>Project<br><em>Guide</em></h1>
-            <p>지역 탐구 프로젝트 — 우리 동네의 지리적, 사회적 문제를 직접 발굴하고, 실증적 데이터 분석을 통해 창의적인 대안을 제시하는 통합사회 현장 연구 프로젝트입니다.</p>
+            <h1 class="sheet-title">Project<br><em>Guide</em></h1>
+            <p class="sheet-meta">지역 탐구 프로젝트 — 우리 동네의 지리적, 사회적 문제를 직접 발굴하고, 실증적 데이터 분석을 통해 창의적인 대안을 제시하는 통합사회 현장 연구 프로젝트입니다.</p>
         </header>
 
         <section>

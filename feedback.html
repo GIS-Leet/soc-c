@@ -93,15 +93,6 @@
   padding: clamp(16px, 2.2vw, 22px);
   display: flex; flex-direction: column; gap: 10px;
 }
-.form-input {
-  width: 100%; padding: 11px 14px;
-  background: var(--st-bedrock); color: var(--st-label);
-  border: 1px solid var(--st-separator); border-radius: var(--st-r-element);
-  font-family: inherit; font-size: 14px; letter-spacing: var(--track-ko);
-  transition: border-color var(--st-dur-fast) var(--st-ease), box-shadow var(--st-dur-fast) var(--st-ease);
-}
-.form-input::placeholder { color: var(--st-label-3); }
-.form-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); background: var(--st-surface); }
 .write-title-input { font-size: 16px; font-weight: 600; letter-spacing: -0.012em; }
 .write-header { display: flex; gap: 10px; flex-wrap: wrap; }
 .write-header > .form-input { flex: 1 1 180px; }
@@ -127,25 +118,6 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 .form-actions, .write-actions-row { display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
 
 /* ── 버튼 ── */
-.btn-solid, .btn-outline, .btn-sub, .submit-btn-small {
-  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-  height: 38px; padding: 0 18px; border-radius: var(--st-r-full);
-  font-size: 13px; font-weight: 600; letter-spacing: var(--track-ko);
-  white-space: nowrap; cursor: pointer;
-  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease),
-              border-color var(--st-dur-fast) var(--st-ease), transform var(--st-dur-instant) var(--st-ease);
-}
-.btn-solid, .submit-btn-small { background: var(--st-accent-solid); color: #fff; }
-.btn-solid:hover, .submit-btn-small:hover { background: var(--st-accent-hover); }
-.btn-outline { background: transparent; color: var(--st-label);
-               border: 1px solid var(--st-border-control); height: 34px; padding: 0 14px; font-size: 12px; }
-.btn-outline:hover { border-color: var(--accent); color: var(--accent-ink); }
-.btn-outline.active { background: var(--st-accent-solid); color: #fff; border-color: transparent; }
-.btn-sub { background: var(--st-fill-2); color: var(--st-label-2); }
-.btn-sub:hover { background: var(--st-fill); color: var(--st-label); }
-.btn-solid:active, .btn-outline:active, .btn-sub:active, .submit-btn-small:active { transform: scale(0.97); }
-.submit-btn-small { height: 32px; padding: 0 14px; font-size: 12px; }
-.btn-solid:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ── 검색 ── */
 .search-bar {
@@ -214,13 +186,6 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 .item-content { display: none; padding: 4px 14px 22px; }
 
 .post-actions-inline { display: flex; gap: 6px; justify-content: flex-end; margin-bottom: 8px; }
-.action-txt {
-  padding: 4px 10px; border-radius: var(--st-r-full);
-  font-size: 11px; font-weight: 600; letter-spacing: var(--track-ko); color: var(--st-label-3);
-  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease);
-}
-.action-txt:hover { background: var(--st-fill-2); color: var(--st-label); }
-.action-txt.delete:hover { background: var(--st-danger-soft); color: var(--st-danger-ink); }
 
 .post-body {
   background: var(--st-bedrock-sunken); border: 1px solid var(--st-separator);
@@ -299,40 +264,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 .load-more:hover { border-color: var(--accent); color: var(--accent-ink); }
 
 /* ── 모달 — 두꺼운 유리 ── */
-.custom-modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 120;
-  background: rgba(0,0,0,0.42); backdrop-filter: blur(3px);
-  align-items: center; justify-content: center; padding: 20px;
-}
-.custom-modal-box {
-  width: 100%; max-width: 400px; padding: 26px;
-  border-radius: var(--st-r-page);
-  background: var(--st-glass-sheen), var(--st-mat-thick-bg);
-  -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur);
-  box-shadow: inset 0 0.5px 0 0 var(--st-glass-specular),
-              inset 0 0 0 0.5px var(--st-glass-rim), var(--st-shadow-high);
-}
-.custom-modal-box h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--st-label); }
-.custom-modal-box p { margin-top: 8px; font-size: 13.5px; line-height: 1.7;
-                      color: var(--st-label-2); letter-spacing: var(--track-ko); }
-.custom-modal-box input {
-  display: none; width: 100%; margin-top: 14px; padding: 11px 14px;
-  background: var(--st-surface); color: var(--st-label);
-  border: 1px solid var(--st-border-control); border-radius: var(--st-r-element);
-  font-family: inherit; font-size: 14px;
-}
-.custom-modal-box input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); }
-.custom-modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-.custom-modal-actions button {
-  height: 38px; padding: 0 18px; border-radius: var(--st-r-full);
-  font-size: 13px; font-weight: 600; letter-spacing: var(--track-ko);
-}
-.custom-modal-actions .cancel { background: var(--st-fill-2); color: var(--st-label-2); }
-.custom-modal-actions .cancel:hover { background: var(--st-fill); color: var(--st-label); }
-.custom-modal-actions .confirm { background: var(--st-accent-solid); color: #fff; }
-.custom-modal-actions .confirm:hover { background: var(--st-accent-hover); }
 
-.ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
 </style>
 </head>

@@ -43,20 +43,9 @@
 
 .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
 
-/* ── 머리 ── */
-.hero { position: relative; padding-block: clamp(40px, 7vw, 88px) clamp(24px, 3vw, 40px); }
-.plate-no {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--accent-ink);
-}
-.hero h1 {
-  margin-top: 14px;
-  font-size: clamp(3rem, 11vw, 7.5rem); line-height: 0.9;
-  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
-}
-.hero p { margin-top: 16px; max-width: 44ch; font-size: clamp(0.875rem, 1.3vw, 1rem);
-          line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+/* ── 머리 ──
+   .sheet-head / .sheet-num / .sheet-title / .sheet-meta 는 geo.css에 있다.
+   여기서는 그 아래 구분선만 둔다. */
 .rule { height: 1px; background: var(--st-separator); border: 0; margin: 0;
         max-width: 1180px; margin-inline: auto; }
 
@@ -173,10 +162,10 @@
   </header>
 
     <!-- ══════════ HERO ══════════ -->
-    <section class="wrap hero">
-        <div class="plate-no reveal">수업 자료</div>
-        <h1 class="reveal">Archive</h1>
-        <p class="reveal">수업에서 쓴 학습지와 슬라이드, 참고 자료를 모아 둡니다.<br>폴더를 열어 필요한 것을 내려받으세요.</p>
+    <section class="wrap sheet-head">
+        <div class="sheet-num reveal">수업 자료</div>
+        <h1 class="sheet-title reveal">Archive</h1>
+        <p class="sheet-meta reveal">수업에서 쓴 학습지와 슬라이드, 참고 자료를 모아 둡니다.<br>폴더를 열어 필요한 것을 내려받으세요.</p>
     </section>
     <hr class="rule">
 

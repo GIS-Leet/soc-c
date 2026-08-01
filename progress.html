@@ -43,24 +43,6 @@
 .sheet-head { --sheet-title-size: clamp(2.4rem, 9vw, 6rem); }
 
 /* ── 버튼 ── */
-.btn-solid, .btn-outline, .btn-sub {
-  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-  height: 36px; padding: 0 16px; border-radius: var(--st-r-full);
-  font-size: 12.5px; font-weight: 600; letter-spacing: var(--track-ko);
-  white-space: nowrap; cursor: pointer;
-  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease),
-              border-color var(--st-dur-fast) var(--st-ease), transform var(--st-dur-instant) var(--st-ease);
-}
-.btn-solid { background: var(--st-accent-solid); color: #fff; }
-.btn-solid:hover { background: var(--st-accent-hover); }
-.btn-outline { background: transparent; color: var(--st-label);
-               border: 1px solid var(--st-border-control); height: 34px; padding: 0 14px; font-size: 12px; }
-.btn-outline:hover { border-color: var(--accent); color: var(--accent-ink); }
-.btn-outline.active { background: var(--st-accent-solid); color: #fff; border-color: transparent; }
-.btn-sub { background: var(--st-fill-2); color: var(--st-label-2); }
-.btn-sub:hover { background: var(--st-fill); color: var(--st-label); }
-.btn-solid:active, .btn-outline:active, .btn-sub:active { transform: scale(0.97); }
-.btn-solid:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ══════════ 현황 패널 — 진도율 · 반별 막대 · 시험 범위 ══════════ */
 .dash { display: grid; grid-template-columns: minmax(0, 268px) minmax(0, 1fr) minmax(0, 300px); }
@@ -249,14 +231,7 @@
 .lesson__cls.is-done { background: var(--st-success-soft); color: var(--st-success-ink); }
 .lesson__admin { display: none; gap: 6px; justify-content: flex-end; }
 body.is-admin .lesson__admin { display: flex; }
-.action-txt {
-  padding: 4px 10px; border-radius: var(--st-r-full);
-  font-size: 11px; font-weight: 600; letter-spacing: var(--track-ko); color: var(--st-label-3);
-  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease);
-}
-.action-txt:hover { background: var(--st-fill-2); color: var(--st-label); }
 .action-txt.mark:hover { background: var(--st-accent-soft); color: var(--accent-ink); }
-.action-txt.delete:hover { background: var(--st-danger-soft); color: var(--st-danger-ink); }
 
 @media (max-width: 760px) {
   .lesson__row { grid-template-columns: 62px minmax(0, 1fr);
@@ -285,14 +260,6 @@ body.is-admin .admin-tools { display: block; }
 .admin-tools h3 { font-size: 11px; font-weight: 600; letter-spacing: var(--track-wide);
                   text-transform: uppercase; color: var(--accent-ink); margin-bottom: 12px; }
 .admin-grid { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.form-input {
-  padding: 9px 12px; background: var(--st-bedrock); color: var(--st-label);
-  border: 1px solid var(--st-separator); border-radius: var(--st-r-element);
-  font-family: inherit; font-size: 13px; letter-spacing: var(--track-ko); min-width: 0;
-  transition: border-color var(--st-dur-fast) var(--st-ease), box-shadow var(--st-dur-fast) var(--st-ease);
-}
-.form-input::placeholder { color: var(--st-label-3); }
-.form-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); background: var(--st-surface); }
 .admin-hint { margin-top: 10px; font-size: 11.5px; line-height: 1.7; color: var(--st-label-3);
               letter-spacing: var(--track-ko); }
 .admin-hint b { color: var(--st-label-2); font-weight: 700; }
@@ -302,42 +269,9 @@ body.is-admin .admin-tools { display: block; }
 }
 .admin-lab { font-size: 11.5px; font-weight: 600; color: var(--st-label-3);
              letter-spacing: var(--track-ko); flex-shrink: 0; }
-select.form-input { cursor: pointer; }
 
 /* ── 모달 ── */
-.custom-modal-overlay {
-  display: none; position: fixed; inset: 0; z-index: 120;
-  background: rgba(0,0,0,0.42); backdrop-filter: blur(3px);
-  align-items: center; justify-content: center; padding: 20px;
-}
-.custom-modal-box {
-  width: 100%; max-width: 400px; padding: 26px; border-radius: var(--st-r-page);
-  background: var(--st-glass-sheen), var(--st-mat-thick-bg);
-  -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur);
-  box-shadow: inset 0 0.5px 0 0 var(--st-glass-specular),
-              inset 0 0 0 0.5px var(--st-glass-rim), var(--st-shadow-high);
-  animation: modalIn var(--st-spring-snappy-dur) var(--st-spring-snappy) both;
-}
-@keyframes modalIn { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: none; } }
-.custom-modal-box h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--st-label); }
-.custom-modal-box p { margin-top: 8px; font-size: 13.5px; line-height: 1.7;
-                      color: var(--st-label-2); letter-spacing: var(--track-ko); }
-.custom-modal-box input {
-  display: none; width: 100%; margin-top: 14px; padding: 11px 14px;
-  background: var(--st-surface); color: var(--st-label);
-  border: 1px solid var(--st-border-control); border-radius: var(--st-r-element);
-  font-family: inherit; font-size: 14px;
-}
-.custom-modal-box input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); }
-.custom-modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-.custom-modal-actions button { height: 38px; padding: 0 18px; border-radius: var(--st-r-full);
-                               font-size: 13px; font-weight: 600; letter-spacing: var(--track-ko); }
-.custom-modal-actions .cancel { background: var(--st-fill-2); color: var(--st-label-2); }
-.custom-modal-actions .cancel:hover { background: var(--st-fill); color: var(--st-label); }
-.custom-modal-actions .confirm { background: var(--st-accent-solid); color: #fff; }
-.custom-modal-actions .confirm:hover { background: var(--st-accent-hover); }
 
-.ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .unit__body { transition-duration: 1ms; }
