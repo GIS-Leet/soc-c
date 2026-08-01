@@ -611,7 +611,9 @@ a.st-card:active, button.st-card:active {
 .st-segmented__item:hover { color: var(--st-label-2); }
 .st-segmented__item[aria-selected="true"], .st-segmented__item.is-on { color: var(--st-label); }
 .st-segmented__thumb {
-  position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0;
+  /* 컨테이너 안쪽 여백(3px)만큼 들여 시작한다 — stratum.js가 주는 이동값이
+     item.offsetLeft - 3 이므로, 여기가 0이면 항상 3px 왼쪽으로 어긋난다 */
+  position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 3px;
   background: var(--st-surface); border-radius: max(var(--st-r-inner), calc(var(--st-r-element) - 3px));
   box-shadow: var(--st-shadow-low);
   transition: transform var(--st-spring-snappy-dur) var(--st-spring-snappy),

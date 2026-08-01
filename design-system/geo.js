@@ -24,6 +24,195 @@
     menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
   }
 
+  /* ── 상단바 드롭다운 ────────────────────────────────────────────────
+     상단 메뉴에 마우스를 올리면 그 아래로 카테고리가 펼쳐진다(애플 방식).
+     목록은 아래 한 곳에만 적으면 되고, .geo-nav 가 있는 모든 페이지가
+     같은 것을 쓴다 — 페이지마다 메뉴를 복사해 두면 반드시 어긋난다.
+     키는 링크의 파일 이름. 없는 항목은 그냥 평범한 링크로 남는다. */
+  const NAV_DROP = {
+    'library.html': {
+      cols: [
+        { title: '자료 폴더', items: [
+          { label: '자료실 전체', href: 'library.html', desc: '수업에 쓴 모든 파일' },
+          { label: '학습지',     href: 'library.html#학습지' },
+          { label: 'PPT',        href: 'library.html#PPT' },
+          { label: '참고자료',   href: 'library.html#참고자료' }
+        ]},
+        { title: '수행평가', items: [
+          { label: '지역 탐구 프로젝트', href: 'project_guide.html', desc: '주제 선정부터 발표까지' },
+          { label: '질문 아카이브 목록', href: 'https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec', desc: '제출한 질문 확인', ext: true }
+        ]},
+        { title: '함께 보기', items: [
+          { label: 'Q&A 게시판',   href: 'qna.html', desc: '자료를 보다 막혔다면' },
+          { label: '시뮬레이터',   href: 'simulators.html', desc: '눈으로 확인하기' }
+        ]}
+      ]
+    },
+    'qna.html': {
+      cols: [
+        { title: '질문과 답변', items: [
+          { label: 'Q&A 게시판',    href: 'qna.html', desc: '질문하고 답변 확인하기' },
+          { label: '질문 아카이브',  href: 'https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec', desc: '수행평가 제출 목록', ext: true }
+        ]},
+        { title: '더 빠른 길', items: [
+          { label: '카카오 오픈채팅', href: 'https://open.kakao.com/o/siXWPozi', desc: '정말 급한 질문만', ext: true },
+          { label: '교무실 방문',     href: 'qna.html', desc: '평일 08:00 – 16:00' }
+        ]},
+        { title: '문의 · 건의', items: [
+          { label: '건의함',          href: 'feedback.html', desc: '수업 · 홈페이지 의견' },
+          { label: '정보화 기기 문의', href: 'support.html', desc: '기기 고장 · 기술 지원' }
+        ]}
+      ]
+    },
+    'simulators.html': {
+      cols: [
+        { title: '3.1 기후 환경', items: [
+          { label: '지구 공전과 계절',   href: 'climate_3d.html' },
+          { label: '적도 수렴대 이동',   href: 'climate_itcz.html' },
+          { label: '태양 고도와 입사각', href: 'climate_solar.html' }
+        ]},
+        { title: '3.2 지형 변화', items: [
+          { label: '지형의 형성 과정',   href: 'terrain.html' },
+          { label: '지형 형성 작용',     href: 'dynamic_earth.html' },
+          { label: '지형 탐구 시뮬레이터', href: 'world_landforms.html' }
+        ]},
+        { title: '3.3 도시 공간', items: [
+          { label: '서울 대도시권 팽창', href: 'seoul.html' },
+          { label: 'AI 분석 대시보드',   href: 'ai_dashboard.html', desc: '식생 · 열섬 · 인구' }
+        ]}
+      ],
+      foot: { text: '단원별로 정리된 전체 목록', link: { label: '시뮬레이터 전체 보기', href: 'simulators.html' } }
+    },
+    'feedback.html': {
+      cols: [
+        { title: '의견 보내기', items: [
+          { label: '건의함',           href: 'feedback.html', desc: '수업 · 홈페이지에 바라는 점' },
+          { label: '정보화 기기 문의',  href: 'support.html', desc: '기기 고장 · 기술 지원' }
+        ]},
+        { title: '질문이라면', items: [
+          { label: 'Q&A 게시판',      href: 'qna.html', desc: '수업 내용 질문' },
+          { label: '카카오 오픈채팅',  href: 'https://open.kakao.com/o/siXWPozi', desc: '정말 급한 질문만', ext: true }
+        ]}
+      ]
+    }
+  };
+
+  navDrop();
+  function navDrop() {
+    const bar = document.querySelector('header.st-bar');
+    const nav = bar && bar.querySelector('.geo-nav');
+    if (!nav) return;
+    /* 터치 기기에는 '떠 있는 상태'가 없다. 첫 탭이 메뉴를 열고 두 번째가
+       이동하는 방식은 늘 헷갈리므로, 여기서는 아예 켜지 않는다(버거 메뉴가 있다). */
+    if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    const fileOf = (href) => {
+      try { return new URL(href, location.href).pathname.split('/').pop() || 'index.html'; }
+      catch (err) { return ''; }
+    };
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+    const links = Array.prototype.filter.call(
+      nav.querySelectorAll('a[href]'), (a) => NAV_DROP[fileOf(a.getAttribute('href'))]);
+    if (!links.length) return;
+
+    const drop = document.createElement('div');
+    drop.className = 'geo-drop';
+    const stage = document.createElement('div');
+    stage.className = 'geo-drop__stage';
+    drop.appendChild(stage);
+
+    const built = {};
+    links.forEach((a) => {
+      const id = fileOf(a.getAttribute('href'));
+      a.dataset.drop = id;
+      if (built[id]) return;
+      built[id] = true;
+      const cfg = NAV_DROP[id];
+      let d = 0;
+      const cols = cfg.cols.map((c) =>
+        '<div class="geo-drop__col">' +
+        `<div class="geo-drop__cap" style="--d:${d++}">${esc(c.title)}</div>` +
+        c.items.map((it) =>
+          `<a class="geo-drop__link" style="--d:${d++}" href="${esc(it.href)}"` +
+          (it.ext ? ' target="_blank" rel="noopener"' : '') + '>' +
+          `<span>${esc(it.label)}${it.ext ? '<i></i>' : ''}</span>` +
+          (it.desc ? `<small>${esc(it.desc)}</small>` : '') + '</a>').join('') +
+        '</div>').join('');
+      const foot = cfg.foot
+        ? `<div class="geo-drop__foot"><span>${esc(cfg.foot.text)}</span>` +
+          `<a class="lg" href="${esc(cfg.foot.link.href)}">${esc(cfg.foot.link.label)} →</a></div>`
+        : '';
+      const panel = document.createElement('div');
+      panel.className = 'geo-drop__panel';
+      panel.dataset.for = id;
+      panel.style.setProperty('--cols', cfg.cols.length);
+      panel.innerHTML = cols + foot;
+      stage.appendChild(panel);
+    });
+
+    bar.appendChild(drop);
+    const panels = Array.prototype.slice.call(stage.children);
+    panels.forEach((p) => { p.inert = true; });
+    drop.inert = true;
+
+    let openId = null, tOpen = null, tClose = null;
+
+    function show(id) {
+      clearTimeout(tClose);
+      const panel = stage.querySelector('[data-for="' + id + '"]');
+      if (!panel || openId === id) return;
+      panels.forEach((p) => {
+        const on = p === panel;
+        p.classList.toggle('is-on', on);
+        p.inert = !on;
+      });
+      drop.inert = false;
+      drop.classList.add('is-open');
+      drop.style.height = panel.offsetHeight + 'px';
+      links.forEach((a) => a.classList.toggle('is-open', a.dataset.drop === id));
+      openId = id;
+    }
+
+    function hide() {
+      if (openId === null) return;
+      drop.classList.remove('is-open');
+      drop.style.height = '0px';
+      drop.inert = true;
+      panels.forEach((p) => { p.classList.remove('is-on'); p.inert = true; });
+      links.forEach((a) => a.classList.remove('is-open'));
+      openId = null;
+    }
+
+    const later = (fn, ms) => setTimeout(fn, ms);
+    function scheduleHide() { clearTimeout(tOpen); clearTimeout(tClose); tClose = later(hide, 190); }
+
+    links.forEach((a) => {
+      a.addEventListener('mouseenter', () => {
+        clearTimeout(tClose); clearTimeout(tOpen);
+        /* 이미 다른 판이 열려 있으면 즉시 갈아 끼운다. 처음 여는 순간에만
+           110ms를 기다린다 — 바를 가로질러 지나가는 손을 붙잡지 않기 위해. */
+        tOpen = later(() => show(a.dataset.drop), openId ? 0 : 110);
+      });
+      a.addEventListener('focus', () => show(a.dataset.drop));
+      a.addEventListener('click', hide);
+    });
+    nav.addEventListener('mouseleave', scheduleHide);
+    bar.addEventListener('mouseleave', scheduleHide);
+    drop.addEventListener('mouseenter', () => { clearTimeout(tClose); });
+    drop.addEventListener('mouseleave', scheduleHide);
+    drop.addEventListener('click', hide);
+    drop.addEventListener('focusout', (e) => {
+      if (!drop.contains(e.relatedTarget) && !nav.contains(e.relatedTarget)) hide();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(); });
+    addEventListener('resize', () => {
+      if (openId === null) return;
+      const panel = stage.querySelector('[data-for="' + openId + '"]');
+      if (panel) drop.style.height = panel.offsetHeight + 'px';
+    });
+  }
+
   /* ── 테마 (기존 geo-theme 키 유지) ─────────────────────────────────── */
   const themeBtn = document.getElementById('geoTheme');
   if (themeBtn && window.Stratum) {

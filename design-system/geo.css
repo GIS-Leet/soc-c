@@ -97,6 +97,77 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   color: var(--st-label); --lg-x: 15px; --lg-y: 9px;
 }
 .geo-nav a.on { color: var(--accent-ink); }
+.geo-nav a.is-open { color: var(--accent-ink); }
+
+/* ══════════ 상단바 드롭다운 — 카테고리가 아래로 펼쳐진다 ══════════
+   애플 홈페이지의 그것. 바는 유리지만 이 판은 콘텐츠를 담으므로 불투명한
+   퇴적층으로 둔다(STRATUM: 유리 위 유리 금지 — 글자가 뭉갠다).
+   높이는 JS가 활성 패널의 실제 높이로 잡아 준다. 그래서 항목 수가 다른
+   메뉴 사이를 오갈 때 판이 부드럽게 늘었다 줄었다 한다. */
+.geo-drop {
+  position: absolute; top: 100%; left: 0; right: 0;
+  height: 0; overflow: hidden;
+  background: var(--st-surface);
+  box-shadow: inset 0 1px 0 0 var(--st-separator), var(--st-shadow-med);
+  opacity: 0; pointer-events: none;
+  transition: height var(--st-spring-smooth-dur) var(--st-spring-smooth),
+              opacity 220ms var(--ease);
+}
+.geo-drop.is-open { opacity: 1; pointer-events: auto; }
+.geo-drop__stage { position: relative; }
+
+.geo-drop__panel {
+  position: absolute; top: 0; left: 0; right: 0;
+  width: 100%; max-width: 1180px; margin: 0 auto;
+  padding: 30px var(--pad-x) 34px;
+  display: grid; gap: 26px 36px;
+  grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  opacity: 0; pointer-events: none;
+}
+.geo-drop__panel.is-on { opacity: 1; pointer-events: auto; }
+
+/* 항목이 위에서 차례로 흘러내린다 — 한꺼번에 나타나면 '켜졌다'가 되지,
+   '펼쳐졌다'가 되지 않는다. 22ms 간격이면 눈이 순서를 읽되 기다리지는 않는다. */
+@keyframes geoDropIn { from { opacity: 0; transform: translateY(-9px); } to { opacity: 1; transform: none; } }
+.geo-drop__panel.is-on .geo-drop__cap,
+.geo-drop__panel.is-on .geo-drop__link {
+  animation: geoDropIn 420ms var(--st-spring-smooth) both;
+  animation-delay: calc(var(--d, 0) * 22ms);
+}
+
+.geo-drop__cap {
+  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+  text-transform: uppercase; color: var(--st-label-3);
+  padding-bottom: 9px; margin-bottom: 5px; border-bottom: 1px solid var(--st-separator);
+}
+.geo-drop__link {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 8px 10px; margin-inline: -10px; border-radius: var(--st-r-element);
+  font-size: 14.5px; font-weight: 600; letter-spacing: var(--track-ko);
+  color: var(--st-label);
+  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease);
+}
+.geo-drop__link:hover, .geo-drop__link:focus-visible {
+  background: var(--st-fill-3); color: var(--accent-ink); outline: none;
+}
+.geo-drop__link:focus-visible { box-shadow: var(--st-ring); }
+.geo-drop__link small { font-size: 11.5px; font-weight: 500; color: var(--st-label-3); letter-spacing: 0.01em; }
+/* 바깥으로 나가는 링크 표시(↗) — 새 탭이 열린다는 예고 */
+.geo-drop__link i {
+  display: inline-block; width: 6px; height: 6px; margin-left: 6px; vertical-align: 3px;
+  border-top: 1.3px solid currentColor; border-right: 1.3px solid currentColor;
+  transform: rotate(-45deg); opacity: 0.4;
+}
+
+.geo-drop__foot {
+  grid-column: 1 / -1; margin-top: 4px; padding-top: 14px;
+  border-top: 1px solid var(--st-separator);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 12.5px; font-weight: 600; letter-spacing: var(--track-ko); color: var(--st-label-3);
+}
+.geo-drop__foot a { color: var(--accent-ink); --lg-x: 11px; --lg-y: 6px; }
+
+@media (max-width: 900px) { .geo-drop__panel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .geo-burger {
   width: 36px; height: 36px; border-radius: 50%; background: var(--st-label);
@@ -206,4 +277,7 @@ body.is-launching .geo-page { transform: scale(0.965); opacity: 0.5; transform-o
 @media (prefers-reduced-motion: reduce) {
   .lg::before { transition: opacity 140ms linear; transform: none !important; }
   .geo-menu { transition-duration: 1ms; }
+  .geo-drop { transition: opacity 120ms linear; }
+  .geo-drop__panel.is-on .geo-drop__cap,
+  .geo-drop__panel.is-on .geo-drop__link { animation: none; }
 }
