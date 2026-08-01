@@ -95,8 +95,8 @@
 /* ── 반별 가로 막대 ──
    같은 값(진도율)을 반끼리 견주는 것이므로 한 색이다. 반마다 색을 달리하면
    막대 길이가 이미 말하고 있는 것을 색이 한 번 더 말하게 되어 채널만 낭비된다. */
-.hbars { margin-top: 18px; display: flex; flex-direction: column; gap: 11px; }
-.hbar { display: grid; grid-template-columns: 52px minmax(0, 1fr) 64px; align-items: center; gap: 12px; }
+.hbars { margin-top: 18px; display: flex; flex-direction: column; gap: 8px; }
+.hbar { display: grid; grid-template-columns: 46px minmax(0, 1fr) 58px; align-items: center; gap: 12px; }
 .hbar__n { font-size: 12px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label);
            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hbar__track { height: 10px; border-radius: 5px; background: var(--st-fill-3); overflow: hidden; }
@@ -144,8 +144,15 @@
 }
 .picker::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
                  background: var(--st-separator); }
-.picker__l { font-size: 11px; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko); }
-.picker__spacer { flex: 1; }
+.picker__l { font-size: 11px; font-weight: 600; color: var(--st-label-3); flex-shrink: 0;
+             letter-spacing: var(--track-ko); }
+/* 반이 열세 개면 한 줄에 안 들어간다. 줄바꿈 대신 옆으로 밀리게 둔다 —
+   세그먼티드는 한 줄일 때만 '고르는 자'처럼 읽힌다. */
+.picker__scroll { flex: 1 1 auto; min-width: 0; overflow-x: auto; padding: 3px 0;
+                  scrollbar-width: thin; }
+.picker__scroll::-webkit-scrollbar { height: 5px; }
+.picker__scroll::-webkit-scrollbar-thumb { background: var(--st-fill); border-radius: 3px; }
+.picker .st-segmented { min-width: max-content; }
 .picker .st-segmented__item { letter-spacing: var(--track-ko); }
 
 /* ══════════ 단원 · 차시 ══════════ */
@@ -164,7 +171,8 @@
 .unit.is-open .unit__chev { transform: rotate(90deg); }
 .unit__n { font-size: 13.5px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label); }
 .unit__c { font-size: 12px; color: var(--st-label-3); font-variant-numeric: tabular-nums;
-           letter-spacing: var(--track-ko); }
+           letter-spacing: var(--track-ko); white-space: nowrap; flex-shrink: 0; }
+.unit__n { word-break: keep-all; }
 .unit__spacer { flex: 1; }
 .unit__body { display: grid; grid-template-rows: 0fr;
               transition: grid-template-rows var(--st-spring-smooth-dur) var(--st-spring-smooth); }
@@ -403,8 +411,9 @@ body.is-admin .admin-tools { display: block; }
     <!-- 반 고르기 -->
     <div class="picker">
       <span class="picker__l">반 선택</span>
-      <div class="st-segmented" id="classPicker" role="tablist" aria-label="반 고르기"></div>
-      <span class="picker__spacer"></span>
+      <div class="picker__scroll">
+        <div class="st-segmented" id="classPicker" role="tablist" aria-label="반 고르기"></div>
+      </div>
     </div>
 
     <div id="units"></div>
@@ -790,13 +799,17 @@ body.is-admin .admin-tools { display: block; }
             g.items.push({ ...l, no: i + 1 });
         });
 
-        // 고른 반이 어디까지 나갔는지 — '전체'면 가장 느린 반 기준으로 접힘을 정한다
+        /* 고른 반이 어디까지 나갔는지.
+           '전체'일 때 가장 느린 반을 기준으로 잡으면, 열두 반이 끝낸 차시도
+           한 반이 안 했다는 이유로 전부 '예정'이 되어 아무것도 말해 주지 않는다.
+           위의 진도율(41.5%)과 같은 평균을 쓴다. 반별 정확한 값은 차시마다
+           '12/13반'으로 따로 적히므로 뭉뚱그려도 정보가 사라지지 않는다. */
         const doneOf = (cid) => {
             const c = classes.find(x => x.id === cid);
             return c ? Math.min(+c.done || 0, total) : 0;
         };
         const mine = picked === 'all'
-            ? (classes.length ? Math.min(...classes.map(c => doneOf(c.id))) : 0)
+            ? (classes.length ? Math.round(classes.reduce((a, c) => a + doneOf(c.id), 0) / classes.length) : 0)
             : doneOf(picked);
 
         // 처음 그릴 때는 '지금 배우는 단원'만 펼친다
@@ -836,12 +849,20 @@ body.is-admin .admin-tools { display: block; }
         const now = it.no === mine + 1;
         const inExam = exam && exam.date && it.no >= (+exam.from || 1) && it.no <= (+exam.to || total);
 
-        // '전체'를 골랐을 때는 반마다 칩을 세워 어느 반이 어디까지인지 한눈에 보인다
+        /* '전체'를 골랐을 때 —
+           반이 적으면 칩을 하나씩 세워 어느 반이 어디까지인지 바로 보인다.
+           반이 많으면(6개 초과) 칩 열세 개가 다섯 줄로 쌓여 목록이 무너지므로
+           '9/13반'이라는 셈으로 바꾼다. 어느 반인지는 위에서 반을 고르면 된다. */
+        const doneCount = classes.filter(c => it.no <= Math.min(+c.done || 0, total)).length;
         const stateCell = picked === 'all' && classes.length
-            ? `<div class="lesson__classes">${classes.map(c => {
-                  const d = Math.min(+c.done || 0, total);
-                  return `<span class="lesson__cls${it.no <= d ? ' is-done' : ''}">${esc(c.name)}</span>`;
-               }).join('')}</div>`
+            ? (classes.length <= 6
+                ? `<div class="lesson__classes">${classes.map(c => {
+                      const d = Math.min(+c.done || 0, total);
+                      return `<span class="lesson__cls${it.no <= d ? ' is-done' : ''}">${esc(c.name)}</span>`;
+                   }).join('')}</div>`
+                : `<div class="lesson__state"><span class="geo-state ${
+                      doneCount === classes.length ? 'geo-state--done' : doneCount > 0 ? 'geo-state--now' : 'geo-state--wait'
+                   }">${doneCount}/${classes.length}반</span></div>`)
             : `<div class="lesson__state"><span class="geo-state ${done ? 'geo-state--done' : now ? 'geo-state--now' : 'geo-state--wait'}">${
                   done ? '완료' : now ? '다음 시간' : '예정'}</span></div>`;
 
@@ -976,33 +997,32 @@ body.is-admin .admin-tools { display: block; }
         btn.textContent = on ? '그래프로 보기' : '표로 보기';
     };
 
-    /* ── 예시 뼈대 ──
-       빈 화면에 26줄을 손으로 넣게 하면 이 페이지는 시작도 못 한다.
-       이 사이트가 이미 쓰고 있는 단원 구성으로 뼈대만 깔아 준다. 내용은 고쳐 쓰면 된다. */
+    /* ── 첫 세팅 ──
+       빈 화면에 손으로 다 넣게 하면 이 페이지는 시작도 못 한다. 버튼 한 번으로
+       이번 학기 차시와 반을 깔아 준다. 학습 목표는 일부러 비워 뒀다 —
+       지어낸 문장이 공개 페이지에 남는 것보다 비어 있는 편이 낫다.
+       (차시 행의 '수정'에서 제목과 학습 목표를 채울 수 있다.) */
+    const STARTER_CLASSES = Array.from({ length: 13 }, (_, i) => `${i + 1}반`);
     const STARTER = [
-      ['3.1 기후 환경과 인간 생활', '기후 요소와 기후 인자', '기온·강수·바람이 무엇에 따라 달라지는지 설명할 수 있다.', '', 'climate_solar.html'],
-      ['3.1 기후 환경과 인간 생활', '지구의 공전과 계절 변화', '자전축 기울기가 계절을 만드는 과정을 설명할 수 있다.', '', 'climate_3d.html'],
-      ['3.1 기후 환경과 인간 생활', '대기 대순환과 기후대', '적도 수렴대의 이동으로 우기와 건기를 설명할 수 있다.', '', 'climate_itcz.html'],
-      ['3.1 기후 환경과 인간 생활', '열대 · 건조 기후와 생활', '기후에 따라 달라지는 생활 모습을 견주어 설명할 수 있다.', '', ''],
-      ['3.1 기후 환경과 인간 생활', '온대 · 냉대 · 한대 기후와 생활', '우리나라 기후의 특징을 세계 기후 속에서 설명할 수 있다.', '', ''],
-      ['3.2 지형 변화와 인간 생활', '지형 형성 작용 — 내적 · 외적', '내적 작용과 외적 작용을 구분해 설명할 수 있다.', '', 'dynamic_earth.html'],
-      ['3.2 지형 변화와 인간 생활', '판 구조론과 대지형', '판 경계에서 만들어지는 지형을 설명할 수 있다.', '', 'terrain.html'],
-      ['3.2 지형 변화와 인간 생활', '하천 · 해안 · 빙하 지형', '외적 작용이 만든 지형을 사례로 설명할 수 있다.', '', 'world_landforms.html'],
-      ['3.2 지형 변화와 인간 생활', '지형과 인간 생활', '지형이 삶의 방식에 미치는 영향을 설명할 수 있다.', '', ''],
-      ['3.3 도시 공간의 변화', '도시화와 도시 구조', '도시 내부의 기능 분화를 설명할 수 있다.', '', ''],
-      ['3.3 도시 공간의 변화', '대도시권의 팽창', '서울 대도시권이 넓어진 과정을 설명할 수 있다.', '', 'seoul.html'],
-      ['3.3 도시 공간의 변화', '도시 문제와 살기 좋은 도시', '도시 문제의 해결 방안을 제안할 수 있다.', '', 'ai_dashboard.html']
+      ['세계화의 양상과 문제의 해결', '세계화의 양상 ① 공간적 분업과 세계도시'],
+      ['세계화의 양상과 문제의 해결', '세계화의 양상 ② 문화의 세계화와 지역화'],
+      ['세계화의 양상과 문제의 해결', '세계화의 문제점과 해결 방안'],
+      ['국제 사회의 갈등과 평화',     '국제 갈등과 평화, 행위 주체'],
+      ['국제 사회의 갈등과 평화',     '한반도의 평화와 우리나라의 역할']
     ];
     window.seedStarter = function() {
         if (!isAdmin) return;
-        AppModal.show({ type: 'confirm', title: '기본 뼈대 넣기',
-            msg: `${STARTER.length}개 차시와 반 3개를 넣습니다. 넣은 뒤 자유롭게 고치거나 지우면 됩니다.`,
+        AppModal.show({ type: 'confirm', title: '첫 세팅',
+            msg: `${STARTER.length}개 차시와 1반~${STARTER_CLASSES.length}반을 넣습니다. 넣은 뒤 자유롭게 고치거나 지우면 됩니다.`,
             confirmText: '넣기' }, (ok) => {
             if (!ok) return;
-            STARTER.forEach((s, i) => push(lessonsRef, {
-                unit: s[0], title: s[1], goal: s[2], sheet: s[3], sim: s[4], order: i + 1
-            }));
-            if (!classes.length) ['1반', '2반', '3반'].forEach((n, i) => push(classesRef, { name: n, done: 0, order: i + 1 }));
+            Promise.all([
+                ...STARTER.map((s, i) => push(lessonsRef, {
+                    unit: s[0], title: s[1], goal: '', sheet: '', sim: '', order: i + 1
+                })),
+                ...(classes.length ? [] : STARTER_CLASSES.map((n, i) =>
+                    push(classesRef, { name: n, done: 0, order: i + 1 })))
+            ]).catch(saveFailed);
         });
     };
 </script>
