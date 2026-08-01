@@ -26,6 +26,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="design-system/earth.js"></script>
 
     <style>
         /* ============================================================
@@ -82,7 +83,7 @@
         
         /* 3D CANVAS (Map Frame) */
         
-        #simulation-container { flex: 1; width: 100%; height: 100%; outline: none; background: #1a1714; }
+        
         
         /* GUIDE BADGE (Paper Label) */
         
@@ -184,7 +185,7 @@
       <nav class="geo-nav">
         <a class="lg" href="library.html">자료실</a>
         <a class="lg" href="qna.html">Q&amp;A</a>
-        <a class="lg" href="project_guide.html">프로젝트</a>
+        <a class="lg on" href="simulators.html">시뮬레이터</a>
         <a class="lg" href="feedback.html">건의</a>
       </nav>
       <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
@@ -245,15 +246,19 @@
         // --- Three.js 초기화 ---
         const container = document.getElementById('simulation-container');
         const scene = new THREE.Scene();
-        // 앤틱 오러리(천문 모형) 느낌의 짙은 먹색 우주 배경
-        scene.background = new THREE.Color(0x1a1714); 
-        
+        scene.background = new THREE.Color(0x060913);   // 깊은 우주 — 푸른 기가 도는 검정
+
         const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 2000);
-        camera.position.set(0, 150, 400); 
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); 
+        camera.position.set(0, 150, 400);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio); 
+        // 고해상도 화면에서 픽셀 비율을 그대로 쓰면 폰에서 프레임이 무너진다
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // 밝기 압축과 색공간을 지정해야 태양 주변이 하얗게 타지 않는다
+        if (THREE.ACESFilmicToneMapping) { renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05; }
+        if ('outputColorSpace' in renderer && THREE.SRGBColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
+        else if ('outputEncoding' in renderer && THREE.sRGBEncoding) renderer.outputEncoding = THREE.sRGBEncoding;
         container.appendChild(renderer.domElement);
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -261,47 +266,80 @@
         controls.minDistance = 100; controls.maxDistance = 800;
 
         // --- 조명 설정 ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.15); scene.add(ambientLight);
-        const sunLight = new THREE.PointLight(0xffffff, 2, 2000); sunLight.position.set(0, 0, 0); scene.add(sunLight);
+        const ambientLight = new THREE.AmbientLight(0x6f86b8, 0.32); scene.add(ambientLight);
+        const sunLight = new THREE.PointLight(0xfff3dc, 2.6, 2400, 1.4); sunLight.position.set(0, 0, 0); scene.add(sunLight);
 
-        // --- 배경 우주(별) 추가 (조금 따뜻한 색감으로 변경) ---
-        const starsGeometry = new THREE.BufferGeometry();
-        const starsMaterial = new THREE.PointsMaterial({color: 0xe6dfd0, size: 1.5, opacity: 0.6, transparent: true});
-        const starVertices = [];
-        for(let i=0; i<1500; i++) {
-            const x = THREE.MathUtils.randFloatSpread(1500);
-            const y = THREE.MathUtils.randFloatSpread(1500);
-            const z = THREE.MathUtils.randFloatSpread(1500);
-            if(Math.abs(x) > 200 || Math.abs(y) > 200 || Math.abs(z) > 200) {
-                starVertices.push(x, y, z);
+        // --- 별 — 크기를 세 무리로 나눠야 평면 점처럼 보이지 않는다 ---
+        [[900, 0.9, 0.55], [420, 1.5, 0.75], [140, 2.4, 0.95]].forEach(function (cfg) {
+            const g = new THREE.BufferGeometry(), v = [];
+            for (let i = 0; i < cfg[0]; i++) {
+                const x = THREE.MathUtils.randFloatSpread(1600);
+                const y = THREE.MathUtils.randFloatSpread(1600);
+                const z = THREE.MathUtils.randFloatSpread(1600);
+                if (Math.abs(x) > 260 || Math.abs(y) > 260 || Math.abs(z) > 260) v.push(x, y, z);
             }
-        }
-        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
-        const starField = new THREE.Points(starsGeometry, starsMaterial);
-        scene.add(starField);
+            g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+            scene.add(new THREE.Points(g, new THREE.PointsMaterial({
+                color: 0xdce8ff, size: cfg[1], opacity: cfg[2], transparent: true, sizeAttenuation: false
+            })));
+        });
 
-        // --- 오브젝트 생성 (빈티지 컬러 팔레트 적용) ---
-        // 1. 태양 (Gold)
-        const sunGeometry = new THREE.SphereGeometry(30, 32, 32);
-        const sunMaterial = new THREE.MeshBasicMaterial({ color: 0x9a7b3f }); 
-        const sun = new THREE.Mesh(sunGeometry, sunMaterial); scene.add(sun);
+        // --- 태양 — 본체 + 코로나 두 겹. 단색 원 하나로는 빛나 보이지 않는다 ---
+        const sun = new THREE.Mesh(
+            new THREE.SphereGeometry(30, 48, 48),
+            new THREE.MeshBasicMaterial({ color: 0xfff0c4 })
+        );
+        scene.add(sun);
+        [[46, 0.30, 0xffd27a], [72, 0.13, 0xffb457]].forEach(function (c) {
+            scene.add(new THREE.Mesh(
+                new THREE.SphereGeometry(c[0], 32, 32),
+                new THREE.MeshBasicMaterial({ color: c[2], transparent: true, opacity: c[1],
+                                              side: THREE.BackSide, depthWrite: false })
+            ));
+        });
 
-        // 2. 공전 궤도선 (Ink-3)
+        // --- 공전 궤도선 ---
         const R = 200;
-        const orbitGeometry = new THREE.RingGeometry(R - 0.5, R + 0.5, 128);
-        const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0x8c8479, side: THREE.DoubleSide, transparent: true, opacity: 0.4 });
+        const orbitGeometry = new THREE.RingGeometry(R - 0.4, R + 0.4, 192);
+        const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0x7fa4d8, side: THREE.DoubleSide, transparent: true, opacity: 0.32 });
         const orbitPath = new THREE.Mesh(orbitGeometry, orbitMaterial); orbitPath.rotation.x = Math.PI / 2; scene.add(orbitPath);
 
-        // 3. 지구 (Sea / Muted Blue-Green)
+        // --- 지구 — 메인 페이지와 같은 텍스처를 쓴다(같은 얼굴이어야 한다) ---
         const earthGroup = new THREE.Group(); scene.add(earthGroup);
         const earthRadius = 16;
-        const earthGeometry = new THREE.SphereGeometry(earthRadius, 32, 32);
-        const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x3a5a5e, shininess: 15 }); 
-        const earth = new THREE.Mesh(earthGeometry, earthMaterial); earthGroup.add(earth); 
+        const earthGeometry = new THREE.SphereGeometry(earthRadius, 64, 48);
+        const earthMaterial = new THREE.MeshPhongMaterial({ shininess: 12, specular: 0x223344 });
+        if (window.Geo && Geo.earthTexture) {
+            const t = new THREE.CanvasTexture(Geo.earthTexture({ width: 2048, height: 1024 }));
+            if (THREE.SRGBColorSpace && 'colorSpace' in t) t.colorSpace = THREE.SRGBColorSpace;
+            else if (THREE.sRGBEncoding) t.encoding = THREE.sRGBEncoding;
+            t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            earthMaterial.map = t;
+        } else {
+            earthMaterial.color = new THREE.Color(0x2e6ea8);
+        }
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial); earthGroup.add(earth);
 
-        // 4. 적도선 (Terra)
-        const equatorGeometry = new THREE.TorusGeometry(earthRadius + 1.5, 0.6, 16, 64);
-        const equatorMaterial = new THREE.MeshBasicMaterial({ color: 0xb4502e });
+        // 구름 — 살짝 큰 구에 반투명으로 씌운다
+        if (window.Geo && Geo.cloudTexture) {
+            const ct = new THREE.CanvasTexture(Geo.cloudTexture({ width: 1024, height: 512 }));
+            const clouds = new THREE.Mesh(
+                new THREE.SphereGeometry(earthRadius * 1.015, 48, 32),
+                new THREE.MeshPhongMaterial({ map: ct, transparent: true, opacity: 0.62, depthWrite: false })
+            );
+            earthGroup.add(clouds);
+        }
+
+        // 대기 — 가장자리에서만 푸르게 밝아지도록 뒤집힌 구를 덧씌운다
+        earthGroup.add(new THREE.Mesh(
+            new THREE.SphereGeometry(earthRadius * 1.09, 48, 32),
+            new THREE.MeshBasicMaterial({ color: 0x6fb4ff, transparent: true, opacity: 0.16,
+                                          side: THREE.BackSide, depthWrite: false })
+        ));
+
+        // --- 적도선 ---
+        const equatorGeometry = new THREE.TorusGeometry(earthRadius + 1.2, 0.35, 16, 96);
+        const equatorMaterial = new THREE.MeshBasicMaterial({ color: 0x0088ff, transparent: true, opacity: 0.85 });
         const equator = new THREE.Mesh(equatorGeometry, equatorMaterial); equator.rotation.x = Math.PI / 2; earthGroup.add(equator);
 
         // 5. 자전축 (Line)
@@ -447,7 +485,7 @@
   <div class="geo-menu__links">
     <a class="lg" href="library.html">자료실</a>
     <a class="lg" href="qna.html">Q&amp;A</a>
-    <a class="lg" href="project_guide.html">프로젝트</a>
+    <a class="lg" href="simulators.html">시뮬레이터</a>
     <a class="lg" href="feedback.html">건의</a>
   </div>
   <div class="geo-group">
@@ -464,6 +502,7 @@
     <h3>수업 · 지원</h3>
     <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
   </div>
   <div class="geo-menu__foot">
