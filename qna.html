@@ -142,11 +142,21 @@
 .panel__toggle:hover { background: var(--st-fill-2); color: var(--st-label); }
 .panel__toggle[aria-pressed="true"] { background: var(--st-accent-soft); color: var(--accent-ink); }
 
-.dash { display: grid; grid-template-columns: minmax(0, 290px) minmax(0, 1fr); }
-@media (max-width: 800px) { .dash { grid-template-columns: 1fr; } }
-.dash__rate { padding: clamp(20px, 2.6vw, 28px); border-right: 1px solid var(--st-separator); }
+/* 답변률 · 월별 기둥 · 안내 — 세 칸. 기둥 그래프는 달 수만큼만 넓어지므로
+   그 오른쪽에 늘 여백이 남는다. 안내를 그 자리에 넣어 판을 다 쓴다. */
+.dash { display: grid; grid-template-columns: minmax(0, 268px) minmax(0, 404px) minmax(0, 1fr); }
+.dash__rate  { padding: clamp(20px, 2.6vw, 28px); border-right: 1px solid var(--st-separator); }
 .dash__chart { padding: clamp(20px, 2.6vw, 28px); min-width: 0; }
+.dash__guide { padding: clamp(20px, 2.6vw, 28px); min-width: 0;
+               border-left: 1px solid var(--st-separator); }
+
+/* 셋이 안 들어가면 안내가 아래로 내려가 한 줄을 통째로 쓴다 */
+@media (max-width: 1060px) {
+  .dash { grid-template-columns: minmax(0, 268px) minmax(0, 1fr); }
+  .dash__guide { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--st-separator); }
+}
 @media (max-width: 800px) {
+  .dash { grid-template-columns: 1fr; }
   .dash__rate { border-right: 0; border-bottom: 1px solid var(--st-separator); }
 }
 
@@ -249,10 +259,11 @@
 .chart__band:last-child:hover .chart__tip,
 .chart__band:last-child:focus-visible .chart__tip { transform: translate(0, 0); }
 
-/* ── 표로 보기 — 색에만 기대지 않기 위한 같은 값의 텍스트판 ── */
-.dtable-wrap { display: none; padding: clamp(18px, 2.4vw, 26px); overflow-x: auto; }
+/* ── 표로 보기 — 색에만 기대지 않기 위한 같은 값의 텍스트판.
+      그래프 자리에서만 갈아 끼운다. 답변률과 안내는 그대로 남는다. ── */
+.dtable-wrap { display: none; margin-top: 18px; overflow-x: auto; }
 .panel.is-table .dtable-wrap { display: block; }
-.panel.is-table .dash { display: none; }
+.panel.is-table .chart { display: none; }
 .dtable { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .dtable th, .dtable td { padding: 9px 12px; text-align: right; font-size: 12.5px;
                          border-bottom: 1px solid var(--st-separator); letter-spacing: var(--track-ko); }
@@ -307,23 +318,22 @@
 .recent__go { margin-top: auto; padding-top: 4px; font-size: 11.5px; font-weight: 600;
               color: var(--accent-ink); letter-spacing: var(--track-ko); }
 
-/* ══════════ 안내 — 접히는 디스클로저 ══════════ */
-.guide { margin-top: 18px; border: 1px solid var(--st-separator); border-radius: var(--st-r-container);
-         background: var(--st-surface); box-shadow: var(--st-shadow-low); overflow: hidden; }
+/* ══════════ 안내 — 그래프 옆 빈자리에 접히는 디스클로저로 ══════════ */
 .guide > summary {
   display: flex; align-items: center; gap: 9px; cursor: pointer; list-style: none;
-  padding: 14px clamp(16px, 2.2vw, 22px);
+  padding: 0 0 11px;
   font-size: 12.5px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label);
-  transition: background var(--st-dur-fast) var(--st-ease);
+  transition: color var(--st-dur-fast) var(--st-ease);
 }
 .guide > summary::-webkit-details-marker { display: none; }
-.guide > summary:hover { background: var(--st-fill-3); }
+.guide > summary:hover { color: var(--accent-ink); }
+.guide > summary:focus-visible { outline: none; box-shadow: var(--st-ring); border-radius: var(--st-r-inner); }
 .guide__chev { color: var(--st-label-3); transition: transform var(--st-dur-fast) var(--st-ease); }
 .guide[open] .guide__chev { transform: rotate(90deg); }
 .guide__hint { margin-left: auto; font-size: 11px; font-weight: 500; color: var(--st-label-3); }
-.guide ol { margin: 0; padding: 0 clamp(16px, 2.2vw, 22px) 18px 2.4em; }
-.guide li { font-size: 13.5px; line-height: 1.75; color: var(--st-label-2);
-            letter-spacing: var(--track-ko); padding: 2px 0; }
+.guide ol { margin: 0; padding: 0 0 0 1.5em; }
+.guide li { font-size: 12.5px; line-height: 1.7; color: var(--st-label-2);
+            letter-spacing: var(--track-ko); padding: 3px 0; word-break: keep-all; }
 .guide li::marker { color: var(--st-label-4); font-variant-numeric: tabular-nums; }
 .guide b { color: var(--st-label); font-weight: 600; }
 .kakao-chip {
@@ -828,16 +838,34 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             </div>
             <div class="chart__plot" id="chartPlot"></div>
           </div>
-        </div>
-      </div>
 
-      <div class="dtable-wrap" id="dashTable">
-        <table class="dtable">
-          <caption class="st-sr-only">월별 질문 수와 답변 여부</caption>
-          <thead><tr><th scope="col">월</th><th scope="col">질문</th><th scope="col">답변 완료</th><th scope="col">답변 전</th></tr></thead>
-          <tbody id="dashTableBody"></tbody>
-          <tfoot id="dashTableFoot"></tfoot>
-        </table>
+          <!-- 같은 값을 글자로. 그래프 자리에서 바로 갈아 끼운다 -->
+          <div class="dtable-wrap" id="dashTable">
+            <table class="dtable">
+              <caption class="st-sr-only">월별 질문 수와 답변 여부</caption>
+              <thead><tr><th scope="col">월</th><th scope="col">질문</th><th scope="col">답변 완료</th><th scope="col">답변 전</th></tr></thead>
+              <tbody id="dashTableBody"></tbody>
+              <tfoot id="dashTableFoot"></tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- 안내 — 그래프 옆 빈자리에 -->
+        <details class="dash__guide guide" id="guide">
+          <summary>
+            <svg class="guide__chev ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            질문 전에 읽어 주세요
+            <span class="guide__hint">안내 6가지</span>
+          </summary>
+          <ol>
+            <li>답변 속도는 상황에 따라 다를 수 있습니다.</li>
+            <li>공공의 이익을 위해 비공개글은 가급적 지양해 주세요.</li>
+            <li>급한 질문은 교무실로 방문해 주시기 바랍니다 (08:00 ~ 16:00).</li>
+            <li><b>사진 자료를 첨부</b>하여 질문하면 더 자세한 답변을 받을 수 있습니다.</li>
+            <li>답변이 등록되면 목록의 상태가 <b>답변 전 → 답변 완료</b>로 바뀝니다.</li>
+            <li><b>진짜 정말 real로 당장 해결하지 않으면 안되는 급한 사항이다</b> → <a href="https://open.kakao.com/o/siXWPozi" target="_blank" rel="noopener" class="kakao-chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-5.523 0-10 3.582-10 8 0 2.864 1.8 5.378 4.6 6.81l-1.135 3.99c-.114.398.334.708.68.513l4.63-3.134c.4.05.81.077 1.225.077 5.523 0 10-3.582 10-8s-4.477-8-10-8z"/></svg>채팅방 바로가기</a></li>
+          </ol>
+        </details>
       </div>
     </section>
 
@@ -849,23 +877,6 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
       </div>
       <div class="recent__rail" id="recentRail"></div>
     </section>
-
-    <!-- 안내 -->
-    <details class="guide">
-      <summary>
-        <svg class="guide__chev ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
-        질문 전에 읽어 주세요
-        <span class="guide__hint">안내 6가지</span>
-      </summary>
-      <ol>
-        <li>답변 속도는 상황에 따라 다를 수 있습니다.</li>
-        <li>공공의 이익을 위해 비공개글은 가급적 지양해 주세요.</li>
-        <li>급한 질문은 교무실로 방문해 주시기 바랍니다 (08:00 ~ 16:00).</li>
-        <li><b>사진 자료를 첨부</b>하여 질문하면 더 자세한 답변을 받을 수 있습니다.</li>
-        <li>답변이 등록되면 목록의 상태가 <b>답변 전 → 답변 완료</b>로 바뀝니다.</li>
-        <li><b>진짜 정말 real로 당장 해결하지 않으면 안되는 급한 사항이다</b> → <a href="https://open.kakao.com/o/siXWPozi" target="_blank" rel="noopener" class="kakao-chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-5.523 0-10 3.582-10 8 0 2.864 1.8 5.378 4.6 6.81l-1.135 3.99c-.114.398.334.708.68.513l4.63-3.134c.4.05.81.077 1.225.077 5.523 0 10-3.582 10-8s-4.477-8-10-8z"/></svg>채팅방 바로가기</a></li>
-      </ol>
-    </details>
 
     <!-- 글쓰기 -->
     <button type="button" class="compose-bar" id="composeBar" aria-expanded="false" aria-controls="composer" onclick="window.toggleComposer()">
@@ -1607,6 +1618,13 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         document.getElementById('dashTableFoot').innerHTML =
             `<tr><td>합계</td><td>${sum.all}</td><td>${sum.done}</td><td>${sum.all - sum.done}</td></tr>`;
     }
+
+    /* 안내는 자리가 남는 화면에서만 펼친 채로 시작한다.
+       좁은 화면에서는 여섯 줄이 게시판을 저 아래로 밀어낸다. */
+    (function guideDefault() {
+        const g = document.getElementById('guide');
+        if (g && matchMedia('(min-width: 1061px)').matches) g.open = true;
+    })();
 
     window.toggleDashTable = function() {
         const panel = document.getElementById('dashPanel');
