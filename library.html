@@ -162,7 +162,7 @@
       <nav class="geo-nav">
         <a class="lg on" href="library.html">자료실</a>
         <a class="lg" href="qna.html">Q&amp;A</a>
-        <a class="lg" href="project_guide.html">프로젝트</a>
+        <a class="lg" href="simulators.html">시뮬레이터</a>
         <a class="lg" href="feedback.html">건의</a>
       </nav>
       <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
@@ -200,12 +200,14 @@
     });
 
     // ── 설정 ──
-    const REPO = 'GIS-Leet/soc-c';
-    const ROOT = 'materials';
+    // 수업 자료는 별도 저장소(kgghs-soc-c)에 있고, 그 저장소의 최상위가 곧 자료실이다.
+    // 파일 서빙도 그쪽 GitHub Pages를 쓴다 — PDF를 브라우저에서 바로 열 수 있다.
+    const REPO = 'GIS-Leet/kgghs-soc-c';
+    const ROOT = '';                       // 저장소 최상위
     const ROOT_LABEL = '자료실';
     const API = `https://api.github.com/repos/${REPO}/contents/`;
     const CACHE_TTL = 10 * 60 * 1000; // 10분
-    const PAGES_BASE = location.origin + location.pathname.replace(/[^/]*$/, ''); // 현재 페이지 디렉터리 (해시·쿼리 무관)
+    const PAGES_BASE = 'https://gis-leet.github.io/kgghs-soc-c/';
 
     // 경로 각 구간을 안전하게 인코딩 (공백·한글·특수문자)
     const encPath = (p) => p.split('/').map(encodeURIComponent).join('/');
@@ -257,13 +259,31 @@
     // ── 현재 경로 (해시 기반, 뒤로가기·딥링크 지원) ──
     function currentPath() {
         const h = decodeURIComponent(location.hash.replace(/^#/, '')).replace(/\/+$/, '');
+        if (!ROOT) return h;   // 저장소 최상위가 루트면 해시가 곧 경로
         return (h && (h === ROOT || h.startsWith(ROOT + '/'))) ? h : ROOT;
     }
 
     function renderCrumbs(path) {
         const el = document.getElementById('crumbs');
-        const parts = path.split('/'); // ['materials', '지형', ...]
+        const parts = path ? path.split('/') : [];
         let acc = '';
+
+        if (!ROOT) {
+            // 최상위가 루트면 '자료실' 크럼브를 따로 세우고 그 뒤에 경로를 잇는다
+            let html = parts.length
+                ? `<a href="#">${ROOT_LABEL}</a><span class="sep">/</span>`
+                : `<span class="cur">${ROOT_LABEL}</span>`;
+            html += parts.map((p, i) => {
+                acc = i === 0 ? p : acc + '/' + p;
+                const isLast = i === parts.length - 1;
+                return isLast
+                    ? `<span class="cur">${p}</span>`
+                    : `<a href="#${encodeURIComponent(acc)}">${p}</a><span class="sep">/</span>`;
+            }).join('');
+            el.innerHTML = html;
+            return;
+        }
+
         const html = parts.map((p, i) => {
             acc = i === 0 ? p : acc + '/' + p;
             const label = i === 0 ? ROOT_LABEL : p;
@@ -383,7 +403,7 @@
   <div class="geo-menu__links">
     <a class="lg" href="library.html">자료실</a>
     <a class="lg" href="qna.html">Q&amp;A</a>
-    <a class="lg" href="project_guide.html">프로젝트</a>
+    <a class="lg" href="simulators.html">시뮬레이터</a>
     <a class="lg" href="feedback.html">건의</a>
   </div>
   <div class="geo-group">
@@ -400,6 +420,7 @@
     <h3>수업 · 지원</h3>
     <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
   </div>
   <div class="geo-menu__foot">

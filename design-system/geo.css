@@ -176,7 +176,8 @@ body.is-launching .geo-page { transform: scale(0.965); opacity: 0.5; transform-o
 
 /* 페이지 상단 배경 — 메인의 지구 대신 옅은 대기광으로 연결감만 남긴다 */
 .geo-aura {
-  position: absolute; inset: -20% -10% auto -10%; height: 560px; z-index: -1; pointer-events: none;
+  /* 좌우로 삐져나가면 가로 스크롤을 만든다. 위로만 번지게 두고 폭은 가둔다. */
+  position: absolute; inset: -20% 0 auto 0; height: 560px; z-index: -1; pointer-events: none;
   background:
     radial-gradient(46% 60% at 18% 30%, rgba(0,136,255,0.13), transparent 70%),
     radial-gradient(40% 55% at 78% 12%, rgba(97,85,245,0.10), transparent 70%);
