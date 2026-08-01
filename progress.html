@@ -155,6 +155,30 @@
 .picker .st-segmented { min-width: max-content; }
 .picker .st-segmented__item { letter-spacing: var(--track-ko); }
 
+/* ══════════ 다음 수업 ══════════
+   반을 고른 학생이 여기 온 이유의 대부분. 목록보다 먼저 눈에 들어와야 한다. */
+.nextup {
+  margin-top: 18px; padding: 15px 18px;
+  display: flex; align-items: baseline; gap: 10px 14px; flex-wrap: wrap;
+  border-radius: var(--st-r-container);
+  background: var(--st-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--st-accent-line);
+}
+.nextup[hidden] { display: none; }
+.nextup__cap { font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+               text-transform: uppercase; color: var(--accent-ink); flex-shrink: 0; }
+.nextup__d { font-size: 17px; font-weight: 700; letter-spacing: -0.015em; color: var(--st-label);
+             font-variant-numeric: tabular-nums; }
+.nextup__p { font-size: 12px; color: var(--st-label-2); letter-spacing: var(--track-ko);
+             font-variant-numeric: tabular-nums; }
+.nextup__t { font-size: 12.5px; font-weight: 600; color: var(--st-label-2);
+             letter-spacing: var(--track-ko); word-break: keep-all;
+             margin-left: auto; text-align: right; }
+.nextup.is-done { background: var(--st-success-soft); box-shadow: inset 0 0 0 1px transparent; }
+.nextup.is-done .nextup__cap { color: var(--st-success-ink); }
+.nextup.is-done .nextup__t { margin-left: 0; font-weight: 700; color: var(--st-success-ink); }
+@media (max-width: 640px) { .nextup__t { margin-left: 0; text-align: left; width: 100%; } }
+
 /* ══════════ 단원 · 차시 ══════════ */
 .unit { margin-top: 20px; }
 .unit[hidden] { display: none; }
@@ -186,10 +210,15 @@
    칩이 세로로 쌓여 줄 높이가 두 배가 된다. */
 .lesson__row {
   position: relative;
-  display: grid; grid-template-columns: 56px 124px minmax(0, 1fr) auto;
+  display: grid; grid-template-columns: 74px 124px minmax(0, 1fr) auto;
   align-items: center; gap: 14px; padding: 13px 12px; min-height: 44px;
   transition: background var(--st-dur-fast) var(--st-ease);
 }
+.lesson__when { display: flex; flex-direction: column; gap: 3px; }
+.lesson__date { font-size: 10.5px; color: var(--st-label-4); white-space: nowrap;
+                font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+.lesson.is-next .lesson__date { color: var(--accent-ink); font-weight: 700; }
+.lesson.is-next .lesson__no { color: var(--st-label-2); }
 .lesson__row:hover { background: var(--st-fill-3); }
 .lesson.is-exam .lesson__row::before {
   content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px;
@@ -232,9 +261,9 @@ body.is-admin .lesson__admin { display: flex; }
 .action-txt.delete:hover { background: var(--st-danger-soft); color: var(--st-danger-ink); }
 
 @media (max-width: 760px) {
-  .lesson__row { grid-template-columns: 40px minmax(0, 1fr);
+  .lesson__row { grid-template-columns: 62px minmax(0, 1fr);
                  grid-template-areas: "no main" ". state" ". admin"; row-gap: 8px; }
-  .lesson__no { grid-area: no; }
+  .lesson__when { grid-area: no; align-self: start; }
   .lesson__main { grid-area: main; }
   .lesson__state, .lesson__classes { grid-area: state; justify-self: start; justify-content: flex-start; }
   .lesson__admin { grid-area: admin; justify-content: flex-start; }
@@ -268,6 +297,14 @@ body.is-admin .admin-tools { display: block; }
 .form-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); background: var(--st-surface); }
 .admin-hint { margin-top: 10px; font-size: 11.5px; line-height: 1.7; color: var(--st-label-3);
               letter-spacing: var(--track-ko); }
+.admin-hint b { color: var(--st-label-2); font-weight: 700; }
+.admin-hint code, .empty code {
+  font-family: var(--st-font-mono); font-size: 11px; letter-spacing: 0;
+  background: var(--st-fill-2); color: var(--st-label); border-radius: 4px; padding: 1px 5px;
+}
+.admin-lab { font-size: 11.5px; font-weight: 600; color: var(--st-label-3);
+             letter-spacing: var(--track-ko); flex-shrink: 0; }
+select.form-input { cursor: pointer; }
 
 /* ── 모달 ── */
 .custom-modal-overlay {
@@ -390,7 +427,7 @@ body.is-admin .admin-tools { display: block; }
           <div class="dtable-wrap" id="dashTable">
             <table class="dtable">
               <caption class="st-sr-only">반별 진도 현황</caption>
-              <thead><tr><th scope="col">반</th><th scope="col">나간 차시</th><th scope="col">전체</th><th scope="col">진도율</th></tr></thead>
+              <thead><tr><th scope="col">반</th><th scope="col">수업 시간</th><th scope="col">나간 차시</th><th scope="col">진도율</th><th scope="col">다음 수업</th></tr></thead>
               <tbody id="dashTableBody"></tbody>
             </table>
           </div>
@@ -415,6 +452,8 @@ body.is-admin .admin-tools { display: block; }
         <div class="st-segmented" id="classPicker" role="tablist" aria-label="반 고르기"></div>
       </div>
     </div>
+
+    <div class="nextup" id="nextup" hidden></div>
 
     <div id="units"></div>
 
@@ -454,6 +493,36 @@ body.is-admin .admin-tools { display: block; }
         <button class="btn-sub" onclick="window.addClass()">반 추가</button>
         <button class="btn-sub" onclick="window.removeClass()">지금 고른 반 삭제</button>
       </div>
+
+      <h3 style="margin-top:18px; padding-top:16px; border-top:1px solid var(--st-separator);">시간표</h3>
+      <div class="admin-grid">
+        <button class="btn-solid" onclick="window.applyTimetable()">13개 반 시간표 한 번에 넣기</button>
+        <span class="admin-hint" style="margin:0; flex:1 1 220px;">요일·교시와 1차시 날짜를 채웁니다. 진도는 그대로 둡니다.</span>
+      </div>
+      <div class="admin-grid" style="margin-top:8px;">
+        <span class="admin-lab">지금 고른 반만</span>
+        <select class="form-input" id="slotDay" style="flex:0 1 90px;">
+          <option value="">요일</option><option value="1">월</option><option value="2">화</option>
+          <option value="3">수</option><option value="4">목</option><option value="5">금</option>
+        </select>
+        <select class="form-input" id="slotPeriod" style="flex:0 1 90px;">
+          <option value="">교시</option><option value="1">1교시</option><option value="2">2교시</option>
+          <option value="3">3교시</option><option value="4">4교시</option><option value="5">5교시</option>
+          <option value="6">6교시</option><option value="7">7교시</option>
+        </select>
+        <input class="form-input" id="slotStart" type="date" style="flex:0 1 170px;" aria-label="1차시 날짜">
+        <button class="btn-sub" onclick="window.saveClassSlot()">시간표 수정</button>
+      </div>
+      <div class="admin-grid" style="margin-top:8px;">
+        <span class="admin-lab">휴업일</span>
+        <input class="form-input" id="offdaysIn" placeholder="2026-09-24,2026-09-25" style="flex:1 1 300px;">
+        <button class="btn-sub" onclick="window.saveOffdays()">휴업일 저장</button>
+      </div>
+      <p class="admin-hint">
+        휴업일에 걸린 차시는 자동으로 다음 주로 밀립니다. 쉼표로 여러 날을 넣을 수 있습니다
+        (<code>YYYY-MM-DD</code>). 지금 넣어 둔 <b>9/24 · 9/25</b>는 추석 연휴로 잡은 것이니
+        학사일정과 다르면 고쳐 주세요.
+      </p>
     </div>
   </main>
 
@@ -537,8 +606,16 @@ body.is-admin .admin-tools { display: block; }
        진도표 — 데이터는 Q&A와 같은 파이어베이스에 /progress 아래로 들어간다.
 
        /progress/lessons/{id} : { unit, title, goal, sheet, sim, order }
-       /progress/classes/{id} : { name, done, order }     done = 마친 차시 수
+       /progress/classes/{id} : { name, done, order, day, period, start }
+                                done   = 마친 차시 수
+                                day    = 1(월)~5(금), period = 교시
+                                start  = 1차시 날짜 'YYYY-MM-DD'
        /progress/exam         : { label, date, from, to }
+       /progress/offdays      : '2026-09-24,2026-09-25'  — 수업이 없는 날
+
+       날짜를 차시마다 손으로 박아 두지 않고 start에서 한 주씩 세어 나간다.
+       반마다 주 1회니 그것으로 충분하고, 휴업일이 하루 생겼을 때 그 뒤 차시를
+       전부 고쳐 적을 필요가 없다 — offdays에 날짜 하나만 넣으면 알아서 밀린다.
 
        반의 진도를 '마친 차시 번호' 하나로 잡은 것은 의도적이다.
        칸을 하나하나 체크하게 만들면 아무도 갱신하지 않는다. 수업 끝나고
@@ -644,6 +721,7 @@ body.is-admin .admin-tools { display: block; }
     let lessons = [];   // [{ id, unit, title, goal, sheet, sim, order }] — order 순
     let classes = [];   // [{ id, name, done, order }]
     let exam = null;    // { label, date, from, to }
+    let offdays = new Set();   // 'YYYY-MM-DD' — 수업이 없는 날
     let picked = 'all'; // 'all' | classId
     let openUnits = {};
     let segCtl = null, firstPaint = true;
@@ -659,6 +737,7 @@ body.is-admin .admin-tools { display: block; }
             .map(([id, c]) => ({ id, ...c }))
             .sort((a, b) => (a.order || 0) - (b.order || 0));
         exam = v.exam || null;
+        offdays = new Set(String(v.offdays || '').split(',').map(s => s.trim()).filter(Boolean));
         if (picked !== 'all' && !classes.some(c => c.id === picked)) picked = 'all';
         render();
     }, (err) => {
@@ -667,6 +746,32 @@ body.is-admin .admin-tools { display: block; }
         loadError = /permission/i.test(err && err.message || '') ? 'denied' : 'network';
         render();
     });
+
+    /* ── 날짜 ────────────────────────────────────────────────────────── */
+    const DAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
+    const PERIOD_TIME = { 1: '08:20', 2: '09:20', 3: '10:20', 4: '11:20', 5: '13:10', 6: '14:10', 7: '15:10' };
+
+    const ymd = (d) => d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+    /* n차시가 며칠인지. start(1차시)에서 한 주씩 세되 휴업일은 건너뛴다.
+       — 세는 방식이라 중간에 휴일 하루가 끼면 그 뒤가 통째로 밀린다. */
+    function lessonDate(c, n) {
+        if (!c || !c.start || !(n > 0)) return null;
+        const d = new Date(c.start + 'T00:00:00');
+        if (isNaN(d.getTime())) return null;
+        let count = 0;
+        for (let i = 0; i < 400; i++) {           // 안전장치 — 무한 루프 금지
+            if (!offdays.has(ymd(d))) {
+                if (++count === n) return new Date(d);
+            }
+            d.setDate(d.getDate() + 7);
+        }
+        return null;
+    }
+    const fmtDate  = (d) => `${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_KO[d.getDay()]})`;
+    const fmtShort = (d) => `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${DAY_KO[d.getDay()]}`;
+    const fmtSlot  = (c) => (c && c.day) ? `${DAY_KO[c.day]} ${c.period}교시` : '';
 
     /* ── 그림 ────────────────────────────────────────────────────────── */
     function countUp(el, to, decimals) {
@@ -709,6 +814,7 @@ body.is-admin .admin-tools { display: block; }
         renderDash(total);
         renderPicker();
         renderUnits(total);
+        syncAdminInputs();
         if (window.Stratum) Stratum.reveal('.st-reveal');
         firstPaint = false;
     }
@@ -747,10 +853,29 @@ body.is-admin .admin-tools { display: block; }
 
         document.getElementById('dashTableBody').innerHTML = classes.map(c => {
             const d = Math.min(+c.done || 0, total);
-            return `<tr><td>${esc(c.name)}</td><td>${d}</td><td>${total}</td><td>${total ? (d / total * 100).toFixed(0) : 0}%</td></tr>`;
+            const nx = d < total ? lessonDate(c, d + 1) : null;
+            return `<tr><td>${esc(c.name)}</td><td>${esc(fmtSlot(c)) || '—'}</td>` +
+                   `<td>${d}/${total}</td><td>${total ? (d / total * 100).toFixed(0) : 0}%</td>` +
+                   `<td>${nx ? `${fmtShort(nx)} · ${d + 1}차시` : (d >= total && total ? '완료' : '—')}</td></tr>`;
         }).join('');
 
         renderExam(total);
+    }
+
+    /* 관리 입력칸은 지금 값을 담고 있어야 한다 — 빈 칸에 다시 적게 하면
+       고치려다 실수로 지우는 일이 생긴다. 사용자가 입력 중이면 건드리지 않는다. */
+    function syncAdminInputs() {
+        if (!isAdmin) return;
+        const off = document.getElementById('offdaysIn');
+        if (off && document.activeElement !== off) off.value = [...offdays].join(',');
+        const c = picked === 'all' ? null : classes.find(x => x.id === picked);
+        const d = document.getElementById('slotDay'), p = document.getElementById('slotPeriod'),
+              s = document.getElementById('slotStart');
+        if (!d) return;
+        if (document.activeElement === d || document.activeElement === p || document.activeElement === s) return;
+        d.value = c && c.day ? String(c.day) : '';
+        p.value = c && c.period ? String(c.period) : '';
+        s.value = c && c.start ? c.start : '';
     }
 
     function renderExam(total) {
@@ -782,7 +907,11 @@ body.is-admin .admin-tools { display: block; }
                     aria-selected="${picked === 'all'}" data-value="all">전체</button>` +
                 classes.map(c => `<button class="st-segmented__item${picked === c.id ? ' is-on' : ''}" role="tab"
                     aria-selected="${picked === c.id}" data-value="${esc(c.id)}">${esc(c.name)}</button>`).join('');
-            if (window.Stratum) segCtl = Stratum.segmented(el, (v) => { picked = v; renderUnits(lessons.length); });
+            if (window.Stratum) segCtl = Stratum.segmented(el, (v) => {
+                picked = v;
+                renderUnits(lessons.length);
+                syncAdminInputs();   // 고른 반의 시간표가 편집칸에 따라 들어와야 한다
+            });
         }
     }
 
@@ -811,6 +940,9 @@ body.is-admin .admin-tools { display: block; }
         const mine = picked === 'all'
             ? (classes.length ? Math.round(classes.reduce((a, c) => a + doneOf(c.id), 0) / classes.length) : 0)
             : doneOf(picked);
+        // 날짜는 반마다 다르다. 특정 반을 골랐을 때만 붙인다.
+        const cls = picked === 'all' ? null : classes.find(x => x.id === picked);
+        renderNextUp(cls, mine, total);
 
         // 처음 그릴 때는 '지금 배우는 단원'만 펼친다
         if (firstPaint || Object.keys(openUnits).length === 0) {
@@ -831,7 +963,7 @@ body.is-admin .admin-tools { display: block; }
                         doneIn === g.items.length ? '완료' : doneIn > 0 ? `진행 중 ${doneIn}/${g.items.length}` : '예정'}</span>
                 </button>
                 <div class="unit__body"><div class="unit__in">
-                    <ul class="lessons">${g.items.map(it => lessonRow(it, mine, total)).join('')}</ul>
+                    <ul class="lessons">${g.items.map(it => lessonRow(it, mine, total, cls)).join('')}</ul>
                 </div></div>
             </section>`;
         }).join('');
@@ -844,10 +976,32 @@ body.is-admin .admin-tools { display: block; }
         }));
     }
 
-    function lessonRow(it, mine, total) {
+    /* 고른 반의 '다음 수업' — 이 페이지에 오는 가장 큰 이유다. 맨 위에 세운다. */
+    function renderNextUp(cls, mine, total) {
+        const box = document.getElementById('nextup');
+        if (!cls) { box.hidden = true; return; }
+        box.hidden = false;
+        const n = mine + 1;
+        if (n > total) {
+            box.className = 'nextup is-done';
+            box.innerHTML = `<span class="nextup__cap">${esc(cls.name)}</span>
+                <span class="nextup__t">모든 차시를 마쳤습니다</span>`;
+            return;
+        }
+        const l = lessons[n - 1];
+        const d = lessonDate(cls, n);
+        box.className = 'nextup';
+        box.innerHTML = `<span class="nextup__cap">${esc(cls.name)} 다음 수업</span>` +
+            (d ? `<b class="nextup__d">${fmtDate(d)}</b>` : '<b class="nextup__d">날짜 미정</b>') +
+            (cls.day ? `<span class="nextup__p">${fmtSlot(cls)} · ${PERIOD_TIME[cls.period] || ''}</span>` : '') +
+            `<span class="nextup__t">${n}차시 · ${esc(l ? l.title : '')}</span>`;
+    }
+
+    function lessonRow(it, mine, total, cls) {
         const done = it.no <= mine;
         const now = it.no === mine + 1;
         const inExam = exam && exam.date && it.no >= (+exam.from || 1) && it.no <= (+exam.to || total);
+        const d = cls ? lessonDate(cls, it.no) : null;
 
         /* '전체'를 골랐을 때 —
            반이 적으면 칩을 하나씩 세워 어느 반이 어디까지인지 바로 보인다.
@@ -871,9 +1025,12 @@ body.is-admin .admin-tools { display: block; }
         if (it.sim)   links.push(link(it.sim, '시뮬레이터', 'M12 3a9 9 0 1 0 9 9 M12 3v9l6 3'));
         links.push(link(`qna.html?q=${encodeURIComponent(it.title || '')}`, '관련 질문', 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'));
 
-        return `<li class="lesson${inExam ? ' is-exam' : ''}">
+        return `<li class="lesson${inExam ? ' is-exam' : ''}${now ? ' is-next' : ''}">
             <div class="lesson__row">
-                <span class="lesson__no">${it.no}차시</span>
+                <div class="lesson__when">
+                    <span class="lesson__no">${it.no}차시</span>
+                    ${d ? `<span class="lesson__date">${fmtShort(d)}</span>` : ''}
+                </div>
                 ${stateCell}
                 <div class="lesson__main">
                     <span class="lesson__t">${esc(it.title)}</span>
@@ -1002,7 +1159,19 @@ body.is-admin .admin-tools { display: block; }
        이번 학기 차시와 반을 깔아 준다. 학습 목표는 일부러 비워 뒀다 —
        지어낸 문장이 공개 페이지에 남는 것보다 비어 있는 편이 낫다.
        (차시 행의 '수정'에서 제목과 학습 목표를 채울 수 있다.) */
-    const STARTER_CLASSES = Array.from({ length: 13 }, (_, i) => `${i + 1}반`);
+    /* 2026-2학기 시간표 (통사2C만 — 통사2D는 다른 과목이라 뺐다).
+       [요일, 교시] · 요일 1=월 … 5=금. 반마다 주 1회씩 정확히 맞아떨어진다. */
+    const TIMETABLE = {
+      '1반':  [2, 3], '2반':  [1, 1], '3반':  [5, 2], '4반':  [4, 7], '5반':  [5, 4],
+      '6반':  [2, 1], '7반':  [3, 2], '8반':  [2, 5], '9반':  [2, 6], '10반': [3, 6],
+      '11반': [4, 1], '12반': [1, 5], '13반': [1, 2]
+    };
+    /* 개학 8/18(화). 1주차(8/18~8/21)는 OT, 2주차부터 진도이므로
+       1차시는 요일별로 2주차의 그 요일이다. */
+    const FIRST_LESSON = { 1: '2026-08-24', 2: '2026-08-25', 3: '2026-08-26', 4: '2026-08-27', 5: '2026-08-28' };
+    const DEFAULT_OFFDAYS = '2026-09-24,2026-09-25';   // 추석 연휴 — 학사일정 보고 고칠 것
+
+    const STARTER_CLASSES = Object.keys(TIMETABLE);
     const STARTER = [
       ['세계화의 양상과 문제의 해결', '세계화의 양상 ① 공간적 분업과 세계도시'],
       ['세계화의 양상과 문제의 해결', '세계화의 양상 ② 문화의 세계화와 지역화'],
@@ -1020,10 +1189,57 @@ body.is-admin .admin-tools { display: block; }
                 ...STARTER.map((s, i) => push(lessonsRef, {
                     unit: s[0], title: s[1], goal: '', sheet: '', sim: '', order: i + 1
                 })),
-                ...(classes.length ? [] : STARTER_CLASSES.map((n, i) =>
-                    push(classesRef, { name: n, done: 0, order: i + 1 })))
+                ...(classes.length ? [] : STARTER_CLASSES.map((n, i) => {
+                    const [day, period] = TIMETABLE[n];
+                    return push(classesRef, { name: n, done: 0, order: i + 1, day, period, start: FIRST_LESSON[day] });
+                })),
+                set(dbRef(db, 'progress/offdays'), DEFAULT_OFFDAYS)
             ]).catch(saveFailed);
         });
+    };
+
+    /* 반은 이미 있는데 시간표만 없을 때(먼저 '첫 세팅'을 눌렀던 경우) 쓴다.
+       이름으로 찾아 요일·교시·1차시 날짜만 덮어쓴다 — 진도(done)는 건드리지 않는다. */
+    window.applyTimetable = function() {
+        if (!isAdmin) return;
+        AppModal.show({ type: 'confirm', title: '시간표 넣기',
+            msg: '13개 반의 요일·교시와 1차시 날짜를 시간표대로 채웁니다. 이미 기록한 진도는 그대로 둡니다.',
+            confirmText: '넣기' }, (ok) => {
+            if (!ok) return;
+            const jobs = [];
+            Object.keys(TIMETABLE).forEach((name, i) => {
+                const [day, period] = TIMETABLE[name];
+                const start = FIRST_LESSON[day];
+                const c = classes.find(x => x.name === name);
+                jobs.push(c
+                    ? update(dbRef(db, `progress/classes/${c.id}`), { day, period, start })
+                    : push(classesRef, { name, done: 0, order: i + 1, day, period, start }));
+            });
+            if (!offdays.size) jobs.push(set(dbRef(db, 'progress/offdays'), DEFAULT_OFFDAYS));
+            Promise.all(jobs).catch(saveFailed);
+        });
+    };
+
+    window.saveOffdays = function() {
+        if (!isAdmin) return;
+        const v = document.getElementById('offdaysIn').value
+            .split(',').map(s => s.trim()).filter(s => /^\d{4}-\d{2}-\d{2}$/.test(s));
+        set(dbRef(db, 'progress/offdays'), v.join(','))
+            .then(() => AppModal.show({ type: 'alert', msg: `휴업일 ${v.length}일을 저장했습니다. 그 뒤 차시가 한 주씩 밀립니다.` }))
+            .catch(saveFailed);
+    };
+
+    /* 고른 반 하나의 시간표만 고친다 — 반이 옮겨졌을 때 */
+    window.saveClassSlot = function() {
+        if (!isAdmin) return;
+        if (picked === 'all') { AppModal.show({ type: 'alert', msg: '시간표를 고칠 반을 먼저 골라 주세요.' }); return; }
+        const day = +document.getElementById('slotDay').value;
+        const period = +document.getElementById('slotPeriod').value;
+        const start = document.getElementById('slotStart').value;
+        if (!day || !period || !start) { AppModal.show({ type: 'alert', msg: '요일·교시·1차시 날짜를 모두 골라 주세요.' }); return; }
+        update(dbRef(db, `progress/classes/${picked}`), { day, period, start })
+            .then(() => AppModal.show({ type: 'alert', msg: '시간표를 고쳤습니다.' }))
+            .catch(saveFailed);
     };
 </script>
 
