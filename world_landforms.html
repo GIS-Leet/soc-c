@@ -9,13 +9,20 @@
   gtag('config', 'G-E1W226W5M4');
 </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>세계의 대지형과 특수 지형 — Geographia Archive</title>
 
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<!-- 디자인 시스템 -->
+<link rel="stylesheet" href="design-system/stratum.css">
+<link rel="stylesheet" href="design-system/geo.css">
+<link rel="stylesheet" href="design-system/sim.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -53,57 +60,33 @@
 
         *, *::before, *::after { box-sizing: border-box; }
 
-        body {
-            font-family: var(--sans);
-            background-color: var(--paper);
-            margin: 0; padding: 0;
-            color: var(--ink);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
+        
 
         /* Paper Grain Overlay */
-        body::before {
-            content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.5;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E");
-            mix-blend-mode: multiply;
-        }
-        body > * { position: relative; z-index: 2; }
+        
+        
         a { text-decoration: none; color: inherit; }
-        .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+        
 
         /* MASTHEAD */
-        .masthead {
-            background: rgba(244,240,232,0.82); backdrop-filter: blur(14px) saturate(1.2); border-bottom: 1px solid var(--line); position: relative; z-index: 9999; flex-shrink: 0;
-        }
-        .masthead-inner {
-            max-width: 1600px; margin: 0 auto; padding: 0 40px; height: 66px; display: flex; align-items: center; justify-content: space-between;
-        }
-        .brand { display: flex; align-items: center; gap: 13px; }
-        .brand-seal { width: 38px; height: 38px; color: var(--terra); flex-shrink: 0; }
-        .brand-text { display: flex; flex-direction: column; line-height: 1.05; }
-        .brand-text .ko { font-family: var(--serif); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.01em; color: var(--ink); }
-        .brand-text .en { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
-        .nav { display: flex; align-items: center; gap: 2px; }
-        .nav a { font-size: 0.84rem; font-weight: 600; color: var(--ink-2); padding: 8px 16px; border-radius: 100px; transition: all 0.25s var(--ease); }
-        .nav a:hover { color: var(--ink); background: rgba(26,23,20,0.05); }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         /* LAYOUT WRAPPER */
-        .dashboard-container {
-            display: flex; flex: 1; padding: 30px 40px; gap: 30px; max-width: 1600px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow: hidden;
-        }
+        
 
         /* 3D CANVAS (Map Frame) */
-        .canvas-wrapper {
-            flex: 3; position: relative; border: 1px solid var(--ink); background: var(--paper); padding: 4px; box-shadow: inset 0 0 0 1px var(--line), 6px 6px 0 rgba(26,23,20,0.06);
-            /* 고지도 필터(살짝만 — 실제 음영이 드러나도록) */
-            filter: sepia(0.07) contrast(0.98) saturate(1.06);
-        }
+        
         /* 3D 뷰포트와 라벨을 담는 무대 — 데스크톱에선 캔버스를 꽉 채우고, 모바일에선 설명 박스 위쪽에 별도 높이로 분리됨 */
-        .canvas-stage { position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; }
+        
         #webgl-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; outline: none; background: #1a1714; z-index: 1; }
 
         /* 3D 명칭 라벨 오버레이 */
@@ -120,19 +103,13 @@
         .map-label small { font-family: var(--serif); font-style: italic; font-weight: 500; color: var(--gold-soft); font-size: 0.7rem; }
 
         /* GUIDE BADGE */
-        .guide-badge {
-            position: absolute; top: 20px; left: 20px; background: var(--paper); border: 1px solid var(--ink); color: var(--ink);
-            font-family: var(--serif); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; padding: 8px 14px; pointer-events: none; display: flex; align-items: center; gap: 8px; z-index: 10; box-shadow: 2px 2px 0 rgba(26,23,20,0.1);
-        }
-        .guide-badge .ico { color: var(--terra); }
+        
+        
 
         /* 시네마틱 모드 오버레이 (Editorial Subtitle) */
         .scenario-caption { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); width: auto; max-width: 90%; z-index: 20; transition: all 0.5s var(--ease); }
-        .caption-box {
-            display: block; min-width: 440px; background: var(--ink); color: var(--paper); padding: 20px 26px 18px; border-radius: 4px; border: 1px solid var(--line);
-            font-family: var(--sans); box-shadow: 6px 6px 0 rgba(26,23,20,0.15); text-align: left;
-        }
-        .cap-top { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 12px; }
+        
+        
         .force-badge {
             font-family: var(--sans); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; padding: 4px 10px; border-radius: 100px; display: inline-flex; align-items: center; gap: 6px;
         }
@@ -140,16 +117,16 @@
         .force-in   { background: rgba(180,80,46,0.18);  color: #e9a986; }   /* 내적 작용 */
         .force-ex   { background: rgba(120,190,170,0.16); color: #8fd0bd; }   /* 외적 작용 */
         .force-both { background: rgba(200,165,90,0.18);  color: #e0c074; }   /* 복합 */
-        .cap-ex { font-family: var(--serif); font-style: italic; font-size: 0.78rem; color: var(--ink-faint); text-align: right; }
-        .cap-ex b { color: var(--gold-soft); font-style: normal; font-weight: 600; }
+        
+        
 
-        .caption-category { font-family: var(--serif); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 4px; display: block; text-transform: uppercase; }
-        .caption-title { font-family: var(--serif); font-size: 1.45rem; font-weight: 500; color: var(--terra-soft); margin-bottom: 12px; letter-spacing: -0.01em; }
+        
+        
 
         .stage-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
         .stage-tag { font-family: var(--serif); font-style: italic; font-size: 0.8rem; font-weight: 600; color: var(--gold-soft); background: rgba(154,123,63,0.25); padding: 2px 9px; border-radius: 3px; flex-shrink: 0; }
         .stage-name { font-family: var(--sans); font-size: 1.02rem; font-weight: 700; color: var(--paper); }
-        .caption-sub { font-size: 0.9rem; color: var(--ink-faint); font-weight: 400; line-height: 1.55; word-break: keep-all; min-height: 2.8em; }
+        
 
         /* 단계 컨트롤 (Stepper) */
         .stepper { display: flex; align-items: center; gap: 8px; margin-top: 15px; padding-top: 14px; border-top: 1px solid rgba(244,240,232,0.15); }
@@ -166,20 +143,18 @@
         .step-dots i.on { background: var(--gold-soft); transform: scale(1.15); }
 
         /* CURRICULUM PANEL (Controls) */
-        .controls-wrapper {
-            flex: 1; min-width: 380px; max-width: 450px; background: var(--surface); border: 1px solid var(--line); padding: 30px; position: relative; display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
-        }
-        .controls-wrapper::before, .controls-wrapper::after { content: ''; position: absolute; width: 8px; height: 8px; border-color: var(--ink-faint); opacity: 0.6; pointer-events: none; }
-        .controls-wrapper::before { top: 8px; left: 8px; border-left: 1px solid; border-top: 1px solid; }
-        .controls-wrapper::after  { bottom: 8px; right: 8px; border-right: 1px solid; border-bottom: 1px solid; }
+        
+        
+        
+        
 
-        .controls-wrapper::-webkit-scrollbar { width: 6px; }
-        .controls-wrapper::-webkit-scrollbar-track { background: var(--surface); }
-        .controls-wrapper::-webkit-scrollbar-thumb { background: var(--line); }
+        
+        
+        
 
-        .panel-header { border-bottom: 1px solid var(--ink); padding-bottom: 14px; margin-bottom: 6px; }
-        .panel-header h2 { margin: 0 0 5px 0; font-family: var(--serif); font-size: 1.35rem; font-weight: 500; display: flex; align-items: center; gap: 8px; color: var(--ink); letter-spacing: -0.01em; }
-        .panel-header p { margin: 0; font-family: var(--serif); font-style: italic; font-size: 0.85rem; color: var(--ink-3); line-height: 1.5; }
+        
+        
+        
 
         /* 내적/외적 작용 범례 */
         .legend { display: flex; gap: 16px; padding: 11px 14px; background: var(--paper); border: 1px solid var(--line); font-size: 0.78rem; color: var(--ink-2); }
@@ -189,85 +164,104 @@
         .legend .li-ex { background: #5aa78f; }
 
         /* 시나리오 버튼 (Ledger Entries) */
-        .action-btn {
-            background: var(--paper); border: 1px solid var(--line); padding: 15px 16px; cursor: pointer; color: var(--ink); transition: 0.2s var(--ease); display: flex; align-items: center; gap: 15px; font-family: var(--sans); text-align: left;
-        }
-        .action-btn:hover { background: var(--paper-2); border-color: var(--ink); transform: translateX(4px); }
-        .action-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); box-shadow: 4px 4px 0 rgba(26,23,20,0.08); transform: translateX(4px); }
+        
+        
+        
 
         .step-num { font-family: var(--serif); font-size: 1.2rem; font-style: italic; font-weight: 600; color: var(--terra); width: 22px; text-align: center; flex-shrink: 0; }
-        .action-btn.active .step-num { color: var(--gold-soft); }
+        
 
         .step-info { display: flex; flex-direction: column; gap: 4px; flex: 1; }
         .step-info .row1 { display: flex; align-items: center; gap: 8px; }
         .step-info b { font-family: var(--serif); font-size: 1.02rem; font-weight: 600; letter-spacing: -0.01em; }
         .step-info span.sub { font-size: 0.79rem; color: var(--ink-3); }
-        .action-btn.active .step-info span.sub { color: var(--ink-faint); }
+        
         .force-tag { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.02em; padding: 2px 7px; border-radius: 100px; flex-shrink: 0; }
         .tag-in   { background: var(--terra-soft); color: var(--terra); }
         .tag-ex   { background: #d9ece5; color: #2f6b58; }
         .tag-both { background: var(--gold-soft); color: var(--gold); }
-        .action-btn.active .force-tag { filter: brightness(1.05); }
+        
 
         @media (max-width: 1200px) {
             /* 모바일/태블릿: 100vh 함정을 피하려 페이지를 자연스럽게 스크롤되게 함 */
-            body { height: auto; min-height: 100vh; overflow: visible; display: block; }
-            .dashboard-container { flex-direction: column; height: auto; overflow: visible; padding: 20px; gap: 18px; }
-            .controls-wrapper { max-width: 100%; flex: none; max-height: none; }
+            
+            
+            
             /* 검은 설명 박스가 지형을 가리지 않도록 3D 화면(위)과 설명(아래)을 세로로 분리함 */
-            .canvas-wrapper { flex: none; height: auto; display: flex; flex-direction: column; }
-            .canvas-stage { position: relative; top: auto; left: auto; right: auto; bottom: auto; width: 100%; height: 62vh; height: 62dvh; min-height: 340px; flex: none; }
+            
+            
             .scenario-caption { position: relative; left: auto; bottom: auto; transform: none; width: 100%; max-width: 100%; margin-top: 10px; }
-            .caption-box { min-width: 0; max-width: 100%; }
+            
         }
         @media (max-width: 600px) {
-            .masthead-inner { padding: 0 20px; }
+            
             /* 좁은 화면에서 안내배지·예시문구·라벨이 캔버스 밖으로 넘치지 않도록 축소 */
-            .guide-badge { font-size: 0.66rem; padding: 6px 9px; top: 12px; left: 12px; }
-            .cap-ex { display: none; }
+            
+            
             .map-label { font-size: 0.68rem; padding: 4px 8px; }
-            .caption-box { padding: 14px 16px; }
-            .caption-title { font-size: 1.1rem; }
-            .caption-sub { font-size: 0.82rem; }
+            
+            
+            
             .stage-name { font-size: 0.92rem; }
         }
     
     /* ── 모바일 상단 메뉴 정돈 (공통) ── */
     @media (max-width: 640px) {
-        .masthead-inner { padding: 0 12px; height: 56px; }
-        .brand { gap: 9px; }
-        .brand-seal { width: 29px; height: 29px; }
-        .brand-text .ko { font-size: 0.86rem; }
-        .brand-text .en { display: none; }
-        .nav { gap: 0; }
-        .nav a { padding: 7px 9px; font-size: 0.76rem; letter-spacing: -0.02em; }
-        .theme-toggle { width: 30px; height: 30px; margin-left: 4px; }
+        
+        
+        
+        
+        
+        
+        
+        
     }
+
+
+/* ── 옛 변수 → 새 토큰 (geo.css/stratum.css 뒤에 오도록 맨 끝에 둔다) ── */
+:root{
+  --sans:'Space Grotesk','Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  --serif:var(--sans);
+  --ease:cubic-bezier(0.22,1,0.36,1);
+  --ink:var(--st-label); --ink-2:var(--st-label-2); --ink-3:var(--st-label-3);
+  --ink-faint:var(--st-label-3);
+  --paper:var(--st-bedrock); --paper-2:var(--st-bedrock-sunken);
+  --surface:var(--st-surface); --bg:var(--st-bedrock);
+  --line:var(--st-separator); --line-soft:var(--st-separator);
+  --terra:var(--st-accent); --terra-soft:var(--st-accent-soft);
+  --sea:var(--st-blue); --gold:var(--st-warning); --gold-soft:var(--st-warning-soft);
+  --bg-deep:var(--st-bedrock); --panel-bg:var(--st-surface); --panel-border:var(--st-separator);
+  --text-main:var(--st-label); --text-sub:var(--st-label-2);
+  --neon-blue:var(--st-blue); --neon-purple:var(--st-purple);
+  --neon-green:var(--st-green); --neon-red:var(--st-red);
+  --radius:var(--st-r-container);
+}
 </style>
 </head>
 <body>
-    <header class="masthead">
-        <div class="masthead-inner">
-            <a href="index.html" class="brand">
-                <svg class="brand-seal ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="24" cy="24" r="20"/>
-                    <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
-                    <path d="M24 4v40M4 24h40"/>
-                    <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
-                    <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
-                </svg>
-                <span class="brand-text">
-                    <span class="ko">Leet's Geographia Class</span>
-                    <span class="en">Geographia&nbsp;·&nbsp;KGGHS</span>
-                </span>
-            </a>
-            <nav class="nav">
-                <a href="index.html">홈</a>
-                <a href="library.html">자료실</a>
-                <a href="qna.html">Q&amp;A 게시판</a>
-            </nav>
-        </div>
-    </header>
+    <header class="st-glass st-bar">
+    <div class="geo-bar__in">
+      <a class="geo-logo lg" href="index.html" aria-label="Geographia 홈">
+        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+        <b>Geographia</b>
+      </a>
+      <nav class="geo-nav">
+        <a class="lg" href="library.html">자료실</a>
+        <a class="lg" href="qna.html">Q&amp;A</a>
+        <a class="lg" href="project_guide.html">프로젝트</a>
+        <a class="lg" href="feedback.html">건의</a>
+      </nav>
+      <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
 
     <div class="dashboard-container">
         <div class="canvas-wrapper">
@@ -934,5 +928,54 @@
             if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
         });
     </script>
+<div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
+  <div class="geo-menu__top">
+    <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
+      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+      <b>Geographia</b>
+    </a>
+    <button class="geo-close" id="geoClose" aria-label="메뉴 닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="geo-menu__links">
+    <a class="lg" href="library.html">자료실</a>
+    <a class="lg" href="qna.html">Q&amp;A</a>
+    <a class="lg" href="project_guide.html">프로젝트</a>
+    <a class="lg" href="feedback.html">건의</a>
+  </div>
+  <div class="geo-group">
+    <h3>공간 시뮬레이터</h3>
+    <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
+    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
+    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+  </div>
+  <div class="geo-group">
+    <h3>수업 · 지원</h3>
+    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
+  </div>
+  <div class="geo-menu__foot">
+    <a class="geo-menu__cta lg" href="index.html">홈으로 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+    <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
+      <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="design-system/stratum.js"></script>
+<script src="design-system/geo.js"></script>
 </body>
 </html>
