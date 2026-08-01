@@ -45,21 +45,9 @@
   --serif: var(--sans);
   --terra: var(--st-danger-ink);
   --terra-soft: var(--st-danger-soft);
-
-  /* ── 그래프 색 ──
-     '답변 완료 / 답변 전'은 정체성(카테고리)이 아니라 상태다. 그래서 목록의
-     상태 칩과 똑같은 초록·회색을 쓴다 — 색이 가리키는 대상이 같아야 한다.
-     흰 배경(#ffffff) 기준으로 검산한 값이다: 색각 이상 분리 ΔE 10.6(deutan),
-     정상 시각 17.2, 배경 대비 3:1 이상. 회색은 '대기'라는 뜻이므로 채도가
-     없는 것이 의도다. */
-  --c-done: #1f8f43;
-  --c-wait: #8e8e93;
 }
-/* 다크는 뒤집는 게 아니라 그 배경(#1c1c1e)에서 다시 고른 값이다 */
-:root[data-theme="dark"] { --c-done: #28ad4b; --c-wait: #84848a; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) { --c-done: #28ad4b; --c-wait: #84848a; }
-}
+/* 패널 · 미터 · 범례 · 상태 칩 · 히어로 숫자 · 첫 화면 대기광은 geo.css에 있다
+   (진도표 페이지와 함께 쓴다). 여기에는 이 게시판만의 것만 둔다. */
 
 .sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
 
@@ -96,52 +84,6 @@
   letter-spacing: var(--track-ko);
 }
 
-/* ══════════ 페이지 머리의 깊이 ══════════
-   납작한 흰 화면에 공기를 넣는다. 대기광 두 겹과, 아주 느리게 도는 나침반 씰.
-   둘 다 z-index 음수라 글자 뒤에 있고, 클릭을 가로채지 않는다. */
-.head-aura {
-  position: absolute; inset: -34% -6% auto -18%; height: 640px; z-index: -2;
-  pointer-events: none;
-  background:
-    radial-gradient(42% 56% at 14% 34%, rgba(0,136,255,0.17), transparent 68%),
-    radial-gradient(38% 50% at 70% 6%,  rgba(97,85,245,0.13), transparent 70%),
-    radial-gradient(32% 46% at 48% 66%, rgba(52,199,89,0.09), transparent 72%);
-  filter: blur(10px);
-}
-.head-seal {
-  position: absolute; right: 0; top: clamp(30px, 5vw, 66px);
-  width: clamp(160px, 26vw, 300px); height: clamp(160px, 26vw, 300px);
-  z-index: -1; color: var(--accent); opacity: 0.07; pointer-events: none;
-  animation: sealSpin 120s linear infinite;
-}
-@keyframes sealSpin { to { transform: rotate(360deg); } }
-@media (max-width: 700px) { .head-seal { opacity: 0.05; top: auto; bottom: -20px; } }
-
-/* ══════════ 현황 패널 ══════════ */
-.panel {
-  position: relative; margin-top: clamp(24px, 3.4vw, 40px);
-  background: var(--st-surface); border: 1px solid var(--st-separator);
-  border-radius: var(--st-r-page); box-shadow: var(--st-shadow-med);
-}
-.panel__head {
-  display: flex; align-items: center; gap: 12px;
-  padding: 15px clamp(18px, 2.4vw, 26px);
-  border-bottom: 1px solid var(--st-separator);
-}
-.panel__cap {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--st-label-3);
-}
-.panel__spacer { flex: 1; }
-.panel__toggle {
-  font-size: 11.5px; font-weight: 600; color: var(--st-label-3);
-  padding: 6px 12px; border-radius: var(--st-r-full); letter-spacing: var(--track-ko);
-  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease);
-}
-.panel__toggle:hover { background: var(--st-fill-2); color: var(--st-label); }
-.panel__toggle[aria-pressed="true"] { background: var(--st-accent-soft); color: var(--accent-ink); }
-
 /* 답변률 · 월별 기둥 · 안내 — 세 칸. 기둥 그래프는 달 수만큼만 넓어지므로
    그 오른쪽에 늘 여백이 남는다. 안내를 그 자리에 넣어 판을 다 쓴다. */
 .dash { display: grid; grid-template-columns: minmax(0, 268px) minmax(0, 404px) minmax(0, 1fr); }
@@ -159,32 +101,6 @@
   .dash { grid-template-columns: 1fr; }
   .dash__rate { border-right: 0; border-bottom: 1px solid var(--st-separator); }
 }
-
-/* 이 화면이 이끄는 단 하나의 숫자. 비례 숫자(tnum 아님) — 큰 활자에서
-   모든 자리를 0폭으로 맞추면 '121' 같은 수가 헐렁해 보인다. */
-.rate__n {
-  font-size: clamp(2.6rem, 7vw, 3.6rem); font-weight: 600; line-height: 1;
-  letter-spacing: -0.035em; color: var(--st-label);
-}
-.rate__n i { font-style: normal; font-size: 0.4em; font-weight: 600;
-             letter-spacing: -0.01em; color: var(--st-label-3); margin-left: 3px; }
-.rate__l { margin-top: 9px; font-size: 12.5px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
-
-/* 미터 — 두 조각 사이는 선이 아니라 2px의 '면 색' 틈이 가른다 */
-.meter { display: flex; gap: 2px; height: 10px; margin-top: 20px; }
-.meter__seg { height: 100%; min-width: 3px; transition: width 760ms var(--st-spring-smooth); }
-.meter__seg--done { background: var(--c-done); border-radius: 5px 0 0 5px; }
-.meter__seg--wait { background: var(--c-wait); border-radius: 0 5px 5px 0; }
-.meter[data-wait="0"] .meter__seg--done { border-radius: 5px; }
-.meter[data-wait="0"] .meter__seg--wait { display: none; }
-
-.legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; }
-.legend span { display: inline-flex; align-items: center; gap: 7px;
-               font-size: 12px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
-.legend i { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
-.legend b { color: var(--st-label); font-weight: 700; font-variant-numeric: tabular-nums; }
-.legend .k--done { background: var(--c-done); }
-.legend .k--wait { background: var(--c-wait); }
 
 .dash__title { font-size: 12.5px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label); }
 .dash__sub { margin-top: 4px; font-size: 11px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
@@ -264,15 +180,6 @@
 .dtable-wrap { display: none; margin-top: 18px; overflow-x: auto; }
 .panel.is-table .dtable-wrap { display: block; }
 .panel.is-table .chart { display: none; }
-.dtable { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.dtable th, .dtable td { padding: 9px 12px; text-align: right; font-size: 12.5px;
-                         border-bottom: 1px solid var(--st-separator); letter-spacing: var(--track-ko); }
-.dtable th { font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-             text-transform: uppercase; color: var(--st-label-3); }
-.dtable th:first-child, .dtable td:first-child { text-align: left; }
-.dtable tfoot td { font-weight: 700; border-bottom: 0; }
-.dtable td { color: var(--st-label-2); }
-.dtable td:first-child, .dtable tfoot td { color: var(--st-label); }
 
 /* ══════════ 최근 답변 ══════════
    게시판은 '목록'이라 훑기는 좋지만 들여다볼 이유를 주지 않는다.
@@ -767,6 +674,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
       </a>
       <nav class="geo-nav">
         <a class="lg" href="library.html">자료실</a>
+        <a class="lg" href="progress.html">진도표</a>
         <a class="lg on" href="qna.html">Q&amp;A</a>
         <a class="lg" href="simulators.html">시뮬레이터</a>
         <a class="lg" href="feedback.html">건의</a>
@@ -978,6 +886,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
   </div>
   <div class="geo-menu__links">
     <a class="lg" href="library.html">자료실</a>
+    <a class="lg" href="progress.html">진도표</a>
     <a class="lg" href="qna.html">Q&amp;A</a>
     <a class="lg" href="simulators.html">시뮬레이터</a>
     <a class="lg" href="feedback.html">건의</a>

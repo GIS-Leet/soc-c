@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-E1W226W5M4');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<title>진도표 — 통합사회 C</title>
+<meta name="description" content="경기여자고등학교 통합사회 C · 반별 수업 진도와 계획, 시험 범위">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<link rel="stylesheet" href="design-system/stratum.css">
+<link rel="stylesheet" href="design-system/geo.css">
+
+<style>
+/* ============================================================================
+   진도표 — 페이지 전용
+   ----------------------------------------------------------------------------
+   패널·미터·범례·상태 칩·히어로 숫자는 geo.css의 공용 조각을 쓴다.
+   여기에는 이 페이지만의 것 — 반별 가로 막대와 차시 목록 — 만 둔다.
+
+   이 페이지가 답해야 하는 질문은 딱 두 개다.
+     "우리 반 어디까지 나갔어요?"  "시험 범위 어디까지예요?"
+   나머지는 전부 그 두 개를 방해하지 않는 선에서만 존재한다.
+   ========================================================================== */
+
+.sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
+
+/* ── 페이지 머리 ── */
+.sheet-head { position: relative; padding-block: clamp(38px, 6.5vw, 82px) clamp(18px, 2.4vw, 28px); }
+.sheet-num {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+  text-transform: uppercase; color: var(--accent-ink);
+}
+.sheet-title {
+  margin-top: 12px;
+  font-size: clamp(2.4rem, 9vw, 6rem); line-height: 0.9;
+  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
+}
+.sheet-meta { margin-top: 16px; max-width: 46ch; font-size: clamp(0.875rem, 1.3vw, 1rem);
+              line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+
+.admin-header-row { position: absolute; top: clamp(38px, 6.5vw, 82px); right: 0;
+                    display: flex; align-items: flex-start; gap: 8px; }
+.admin-login-box { display: none; }
+.admin-login-box input {
+  width: 130px; height: 34px; padding: 0 12px;
+  background: var(--st-surface); color: var(--st-label);
+  border: 1px solid var(--st-border-control); border-radius: var(--st-r-full);
+  font-size: 13px; letter-spacing: 0;
+}
+.admin-login-box input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); }
+.admin-login-box button {
+  height: 34px; padding: 0 14px; border-radius: var(--st-r-full);
+  background: var(--st-accent-solid); color: #fff; font-size: 12px; font-weight: 600;
+  letter-spacing: var(--track-ko);
+}
+
+/* ── 버튼 ── */
+.btn-solid, .btn-outline, .btn-sub {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: 36px; padding: 0 16px; border-radius: var(--st-r-full);
+  font-size: 12.5px; font-weight: 600; letter-spacing: var(--track-ko);
+  white-space: nowrap; cursor: pointer;
+  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease),
+              border-color var(--st-dur-fast) var(--st-ease), transform var(--st-dur-instant) var(--st-ease);
+}
+.btn-solid { background: var(--st-accent-solid); color: #fff; }
+.btn-solid:hover { background: var(--st-accent-hover); }
+.btn-outline { background: transparent; color: var(--st-label);
+               border: 1px solid var(--st-border-control); height: 34px; padding: 0 14px; font-size: 12px; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent-ink); }
+.btn-outline.active { background: var(--st-accent-solid); color: #fff; border-color: transparent; }
+.btn-sub { background: var(--st-fill-2); color: var(--st-label-2); }
+.btn-sub:hover { background: var(--st-fill); color: var(--st-label); }
+.btn-solid:active, .btn-outline:active, .btn-sub:active { transform: scale(0.97); }
+.btn-solid:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ══════════ 현황 패널 — 진도율 · 반별 막대 · 시험 범위 ══════════ */
+.dash { display: grid; grid-template-columns: minmax(0, 268px) minmax(0, 1fr) minmax(0, 300px); }
+.dash__rate  { padding: clamp(20px, 2.6vw, 28px); border-right: 1px solid var(--st-separator); }
+.dash__bars  { padding: clamp(20px, 2.6vw, 28px); min-width: 0; }
+.dash__exam  { padding: clamp(20px, 2.6vw, 28px); min-width: 0;
+               border-left: 1px solid var(--st-separator); }
+@media (max-width: 1060px) {
+  .dash { grid-template-columns: minmax(0, 268px) minmax(0, 1fr); }
+  .dash__exam { grid-column: 1 / -1; border-left: 0; border-top: 1px solid var(--st-separator); }
+}
+@media (max-width: 800px) {
+  .dash { grid-template-columns: 1fr; }
+  .dash__rate { border-right: 0; border-bottom: 1px solid var(--st-separator); }
+}
+.dash__title { font-size: 12.5px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label); }
+.dash__sub { margin-top: 4px; font-size: 11px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+
+/* ── 반별 가로 막대 ──
+   같은 값(진도율)을 반끼리 견주는 것이므로 한 색이다. 반마다 색을 달리하면
+   막대 길이가 이미 말하고 있는 것을 색이 한 번 더 말하게 되어 채널만 낭비된다. */
+.hbars { margin-top: 18px; display: flex; flex-direction: column; gap: 11px; }
+.hbar { display: grid; grid-template-columns: 52px minmax(0, 1fr) 64px; align-items: center; gap: 12px; }
+.hbar__n { font-size: 12px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label);
+           overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar__track { height: 10px; border-radius: 5px; background: var(--st-fill-3); overflow: hidden; }
+.hbar__fill {
+  height: 100%; border-radius: 5px; background: var(--c-done); min-width: 3px;
+  transform-origin: left center;
+  animation: hbarGrow 720ms var(--st-spring-smooth) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.hbar__fill[data-zero="1"] { min-width: 0; }
+@keyframes hbarGrow { from { width: 0; } }
+@media (prefers-reduced-motion: reduce) { .hbar__fill { animation: none; } }
+.hbar__v { font-size: 11.5px; color: var(--st-label-2); text-align: right;
+           font-variant-numeric: tabular-nums; letter-spacing: var(--track-ko); }
+.hbar__v b { color: var(--st-label); font-weight: 700; }
+
+/* 표로 보기 — 막대 자리에서만 갈아 끼운다 */
+.dtable-wrap { display: none; margin-top: 18px; overflow-x: auto; }
+.panel.is-table .dtable-wrap { display: block; }
+.panel.is-table .hbars { display: none; }
+
+/* ── 시험 범위 ── */
+.exam { margin-top: 16px; }
+.exam__d {
+  display: flex; align-items: baseline; gap: 8px;
+  font-size: clamp(1.6rem, 4vw, 2.1rem); font-weight: 600; line-height: 1;
+  letter-spacing: -0.03em; color: var(--st-label);
+}
+.exam__d small { font-size: 0.44em; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.exam__when { margin-top: 8px; font-size: 12px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.exam__range {
+  margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--st-separator);
+  font-size: 12.5px; line-height: 1.7; color: var(--st-label); letter-spacing: var(--track-ko);
+  word-break: keep-all;
+}
+.exam__range b { color: var(--accent-ink); font-weight: 700; }
+.exam__none { margin-top: 16px; font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+
+/* ══════════ 반 고르기 ══════════ */
+.picker {
+  position: sticky; top: var(--bar-h); z-index: 20;
+  margin-top: clamp(26px, 3.6vw, 44px); padding-block: 12px 13px;
+  background: var(--st-bedrock);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.picker::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+                 background: var(--st-separator); }
+.picker__l { font-size: 11px; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.picker__spacer { flex: 1; }
+.picker .st-segmented__item { letter-spacing: var(--track-ko); }
+
+/* ══════════ 단원 · 차시 ══════════ */
+.unit { margin-top: 20px; }
+.unit[hidden] { display: none; }
+.unit__head {
+  width: 100%; display: flex; align-items: center; gap: 11px;
+  padding: 12px 14px; border-radius: var(--st-r-container);
+  background: var(--st-fill-3); text-align: left;
+  transition: background var(--st-dur-fast) var(--st-ease);
+}
+.unit__head:hover { background: var(--st-fill-2); }
+.unit__head:focus-visible { outline: none; box-shadow: var(--st-ring); }
+.unit__chev { color: var(--st-label-3); flex-shrink: 0;
+              transition: transform var(--st-spring-snappy-dur) var(--st-spring-snappy); }
+.unit.is-open .unit__chev { transform: rotate(90deg); }
+.unit__n { font-size: 13.5px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label); }
+.unit__c { font-size: 12px; color: var(--st-label-3); font-variant-numeric: tabular-nums;
+           letter-spacing: var(--track-ko); }
+.unit__spacer { flex: 1; }
+.unit__body { display: grid; grid-template-rows: 0fr;
+              transition: grid-template-rows var(--st-spring-smooth-dur) var(--st-spring-smooth); }
+.unit.is-open .unit__body { grid-template-rows: 1fr; }
+.unit__in { overflow: hidden; }
+
+.lessons { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--st-separator); }
+.lesson { border-bottom: 1px solid var(--st-separator); }
+/* 차시번호 · 상태 레일 · 내용 · (관리자) 버튼.
+   상태 레일은 반 칩 두 개가 나란히 들어갈 만큼은 넓어야 한다 — 더 좁으면
+   칩이 세로로 쌓여 줄 높이가 두 배가 된다. */
+.lesson__row {
+  position: relative;
+  display: grid; grid-template-columns: 56px 124px minmax(0, 1fr) auto;
+  align-items: center; gap: 14px; padding: 13px 12px; min-height: 44px;
+  transition: background var(--st-dur-fast) var(--st-ease);
+}
+.lesson__row:hover { background: var(--st-fill-3); }
+.lesson.is-exam .lesson__row::before {
+  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px;
+  border-radius: 2px; background: var(--accent);
+}
+.lesson__no { font-size: 12px; font-weight: 700; color: var(--st-label-3);
+              font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.lesson__main { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.lesson__t { font-size: 14.5px; font-weight: 600; letter-spacing: var(--track-ko); color: var(--st-label);
+             word-break: keep-all; }
+.lesson__g { font-size: 11.5px; line-height: 1.6; color: var(--st-label-3);
+             letter-spacing: var(--track-ko); word-break: keep-all; }
+.lesson__links { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+.lesson__link {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: var(--st-r-full);
+  background: var(--st-fill-2); color: var(--st-label-2);
+  font-size: 10.5px; font-weight: 600; letter-spacing: var(--track-ko);
+  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease);
+}
+.lesson__link:hover { background: var(--st-accent-soft); color: var(--accent-ink); }
+.lesson__link svg { width: 11px; height: 11px; }
+.lesson__classes { display: flex; gap: 4px; flex-wrap: wrap; }
+.lesson__cls {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: var(--st-r-full);
+  font-size: 10px; font-weight: 700; letter-spacing: var(--track-ko);
+  background: var(--st-fill-2); color: var(--st-label-3);
+}
+.lesson__cls.is-done { background: var(--st-success-soft); color: var(--st-success-ink); }
+.lesson__admin { display: none; gap: 6px; justify-content: flex-end; }
+body.is-admin .lesson__admin { display: flex; }
+.action-txt {
+  padding: 4px 10px; border-radius: var(--st-r-full);
+  font-size: 11px; font-weight: 600; letter-spacing: var(--track-ko); color: var(--st-label-3);
+  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease);
+}
+.action-txt:hover { background: var(--st-fill-2); color: var(--st-label); }
+.action-txt.mark:hover { background: var(--st-accent-soft); color: var(--accent-ink); }
+.action-txt.delete:hover { background: var(--st-danger-soft); color: var(--st-danger-ink); }
+
+@media (max-width: 760px) {
+  .lesson__row { grid-template-columns: 40px minmax(0, 1fr);
+                 grid-template-areas: "no main" ". state" ". admin"; row-gap: 8px; }
+  .lesson__no { grid-area: no; }
+  .lesson__main { grid-area: main; }
+  .lesson__state, .lesson__classes { grid-area: state; justify-self: start; justify-content: flex-start; }
+  .lesson__admin { grid-area: admin; justify-content: flex-start; }
+}
+
+/* ══════════ 빈 상태 · 관리 ══════════ */
+.empty { padding: 60px 14px; text-align: center; }
+.empty b { display: block; font-size: 15px; font-weight: 600; color: var(--st-label);
+           letter-spacing: var(--track-ko); }
+.empty span { display: block; margin-top: 8px; font-size: 12.5px; color: var(--st-label-3);
+              letter-spacing: var(--track-ko); line-height: 1.8; }
+.empty code { font-family: var(--st-font-mono); font-size: 11.5px; letter-spacing: 0;
+              background: var(--st-fill-2); color: var(--st-label); border-radius: 4px; padding: 2px 6px; }
+.empty .btn-solid { margin-top: 18px; }
+.empty[hidden] { display: none; }
+
+.admin-tools { display: none; margin-top: 20px; padding: clamp(16px, 2.2vw, 22px);
+               background: var(--st-surface); border: 1px solid var(--accent);
+               border-radius: var(--st-r-container); box-shadow: var(--st-shadow-low); }
+body.is-admin .admin-tools { display: block; }
+.admin-tools h3 { font-size: 11px; font-weight: 600; letter-spacing: var(--track-wide);
+                  text-transform: uppercase; color: var(--accent-ink); margin-bottom: 12px; }
+.admin-grid { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.form-input {
+  padding: 9px 12px; background: var(--st-bedrock); color: var(--st-label);
+  border: 1px solid var(--st-separator); border-radius: var(--st-r-element);
+  font-family: inherit; font-size: 13px; letter-spacing: var(--track-ko); min-width: 0;
+  transition: border-color var(--st-dur-fast) var(--st-ease), box-shadow var(--st-dur-fast) var(--st-ease);
+}
+.form-input::placeholder { color: var(--st-label-3); }
+.form-input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); background: var(--st-surface); }
+.admin-hint { margin-top: 10px; font-size: 11.5px; line-height: 1.7; color: var(--st-label-3);
+              letter-spacing: var(--track-ko); }
+
+/* ── 모달 ── */
+.custom-modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 120;
+  background: rgba(0,0,0,0.42); backdrop-filter: blur(3px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.custom-modal-box {
+  width: 100%; max-width: 400px; padding: 26px; border-radius: var(--st-r-page);
+  background: var(--st-glass-sheen), var(--st-mat-thick-bg);
+  -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur);
+  box-shadow: inset 0 0.5px 0 0 var(--st-glass-specular),
+              inset 0 0 0 0.5px var(--st-glass-rim), var(--st-shadow-high);
+  animation: modalIn var(--st-spring-snappy-dur) var(--st-spring-snappy) both;
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(0.94) translateY(8px); } to { opacity: 1; transform: none; } }
+.custom-modal-box h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; color: var(--st-label); }
+.custom-modal-box p { margin-top: 8px; font-size: 13.5px; line-height: 1.7;
+                      color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.custom-modal-box input {
+  display: none; width: 100%; margin-top: 14px; padding: 11px 14px;
+  background: var(--st-surface); color: var(--st-label);
+  border: 1px solid var(--st-border-control); border-radius: var(--st-r-element);
+  font-family: inherit; font-size: 14px;
+}
+.custom-modal-box input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); }
+.custom-modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.custom-modal-actions button { height: 38px; padding: 0 18px; border-radius: var(--st-r-full);
+                               font-size: 13px; font-weight: 600; letter-spacing: var(--track-ko); }
+.custom-modal-actions .cancel { background: var(--st-fill-2); color: var(--st-label-2); }
+.custom-modal-actions .cancel:hover { background: var(--st-fill); color: var(--st-label); }
+.custom-modal-actions .confirm { background: var(--st-accent-solid); color: #fff; }
+.custom-modal-actions .confirm:hover { background: var(--st-accent-hover); }
+
+.ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .unit__body { transition-duration: 1ms; }
+  .unit__chev { transition-duration: 1ms; }
+  .custom-modal-box { animation: none; }
+}
+</style>
+</head>
+<body>
+
+  <header class="st-glass st-bar">
+    <div class="geo-bar__in">
+      <a class="geo-logo lg" href="index.html" aria-label="Geographia 홈">
+        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+        <b>Geographia</b>
+      </a>
+      <nav class="geo-nav">
+        <a class="lg" href="library.html">자료실</a>
+        <a class="lg on" href="progress.html">진도표</a>
+        <a class="lg" href="qna.html">Q&amp;A</a>
+        <a class="lg" href="simulators.html">시뮬레이터</a>
+        <a class="lg" href="feedback.html">건의</a>
+      </nav>
+      <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="sheet">
+    <div class="sheet-head">
+      <div class="head-aura" aria-hidden="true"></div>
+      <svg class="head-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="24" cy="24" r="22"/>
+        <circle cx="24" cy="24" r="20"/>
+        <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+        <circle cx="24" cy="24" r="8"/>
+        <path d="M24 2v44M2 24h44"/>
+        <path d="M24 10l4.5 14L24 20.5 19.5 24z" fill="currentColor" stroke="none"/>
+        <path d="M24 38l-4.5-14L24 27.5 28.5 24z" opacity="0.45" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="sheet-num"><i class="st-dot st-dot--live"></i>수업 진도 · 계획</span>
+      <h1 class="sheet-title">Progress</h1>
+      <p class="sheet-meta" id="headMeta">우리 반이 어디까지 나갔는지, 다음 시간에 무엇을 하는지,<br>시험 범위가 어디까지인지 한 곳에서 확인하세요.</p>
+
+      <div class="admin-header-row">
+        <button id="adminBtn" class="btn-outline" onclick="window.toggleAdminPanel()">관리자</button>
+        <div class="admin-login-box" id="adminLoginBox">
+          <div style="display:flex; gap:6px;">
+            <input type="password" id="adminPwInput" placeholder="관리자 암호" onkeypress="window.handlePwKeyPress(event)">
+            <button onclick="window.loginAdmin()">확인</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 현황 -->
+    <section class="panel st-reveal" id="dashPanel" aria-labelledby="dashCap">
+      <div class="panel__head">
+        <span class="panel__cap" id="dashCap"><i class="st-dot st-dot--live"></i><span id="semLabel">진도 현황</span></span>
+        <span class="panel__spacer"></span>
+        <button class="panel__toggle" id="tableToggle" type="button" aria-pressed="false"
+                aria-controls="dashTable" onclick="window.toggleDashTable()">표로 보기</button>
+      </div>
+
+      <div class="dash">
+        <div class="dash__rate">
+          <div class="rate__n"><span id="rateVal">—</span><i>%</i></div>
+          <div class="rate__l">전체 <b id="rateAll">—</b>차시 중 평균 <b id="rateDone">—</b>차시</div>
+
+          <div class="meter" id="meter" role="img" aria-labelledby="meterDesc">
+            <div class="meter__seg meter__seg--done" id="meterDone" style="width:0%"></div>
+            <div class="meter__seg meter__seg--wait" id="meterWait" style="width:0%"></div>
+          </div>
+          <div class="legend" id="meterDesc">
+            <span><i class="k--done"></i>나간 차시 <b id="legDone">—</b></span>
+            <span><i class="k--wait"></i>남은 차시 <b id="legWait">—</b></span>
+          </div>
+        </div>
+
+        <div class="dash__bars">
+          <div class="dash__title">반별 진도</div>
+          <div class="dash__sub">같은 자를 대고 견주는 값이라 색은 하나입니다</div>
+          <div class="hbars" id="hbars"></div>
+          <div class="dtable-wrap" id="dashTable">
+            <table class="dtable">
+              <caption class="st-sr-only">반별 진도 현황</caption>
+              <thead><tr><th scope="col">반</th><th scope="col">나간 차시</th><th scope="col">전체</th><th scope="col">진도율</th></tr></thead>
+              <tbody id="dashTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="dash__exam">
+          <div class="dash__title">다음 시험</div>
+          <div class="exam" id="exam" hidden>
+            <div class="exam__d"><span id="examD">—</span><small id="examLabel"></small></div>
+            <div class="exam__when" id="examWhen"></div>
+            <div class="exam__range" id="examRange"></div>
+          </div>
+          <div class="exam__none" id="examNone">아직 등록된 시험 일정이 없습니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 반 고르기 -->
+    <div class="picker">
+      <span class="picker__l">반 선택</span>
+      <div class="st-segmented" id="classPicker" role="tablist" aria-label="반 고르기"></div>
+      <span class="picker__spacer"></span>
+    </div>
+
+    <div id="units"></div>
+
+    <div class="empty" id="empty">
+      <b>아직 등록된 수업 계획이 없습니다</b>
+      <span id="emptyMsg">진도표를 준비하고 있습니다. 조금만 기다려 주세요.</span>
+      <button class="btn-solid" id="seedBtn" hidden onclick="window.seedStarter()">기본 뼈대 넣기</button>
+    </div>
+
+    <!-- 관리자 전용 -->
+    <div class="admin-tools" id="adminTools">
+      <h3>차시 추가</h3>
+      <div class="admin-grid">
+        <input class="form-input" id="newUnit"  placeholder="단원 (예: 3.1 기후 환경)" style="flex:1 1 200px;">
+        <input class="form-input" id="newTitle" placeholder="차시 제목" style="flex:1 1 220px;">
+        <input class="form-input" id="newGoal"  placeholder="학습 목표 (선택)" style="flex:2 1 280px;">
+        <button class="btn-solid" onclick="window.addLesson()">추가</button>
+      </div>
+      <div class="admin-grid" style="margin-top:8px;">
+        <input class="form-input" id="newSheet" placeholder="학습지 링크 (선택)" style="flex:1 1 240px;">
+        <input class="form-input" id="newSim"   placeholder="시뮬레이터 링크 (선택)" style="flex:1 1 240px;">
+      </div>
+      <p class="admin-hint">
+        차시 행의 <b>여기까지</b>를 누르면 지금 고른 반의 진도가 그 차시까지로 기록됩니다.
+        시험 범위는 <b>시험 설정</b>에서 정하면 위 카드와 메인 페이지 D-day에 함께 반영됩니다.
+      </p>
+      <div class="admin-grid" style="margin-top:14px; padding-top:14px; border-top:1px solid var(--st-separator);">
+        <input class="form-input" id="examLabelIn" placeholder="시험 이름 (예: 기말고사)" style="flex:1 1 160px;">
+        <input class="form-input" id="examDateIn" type="date" style="flex:0 1 170px;">
+        <input class="form-input" id="examFromIn" type="number" min="1" placeholder="범위 시작 차시" style="flex:0 1 140px;">
+        <input class="form-input" id="examToIn"   type="number" min="1" placeholder="범위 끝 차시" style="flex:0 1 140px;">
+        <button class="btn-solid" onclick="window.saveExam()">시험 설정</button>
+        <button class="btn-sub" onclick="window.clearExam()">시험 지우기</button>
+      </div>
+      <div class="admin-grid" style="margin-top:14px; padding-top:14px; border-top:1px solid var(--st-separator);">
+        <input class="form-input" id="newClass" placeholder="반 이름 (예: 3반)" style="flex:0 1 160px;">
+        <button class="btn-sub" onclick="window.addClass()">반 추가</button>
+        <button class="btn-sub" onclick="window.removeClass()">지금 고른 반 삭제</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
+    <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
+    <a class="lg" href="index.html">← 메인으로</a>
+  </footer>
+
+  <div id="customModal" class="custom-modal-overlay">
+    <div class="custom-modal-box">
+      <h3 id="modalTitle">알림</h3>
+      <p id="modalMessage"></p>
+      <input type="text" id="modalInput">
+      <div class="custom-modal-actions">
+        <button id="modalCancelBtn" class="cancel">취소</button>
+        <button id="modalConfirmBtn" class="confirm">확인</button>
+      </div>
+    </div>
+  </div>
+
+<div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
+  <div class="geo-menu__top">
+    <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
+      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+      <b>Geographia</b>
+    </a>
+    <button class="geo-close" id="geoClose" aria-label="메뉴 닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="geo-menu__links">
+    <a class="lg" href="library.html">자료실</a>
+    <a class="lg" href="progress.html">진도표</a>
+    <a class="lg" href="qna.html">Q&amp;A</a>
+    <a class="lg" href="simulators.html">시뮬레이터</a>
+    <a class="lg" href="feedback.html">건의</a>
+  </div>
+  <div class="geo-group">
+    <h3>공간 시뮬레이터</h3>
+    <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
+    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
+    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+  </div>
+  <div class="geo-group">
+    <h3>수업 · 지원</h3>
+    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
+    <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
+  </div>
+  <div class="geo-menu__foot">
+    <a class="geo-menu__cta lg" href="index.html">홈으로 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+    <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
+      <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="design-system/stratum.js"></script>
+<script src="design-system/geo.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getDatabase, ref as dbRef, push, set, update, remove, onValue }
+      from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+    /* ========================================================================
+       진도표 — 데이터는 Q&A와 같은 파이어베이스에 /progress 아래로 들어간다.
+
+       /progress/lessons/{id} : { unit, title, goal, sheet, sim, order }
+       /progress/classes/{id} : { name, done, order }     done = 마친 차시 수
+       /progress/exam         : { label, date, from, to }
+
+       반의 진도를 '마친 차시 번호' 하나로 잡은 것은 의도적이다.
+       칸을 하나하나 체크하게 만들면 아무도 갱신하지 않는다. 수업 끝나고
+       '여기까지' 한 번 누르면 끝나야 이 페이지가 살아 있다.
+       ====================================================================== */
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
+      authDomain: "soc-c-qna.firebaseapp.com",
+      databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
+      projectId: "soc-c-qna",
+      storageBucket: "soc-c-qna.firebasestorage.app",
+      messagingSenderId: "927605189358",
+      appId: "1:927605189358:web:9ea5171373ac4c9e8661ff",
+      measurementId: "G-5KMMM2T0ED"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const rootRef    = dbRef(db, 'progress');
+    const lessonsRef = dbRef(db, 'progress/lessons');
+    const classesRef = dbRef(db, 'progress/classes');
+    const examRef    = dbRef(db, 'progress/exam');
+
+    // Q&A와 같은 관리자 암호 (해시로만 보관)
+    const ADMIN_PW_HASH = "26df012690d85cf35dbee2aaf099170724b635625f34b552d6a2933bca6c5480";
+    async function sha256Hex(str) {
+        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    let isAdmin = false;
+
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>'"]/g,
+        t => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[t]));
+
+    /* ── 모달 ────────────────────────────────────────────────────────── */
+    const AppModal = {
+        overlay: document.getElementById('customModal'), title: document.getElementById('modalTitle'),
+        msg: document.getElementById('modalMessage'), input: document.getElementById('modalInput'),
+        cancelBtn: document.getElementById('modalCancelBtn'), confirmBtn: document.getElementById('modalConfirmBtn'),
+        cb: null,
+        show(o, cb) {
+            this.cb = cb; this.title.textContent = o.title || '알림'; this.msg.textContent = o.msg || '';
+            this.input.value = o.value || ''; this.confirmBtn.textContent = o.confirmText || '확인';
+            this.input.style.display = o.type === 'prompt' ? 'block' : 'none';
+            this.cancelBtn.style.display = o.type === 'alert' ? 'none' : 'inline-block';
+            this.overlay.style.display = 'flex';
+            if (o.type === 'prompt') setTimeout(() => this.input.focus(), 100);
+        },
+        close() { this.overlay.style.display = 'none'; },
+        submit() { this.close(); if (this.cb) this.cb(this.input.style.display === 'block' ? this.input.value : true); },
+        cancel() { this.close(); if (this.cb) this.cb(null); }
+    };
+    document.getElementById('modalConfirmBtn').onclick = () => AppModal.submit();
+    document.getElementById('modalCancelBtn').onclick = () => AppModal.cancel();
+    document.getElementById('modalInput').onkeypress = (e) => { if (e.key === 'Enter') AppModal.submit(); };
+
+    /* ── 관리자 ──────────────────────────────────────────────────────── */
+    window.toggleAdminPanel = function() {
+        if (isAdmin) {
+            isAdmin = false; document.body.classList.remove('is-admin');
+            const b = document.getElementById('adminBtn'); b.textContent = '관리자'; b.classList.remove('active');
+            render();
+        } else {
+            const box = document.getElementById('adminLoginBox');
+            box.style.display = box.style.display === 'block' ? 'none' : 'block';
+            if (box.style.display === 'block') document.getElementById('adminPwInput').focus();
+        }
+    };
+    window.loginAdmin = async function() {
+        const input = document.getElementById('adminPwInput');
+        if (await sha256Hex(input.value) === ADMIN_PW_HASH) {
+            isAdmin = true; document.body.classList.add('is-admin');
+            const b = document.getElementById('adminBtn'); b.textContent = '로그인됨'; b.classList.add('active');
+            document.getElementById('adminLoginBox').style.display = 'none'; input.value = '';
+            render();
+        } else {
+            const b = document.getElementById('adminBtn');
+            b.textContent = '불일치'; b.style.color = 'var(--st-danger-ink)';
+            setTimeout(() => { b.textContent = '관리자'; b.style.color = ''; }, 1500);
+            input.value = '';
+        }
+    };
+    window.handlePwKeyPress = (e) => { if (e.key === 'Enter') window.loginAdmin(); };
+
+    /* ── 상태 ────────────────────────────────────────────────────────── */
+    let lessons = [];   // [{ id, unit, title, goal, sheet, sim, order }] — order 순
+    let classes = [];   // [{ id, name, done, order }]
+    let exam = null;    // { label, date, from, to }
+    let picked = 'all'; // 'all' | classId
+    let openUnits = {};
+    let segCtl = null, firstPaint = true;
+    let loadError = null;   // 'denied' | 'network'
+
+    onValue(rootRef, (snap) => {
+        loadError = null;
+        const v = snap.val() || {};
+        lessons = Object.entries(v.lessons || {})
+            .map(([id, l]) => ({ id, ...l }))
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+        classes = Object.entries(v.classes || {})
+            .map(([id, c]) => ({ id, ...c }))
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+        exam = v.exam || null;
+        if (picked !== 'all' && !classes.some(c => c.id === picked)) picked = 'all';
+        render();
+    }, (err) => {
+        /* 규칙이 /progress를 막고 있으면 여기로 온다. 학생에게 기술적인 문구를
+           띄울 이유는 없으므로, 자세한 안내는 관리자로 로그인했을 때만 보여 준다. */
+        loadError = /permission/i.test(err && err.message || '') ? 'denied' : 'network';
+        render();
+    });
+
+    /* ── 그림 ────────────────────────────────────────────────────────── */
+    function countUp(el, to, decimals) {
+        const prev = parseFloat(el.dataset.v);
+        if (prev === to) return;
+        el.dataset.v = to;
+        if (document.hidden || (window.Stratum && Stratum.reduceMotion())) { el.textContent = to.toFixed(decimals); return; }
+        const from = isNaN(prev) ? 0 : prev, t0 = performance.now(), dur = 720;
+        (function step(now) {
+            const p = Math.min(1, (now - t0) / dur);
+            el.textContent = (from + (to - from) * (1 - Math.pow(1 - p, 3))).toFixed(decimals);
+            if (p < 1) requestAnimationFrame(step);
+        })(performance.now());
+    }
+
+    function render() {
+        const total = lessons.length;
+        const empty = document.getElementById('empty');
+        empty.hidden = total > 0;
+        document.getElementById('seedBtn').hidden = !(isAdmin && total === 0 && !loadError);
+
+        if (loadError === 'denied') {
+            empty.querySelector('b').textContent = '진도표가 아직 열리지 않았습니다';
+            document.getElementById('emptyMsg').innerHTML = isAdmin
+                ? '파이어베이스 실시간 데이터베이스 <b>규칙</b>에 <code>progress</code> 항목이 아직 없습니다.<br>' +
+                  'Firebase 콘솔 → Realtime Database → 규칙에서 기존 <code>questions</code> 옆에<br>' +
+                  '<code>"progress": { ".read": true, ".write": true }</code> 를 추가하고 게시하면 바로 열립니다.'
+                : '수업 진도표를 준비하고 있습니다. 곧 열립니다.';
+        } else if (loadError === 'network') {
+            empty.querySelector('b').textContent = '진도표를 불러오지 못했습니다';
+            document.getElementById('emptyMsg').textContent = '네트워크를 확인하고 새로고침해 주세요.';
+        } else if (total === 0) {
+            empty.querySelector('b').textContent = '아직 등록된 수업 계획이 없습니다';
+            document.getElementById('emptyMsg').textContent = isAdmin
+                ? '아래에서 차시를 하나씩 추가하거나, 이 사이트의 단원 구성을 그대로 쓴 예시 뼈대를 넣고 고쳐 쓰셔도 됩니다.'
+                : '진도표를 준비하고 있습니다. 조금만 기다려 주세요.';
+        }
+
+        renderDash(total);
+        renderPicker();
+        renderUnits(total);
+        if (window.Stratum) Stratum.reveal('.st-reveal');
+        firstPaint = false;
+    }
+
+    function renderDash(total) {
+        // 평균 진도 — 반이 없으면 0
+        const doneSum = classes.reduce((a, c) => a + Math.min(+c.done || 0, total), 0);
+        const avg = classes.length ? doneSum / classes.length : 0;
+        const pct = total ? avg / total * 100 : 0;
+
+        countUp(document.getElementById('rateVal'), pct, 1);
+        countUp(document.getElementById('rateAll'), total, 0);
+        countUp(document.getElementById('rateDone'), avg, avg % 1 ? 1 : 0);
+        countUp(document.getElementById('legDone'), Math.round(avg), 0);
+        countUp(document.getElementById('legWait'), Math.max(0, total - Math.round(avg)), 0);
+
+        const meter = document.getElementById('meter');
+        meter.dataset.wait = Math.max(0, total - Math.round(avg));
+        document.getElementById('meterDone').style.width = `calc(${pct}% - 1px)`;
+        document.getElementById('meterWait').style.width = `calc(${100 - pct}% - 1px)`;
+
+        // 반별 가로 막대 — 한 색. 길이가 이미 말하는 것을 색이 또 말하게 두지 않는다.
+        document.getElementById('hbars').innerHTML = classes.length
+            ? classes.map((c, i) => {
+                const d = Math.min(+c.done || 0, total);
+                const p = total ? d / total * 100 : 0;
+                return `<div class="hbar">
+                    <span class="hbar__n">${esc(c.name)}</span>
+                    <div class="hbar__track" role="img" aria-label="${esc(c.name)} 진도율 ${p.toFixed(0)}퍼센트, ${total}차시 중 ${d}차시">
+                        <div class="hbar__fill" style="--i:${i}; width:${p}%" ${d === 0 ? 'data-zero="1"' : ''}></div>
+                    </div>
+                    <span class="hbar__v"><b>${d}</b>/${total}</span>
+                </div>`;
+              }).join('')
+            : `<p class="dash__sub" style="margin-top:14px">등록된 반이 없습니다.</p>`;
+
+        document.getElementById('dashTableBody').innerHTML = classes.map(c => {
+            const d = Math.min(+c.done || 0, total);
+            return `<tr><td>${esc(c.name)}</td><td>${d}</td><td>${total}</td><td>${total ? (d / total * 100).toFixed(0) : 0}%</td></tr>`;
+        }).join('');
+
+        renderExam(total);
+    }
+
+    function renderExam(total) {
+        const box = document.getElementById('exam'), none = document.getElementById('examNone');
+        if (!exam || !exam.date) { box.hidden = true; none.hidden = false; return; }
+        box.hidden = false; none.hidden = true;
+
+        const t = new Date(exam.date + 'T00:00:00');
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const days = Math.round((t - today) / 86400000);
+        document.getElementById('examD').textContent = days > 0 ? `D−${days}` : days === 0 ? 'D-DAY' : '종료';
+        document.getElementById('examLabel').textContent = exam.label || '';
+        document.getElementById('examWhen').textContent =
+            `${t.getFullYear()}. ${t.getMonth() + 1}. ${t.getDate()}`;
+
+        const from = +exam.from || 1, to = +exam.to || total;
+        const a = lessons[from - 1], b = lessons[to - 1];
+        document.getElementById('examRange').innerHTML = (a && b)
+            ? `시험 범위 — <b>${from}차시</b> ${esc(a.title)}<br>부터 <b>${to}차시</b> ${esc(b.title)}까지`
+            : `시험 범위 — <b>${from}차시 ~ ${to}차시</b>`;
+    }
+
+    function renderPicker() {
+        const el = document.getElementById('classPicker');
+        const want = ['all'].concat(classes.map(c => c.id)).join(',');
+        if (el.dataset.sig !== want) {
+            el.dataset.sig = want;
+            el.innerHTML = `<button class="st-segmented__item${picked === 'all' ? ' is-on' : ''}" role="tab"
+                    aria-selected="${picked === 'all'}" data-value="all">전체</button>` +
+                classes.map(c => `<button class="st-segmented__item${picked === c.id ? ' is-on' : ''}" role="tab"
+                    aria-selected="${picked === c.id}" data-value="${esc(c.id)}">${esc(c.name)}</button>`).join('');
+            if (window.Stratum) segCtl = Stratum.segmented(el, (v) => { picked = v; renderUnits(lessons.length); });
+        }
+    }
+
+    function renderUnits(total) {
+        const wrap = document.getElementById('units');
+        if (!total) { wrap.innerHTML = ''; return; }
+
+        // 단원별로 묶되 차시 순서는 유지한다
+        const groups = [];
+        lessons.forEach((l, i) => {
+            const unit = l.unit || '수업';
+            let g = groups[groups.length - 1];
+            if (!g || g.unit !== unit) { g = { unit, items: [] }; groups.push(g); }
+            g.items.push({ ...l, no: i + 1 });
+        });
+
+        // 고른 반이 어디까지 나갔는지 — '전체'면 가장 느린 반 기준으로 접힘을 정한다
+        const doneOf = (cid) => {
+            const c = classes.find(x => x.id === cid);
+            return c ? Math.min(+c.done || 0, total) : 0;
+        };
+        const mine = picked === 'all'
+            ? (classes.length ? Math.min(...classes.map(c => doneOf(c.id))) : 0)
+            : doneOf(picked);
+
+        // 처음 그릴 때는 '지금 배우는 단원'만 펼친다
+        if (firstPaint || Object.keys(openUnits).length === 0) {
+            const cur = groups.findIndex(g => g.items.some(it => it.no > mine));
+            groups.forEach((g, i) => { openUnits[g.unit] = (i === (cur === -1 ? groups.length - 1 : cur)); });
+        }
+
+        wrap.innerHTML = groups.map((g) => {
+            const doneIn = g.items.filter(it => it.no <= mine).length;
+            const open = !!openUnits[g.unit];
+            return `<section class="unit${open ? ' is-open' : ''}" data-unit="${esc(g.unit)}">
+                <button class="unit__head" type="button" aria-expanded="${open}">
+                    <svg class="unit__chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+                    <span class="unit__n">${esc(g.unit)}</span>
+                    <span class="unit__c">${g.items.length}차시</span>
+                    <span class="unit__spacer"></span>
+                    <span class="geo-state ${doneIn === g.items.length ? 'geo-state--done' : doneIn > 0 ? 'geo-state--now' : 'geo-state--wait'}">${
+                        doneIn === g.items.length ? '완료' : doneIn > 0 ? `진행 중 ${doneIn}/${g.items.length}` : '예정'}</span>
+                </button>
+                <div class="unit__body"><div class="unit__in">
+                    <ul class="lessons">${g.items.map(it => lessonRow(it, mine, total)).join('')}</ul>
+                </div></div>
+            </section>`;
+        }).join('');
+
+        wrap.querySelectorAll('.unit__head').forEach(h => h.addEventListener('click', () => {
+            const sec = h.closest('.unit'), u = sec.dataset.unit;
+            openUnits[u] = !openUnits[u];
+            sec.classList.toggle('is-open', openUnits[u]);
+            h.setAttribute('aria-expanded', String(openUnits[u]));
+        }));
+    }
+
+    function lessonRow(it, mine, total) {
+        const done = it.no <= mine;
+        const now = it.no === mine + 1;
+        const inExam = exam && exam.date && it.no >= (+exam.from || 1) && it.no <= (+exam.to || total);
+
+        // '전체'를 골랐을 때는 반마다 칩을 세워 어느 반이 어디까지인지 한눈에 보인다
+        const stateCell = picked === 'all' && classes.length
+            ? `<div class="lesson__classes">${classes.map(c => {
+                  const d = Math.min(+c.done || 0, total);
+                  return `<span class="lesson__cls${it.no <= d ? ' is-done' : ''}">${esc(c.name)}</span>`;
+               }).join('')}</div>`
+            : `<div class="lesson__state"><span class="geo-state ${done ? 'geo-state--done' : now ? 'geo-state--now' : 'geo-state--wait'}">${
+                  done ? '완료' : now ? '다음 시간' : '예정'}</span></div>`;
+
+        const links = [];
+        if (it.sheet) links.push(link(it.sheet, '학습지', 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M9 13h6 M9 17h6'));
+        if (it.sim)   links.push(link(it.sim, '시뮬레이터', 'M12 3a9 9 0 1 0 9 9 M12 3v9l6 3'));
+        links.push(link(`qna.html?q=${encodeURIComponent(it.title || '')}`, '관련 질문', 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'));
+
+        return `<li class="lesson${inExam ? ' is-exam' : ''}">
+            <div class="lesson__row">
+                <span class="lesson__no">${it.no}차시</span>
+                ${stateCell}
+                <div class="lesson__main">
+                    <span class="lesson__t">${esc(it.title)}</span>
+                    ${it.goal ? `<span class="lesson__g">${esc(it.goal)}</span>` : ''}
+                    <span class="lesson__links">${links.join('')}</span>
+                </div>
+                <div class="lesson__admin">
+                    <button class="action-txt mark" data-act="mark" data-no="${it.no}">여기까지</button>
+                    <button class="action-txt" data-act="edit" data-id="${esc(it.id)}">수정</button>
+                    <button class="action-txt delete" data-act="del" data-id="${esc(it.id)}">삭제</button>
+                </div>
+            </div>
+        </li>`;
+    }
+    function link(href, label, d) {
+        const ext = /^https?:/i.test(href);
+        return `<a class="lesson__link" href="${esc(href)}"${ext ? ' target="_blank" rel="noopener"' : ''}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>${label}</a>`;
+    }
+
+    /* 차시 행의 관리 버튼은 목록이 매번 새로 그려지므로 위임으로 받는다 */
+    document.getElementById('units').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-act]');
+        if (!btn || !isAdmin) return;
+        const act = btn.dataset.act;
+        if (act === 'mark') markUpTo(+btn.dataset.no);
+        if (act === 'edit') editLesson(btn.dataset.id);
+        if (act === 'del')  deleteLesson(btn.dataset.id);
+    });
+
+    function markUpTo(no) {
+        if (picked === 'all') {
+            AppModal.show({ type: 'alert', msg: '먼저 위에서 진도를 기록할 반을 골라 주세요.' });
+            return;
+        }
+        const c = classes.find(x => x.id === picked);
+        update(dbRef(db, `progress/classes/${picked}`), { done: no })
+            .catch(() => AppModal.show({ type: 'alert', msg: '저장하지 못했습니다.' }));
+        AppModal.show({ type: 'alert', msg: `${c ? c.name : '이 반'} 진도를 ${no}차시까지로 기록했습니다.` });
+    }
+
+    function editLesson(id) {
+        const l = lessons.find(x => x.id === id); if (!l) return;
+        AppModal.show({ type: 'prompt', title: '차시 제목', msg: '새 제목을 입력하세요.', value: l.title || '' }, (v) => {
+            if (v === null) return;
+            const title = v.trim(); if (!title) return;
+            AppModal.show({ type: 'prompt', title: '학습 목표', msg: '비워 두면 지워집니다.', value: l.goal || '' }, (g) => {
+                if (g === null) return;
+                update(dbRef(db, `progress/lessons/${id}`), { title, goal: g.trim() });
+            });
+        });
+    }
+
+    function deleteLesson(id) {
+        const l = lessons.find(x => x.id === id); if (!l) return;
+        AppModal.show({ type: 'confirm', title: '차시 삭제', msg: `'${l.title}' 차시를 삭제할까요?`, confirmText: '삭제' }, (ok) => {
+            if (ok) remove(dbRef(db, `progress/lessons/${id}`));
+        });
+    }
+
+    window.addLesson = function() {
+        if (!isAdmin) return;
+        const unit  = document.getElementById('newUnit').value.trim();
+        const title = document.getElementById('newTitle').value.trim();
+        if (!unit || !title) { AppModal.show({ type: 'alert', msg: '단원과 차시 제목은 반드시 적어 주세요.' }); return; }
+        const order = lessons.length ? (lessons[lessons.length - 1].order || lessons.length) + 1 : 1;
+        push(lessonsRef, {
+            unit, title,
+            goal:  document.getElementById('newGoal').value.trim(),
+            sheet: document.getElementById('newSheet').value.trim(),
+            sim:   document.getElementById('newSim').value.trim(),
+            order
+        }).then(() => {
+            ['newTitle', 'newGoal', 'newSheet', 'newSim'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('newTitle').focus();
+        }).catch(() => AppModal.show({ type: 'alert', msg: '저장하지 못했습니다.' }));
+    };
+
+    window.addClass = function() {
+        if (!isAdmin) return;
+        const name = document.getElementById('newClass').value.trim();
+        if (!name) { AppModal.show({ type: 'alert', msg: '반 이름을 적어 주세요.' }); return; }
+        push(classesRef, { name, done: 0, order: classes.length + 1 })
+            .then(() => { document.getElementById('newClass').value = ''; })
+            .catch(() => AppModal.show({ type: 'alert', msg: '저장하지 못했습니다.' }));
+    };
+
+    window.removeClass = function() {
+        if (!isAdmin) return;
+        if (picked === 'all') { AppModal.show({ type: 'alert', msg: '삭제할 반을 먼저 골라 주세요.' }); return; }
+        const c = classes.find(x => x.id === picked);
+        AppModal.show({ type: 'confirm', title: '반 삭제', msg: `'${c ? c.name : ''}' 반을 삭제할까요?`, confirmText: '삭제' }, (ok) => {
+            if (ok) { remove(dbRef(db, `progress/classes/${picked}`)); picked = 'all'; }
+        });
+    };
+
+    window.saveExam = function() {
+        if (!isAdmin) return;
+        const label = document.getElementById('examLabelIn').value.trim();
+        const date  = document.getElementById('examDateIn').value;
+        const from  = +document.getElementById('examFromIn').value || 1;
+        const to    = +document.getElementById('examToIn').value || lessons.length;
+        if (!date) { AppModal.show({ type: 'alert', msg: '시험 날짜를 골라 주세요.' }); return; }
+        if (to < from) { AppModal.show({ type: 'alert', msg: '범위 끝이 시작보다 앞설 수 없습니다.' }); return; }
+        set(examRef, { label: label || '시험', date, from, to })
+            .catch(() => AppModal.show({ type: 'alert', msg: '저장하지 못했습니다.' }));
+    };
+    window.clearExam = function() {
+        if (!isAdmin) return;
+        AppModal.show({ type: 'confirm', title: '시험 지우기', msg: '등록된 시험 일정을 지울까요?', confirmText: '지우기' },
+            (ok) => { if (ok) remove(examRef); });
+    };
+
+    window.toggleDashTable = function() {
+        const panel = document.getElementById('dashPanel'), btn = document.getElementById('tableToggle');
+        const on = !panel.classList.contains('is-table');
+        panel.classList.toggle('is-table', on);
+        btn.setAttribute('aria-pressed', String(on));
+        btn.textContent = on ? '그래프로 보기' : '표로 보기';
+    };
+
+    /* ── 예시 뼈대 ──
+       빈 화면에 26줄을 손으로 넣게 하면 이 페이지는 시작도 못 한다.
+       이 사이트가 이미 쓰고 있는 단원 구성으로 뼈대만 깔아 준다. 내용은 고쳐 쓰면 된다. */
+    const STARTER = [
+      ['3.1 기후 환경과 인간 생활', '기후 요소와 기후 인자', '기온·강수·바람이 무엇에 따라 달라지는지 설명할 수 있다.', '', 'climate_solar.html'],
+      ['3.1 기후 환경과 인간 생활', '지구의 공전과 계절 변화', '자전축 기울기가 계절을 만드는 과정을 설명할 수 있다.', '', 'climate_3d.html'],
+      ['3.1 기후 환경과 인간 생활', '대기 대순환과 기후대', '적도 수렴대의 이동으로 우기와 건기를 설명할 수 있다.', '', 'climate_itcz.html'],
+      ['3.1 기후 환경과 인간 생활', '열대 · 건조 기후와 생활', '기후에 따라 달라지는 생활 모습을 견주어 설명할 수 있다.', '', ''],
+      ['3.1 기후 환경과 인간 생활', '온대 · 냉대 · 한대 기후와 생활', '우리나라 기후의 특징을 세계 기후 속에서 설명할 수 있다.', '', ''],
+      ['3.2 지형 변화와 인간 생활', '지형 형성 작용 — 내적 · 외적', '내적 작용과 외적 작용을 구분해 설명할 수 있다.', '', 'dynamic_earth.html'],
+      ['3.2 지형 변화와 인간 생활', '판 구조론과 대지형', '판 경계에서 만들어지는 지형을 설명할 수 있다.', '', 'terrain.html'],
+      ['3.2 지형 변화와 인간 생활', '하천 · 해안 · 빙하 지형', '외적 작용이 만든 지형을 사례로 설명할 수 있다.', '', 'world_landforms.html'],
+      ['3.2 지형 변화와 인간 생활', '지형과 인간 생활', '지형이 삶의 방식에 미치는 영향을 설명할 수 있다.', '', ''],
+      ['3.3 도시 공간의 변화', '도시화와 도시 구조', '도시 내부의 기능 분화를 설명할 수 있다.', '', ''],
+      ['3.3 도시 공간의 변화', '대도시권의 팽창', '서울 대도시권이 넓어진 과정을 설명할 수 있다.', '', 'seoul.html'],
+      ['3.3 도시 공간의 변화', '도시 문제와 살기 좋은 도시', '도시 문제의 해결 방안을 제안할 수 있다.', '', 'ai_dashboard.html']
+    ];
+    window.seedStarter = function() {
+        if (!isAdmin) return;
+        AppModal.show({ type: 'confirm', title: '기본 뼈대 넣기',
+            msg: `${STARTER.length}개 차시와 반 3개를 넣습니다. 넣은 뒤 자유롭게 고치거나 지우면 됩니다.`,
+            confirmText: '넣기' }, (ok) => {
+            if (!ok) return;
+            STARTER.forEach((s, i) => push(lessonsRef, {
+                unit: s[0], title: s[1], goal: s[2], sheet: s[3], sim: s[4], order: i + 1
+            }));
+            if (!classes.length) ['1반', '2반', '3반'].forEach((n, i) => push(classesRef, { name: n, done: 0, order: i + 1 }));
+        });
+    };
+</script>
+
+<script>
+    // 콘텐츠 보호 (사이트 공통 설정) — 입력란에서는 선택을 풀어 준다
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    document.addEventListener('selectstart', function(e) {
+        if (e.target.closest('input, textarea')) return;
+        e.preventDefault();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.keyCode === 123) { e.preventDefault(); }
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
+        if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
+    });
+</script>
+</body>
+</html>

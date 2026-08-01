@@ -43,8 +43,26 @@
           { label: '질문 아카이브 목록', href: 'https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec', desc: '제출한 질문 확인', ext: true }
         ]},
         { title: '함께 보기', items: [
+          { label: '진도표',       href: 'progress.html', desc: '어느 자료를 볼 차례인지' },
           { label: 'Q&A 게시판',   href: 'qna.html', desc: '자료를 보다 막혔다면' },
           { label: '시뮬레이터',   href: 'simulators.html', desc: '눈으로 확인하기' }
+        ]}
+      ]
+    },
+    'progress.html': {
+      cols: [
+        { title: '수업 진도', items: [
+          { label: '반별 진도 현황', href: 'progress.html', desc: '우리 반은 어디까지' },
+          { label: '전체 수업 계획', href: 'progress.html', desc: '단원별 차시와 학습 목표' },
+          { label: '시험 범위',      href: 'progress.html', desc: '몇 차시부터 몇 차시까지' }
+        ]},
+        { title: '함께 보기', items: [
+          { label: '자료실',      href: 'library.html', desc: '차시별 학습지 · PPT' },
+          { label: '시뮬레이터',  href: 'simulators.html', desc: '눈으로 확인하기' }
+        ]},
+        { title: '막혔다면', items: [
+          { label: 'Q&A 게시판', href: 'qna.html', desc: '수업 내용 질문' },
+          { label: '건의함',      href: 'feedback.html', desc: '수업 · 홈페이지 의견' }
         ]}
       ]
     },
