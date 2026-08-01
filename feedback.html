@@ -45,23 +45,7 @@
 .sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
 
 /* ── 페이지 머리 ── */
-.sheet-head { position: relative; padding-block: clamp(40px, 7vw, 88px) clamp(22px, 3vw, 36px); }
-.sheet-num {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--accent-ink);
-}
-.sheet-title {
-  margin-top: 14px;
-  font-size: clamp(3rem, 11vw, 7.5rem); line-height: 0.9;
-  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
-}
-.sheet-meta { margin-top: 16px; max-width: 44ch; font-size: clamp(0.875rem, 1.3vw, 1rem);
-              line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
-
 /* 관리자 — 시선을 끌 이유가 없으므로 우측 상단에 조용히 */
-.admin-header-row { position: absolute; top: clamp(40px, 7vw, 88px); right: 0;
-                    display: flex; align-items: flex-start; gap: 8px; }
 .admin-login-box { display: none; }
 .admin-login-box > div { display: flex; gap: 6px; }
 .admin-login-box input {
@@ -268,12 +252,10 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
   text-transform: uppercase; color: var(--st-label-3);
   padding-bottom: 8px; border-bottom: 1px solid var(--st-separator);
 }
-.comment-list, .sub-comment-list { list-style: none; margin: 0; padding: 0; }
-.comment-item, .sub-comment-item { padding: 14px 0; border-bottom: 1px solid var(--st-separator); }
-.sub-comment-item { padding: 10px 0 10px 20px; border-bottom: 0;
-                    border-left: 2px solid var(--st-separator); margin-left: 6px; margin-top: 8px; }
+.comment-list { list-style: none; margin: 0; padding: 0; }
+.comment-item { padding: 14px 0; border-bottom: 1px solid var(--st-separator); }
 .comment-main-row, .comment-header-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.comment-profile, .sub-comment-profile {
+.comment-profile {
   font-size: 12.5px; font-weight: 700; letter-spacing: var(--track-ko); color: var(--st-label);
   display: inline-flex; align-items: center; gap: 6px;
 }
@@ -283,7 +265,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 }
 .teacher-badge { background: var(--st-accent-soft); color: var(--accent-ink); }
 .student-badge { background: var(--st-fill-2); color: var(--st-label-3); }
-.comment-content, .sub-comment-content { flex: 1; min-width: 0; }
+.comment-content { flex: 1; min-width: 0; }
 .comment-text {
   margin-top: 6px; font-size: 14px; line-height: 1.75; color: var(--st-label);
   letter-spacing: var(--track-ko); white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere;
@@ -293,30 +275,16 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 .comment-time, .comment-meta { font-size: 11px; color: var(--st-label-3);
                                font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
 .reply-actions { display: flex; gap: 4px; margin-left: auto; }
-.sub-reply-toggle-btn {
-  font-size: 11px; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko);
-  padding: 3px 9px; border-radius: var(--st-r-full);
-}
-.sub-reply-toggle-btn:hover { background: var(--st-fill-2); color: var(--accent-ink); }
-
 .reply-input-group { display: none; gap: 10px; margin-top: 14px; }
-.reply-input-group textarea, .sub-reply-input-box textarea {
+.reply-input-group textarea {
   width: 100%; min-height: 70px; padding: 11px 14px; resize: vertical;
   background: var(--st-bedrock); color: var(--st-label);
   border: 1px solid var(--st-separator); border-radius: var(--st-r-element);
   font-family: inherit; font-size: 13.5px; line-height: 1.7; letter-spacing: var(--track-ko);
 }
-.reply-input-group textarea:focus, .sub-reply-input-box textarea:focus {
+.reply-input-group textarea:focus {
   outline: none; border-color: var(--accent); box-shadow: var(--st-ring); background: var(--st-surface);
 }
-.sub-reply-input-box { display: none; margin-top: 10px; }
-.sub-reply-input-box input.author-in {
-  width: 160px; margin-bottom: 8px; padding: 8px 12px;
-  background: var(--st-bedrock); color: var(--st-label);
-  border: 1px solid var(--st-separator); border-radius: var(--st-r-element);
-  font-family: inherit; font-size: 13px; letter-spacing: var(--track-ko);
-}
-
 /* ── 더 보기 · 빈 상태 ── */
 .no-result-row { display: none; padding: 40px 14px; text-align: center;
                  font-size: 13.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }

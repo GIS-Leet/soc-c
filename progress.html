@@ -37,23 +37,10 @@
 
 .sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
 
-/* ── 페이지 머리 ── */
-.sheet-head { position: relative; padding-block: clamp(38px, 6.5vw, 82px) clamp(18px, 2.4vw, 28px); }
-.sheet-num {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--accent-ink);
-}
-.sheet-title {
-  margin-top: 12px;
-  font-size: clamp(2.4rem, 9vw, 6rem); line-height: 0.9;
-  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
-}
-.sheet-meta { margin-top: 16px; max-width: 46ch; font-size: clamp(0.875rem, 1.3vw, 1rem);
-              line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
-
-.admin-header-row { position: absolute; top: clamp(38px, 6.5vw, 82px); right: 0;
-                    display: flex; align-items: flex-start; gap: 8px; }
+/* ── 페이지 머리 ──
+   골격은 geo.css의 .sheet-* 를 쓴다. 'PROGRESS'는 여덟 글자라 기본 크기로는
+   좁은 화면에서 줄이 넘친다. 크기만 덮어쓴다. */
+.sheet-head { --sheet-title-size: clamp(2.4rem, 9vw, 6rem); }
 
 /* ── 버튼 ── */
 .btn-solid, .btn-outline, .btn-sub {

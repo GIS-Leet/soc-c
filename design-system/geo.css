@@ -259,6 +259,26 @@ body.is-launching .geo-page { transform: scale(0.965); opacity: 0.5; transform-o
 @keyframes sealSpin { to { transform: rotate(360deg); } }
 @media (max-width: 700px) { .head-seal { opacity: 0.05; top: auto; bottom: -20px; } }
 
+/* ── 게시판형 페이지의 머리 ──
+   Q&A · 진도표 · 건의 · 기기문의가 함께 쓴다. 네 페이지가 각자 복사해 두었더니
+   패딩과 행간이 조금씩 어긋나 있었다(38 vs 40, 0.88 vs 0.9 …). 한 곳에 둔다.
+   제목이 긴 페이지는 --sheet-title-size 만 덮어쓰면 된다. */
+.sheet-head { position: relative; padding-block: clamp(38px, 6.5vw, 82px) clamp(18px, 2.4vw, 28px); }
+.sheet-num {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+  text-transform: uppercase; color: var(--accent-ink);
+}
+.sheet-title {
+  margin-top: 12px;
+  font-size: var(--sheet-title-size, clamp(3rem, 11vw, 7.5rem)); line-height: 0.9;
+  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
+}
+.sheet-meta { margin-top: 16px; max-width: 46ch; font-size: clamp(0.875rem, 1.3vw, 1rem);
+              line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.admin-header-row { position: absolute; top: clamp(38px, 6.5vw, 82px); right: 0;
+                    display: flex; align-items: flex-start; gap: 8px; }
+
 /* ── 현황 패널 ── */
 .panel {
   position: relative; margin-top: clamp(24px, 3.4vw, 40px);

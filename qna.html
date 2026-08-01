@@ -52,23 +52,7 @@
 .sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
 
 /* ══════════ 페이지 머리 ══════════ */
-.sheet-head { position: relative; padding-block: clamp(38px, 6.5vw, 82px) clamp(18px, 2.4vw, 28px); }
-.sheet-num {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--accent-ink);
-}
-.sheet-title {
-  margin-top: 12px;
-  font-size: clamp(3rem, 11vw, 7.5rem); line-height: 0.88;
-  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
-}
-.sheet-meta { margin-top: 16px; max-width: 44ch; font-size: clamp(0.875rem, 1.3vw, 1rem);
-              line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
-
 /* 관리자 — 시선을 끌 이유가 없으므로 우측 상단에 조용히 */
-.admin-header-row { position: absolute; top: clamp(38px, 6.5vw, 82px); right: 0;
-                    display: flex; align-items: flex-start; gap: 8px; }
 .admin-login-box { display: none; }
 .admin-login-box > div { display: flex; gap: 6px; }
 .admin-login-box input {
@@ -535,8 +519,12 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 .no-reply[hidden] { display: none; }
 .comment-list, .sub-comment-list { list-style: none; margin: 0; padding: 0; }
 .comment-item { padding: 15px 0; border-bottom: 1px solid var(--st-separator); }
-.sub-comment-item { display: flex; gap: 10px; padding: 11px 0 11px 16px; border-bottom: 0;
-                    border-left: 2px solid var(--st-separator); margin-left: 8px; margin-top: 8px; }
+/* 대댓글은 선이 아니라 자리로 말한다 — 부모 답변의 '글이 시작하는 지점'
+   (아바타 28px + 간격 10px = 38px)에 맞춰 들여쓴다. 그 아래 달린 말이라는 게
+   눈금 없이도 읽힌다. */
+.sub-comment-item { display: flex; gap: 10px; padding: 11px 0 11px 38px;
+                    border-bottom: 0; margin-top: 6px; }
+@media (max-width: 560px) { .sub-comment-item { padding-left: 22px; } }
 .comment-main-row, .comment-header-row { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .comment-profile, .sub-comment-profile {
   display: inline-grid; place-items: center; flex-shrink: 0;
