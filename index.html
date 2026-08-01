@@ -130,12 +130,43 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 
 /* ── 통계 행 ── */
+/* 공지와 통계를 한 덩이로 세워 오른쪽에 붙인다 */
 .stats {
-  flex: 1; display: flex; align-items: center; justify-content: flex-end;
+  flex: 1; display: flex; flex-direction: column;
+  align-items: flex-end; justify-content: center;
   padding: 32px var(--pad-x); gap: 20px;
 }
-@media (min-width: 640px) { .stats { gap: 32px; } }
-@media (min-width: 768px) { .stats { gap: 40px; padding-top: 0; padding-bottom: 0; } }
+@media (min-width: 768px) { .stats { padding-top: 0; padding-bottom: 0; gap: 26px; } }
+
+.stat-row { display: flex; align-items: flex-start; justify-content: flex-end; gap: 20px; }
+@media (min-width: 640px) { .stat-row { gap: 32px; } }
+@media (min-width: 768px) { .stat-row { gap: 40px; } }
+
+/* ── 공지 ── */
+.hero-notice { max-width: min(430px, 100%); text-align: right; }
+.hero-notice[hidden] { display: none; }
+.hero-notice__cap {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
+  text-transform: uppercase; color: var(--accent-ink);
+  padding-bottom: 8px;
+}
+.hero-notice .item {
+  display: flex; align-items: baseline; justify-content: flex-end; gap: 10px;
+  padding: 6px 0; border-top: 1px solid var(--st-separator);
+}
+.hero-notice .item .m {
+  font-size: 12.5px; font-weight: 500; line-height: 1.55;
+  color: var(--st-label-2); letter-spacing: var(--track-ko);
+}
+.hero-notice .item .d {
+  font-size: 10.5px; color: var(--st-label-3); flex-shrink: 0;
+  font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+}
+@media (min-width: 768px) {
+  .hero-notice .item .m { font-size: 13.5px; }
+  .hero-notice .item .d { font-size: 11.5px; }
+}
 /* 세로가 긴 화면에서는 가운데 정렬이 통계를 허공에 띄운다.
    아래 블록 쪽으로 붙여 무리를 짓고, 남는 여백은 지구가 있는 위쪽에 둔다. */
 @media (min-height: 820px) {
@@ -290,8 +321,15 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     </div>
   </header>
 
-  <!-- ── 통계 ── -->
+  <!-- ── 공지 + 통계 ── -->
   <section class="stats">
+
+    <div class="hero-notice fu" style="--i:1" id="heroNotice" hidden>
+      <div class="hero-notice__cap"><i class="st-dot st-dot--live"></i>공지사항</div>
+      <div id="heroNoticeList"></div>
+    </div>
+
+    <div class="stat-row">
     <div class="stat fu" style="--i:2" id="stat-q" hidden>
       <div class="stat-num"><span class="pre">+</span><span id="q-count">—</span></div>
       <div class="stat-label">누적
@@ -306,6 +344,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
       <div class="stat-num"><span class="pre" id="d-pre">D−</span><span id="d-count">—</span></div>
       <div class="stat-label" id="d-label">중간고사
 10.01</div>
+    </div>
     </div>
   </section>
 
@@ -410,9 +449,15 @@ const DDAY = { label: '중간고사', date: '2026-10-01' };
 
 (function renderNotices(){
   if (!NOTICES.length) return;
-  document.getElementById('noticeList').innerHTML = NOTICES.slice(0,3).map(n =>
+  const rows = NOTICES.slice(0, 3);
+  // 메뉴 안 (날짜 → 내용)
+  document.getElementById('noticeList').innerHTML = rows.map(n =>
     `<div class="item"><span class="d">${n.date}</span><span class="m">${n.text}</span></div>`).join('');
   document.getElementById('menuNotice').hidden = false;
+  // 첫 화면 오른쪽 (오른쪽 정렬이라 내용 → 날짜 순서로 둔다)
+  document.getElementById('heroNoticeList').innerHTML = rows.map(n =>
+    `<div class="item"><span class="m">${n.text}</span><span class="d">${n.date}</span></div>`).join('');
+  document.getElementById('heroNotice').hidden = false;
 })();
 
 /* ── 통계 세 칸 ────────────────────────────────────────────────────────
