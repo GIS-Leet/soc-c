@@ -129,25 +129,20 @@
 .exam__when { margin-top: 8px; font-size: 12px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
 /* 시험 범위 —
    '1차시 …부터 5차시 …까지'를 한 문장으로 흘리면, 좁은 칸에서 제목이 접히면서
-   '부터'와 '까지'가 엉뚱한 줄머리에 떨어진다. 문장 대신 두 줄로 세우고
-   왼쪽 세로선이 둘을 한 범위로 묶게 한다. */
+   '부터'와 '까지'가 엉뚱한 줄머리에 떨어진다. 그래서 두 줄로 세우되,
+   '부터/까지'를 고정폭 라벨 칸으로 옮긴다 — 범위라는 사실을 장식이 아니라
+   글자가 말하게 하는 것이다. */
 .exam__range { margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--st-separator); }
 .exam__rcap {
   display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
   font-size: 11px; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko);
 }
-.exam__rcap b { color: var(--accent-ink); font-weight: 700; font-variant-numeric: tabular-nums; }
-.exam__list {
-  position: relative; margin-top: 11px; padding-left: 12px;
-  display: flex; flex-direction: column; gap: 10px;
-}
-.exam__list::before {
-  content: ''; position: absolute; left: 0; top: 5px; bottom: 5px; width: 2px;
-  border-radius: 2px; background: var(--st-accent-line);
-}
-.exam__row { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 9px; align-items: baseline; }
-.exam__no { font-size: 11px; font-weight: 700; color: var(--accent-ink);
-            font-variant-numeric: tabular-nums; white-space: nowrap; }
+.exam__rcap b { color: var(--st-label); font-weight: 700; font-variant-numeric: tabular-nums; }
+.exam__list { margin-top: 11px; display: flex; flex-direction: column; gap: 10px; }
+.exam__row { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+.exam__no { font-size: 11px; font-weight: 700; color: var(--st-label-2);
+            font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+.exam__no i { font-style: normal; font-weight: 500; color: var(--st-label-3); }
 .exam__t { font-size: 12.5px; line-height: 1.55; color: var(--st-label);
            letter-spacing: var(--track-ko); word-break: keep-all; }
 .exam__none { margin-top: 16px; font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
@@ -237,12 +232,11 @@
 .lesson.is-next .lesson__date { color: var(--accent-ink); font-weight: 700; }
 .lesson.is-next .lesson__no { color: var(--st-label-2); }
 .lesson__row:hover { background: var(--st-fill-3); }
-.lesson.is-exam .lesson__row::before {
-  content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px;
-  border-radius: 2px; background: var(--accent);
-}
 .lesson__no { font-size: 12px; font-weight: 700; color: var(--st-label-3);
               font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+/* 시험 범위에 든 차시는 번호를 제 색으로 세워 둔다. 범위 밖은 흐리다.
+   (범위가 전체와 같을 땐 표시하지 않는다 — 모두가 강조되면 강조가 아니다) */
+.lesson.is-exam .lesson__no { color: var(--st-label); }
 .lesson__main { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .lesson__t { font-size: 14.5px; font-weight: 600; letter-spacing: var(--track-ko); color: var(--st-label);
              word-break: keep-all; }
@@ -910,10 +904,11 @@ select.form-input { cursor: pointer; }
         const from = +exam.from || 1, to = +exam.to || total;
         const a = lessons[from - 1], b = lessons[to - 1];
         const cap = `<div class="exam__rcap"><span>시험 범위</span><b>${from}–${to}차시 · ${to - from + 1}개</b></div>`;
-        const row = (no, l) => `<div class="exam__row"><span class="exam__no">${no}차시</span>` +
-                               `<span class="exam__t">${esc(l ? l.title : '')}</span></div>`;
+        const row = (no, l, tail) => `<div class="exam__row"><span class="exam__no">${no}차시<i>${tail}</i></span>` +
+                                     `<span class="exam__t">${esc(l ? l.title : '')}</span></div>`;
         document.getElementById('examRange').innerHTML = (a && b)
-            ? cap + `<div class="exam__list">${row(from, a)}${from === to ? '' : row(to, b)}</div>`
+            ? cap + `<div class="exam__list">${row(from, a, from === to ? '' : '부터')}` +
+                    `${from === to ? '' : row(to, b, '까지')}</div>`
             : cap;
     }
 
@@ -1019,7 +1014,10 @@ select.form-input { cursor: pointer; }
     function lessonRow(it, mine, total, cls) {
         const done = it.no <= mine;
         const now = it.no === mine + 1;
-        const inExam = exam && exam.date && it.no >= (+exam.from || 1) && it.no <= (+exam.to || total);
+        // 범위가 전체와 같으면 표시가 아무 말도 못 한다. 진짜 부분집합일 때만 세운다.
+        const eFrom = +exam?.from || 1, eTo = +exam?.to || total;
+        const partial = exam && exam.date && (eFrom > 1 || eTo < total);
+        const inExam = partial && it.no >= eFrom && it.no <= eTo;
         const d = cls ? lessonDate(cls, it.no) : null;
 
         /* '전체'를 골랐을 때 —

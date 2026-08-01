@@ -437,17 +437,12 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
   transition: background var(--st-dur-fast) var(--st-ease),
               padding-left var(--st-spring-snappy-dur) var(--st-spring-snappy);
 }
-/* 손이 닿은 줄에 얇은 강조 레일이 선다 — 어디를 읽고 있는지 잃지 않게 */
-.q-row::before {
-  content: ''; position: absolute; left: 0; top: 9px; bottom: 9px; width: 2px;
-  border-radius: 2px; background: var(--accent);
-  opacity: 0; transform: scaleY(0.4); transform-origin: center;
-  transition: opacity var(--st-dur-fast) var(--st-ease),
-              transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
-}
-.q-row:hover { background: var(--st-fill-3); padding-left: 18px; }
-.q-row:hover::before, .q-item.is-open > .q-row::before { opacity: 1; transform: scaleY(1); }
-.q-item.is-open > .q-row { background: var(--st-fill-3); padding-left: 18px; }
+/* 손이 닿은 줄은 면과 자리로 답한다 — 배경이 들어오고 줄이 살짝 밀리고
+   제목이 강조색이 된다. 왼쪽에 색 막대를 세우지 않는다. */
+.q-row:hover { background: var(--st-fill-3); padding-left: 20px; }
+.q-row:hover .q-title { color: var(--accent-ink); }
+.q-item.is-open > .q-row { background: var(--st-fill-3); padding-left: 20px; }
+.q-item.is-open .q-title { color: var(--accent-ink); }
 
 .q-state {
   display: inline-flex; align-items: center; gap: 6px; justify-self: start;
@@ -463,6 +458,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 .q-title {
   font-size: 14.5px; font-weight: 600; letter-spacing: var(--track-ko); color: var(--st-label);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  transition: color var(--st-dur-fast) var(--st-ease);
 }
 .q-title svg { vertical-align: -2px; color: var(--st-label-3); }
 .q-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
