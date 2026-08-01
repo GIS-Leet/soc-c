@@ -127,12 +127,29 @@
 }
 .exam__d small { font-size: 0.44em; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko); }
 .exam__when { margin-top: 8px; font-size: 12px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
-.exam__range {
-  margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--st-separator);
-  font-size: 12.5px; line-height: 1.7; color: var(--st-label); letter-spacing: var(--track-ko);
-  word-break: keep-all;
+/* 시험 범위 —
+   '1차시 …부터 5차시 …까지'를 한 문장으로 흘리면, 좁은 칸에서 제목이 접히면서
+   '부터'와 '까지'가 엉뚱한 줄머리에 떨어진다. 문장 대신 두 줄로 세우고
+   왼쪽 세로선이 둘을 한 범위로 묶게 한다. */
+.exam__range { margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--st-separator); }
+.exam__rcap {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+  font-size: 11px; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko);
 }
-.exam__range b { color: var(--accent-ink); font-weight: 700; }
+.exam__rcap b { color: var(--accent-ink); font-weight: 700; font-variant-numeric: tabular-nums; }
+.exam__list {
+  position: relative; margin-top: 11px; padding-left: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.exam__list::before {
+  content: ''; position: absolute; left: 0; top: 5px; bottom: 5px; width: 2px;
+  border-radius: 2px; background: var(--st-accent-line);
+}
+.exam__row { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 9px; align-items: baseline; }
+.exam__no { font-size: 11px; font-weight: 700; color: var(--accent-ink);
+            font-variant-numeric: tabular-nums; white-space: nowrap; }
+.exam__t { font-size: 12.5px; line-height: 1.55; color: var(--st-label);
+           letter-spacing: var(--track-ko); word-break: keep-all; }
 .exam__none { margin-top: 16px; font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
 
 /* ══════════ 반 고르기 ══════════ */
@@ -888,14 +905,16 @@ select.form-input { cursor: pointer; }
         const days = Math.round((t - today) / 86400000);
         document.getElementById('examD').textContent = days > 0 ? `D−${days}` : days === 0 ? 'D-DAY' : '종료';
         document.getElementById('examLabel').textContent = exam.label || '';
-        document.getElementById('examWhen').textContent =
-            `${t.getFullYear()}. ${t.getMonth() + 1}. ${t.getDate()}`;
+        document.getElementById('examWhen').textContent = `${t.getFullYear()}년 ${fmtDate(t)}`;
 
         const from = +exam.from || 1, to = +exam.to || total;
         const a = lessons[from - 1], b = lessons[to - 1];
+        const cap = `<div class="exam__rcap"><span>시험 범위</span><b>${from}–${to}차시 · ${to - from + 1}개</b></div>`;
+        const row = (no, l) => `<div class="exam__row"><span class="exam__no">${no}차시</span>` +
+                               `<span class="exam__t">${esc(l ? l.title : '')}</span></div>`;
         document.getElementById('examRange').innerHTML = (a && b)
-            ? `시험 범위 — <b>${from}차시</b> ${esc(a.title)}<br>부터 <b>${to}차시</b> ${esc(b.title)}까지`
-            : `시험 범위 — <b>${from}차시 ~ ${to}차시</b>`;
+            ? cap + `<div class="exam__list">${row(from, a)}${from === to ? '' : row(to, b)}</div>`
+            : cap;
     }
 
     function renderPicker() {
