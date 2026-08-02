@@ -371,6 +371,8 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
   font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .sem__done[hidden] { display: none; }
+/* 답변은 갔는데 학생이 아직 안 본 건수 — 학기 머리에서 바로 보이게 */
+.sem__done--unread { background: var(--st-accent-soft); color: var(--accent-ink); margin-left: 6px; }
 .sem__body { display: grid; grid-template-rows: 0fr;
              transition: grid-template-rows var(--st-spring-smooth-dur) var(--st-spring-smooth); }
 .sem.is-open .sem__body { grid-template-rows: 1fr; }
@@ -409,6 +411,32 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 .q-state::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 .q-state--done { background: var(--st-success-soft); color: var(--st-success-ink); }
 .q-state--wait { background: var(--st-fill-2); color: var(--st-label-3); }
+/* 학생이 답변을 열어 봤다는 표시. '답변 완료'와 색을 나눠 두어야
+   선생님이 목록만 훑어도 아직 안 본 글이 눈에 걸린다. */
+.q-state--read { background: var(--st-accent-soft); color: var(--accent-ink); }
+
+/* ══════════ 답변 확인 도장 ══════════
+   익명 게시판이라 '본인'을 아는 열쇠는 글쓴이가 정한 비밀번호뿐이다.
+   그래서 확인 버튼은 비밀번호를 한 번 확인하고 눌린다. */
+.receipt {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--st-separator);
+}
+.receipt[hidden] { display: none; }
+.receipt__btn {
+  height: 32px; padding: 0 14px; border-radius: var(--st-r-full);
+  background: var(--st-accent-soft); color: var(--accent-ink);
+  font-size: 12.5px; font-weight: 700; letter-spacing: var(--track-ko);
+  transition: background var(--st-dur-fast) var(--st-ease);
+}
+.receipt__btn:hover { background: var(--st-accent-line); }
+.receipt__hint { font-size: 11.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.receipt__done {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; font-weight: 600; letter-spacing: var(--track-ko);
+  color: var(--accent-ink);
+}
+.receipt__again { font-size: 11.5px; color: var(--st-label-3); font-weight: 500; }
 
 .q-main { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .q-title {
@@ -751,6 +779,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         <button class="st-segmented__item is-on" role="tab" aria-selected="true" data-value="all">전체</button>
         <button class="st-segmented__item" role="tab" aria-selected="false" data-value="done">답변 완료</button>
         <button class="st-segmented__item" role="tab" aria-selected="false" data-value="wait">답변 전</button>
+        <button class="st-segmented__item" role="tab" aria-selected="false" data-value="unread">미확인</button>
       </div>
     </div>
     <p class="search-status" id="searchStatus"></p>
@@ -879,6 +908,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     const SVG_LOCK = `<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
     const SVG_IMAGE = `<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
     const SVG_CORNER = `<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 10 20 15 15 20"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>`;
+    const SVG_CHECK = `<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
     const SVG_CHEV = `<svg class="q-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>`;
 
     function escapeHTML(str) {
@@ -991,7 +1021,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         const isSecret = li.dataset.secret === 'true'; const correctPw = li.dataset.pw;
         if (isSecret && !isAdmin) {
             window.AppModal.show({type: 'prompt', title: '비밀글', msg: '열람 암호를 입력하십시오.'}, (pw) => {
-                if (pw === correctPw) li.classList.add('is-open');
+                if (pw === correctPw) { li.dataset.unlocked = 'true'; li.classList.add('is-open'); }
                 else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호가 일치하지 않습니다.'});
             });
         } else li.classList.add('is-open');
@@ -1046,6 +1076,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
                 <span class="sem__count" id="sem-count-${s.id}">0건</span>
                 <span class="sem__spacer"></span>
                 <span class="sem__done" id="sem-done-${s.id}" hidden></span>
+                <span class="sem__done sem__done--unread" id="sem-unread-${s.id}" hidden></span>
             </button>
             <div class="sem__body" id="sem-body-${s.id}"><div class="sem__in">
                 <ul class="board-list" id="sem-list-${s.id}"></ul>
@@ -1075,13 +1106,77 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         const li = document.getElementById(`post-${qId}`);
         if (!li) return;
         li.dataset.answers = n;
-        const done = n > 0;
-        const chip = li.querySelector('.q-state');
-        if (chip) { chip.className = 'q-state ' + (done ? 'q-state--done' : 'q-state--wait'); chip.textContent = done ? '답변 완료' : '답변 전'; }
         const empty = document.getElementById(`no-reply-${qId}`);
-        if (empty) empty.hidden = done;
+        if (empty) empty.hidden = n > 0;
+        paintReadState(qId);
         scheduleRefresh();
     }
+
+    /* ══════════ 세 단계 상태 ══════════
+       답변 전 → 답변 완료(학생이 아직 안 봄) → 확인함
+       마지막 답변보다 확인 시각이 앞서면 다시 '답변 완료'로 돌아간다.
+       그래야 답변을 하나 더 달았을 때 '또 안 봤다'가 저절로 드러난다. */
+    function readStateOf(li) {
+        if (!li) return 'wait';
+        if ((+li.dataset.answers || 0) === 0) return 'wait';
+        const readAt = +li.dataset.readAt || 0;
+        if (!readAt) return 'done';
+        const last = latestAnswerOf(li.id.replace('post-', ''));
+        // 답변 시각은 분 단위라 같은 분에 읽으면 딱 떨어지지 않는다 — 1분을 눈감아 준다
+        return readAt + 60000 >= (last ? last.ts : 0) ? 'read' : 'done';
+    }
+
+    function paintReadState(qId) {
+        const li = document.getElementById(`post-${qId}`);
+        if (!li) return;
+        const state = readStateOf(li);
+        li.dataset.state = state;
+
+        const chip = li.querySelector('.q-state');
+        if (chip) {
+            chip.className = 'q-state q-state--' + state;
+            chip.textContent = state === 'wait' ? '답변 전' : state === 'done' ? '답변 완료' : '확인함';
+        }
+
+        const box = document.getElementById(`receipt-${qId}`);
+        if (!box) return;
+        box.hidden = state === 'wait';
+        const readAt = +li.dataset.readAt || 0;
+        if (state === 'read') {
+            box.innerHTML = `<span class="receipt__done">${SVG_CHECK} ${fmtReadAt(readAt)}에 확인함</span>`;
+        } else {
+            const again = readAt ? `<span class="receipt__again">${fmtReadAt(readAt)}에 확인한 뒤 답변이 더 달렸습니다.</span>` : '';
+            box.innerHTML = `<button class="receipt__btn" type="button" onclick="window.markRead('${qId}')">답변을 확인했습니다</button>
+                <span class="receipt__hint">글을 쓸 때 정한 비밀번호로 확인합니다.</span>${again}`;
+        }
+    }
+
+    function fmtReadAt(ms) {
+        if (!ms) return '';
+        const d = new Date(ms);
+        return `${d.getMonth() + 1}월 ${d.getDate()}일`;
+    }
+
+    /* 확인 도장을 찍는다 — 비밀번호가 맞아야 남는다.
+       비밀글을 이미 비밀번호로 열었다면 다시 묻지 않는다. */
+    window.markRead = function(qId) {
+        const li = document.getElementById(`post-${qId}`);
+        if (!li) return;
+        if (isAdmin) {
+            window.AppModal.show({ type: 'alert', title: '확인 표시', msg: '확인 표시는 질문을 쓴 학생만 남길 수 있습니다. 관리자로 로그인한 상태에서는 남기지 않습니다.' });
+            return;
+        }
+        const stamp = () => update(dbRef(db, `questions/${qId}`), { readAt: Date.now() });
+        if (li.dataset.unlocked === 'true') { stamp(); return; }
+        window.AppModal.show({
+            type: 'prompt', title: '답변 확인', confirmText: '확인 표시',
+            msg: '글을 쓸 때 정한 비밀번호를 입력하면 선생님께 확인 표시가 전달됩니다.'
+        }, (pw) => {
+            if (pw === null) return;
+            if (pw === li.dataset.pw) { li.dataset.unlocked = 'true'; stamp(); }
+            else window.AppModal.show({ type: 'alert', msg: '비밀번호가 일치하지 않습니다.' });
+        });
+    };
 
     // 목록에 함께 적는 답변 수(대댓글 포함)
     function updateReplyCount(qId, change) {
@@ -1130,7 +1225,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         const id = snapshot.key; const data = snapshot.val(); const titleSpan = document.getElementById(`title-text-${id}`); const bodyDiv = document.getElementById(`post-body-${id}`);
         if (titleSpan) titleSpan.innerHTML = (data.isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
         if (bodyDiv && !bodyDiv.querySelector('textarea')) { let contentHtml = escapeHTML(data.text); if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">작성 ${data.time}</div>`; bodyDiv.innerHTML = contentHtml; bodyDiv.dataset.text = data.text; bodyDiv.dataset.title = data.title; }
-        const postLi = document.getElementById(`post-${id}`); if (postLi) { postLi.dataset.sTitle = data.title || ''; postLi.dataset.sBody = data.isSecret ? '' : (data.text || ''); }
+        const postLi = document.getElementById(`post-${id}`); if (postLi) { postLi.dataset.sTitle = data.title || ''; postLi.dataset.sBody = data.isSecret ? '' : (data.text || ''); postLi.dataset.readAt = data.readAt || 0; paintReadState(id); }
         scheduleRefresh();
     });
 
@@ -1148,6 +1243,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         li.dataset.secret = data.isSecret || false;
         li.dataset.answers = 0;
         li.dataset.ts = postTime(data);
+        li.dataset.readAt = data.readAt || 0;
 
         const author = data.author || '익명';
         const rawTitle = data.title || (data.text || '').substring(0, 20) + '...';
@@ -1190,6 +1286,8 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
                     </div>
                     <ul class="comment-list" id="comment-list-${id}"></ul>
 
+                    <div class="receipt" id="receipt-${id}" hidden></div>
+
                     <div class="reply-input-group" id="reply-group-${id}">
                         <div style="display:flex; flex-direction:column; flex:1; gap:6px;">
                             <textarea id="reply-input-${id}" placeholder="답변을 입력하세요"></textarea>
@@ -1212,7 +1310,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         list.prepend(li);
         refreshAdminUI();
         // 스냅샷에 이미 답변이 들어 있으면 첫 그림부터 '답변 완료'로 칠한다
-        if (data.replies) Object.keys(data.replies).forEach(k => noteAnswer(id, k, true));
+        if (data.replies) Object.keys(data.replies).forEach(k => { noteAnswerText(id, k, data.replies[k]); noteAnswer(id, k, true); });
         else paintAnswerState(id, answerKeys.get(id) ? answerKeys.get(id).size : 0);
         scheduleRefresh();
     }
@@ -1266,13 +1364,18 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         SEMESTERS.forEach((s, i) => {
             const sec = document.getElementById(`sem-${s.id}`);
             const items = Array.from(document.getElementById(`sem-list-${s.id}`).children);
-            let matched = 0, groupDone = 0;
+            let matched = 0, groupDone = 0, groupUnread = 0;
 
             items.forEach(li => {
                 const isDone = (+li.dataset.answers || 0) > 0;
+                const state = li.dataset.state || readStateOf(li);
                 all++; if (isDone) { done++; groupDone++; }
+                if (state === 'done') groupUnread++;
                 rows.push({ ts: +li.dataset.ts || 0, done: isDone });
-                const okStatus = statusFilter === 'all' || (statusFilter === 'done') === isDone;
+                const okStatus = statusFilter === 'all'
+                    || (statusFilter === 'done' && isDone)
+                    || (statusFilter === 'wait' && !isDone)
+                    || (statusFilter === 'unread' && state === 'done');
                 if (okStatus && matchQuery(li)) {
                     matched++;
                     li.style.display = matched <= limits[s.id] ? '' : 'none';
@@ -1288,6 +1391,9 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             const doneChip = document.getElementById(`sem-done-${s.id}`);
             doneChip.hidden = filtering || groupDone === 0;
             doneChip.textContent = `답변 완료 ${groupDone}`;
+            const unreadChip = document.getElementById(`sem-unread-${s.id}`);
+            unreadChip.hidden = filtering || groupUnread === 0;
+            unreadChip.textContent = `미확인 ${groupUnread}`;
 
             // 검색·필터 중에는 결과가 접혀 있으면 안 된다 — 강제로 펼친다
             const isOpen = filtering ? true : openState[s.id];
@@ -1478,6 +1584,8 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         if (!m) { m = new Map(); answerTexts.set(qId, m); }
         if (data === null) m.delete(replyId);
         else m.set(replyId, { text: (data.text || '').trim() || '(사진 답변)', time: data.time || '', ts: parseTimeStr(data.time) });
+        // 마지막 답변 시각이 바뀌면 '확인함'이 '답변 완료'로 되돌아갈 수 있다
+        paintReadState(qId);
     }
     function latestAnswerOf(qId) {
         const m = answerTexts.get(qId);
