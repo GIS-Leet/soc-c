@@ -31,24 +31,32 @@
 
 <style>
 /* ============================================================================
-   DESK — 나만 보는 작업 공간 (1단계: 노트)
+   DESK — 나만 보는 작업 공간 (2단계: 대시보드 + 노트)
    골격·색·재질은 stratum.css + geo.css. 여기에는 이 페이지 고유의 것만.
    ========================================================================== */
 html, body { height: 100%; }
 body { display: flex; flex-direction: column; overflow: hidden; }
 
-/* ── 상단 바 — 작업 공간용 컴팩트 ── */
+/* ── 상단 바 ── */
 .desk-bar { flex-shrink: 0; }
 .desk-bar .geo-bar__in { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-.desk-id { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.desk-id .tag {
-  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--st-label-3); border: 1px solid var(--st-separator);
-  padding: 3px 9px; border-radius: var(--st-r-full); white-space: nowrap;
-}
 .desk-side { display: flex; align-items: center; gap: 10px; }
 .save-state { font-size: 12px; color: var(--st-label-3); white-space: nowrap; transition: color 200ms; }
 .save-state.busy { color: var(--st-accent-ink); }
+
+/* 뷰 전환 세그먼트 */
+.desk-views {
+  display: none; gap: 2px; background: var(--st-fill-2);
+  border-radius: var(--st-r-full); padding: 3px;
+}
+.desk-views button {
+  border: 0; background: transparent; cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 600; color: var(--st-label-3);
+  padding: 6px 16px; border-radius: var(--st-r-full); transition: all 175ms;
+  white-space: nowrap;
+}
+.desk-views button:hover { color: var(--st-label-2); }
+.desk-views button.on { background: var(--st-surface); color: var(--st-label); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
 /* ── 로그인 게이트 ── */
 .gate { flex: 1; display: grid; place-items: center; padding: 24px; }
@@ -57,33 +65,119 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .gate h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
 .gate p { font-size: 13.5px; color: var(--st-label-2); margin: 0 0 24px; line-height: 1.6; word-break: keep-all; }
 .gate .warn { color: var(--st-danger-ink); font-size: 13px; margin-top: 14px; }
-.g-btn {
-  display: inline-flex; align-items: center; gap: 10px;
-  width: 100%; justify-content: center;
-}
+.g-btn { display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center; }
 .g-btn svg { width: 16px; height: 16px; }
 
-/* ── 작업 공간 ── */
-.desk { flex: 1; min-height: 0; display: none; grid-template-columns: 300px 1fr; gap: 14px;
+/* ── 본문 공통 ── */
+.desk { flex: 1; min-height: 0; display: none; flex-direction: column;
   width: 100%; max-width: 1360px; margin: 0 auto; padding: 14px var(--pad-x, 20px) 18px; }
 
-/* 좌: 노트 목록 */
-.note-rail { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
-.rail-top { padding: 14px 14px 10px; display: flex; gap: 8px; flex-shrink: 0; }
-.rail-top input {
-  flex: 1; min-width: 0; height: 36px; padding: 0 12px;
+/* 패널 공통 머리 */
+.dash-h {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase;
+  color: var(--st-label-3); margin-bottom: 12px;
+}
+.dash-h b { font-size: inherit; color: var(--st-label-2); font-weight: 700; }
+
+/* ══════════ 대시보드 뷰 ══════════ */
+.dash { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin;
+  display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 14px; align-content: start; }
+.dash .panel { padding: 18px 20px; }
+.p-today { grid-column: 1; grid-row: 1 / 3; }
+.p-todo  { grid-column: 2; grid-row: 1; }
+.p-dday  { grid-column: 3; grid-row: 1; }
+.p-table { grid-column: 2 / 4; grid-row: 2; }
+
+/* 오늘 · 일정 */
+.today-date { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 2px; }
+.today-sub { font-size: 12px; color: var(--st-label-3); margin-bottom: 14px; }
+.ev-row { display: flex; align-items: baseline; gap: 10px; padding: 8px 2px;
+  border-bottom: 1px solid var(--st-separator); font-size: 13.5px; color: var(--st-label); }
+.ev-row:last-child { border-bottom: 0; }
+.ev-row .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--st-accent-ink); flex-shrink: 0; transform: translateY(-2px); }
+.ev-row .x { margin-left: auto; opacity: 0; border: 0; background: none; cursor: pointer;
+  color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
+.ev-row:hover .x { opacity: 1; } .ev-row .x:hover { color: var(--st-danger-ink); }
+.ev-empty { padding: 12px 2px; font-size: 13px; color: var(--st-label-3); }
+.quick-add { display: flex; gap: 8px; margin-top: 12px; }
+.quick-add input { flex: 1; min-width: 0; height: 36px; padding: 0 12px;
   background: var(--st-fill-2); color: var(--st-label);
   border: 1px solid transparent; border-radius: var(--st-r-full);
-  font-size: 13px; outline: none; transition: border-color 175ms, background 175ms;
-}
+  font-size: 13px; outline: none; transition: border-color 175ms, background 175ms; }
+.quick-add input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+.up-group { margin-top: 16px; }
+.up-date { font-size: 11px; font-weight: 700; color: var(--st-label-3); letter-spacing: 0.04em;
+  padding: 6px 2px 2px; border-bottom: 1px solid var(--st-separator); display: flex; gap: 6px; align-items: baseline; }
+.up-date em { font-style: normal; color: var(--st-accent-ink); }
+
+/* 할 일 */
+.todo-add { display: flex; gap: 8px; margin-bottom: 10px; }
+.todo-add input { flex: 1; min-width: 0; height: 36px; padding: 0 12px;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid transparent; border-radius: var(--st-r-full);
+  font-size: 13px; outline: none; transition: border-color 175ms, background 175ms; }
+.todo-add input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+.todo-row { display: flex; align-items: center; gap: 10px; padding: 7px 2px;
+  border-bottom: 1px solid var(--st-separator); font-size: 13.5px; }
+.todo-row:last-child { border-bottom: 0; }
+.todo-row input[type=checkbox] { accent-color: var(--st-accent-solid); width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; }
+.todo-row .txt { flex: 1; min-width: 0; word-break: break-all; }
+.todo-row.done .txt { color: var(--st-label-3); text-decoration: line-through; }
+.todo-row .x { opacity: 0; border: 0; background: none; cursor: pointer;
+  color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
+.todo-row:hover .x { opacity: 1; } .todo-row .x:hover { color: var(--st-danger-ink); }
+
+/* 디데이 */
+.dday-row { display: flex; align-items: center; gap: 10px; padding: 8px 2px;
+  border-bottom: 1px solid var(--st-separator); font-size: 13.5px; }
+.dday-row:last-child { border-bottom: 0; }
+.dday-row .lb { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dday-row .dt { font-size: 11px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
+.dday-badge { font-size: 12px; font-weight: 700; font-feature-settings: 'tnum' 1;
+  padding: 2px 9px; border-radius: var(--st-r-full);
+  background: var(--st-fill-2); color: var(--st-label-2); flex-shrink: 0; }
+.dday-badge.soon { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.dday-badge.past { color: var(--st-label-3); }
+.dday-row .x { opacity: 0; border: 0; background: none; cursor: pointer;
+  color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
+.dday-row:hover .x { opacity: 1; } .dday-row .x:hover { color: var(--st-danger-ink); }
+.dday-add { display: flex; gap: 6px; margin-top: 10px; }
+.dday-add input { height: 34px; padding: 0 10px; background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid transparent; border-radius: var(--st-r-element); font-size: 12.5px; outline: none; }
+.dday-add input:focus { background: var(--st-surface); border-color: var(--accent); }
+.dday-add .lb-in { flex: 1; min-width: 0; }
+.dday-add .dt-in { width: 122px; flex-shrink: 0; font-feature-settings: 'tnum' 1; }
+
+/* 시간표 */
+.tt { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.tt th { font-size: 11px; font-weight: 700; color: var(--st-label-3); letter-spacing: 0.05em;
+  padding: 6px 4px; border-bottom: 1px solid var(--st-separator); }
+.tt th.pd { width: 34px; }
+.tt td { border-bottom: 1px solid var(--st-separator); border-left: 1px solid var(--st-separator);
+  padding: 0; height: 34px; text-align: center; font-size: 12.5px; cursor: pointer;
+  color: var(--st-label); transition: background 150ms; }
+.tt td:first-child { border-left: 0; cursor: default; font-size: 11px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
+.tt tr:last-child td { border-bottom: 0; }
+.tt td:not(:first-child):hover { background: var(--st-fill-2); }
+.tt td .mt { color: var(--st-separator); }
+.tt td input { width: 100%; height: 100%; border: 0; background: var(--st-accent-soft);
+  text-align: center; font-family: inherit; font-size: 12.5px; color: var(--st-label); outline: none; }
+
+/* ══════════ 노트 뷰 ══════════ */
+.notes-wrap { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+.note-rail { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
+.rail-top { padding: 14px 14px 10px; display: flex; gap: 8px; flex-shrink: 0; }
+.rail-top input { flex: 1; min-width: 0; height: 36px; padding: 0 12px;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid transparent; border-radius: var(--st-r-full);
+  font-size: 13px; outline: none; transition: border-color 175ms, background 175ms; }
 .rail-top input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
 .rail-top .new-btn { height: 36px; padding: 0 14px; white-space: nowrap; }
 .note-list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
-.note-item {
-  display: block; width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+.note-item { display: block; width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
   padding: 11px 16px; border-top: 1px solid var(--st-separator);
-  font-family: inherit; color: inherit; transition: background 150ms;
-}
+  font-family: inherit; color: inherit; transition: background 150ms; }
 .note-item:hover { background: var(--st-fill-2); }
 .note-item.on { background: var(--st-accent-soft); }
 .note-item .t { display: block; font-size: 13.5px; font-weight: 650; letter-spacing: -0.01em; color: var(--st-label);
@@ -91,34 +185,34 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .note-item .d { display: block; font-size: 11px; color: var(--st-label-3); margin-top: 2px; font-feature-settings: 'tnum' 1; }
 .rail-empty { padding: 28px 16px; font-size: 13px; color: var(--st-label-3); text-align: center; border-top: 1px solid var(--st-separator); }
 
-/* 우: 에디터 */
 .note-pane { display: flex; flex-direction: column; min-height: 0; min-width: 0; padding: 0; overflow: hidden; }
 .pane-top { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--st-separator); flex-shrink: 0; }
 .pane-top .back-btn { display: none; }
-#noteTitle {
-  flex: 1; min-width: 0; border: 0; background: transparent; outline: none;
-  font-family: inherit; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--st-label);
-}
+#noteTitle { flex: 1; min-width: 0; border: 0; background: transparent; outline: none;
+  font-family: inherit; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--st-label); }
 #noteTitle::placeholder { color: var(--st-label-3); }
 .pane-top .del-btn { white-space: nowrap; }
 #editorHost { flex: 1; min-height: 0; }
 .pane-blank { flex: 1; display: grid; place-items: center; color: var(--st-label-3); font-size: 13.5px; padding: 24px; text-align: center; line-height: 1.7; }
 
-/* Toast UI를 STRATUM에 맞게 다듬기 */
+/* Toast UI를 STRATUM에 맞게 */
 .toastui-editor-defaultUI { border: 0 !important; border-radius: 0 !important; font-family: inherit !important; }
 .toastui-editor-defaultUI-toolbar { background: transparent !important; border-bottom: 1px solid var(--st-separator) !important; border-radius: 0 !important; }
 .toastui-editor-main .ProseMirror { font-size: 15px; }
 .toastui-editor-mode-switch { background: transparent !important; border-top: 1px solid var(--st-separator) !important; }
 
-/* ── 모바일: 목록 ↔ 편집 화면 전환 ── */
+/* ══════════ 모바일 ══════════ */
 @media (max-width: 860px) {
   body { overflow: auto; }
-  .desk { grid-template-columns: 1fr; padding: 10px 12px 14px; }
-  .desk.editing .note-rail { display: none; }
-  .desk:not(.editing) .note-pane { display: none; }
-  .note-rail, .note-pane { height: calc(100dvh - 120px); }
+  .desk { padding: 10px 12px 14px; }
+  .dash { grid-template-columns: 1fr; overflow: visible; }
+  .p-today, .p-todo, .p-dday, .p-table { grid-column: 1; grid-row: auto; }
+  .notes-wrap { grid-template-columns: 1fr; }
+  .notes-wrap.editing .note-rail { display: none; }
+  .notes-wrap:not(.editing) .note-pane { display: none; }
+  .note-rail, .note-pane { height: calc(100dvh - 130px); }
   .pane-top .back-btn { display: inline-flex; }
-  .desk-id .tag { display: none; }
+  .desk-views button { padding: 6px 12px; font-size: 12.5px; }
 }
 </style>
 </head>
@@ -137,7 +231,10 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         </svg>
         <b>Geographia</b>
       </a>
-      <div class="desk-id"><span class="tag">Desk · Private</span></div>
+      <nav class="desk-views" id="deskViews">
+        <button class="on" data-view="dash">대시보드</button>
+        <button data-view="notes">노트</button>
+      </nav>
       <div class="desk-side">
         <span class="save-state" id="saveState"></span>
         <button class="btn-sub" id="signOutBtn" style="display:none;">로그아웃</button>
@@ -167,24 +264,67 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   <!-- ══════════ 작업 공간 ══════════ -->
   <main class="desk" id="desk">
 
-    <!-- 좌: 노트 목록 -->
-    <aside class="panel note-rail">
-      <div class="rail-top">
-        <input type="search" id="noteSearch" placeholder="노트 검색" autocomplete="off">
-        <button class="btn-solid new-btn" id="newNoteBtn">+ 새 노트</button>
-      </div>
-      <div class="note-list" id="noteList"></div>
-    </aside>
+    <!-- ── 대시보드 뷰 ── -->
+    <section class="dash" id="dashView">
 
-    <!-- 우: 에디터 -->
-    <section class="panel note-pane">
-      <div class="pane-top">
-        <button class="btn-sub back-btn" id="backBtn">← 목록</button>
-        <input type="text" id="noteTitle" placeholder="제목 없음" maxlength="80" disabled>
-        <button class="btn-sub del-btn" id="delNoteBtn" style="display:none;">삭제</button>
+      <!-- 오늘 · 일정 -->
+      <div class="panel p-today">
+        <div class="dash-h">오늘 · 일정 <b><a href="vault.html" style="color:inherit;">달력 열기 ↗</a></b></div>
+        <div class="today-date" id="todayDate"></div>
+        <div class="today-sub" id="todaySub"></div>
+        <div id="todayEvents"></div>
+        <div class="quick-add">
+          <input type="text" id="quickEvent" placeholder="오늘 일정 추가 — Enter" maxlength="60">
+        </div>
+        <div id="upcoming"></div>
       </div>
-      <div id="editorHost"></div>
-      <div class="pane-blank" id="paneBlank">왼쪽에서 노트를 선택하거나<br>「+ 새 노트」를 눌러 시작하세요.</div>
+
+      <!-- 할 일 -->
+      <div class="panel p-todo">
+        <div class="dash-h">할 일 <b id="todoCount"></b></div>
+        <div class="todo-add">
+          <input type="text" id="todoInput" placeholder="할 일 추가 — Enter" maxlength="80">
+        </div>
+        <div id="todoList"></div>
+      </div>
+
+      <!-- 디데이 -->
+      <div class="panel p-dday">
+        <div class="dash-h">디데이</div>
+        <div id="ddayList"></div>
+        <div class="dday-add">
+          <input type="text" class="lb-in" id="ddayLabel" placeholder="이름 (예: 기말고사)" maxlength="30">
+          <input type="date" class="dt-in" id="ddayDate">
+          <button class="btn-sub" id="ddayAddBtn">추가</button>
+        </div>
+      </div>
+
+      <!-- 주간 시간표 -->
+      <div class="panel p-table">
+        <div class="dash-h">주간 시간표 <b>칸을 눌러 입력</b></div>
+        <table class="tt" id="ttable"></table>
+      </div>
+
+    </section>
+
+    <!-- ── 노트 뷰 ── -->
+    <section class="notes-wrap" id="notesView" style="display:none;">
+      <aside class="panel note-rail">
+        <div class="rail-top">
+          <input type="search" id="noteSearch" placeholder="노트 검색" autocomplete="off">
+          <button class="btn-solid new-btn" id="newNoteBtn">+ 새 노트</button>
+        </div>
+        <div class="note-list" id="noteList"></div>
+      </aside>
+      <section class="panel note-pane">
+        <div class="pane-top">
+          <button class="btn-sub back-btn" id="backBtn">← 목록</button>
+          <input type="text" id="noteTitle" placeholder="제목 없음" maxlength="80" disabled>
+          <button class="btn-sub del-btn" id="delNoteBtn" style="display:none;">삭제</button>
+        </div>
+        <div id="editorHost"></div>
+        <div class="pane-blank" id="paneBlank">왼쪽에서 노트를 선택하거나<br>「+ 새 노트」를 눌러 시작하세요.</div>
+      </section>
     </section>
 
   </main>
@@ -197,11 +337,11 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getDatabase, ref, onValue, set, update, remove, push, off }
+    import { getDatabase, ref, onValue, set, update, remove, push }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     // ── 설정 ─────────────────────────────────────────────
-    const OWNER_EMAIL = "leetae712@gmail.com";   // 이 계정만 통과
+    const OWNER_EMAIL = "leetae712@gmail.com";
     const firebaseConfig = {
       apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
       authDomain: "soc-c-qna.firebaseapp.com",
@@ -214,70 +354,188 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
-    const notesRef = ref(db, 'desk/notes');
 
-    // ── DOM ─────────────────────────────────────────────
     const $ = id => document.getElementById(id);
+    const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const pad = n => String(n).padStart(2, '0');
+    const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const WEEKDAYS = ['일','월','화','수','목','금','토'];
+
+    // ════════════════ 뷰 전환 ════════════════
+    const deskViews = $('deskViews');
+    deskViews.addEventListener('click', e => {
+      const btn = e.target.closest('button'); if (!btn) return;
+      deskViews.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+      $('dashView').style.display = btn.dataset.view === 'dash' ? '' : 'none';
+      $('notesView').style.display = btn.dataset.view === 'notes' ? '' : 'none';
+      if (btn.dataset.view === 'notes' && saveTimer) { /* 노트로 돌아올 때 상태 유지 */ }
+    });
+
+    // ════════════════ 대시보드 ════════════════
+    // ── 오늘 · 일정 (vault/calendar 공유) ──
+    let calendar = {};
+    function renderToday() {
+      const now = new Date();
+      const tKey = keyOf(now);
+      $('todayDate').textContent = `${now.getMonth()+1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일`;
+      const todayEvs = Object.entries(calendar[tKey] || {});
+      $('todaySub').textContent = todayEvs.length ? `일정 ${todayEvs.length}건` : '오늘 일정 없음';
+      $('todayEvents').innerHTML = todayEvs.map(([k, ev]) =>
+        `<div class="ev-row"><span class="dot"></span>${escapeHTML(ev.text)}` +
+        `<button class="x" data-date="${tKey}" data-k="${k}" title="삭제">×</button></div>`).join('')
+        || '<div class="ev-empty">등록된 일정이 없습니다.</div>';
+      // 다가오는 7일
+      let html = '';
+      for (let i = 1; i <= 7; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+        const k = keyOf(d);
+        const evs = Object.entries(calendar[k] || {});
+        if (!evs.length) continue;
+        html += `<div class="up-group"><div class="up-date">${d.getMonth()+1}.${pad(d.getDate())} ${WEEKDAYS[d.getDay()]} <em>${i === 1 ? '내일' : `+${i}일`}</em></div>` +
+          evs.map(([ek, ev]) => `<div class="ev-row"><span class="dot" style="background:var(--st-label-3)"></span>${escapeHTML(ev.text)}` +
+          `<button class="x" data-date="${k}" data-k="${ek}" title="삭제">×</button></div>`).join('') + '</div>';
+      }
+      $('upcoming').innerHTML = html;
+    }
+    $('quickEvent').addEventListener('keydown', async e => {
+      if (e.key !== 'Enter') return;
+      const text = e.target.value.trim(); if (!text) return;
+      e.target.value = '';
+      await push(ref(db, `vault/calendar/${keyOf(new Date())}`), { text });
+    });
+    $('dashView').addEventListener('click', async e => {
+      const x = e.target.closest('.ev-row .x');
+      if (x && confirm('일정을 삭제할까요?')) await remove(ref(db, `vault/calendar/${x.dataset.date}/${x.dataset.k}`));
+    });
+
+    // ── 할 일 ──
+    let todos = {};
+    function renderTodos() {
+      const items = Object.entries(todos).sort((a, b) =>
+        (a[1].done - b[1].done) || (a[1].createdAt - b[1].createdAt));
+      const doneN = items.filter(([, t]) => t.done).length;
+      $('todoCount').textContent = items.length ? `${doneN}/${items.length}` : '';
+      $('todoList').innerHTML = items.map(([id, t]) =>
+        `<div class="todo-row${t.done ? ' done' : ''}">` +
+        `<input type="checkbox" data-id="${id}" ${t.done ? 'checked' : ''}>` +
+        `<span class="txt">${escapeHTML(t.text)}</span>` +
+        `<button class="x" data-del="${id}" title="삭제">×</button></div>`).join('')
+        || '<div class="ev-empty">할 일이 없습니다. 홀가분하네요.</div>';
+    }
+    $('todoInput').addEventListener('keydown', async e => {
+      if (e.key !== 'Enter') return;
+      const text = e.target.value.trim(); if (!text) return;
+      e.target.value = '';
+      await push(ref(db, 'desk/todos'), { text, done: false, createdAt: Date.now() });
+    });
+    $('todoList').addEventListener('click', async e => {
+      const cb = e.target.closest('input[type=checkbox]');
+      if (cb) { await update(ref(db, 'desk/todos/' + cb.dataset.id), { done: cb.checked }); return; }
+      const del = e.target.closest('[data-del]');
+      if (del) await remove(ref(db, 'desk/todos/' + del.dataset.del));
+    });
+
+    // ── 디데이 ──
+    let ddays = {};
+    function renderDdays() {
+      const t0 = new Date(); t0.setHours(0,0,0,0);
+      const items = Object.entries(ddays).sort((a, b) => a[1].date.localeCompare(b[1].date));
+      $('ddayList').innerHTML = items.map(([id, d]) => {
+        const diff = Math.round((new Date(d.date + 'T00:00:00') - t0) / 864e5);
+        const badge = diff === 0 ? 'D-DAY' : diff > 0 ? `D-${diff}` : `D+${-diff}`;
+        const cls = diff < 0 ? 'past' : diff <= 7 ? 'soon' : '';
+        const [, m, dd] = d.date.split('-');
+        return `<div class="dday-row"><span class="lb">${escapeHTML(d.label)}</span>` +
+          `<span class="dt">${m}.${dd}</span><span class="dday-badge ${cls}">${badge}</span>` +
+          `<button class="x" data-del="${id}" title="삭제">×</button></div>`;
+      }).join('') || '<div class="ev-empty">디데이를 추가해 보세요.</div>';
+    }
+    $('ddayAddBtn').addEventListener('click', async () => {
+      const label = $('ddayLabel').value.trim(), date = $('ddayDate').value;
+      if (!label || !date) return;
+      $('ddayLabel').value = '';
+      await push(ref(db, 'desk/ddays'), { label, date });
+    });
+    $('ddayLabel').addEventListener('keydown', e => { if (e.key === 'Enter') $('ddayAddBtn').click(); });
+    $('ddayList').addEventListener('click', async e => {
+      const del = e.target.closest('[data-del]');
+      if (del) await remove(ref(db, 'desk/ddays/' + del.dataset.del));
+    });
+
+    // ── 주간 시간표 (7교시 × 월–금) ──
+    let ttable = {};
+    const DAYS = ['mon','tue','wed','thu','fri'], DAY_KO = ['월','화','수','목','금'];
+    function renderTable() {
+      const head = '<tr><th class="pd"></th>' + DAY_KO.map(d => `<th>${d}</th>`).join('') + '</tr>';
+      let rows = '';
+      for (let p = 1; p <= 7; p++) {
+        rows += `<tr><td>${p}</td>` + DAYS.map(d => {
+          const v = ttable?.[d]?.[p] || '';
+          return `<td data-d="${d}" data-p="${p}">${v ? escapeHTML(v) : '<span class="mt">·</span>'}</td>`;
+        }).join('') + '</tr>';
+      }
+      $('ttable').innerHTML = head + rows;
+    }
+    $('ttable').addEventListener('click', e => {
+      const td = e.target.closest('td[data-d]');
+      if (!td || td.querySelector('input')) return;
+      const d = td.dataset.d, p = td.dataset.p;
+      const cur = ttable?.[d]?.[p] || '';
+      td.innerHTML = `<input type="text" value="${escapeHTML(cur)}" maxlength="12">`;
+      const inp = td.querySelector('input');
+      inp.focus(); inp.select();
+      const commit = async () => {
+        const v = inp.value.trim();
+        if (v) await set(ref(db, `desk/timetable/${d}/${p}`), v);
+        else await remove(ref(db, `desk/timetable/${d}/${p}`));
+        renderTable();  // onValue가 갱신하지만, 오프라인 대비 즉시 반영
+      };
+      inp.addEventListener('blur', commit, { once: true });
+      inp.addEventListener('keydown', ev => {
+        if (ev.key === 'Enter') inp.blur();
+        if (ev.key === 'Escape') { inp.removeEventListener('blur', commit); renderTable(); }
+      });
+    });
+
+    // ════════════════ 노트 ════════════════
+    const notesRef = ref(db, 'desk/notes');
     const gate = $('gate'), desk = $('desk'), gateWarn = $('gateWarn');
     const saveState = $('saveState'), signOutBtn = $('signOutBtn');
     const noteList = $('noteList'), noteSearch = $('noteSearch');
     const noteTitle = $('noteTitle'), paneBlank = $('paneBlank');
     const delNoteBtn = $('delNoteBtn'), backBtn = $('backBtn');
+    const notesWrap = $('notesView');
 
-    // ── 상태 ─────────────────────────────────────────────
-    let notes = {};          // { id: {title, md, createdAt, updatedAt} }
-    let currentId = null;
-    let editor = null;
-    let saveTimer = null;
-    let suppressChange = false;  // setMarkdown 시 change 이벤트 무시용
+    let notes = {}, currentId = null, editor = null, saveTimer = null, suppressChange = false;
 
-    // ── 에디터 ───────────────────────────────────────────
     function makeEditor() {
       const dark = document.documentElement.dataset.theme === 'dark';
       editor = new toastui.Editor({
-        el: $('editorHost'),
-        height: '100%',
-        initialEditType: 'wysiwyg',
-        previewStyle: 'tab',
-        language: 'ko-KR',
-        placeholder: '내용을 입력하세요…',
-        theme: dark ? 'dark' : 'light',
-        usageStatistics: false,
-        autofocus: false
+        el: $('editorHost'), height: '100%',
+        initialEditType: 'wysiwyg', previewStyle: 'tab', language: 'ko-KR',
+        placeholder: '내용을 입력하세요…', theme: dark ? 'dark' : 'light',
+        usageStatistics: false, autofocus: false
       });
       editor.on('change', () => { if (!suppressChange && currentId) queueSave(); });
     }
-
-    // ── 저장 (1.2초 디바운스 자동 저장) ──────────────────
     function queueSave() {
-      saveState.textContent = '저장 중…';
-      saveState.classList.add('busy');
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(doSave, 1200);
+      saveState.textContent = '저장 중…'; saveState.classList.add('busy');
+      clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 1200);
     }
     async function doSave() {
       if (!currentId) return;
       try {
         await update(ref(db, 'desk/notes/' + currentId), {
-          title: noteTitle.value.trim(),
-          md: editor.getMarkdown(),
-          updatedAt: Date.now()
+          title: noteTitle.value.trim(), md: editor.getMarkdown(), updatedAt: Date.now()
         });
-        saveState.textContent = '저장됨';
-        saveState.classList.remove('busy');
-      } catch (e) {
-        saveState.textContent = '저장 실패 — 연결 확인';
-      }
+        saveState.textContent = '저장됨'; saveState.classList.remove('busy');
+      } catch { saveState.textContent = '저장 실패 — 연결 확인'; }
     }
-    // 페이지를 떠나기 전 미저장분 즉시 저장
     window.addEventListener('beforeunload', () => { if (saveTimer) { clearTimeout(saveTimer); doSave(); } });
     document.addEventListener('visibilitychange', () => { if (document.hidden && saveTimer) { clearTimeout(saveTimer); doSave(); } });
 
-    // ── 목록 렌더 ────────────────────────────────────────
-    const fmt = ts => {
-      const d = new Date(ts);
-      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-    };
+    const fmt = ts => { const d = new Date(ts);
+      return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
     function renderList() {
       const q = noteSearch.value.trim().toLowerCase();
       const items = Object.entries(notes)
@@ -290,15 +548,10 @@ body { display: flex; flex-direction: column; overflow: hidden; }
             `<span class="d">${fmt(n.updatedAt||n.createdAt||Date.now())}</span></button>`).join('')
         : `<div class="rail-empty">${q ? '검색 결과가 없습니다.' : '아직 노트가 없습니다.<br>「+ 새 노트」로 시작하세요.'}</div>`;
     }
-    const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-    // ── 노트 열기/만들기/삭제 ────────────────────────────
     function openNote(id) {
-      // 열기 전에 이전 노트 미저장분 반영
       if (saveTimer) { clearTimeout(saveTimer); doSave(); }
       currentId = id;
-      const n = notes[id];
-      if (!n) return;
+      const n = notes[id]; if (!n) return;
       suppressChange = true;
       noteTitle.value = n.title || '';
       editor.setMarkdown(n.md || '', false);
@@ -307,22 +560,19 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       paneBlank.style.display = 'none';
       $('editorHost').style.display = '';
       delNoteBtn.style.display = '';
-      desk.classList.add('editing');
+      notesWrap.classList.add('editing');
       renderList();
     }
     async function newNote() {
-      const r = push(notesRef);
-      const now = Date.now();
+      const r = push(notesRef); const now = Date.now();
       await set(r, { title: '', md: '', createdAt: now, updatedAt: now });
-      openNote(r.key);
-      noteTitle.focus();
+      openNote(r.key); noteTitle.focus();
     }
     async function delNote() {
       if (!currentId) return;
       const name = notes[currentId]?.title || '제목 없음';
       if (!confirm(`「${name}」 노트를 삭제할까요?\n삭제하면 되돌릴 수 없습니다.`)) return;
-      const id = currentId;
-      closePane();
+      const id = currentId; closePane();
       await remove(ref(db, 'desk/notes/' + id));
     }
     function closePane() {
@@ -331,14 +581,12 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       delNoteBtn.style.display = 'none';
       paneBlank.style.display = '';
       $('editorHost').style.display = 'none';
-      desk.classList.remove('editing');
+      notesWrap.classList.remove('editing');
       renderList();
     }
-
-    // ── 이벤트 ───────────────────────────────────────────
     $('newNoteBtn').addEventListener('click', newNote);
     delNoteBtn.addEventListener('click', delNote);
-    backBtn.addEventListener('click', () => { if (saveTimer) { clearTimeout(saveTimer); doSave(); } desk.classList.remove('editing'); });
+    backBtn.addEventListener('click', () => { if (saveTimer) { clearTimeout(saveTimer); doSave(); } notesWrap.classList.remove('editing'); });
     noteSearch.addEventListener('input', renderList);
     noteTitle.addEventListener('input', () => { if (currentId) { queueSave(); renderList(); } });
     noteList.addEventListener('click', e => {
@@ -346,13 +594,12 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       if (btn) openNote(btn.dataset.id);
     });
 
-    // ── 인증 ─────────────────────────────────────────────
+    // ════════════════ 인증 ════════════════
     const provider = new GoogleAuthProvider();
     $('signInBtn').addEventListener('click', async () => {
       gateWarn.style.display = 'none';
       try { await signInWithPopup(auth, provider); }
       catch (e) {
-        // 팝업이 막힌 환경(iOS 홈 화면 앱 등)은 리다이렉트로
         if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment' || e.code === 'auth/cancelled-popup-request') {
           try { await signInWithRedirect(auth, provider); } catch (e2) { showWarn(e2.message); }
         } else if (e.code !== 'auth/popup-closed-by-user') showWarn(e.message);
@@ -362,36 +609,35 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     signOutBtn.addEventListener('click', () => signOut(auth));
     function showWarn(msg) { gateWarn.textContent = msg; gateWarn.style.display = ''; }
 
-    let listAttached = false;
+    let attached = false;
     onAuthStateChanged(auth, user => {
       if (user && user.email === OWNER_EMAIL) {
         gate.style.display = 'none';
-        desk.style.display = 'grid';
+        desk.style.display = 'flex';
+        deskViews.style.display = 'flex';
         signOutBtn.style.display = '';
         if (!editor) makeEditor();
         closePane();
-        if (!listAttached) {
-          listAttached = true;
-          onValue(notesRef, snap => {
-            notes = snap.val() || {};
-            // 열려 있는 노트가 다른 기기에서 지워졌으면 닫기
-            if (currentId && !notes[currentId]) closePane(); else renderList();
-          }, err => {
-            showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.');
-          });
+        renderToday(); renderTable();
+        if (!attached) {
+          attached = true;
+          const guard = err => { showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.'); };
+          onValue(notesRef, s => { notes = s.val() || {}; if (currentId && !notes[currentId]) closePane(); else renderList(); }, guard);
+          onValue(ref(db, 'vault/calendar'), s => { calendar = s.val() || {}; renderToday(); }, guard);
+          onValue(ref(db, 'desk/todos'), s => { todos = s.val() || {}; renderTodos(); }, guard);
+          onValue(ref(db, 'desk/ddays'), s => { ddays = s.val() || {}; renderDdays(); }, guard);
+          onValue(ref(db, 'desk/timetable'), s => { ttable = s.val() || {}; renderTable(); }, guard);
+          // 자정이 지나면 '오늘'을 갱신
+          setInterval(renderToday, 60 * 1000);
         }
       } else if (user) {
-        // 다른 계정 — 안내 후 로그아웃
-        showGate();
-        showWarn(`${user.email} 계정은 접근 권한이 없습니다.`);
-        signOut(auth);
-      } else {
-        showGate();
-      }
+        showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth);
+      } else showGate();
     });
     function showGate() {
       gate.style.display = '';
       desk.style.display = 'none';
+      deskViews.style.display = 'none';
       signOutBtn.style.display = 'none';
       saveState.textContent = '';
     }
