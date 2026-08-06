@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Desk — Geographia</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<!-- 디자인 시스템 -->
+<link rel="stylesheet" href="design-system/stratum.css">
+<link rel="stylesheet" href="design-system/geo.css">
+
+<!-- Toast UI Editor — 한글 WYSIWYG -->
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/theme/toastui-editor-dark.min.css">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Geographia">
+<meta name="theme-color" content="#f2f2f7">
+
+<style>
+/* ============================================================================
+   DESK — 나만 보는 작업 공간 (1단계: 노트)
+   골격·색·재질은 stratum.css + geo.css. 여기에는 이 페이지 고유의 것만.
+   ========================================================================== */
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── 상단 바 — 작업 공간용 컴팩트 ── */
+.desk-bar { flex-shrink: 0; }
+.desk-bar .geo-bar__in { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.desk-id { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.desk-id .tag {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--st-label-3); border: 1px solid var(--st-separator);
+  padding: 3px 9px; border-radius: var(--st-r-full); white-space: nowrap;
+}
+.desk-side { display: flex; align-items: center; gap: 10px; }
+.save-state { font-size: 12px; color: var(--st-label-3); white-space: nowrap; transition: color 200ms; }
+.save-state.busy { color: var(--st-accent-ink); }
+
+/* ── 로그인 게이트 ── */
+.gate { flex: 1; display: grid; place-items: center; padding: 24px; }
+.gate .panel { width: 100%; max-width: 380px; text-align: center; padding: 40px 32px; }
+.gate .geo-seal { width: 44px; height: 44px; margin: 0 auto 18px; color: var(--st-label); }
+.gate h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
+.gate p { font-size: 13.5px; color: var(--st-label-2); margin: 0 0 24px; line-height: 1.6; word-break: keep-all; }
+.gate .warn { color: var(--st-danger-ink); font-size: 13px; margin-top: 14px; }
+.g-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  width: 100%; justify-content: center;
+}
+.g-btn svg { width: 16px; height: 16px; }
+
+/* ── 작업 공간 ── */
+.desk { flex: 1; min-height: 0; display: none; grid-template-columns: 300px 1fr; gap: 14px;
+  width: 100%; max-width: 1360px; margin: 0 auto; padding: 14px var(--pad-x, 20px) 18px; }
+
+/* 좌: 노트 목록 */
+.note-rail { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
+.rail-top { padding: 14px 14px 10px; display: flex; gap: 8px; flex-shrink: 0; }
+.rail-top input {
+  flex: 1; min-width: 0; height: 36px; padding: 0 12px;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid transparent; border-radius: var(--st-r-full);
+  font-size: 13px; outline: none; transition: border-color 175ms, background 175ms;
+}
+.rail-top input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+.rail-top .new-btn { height: 36px; padding: 0 14px; white-space: nowrap; }
+.note-list { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.note-item {
+  display: block; width: 100%; text-align: left; background: none; border: 0; cursor: pointer;
+  padding: 11px 16px; border-top: 1px solid var(--st-separator);
+  font-family: inherit; color: inherit; transition: background 150ms;
+}
+.note-item:hover { background: var(--st-fill-2); }
+.note-item.on { background: var(--st-accent-soft); }
+.note-item .t { display: block; font-size: 13.5px; font-weight: 650; letter-spacing: -0.01em; color: var(--st-label);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.note-item .d { display: block; font-size: 11px; color: var(--st-label-3); margin-top: 2px; font-feature-settings: 'tnum' 1; }
+.rail-empty { padding: 28px 16px; font-size: 13px; color: var(--st-label-3); text-align: center; border-top: 1px solid var(--st-separator); }
+
+/* 우: 에디터 */
+.note-pane { display: flex; flex-direction: column; min-height: 0; min-width: 0; padding: 0; overflow: hidden; }
+.pane-top { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--st-separator); flex-shrink: 0; }
+.pane-top .back-btn { display: none; }
+#noteTitle {
+  flex: 1; min-width: 0; border: 0; background: transparent; outline: none;
+  font-family: inherit; font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--st-label);
+}
+#noteTitle::placeholder { color: var(--st-label-3); }
+.pane-top .del-btn { white-space: nowrap; }
+#editorHost { flex: 1; min-height: 0; }
+.pane-blank { flex: 1; display: grid; place-items: center; color: var(--st-label-3); font-size: 13.5px; padding: 24px; text-align: center; line-height: 1.7; }
+
+/* Toast UI를 STRATUM에 맞게 다듬기 */
+.toastui-editor-defaultUI { border: 0 !important; border-radius: 0 !important; font-family: inherit !important; }
+.toastui-editor-defaultUI-toolbar { background: transparent !important; border-bottom: 1px solid var(--st-separator) !important; border-radius: 0 !important; }
+.toastui-editor-main .ProseMirror { font-size: 15px; }
+.toastui-editor-mode-switch { background: transparent !important; border-top: 1px solid var(--st-separator) !important; }
+
+/* ── 모바일: 목록 ↔ 편집 화면 전환 ── */
+@media (max-width: 860px) {
+  body { overflow: auto; }
+  .desk { grid-template-columns: 1fr; padding: 10px 12px 14px; }
+  .desk.editing .note-rail { display: none; }
+  .desk:not(.editing) .note-pane { display: none; }
+  .note-rail, .note-pane { height: calc(100dvh - 120px); }
+  .pane-top .back-btn { display: inline-flex; }
+  .desk-id .tag { display: none; }
+}
+</style>
+</head>
+<body>
+
+  <!-- ══════════ 상단 바 ══════════ -->
+  <header class="st-glass st-bar desk-bar">
+    <div class="geo-bar__in">
+      <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
+        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+        <b>Geographia</b>
+      </a>
+      <div class="desk-id"><span class="tag">Desk · Private</span></div>
+      <div class="desk-side">
+        <span class="save-state" id="saveState"></span>
+        <button class="btn-sub" id="signOutBtn" style="display:none;">로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════ 로그인 게이트 ══════════ -->
+  <div class="gate" id="gate">
+    <div class="panel">
+      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="24" cy="24" r="20"/>
+        <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+        <path d="M24 4v40M4 24h40"/>
+        <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+      </svg>
+      <h1>Desk</h1>
+      <p>이 공간은 관리자 전용입니다.<br>본인 확인 후 이용할 수 있습니다.</p>
+      <button class="btn-solid g-btn" id="signInBtn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1H12v2.9h5.35c-.5 2.5-2.6 4.3-5.35 4.3a6.3 6.3 0 1 1 0-12.6c1.6 0 3.05.6 4.15 1.6l2.15-2.15A9.6 9.6 0 1 0 12 21.6c5.55 0 9.6-3.9 9.6-9.4 0-.38-.1-.75-.25-1.1z"/></svg>
+        Google 계정으로 로그인
+      </button>
+      <p class="warn" id="gateWarn" style="display:none;"></p>
+    </div>
+  </div>
+
+  <!-- ══════════ 작업 공간 ══════════ -->
+  <main class="desk" id="desk">
+
+    <!-- 좌: 노트 목록 -->
+    <aside class="panel note-rail">
+      <div class="rail-top">
+        <input type="search" id="noteSearch" placeholder="노트 검색" autocomplete="off">
+        <button class="btn-solid new-btn" id="newNoteBtn">+ 새 노트</button>
+      </div>
+      <div class="note-list" id="noteList"></div>
+    </aside>
+
+    <!-- 우: 에디터 -->
+    <section class="panel note-pane">
+      <div class="pane-top">
+        <button class="btn-sub back-btn" id="backBtn">← 목록</button>
+        <input type="text" id="noteTitle" placeholder="제목 없음" maxlength="80" disabled>
+        <button class="btn-sub del-btn" id="delNoteBtn" style="display:none;">삭제</button>
+      </div>
+      <div id="editorHost"></div>
+      <div class="pane-blank" id="paneBlank">왼쪽에서 노트를 선택하거나<br>「+ 새 노트」를 눌러 시작하세요.</div>
+    </section>
+
+  </main>
+
+  <!-- Toast UI Editor -->
+  <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+  <script src="https://uicdn.toast.com/editor/latest/i18n/ko-kr.js"></script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getDatabase, ref, onValue, set, update, remove, push, off }
+      from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+    // ── 설정 ─────────────────────────────────────────────
+    const OWNER_EMAIL = "leetae712@gmail.com";   // 이 계정만 통과
+    const firebaseConfig = {
+      apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
+      authDomain: "soc-c-qna.firebaseapp.com",
+      databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
+      projectId: "soc-c-qna",
+      storageBucket: "soc-c-qna.firebasestorage.app",
+      messagingSenderId: "927605189358",
+      appId: "1:927605189358:web:9ea5171373ac4c9e8661ff"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const notesRef = ref(db, 'desk/notes');
+
+    // ── DOM ─────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const gate = $('gate'), desk = $('desk'), gateWarn = $('gateWarn');
+    const saveState = $('saveState'), signOutBtn = $('signOutBtn');
+    const noteList = $('noteList'), noteSearch = $('noteSearch');
+    const noteTitle = $('noteTitle'), paneBlank = $('paneBlank');
+    const delNoteBtn = $('delNoteBtn'), backBtn = $('backBtn');
+
+    // ── 상태 ─────────────────────────────────────────────
+    let notes = {};          // { id: {title, md, createdAt, updatedAt} }
+    let currentId = null;
+    let editor = null;
+    let saveTimer = null;
+    let suppressChange = false;  // setMarkdown 시 change 이벤트 무시용
+
+    // ── 에디터 ───────────────────────────────────────────
+    function makeEditor() {
+      const dark = document.documentElement.dataset.theme === 'dark';
+      editor = new toastui.Editor({
+        el: $('editorHost'),
+        height: '100%',
+        initialEditType: 'wysiwyg',
+        previewStyle: 'tab',
+        language: 'ko-KR',
+        placeholder: '내용을 입력하세요…',
+        theme: dark ? 'dark' : 'light',
+        usageStatistics: false,
+        autofocus: false
+      });
+      editor.on('change', () => { if (!suppressChange && currentId) queueSave(); });
+    }
+
+    // ── 저장 (1.2초 디바운스 자동 저장) ──────────────────
+    function queueSave() {
+      saveState.textContent = '저장 중…';
+      saveState.classList.add('busy');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(doSave, 1200);
+    }
+    async function doSave() {
+      if (!currentId) return;
+      try {
+        await update(ref(db, 'desk/notes/' + currentId), {
+          title: noteTitle.value.trim(),
+          md: editor.getMarkdown(),
+          updatedAt: Date.now()
+        });
+        saveState.textContent = '저장됨';
+        saveState.classList.remove('busy');
+      } catch (e) {
+        saveState.textContent = '저장 실패 — 연결 확인';
+      }
+    }
+    // 페이지를 떠나기 전 미저장분 즉시 저장
+    window.addEventListener('beforeunload', () => { if (saveTimer) { clearTimeout(saveTimer); doSave(); } });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && saveTimer) { clearTimeout(saveTimer); doSave(); } });
+
+    // ── 목록 렌더 ────────────────────────────────────────
+    const fmt = ts => {
+      const d = new Date(ts);
+      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    };
+    function renderList() {
+      const q = noteSearch.value.trim().toLowerCase();
+      const items = Object.entries(notes)
+        .filter(([, n]) => !q || (n.title||'').toLowerCase().includes(q) || (n.md||'').toLowerCase().includes(q))
+        .sort((a, b) => (b[1].updatedAt||0) - (a[1].updatedAt||0));
+      noteList.innerHTML = items.length
+        ? items.map(([id, n]) =>
+            `<button class="note-item${id===currentId?' on':''}" data-id="${id}">` +
+            `<span class="t">${escapeHTML(n.title) || '제목 없음'}</span>` +
+            `<span class="d">${fmt(n.updatedAt||n.createdAt||Date.now())}</span></button>`).join('')
+        : `<div class="rail-empty">${q ? '검색 결과가 없습니다.' : '아직 노트가 없습니다.<br>「+ 새 노트」로 시작하세요.'}</div>`;
+    }
+    const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    // ── 노트 열기/만들기/삭제 ────────────────────────────
+    function openNote(id) {
+      // 열기 전에 이전 노트 미저장분 반영
+      if (saveTimer) { clearTimeout(saveTimer); doSave(); }
+      currentId = id;
+      const n = notes[id];
+      if (!n) return;
+      suppressChange = true;
+      noteTitle.value = n.title || '';
+      editor.setMarkdown(n.md || '', false);
+      suppressChange = false;
+      noteTitle.disabled = false;
+      paneBlank.style.display = 'none';
+      $('editorHost').style.display = '';
+      delNoteBtn.style.display = '';
+      desk.classList.add('editing');
+      renderList();
+    }
+    async function newNote() {
+      const r = push(notesRef);
+      const now = Date.now();
+      await set(r, { title: '', md: '', createdAt: now, updatedAt: now });
+      openNote(r.key);
+      noteTitle.focus();
+    }
+    async function delNote() {
+      if (!currentId) return;
+      const name = notes[currentId]?.title || '제목 없음';
+      if (!confirm(`「${name}」 노트를 삭제할까요?\n삭제하면 되돌릴 수 없습니다.`)) return;
+      const id = currentId;
+      closePane();
+      await remove(ref(db, 'desk/notes/' + id));
+    }
+    function closePane() {
+      currentId = null;
+      noteTitle.value = ''; noteTitle.disabled = true;
+      delNoteBtn.style.display = 'none';
+      paneBlank.style.display = '';
+      $('editorHost').style.display = 'none';
+      desk.classList.remove('editing');
+      renderList();
+    }
+
+    // ── 이벤트 ───────────────────────────────────────────
+    $('newNoteBtn').addEventListener('click', newNote);
+    delNoteBtn.addEventListener('click', delNote);
+    backBtn.addEventListener('click', () => { if (saveTimer) { clearTimeout(saveTimer); doSave(); } desk.classList.remove('editing'); });
+    noteSearch.addEventListener('input', renderList);
+    noteTitle.addEventListener('input', () => { if (currentId) { queueSave(); renderList(); } });
+    noteList.addEventListener('click', e => {
+      const btn = e.target.closest('.note-item');
+      if (btn) openNote(btn.dataset.id);
+    });
+
+    // ── 인증 ─────────────────────────────────────────────
+    const provider = new GoogleAuthProvider();
+    $('signInBtn').addEventListener('click', async () => {
+      gateWarn.style.display = 'none';
+      try { await signInWithPopup(auth, provider); }
+      catch (e) {
+        // 팝업이 막힌 환경(iOS 홈 화면 앱 등)은 리다이렉트로
+        if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment' || e.code === 'auth/cancelled-popup-request') {
+          try { await signInWithRedirect(auth, provider); } catch (e2) { showWarn(e2.message); }
+        } else if (e.code !== 'auth/popup-closed-by-user') showWarn(e.message);
+      }
+    });
+    getRedirectResult(auth).catch(() => {});
+    signOutBtn.addEventListener('click', () => signOut(auth));
+    function showWarn(msg) { gateWarn.textContent = msg; gateWarn.style.display = ''; }
+
+    let listAttached = false;
+    onAuthStateChanged(auth, user => {
+      if (user && user.email === OWNER_EMAIL) {
+        gate.style.display = 'none';
+        desk.style.display = 'grid';
+        signOutBtn.style.display = '';
+        if (!editor) makeEditor();
+        closePane();
+        if (!listAttached) {
+          listAttached = true;
+          onValue(notesRef, snap => {
+            notes = snap.val() || {};
+            // 열려 있는 노트가 다른 기기에서 지워졌으면 닫기
+            if (currentId && !notes[currentId]) closePane(); else renderList();
+          }, err => {
+            showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.');
+          });
+        }
+      } else if (user) {
+        // 다른 계정 — 안내 후 로그아웃
+        showGate();
+        showWarn(`${user.email} 계정은 접근 권한이 없습니다.`);
+        signOut(auth);
+      } else {
+        showGate();
+      }
+    });
+    function showGate() {
+      gate.style.display = '';
+      desk.style.display = 'none';
+      signOutBtn.style.display = 'none';
+      saveState.textContent = '';
+    }
+  </script>
+</body>
+</html>
