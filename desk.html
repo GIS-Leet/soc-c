@@ -201,6 +201,56 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .toastui-editor-main .ProseMirror { font-size: 15px; }
 .toastui-editor-mode-switch { background: transparent !important; border-top: 1px solid var(--st-separator) !important; }
 
+/* ══════════ 학급 뷰 ══════════ */
+.class-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.class-lock { flex: 1; display: grid; place-items: center; padding: 24px; }
+.class-lock .panel { width: 100%; max-width: 380px; text-align: center; padding: 36px 32px; }
+.lock-ico { width: 44px; height: 44px; margin: 0 auto 16px; color: var(--st-label-2); }
+.class-lock h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; }
+.class-lock p { font-size: 12.5px; color: var(--st-label-2); margin: 0 0 18px; line-height: 1.65; word-break: keep-all; }
+.lock-in { width: 100%; height: 40px; padding: 0 14px; margin-bottom: 10px;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid transparent; border-radius: var(--st-r-element);
+  font-size: 14px; outline: none; transition: border-color 175ms, background 175ms; }
+.lock-in:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+.class-lock .warn { color: var(--st-danger-ink); font-size: 12.5px; margin-top: 12px; }
+.lock-note { font-size: 12px; color: var(--st-label-3); margin-top: 14px !important; }
+.lock-note b { color: var(--st-danger-ink); }
+
+.class-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+.stu-add input#stuNum { flex: 0 0 64px; min-width: 0; }
+.stu-add input#stuName { flex: 1; }
+.rail-foot-lock { padding: 10px 14px; border-top: 1px solid var(--st-separator); flex-shrink: 0; }
+.rail-foot-lock .btn-sub { width: 100%; }
+.stu-item-num { display: inline-block; min-width: 26px; font-feature-settings: 'tnum' 1; color: var(--st-label-3); font-weight: 600; }
+.stu-head { flex: 1; min-width: 0; font-size: 17px; font-weight: 700; letter-spacing: -0.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stu-head small { font-size: 12px; color: var(--st-label-3); font-weight: 600; margin-right: 8px; }
+.stu-card { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding: 18px 20px; }
+.stu-sec + .stu-sec { margin-top: 22px; }
+#stuNote { width: 100%; min-height: 110px; padding: 12px 14px; resize: vertical;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid transparent; border-radius: var(--st-r-element);
+  font-family: inherit; font-size: 13.5px; line-height: 1.7; outline: none;
+  transition: border-color 175ms, background 175ms; }
+#stuNote:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+.log-add { display: flex; gap: 8px; margin-bottom: 10px; }
+.log-add input[type=date] { width: 132px; flex-shrink: 0; height: 36px; padding: 0 10px;
+  background: var(--st-fill-2); color: var(--st-label); border: 1px solid transparent;
+  border-radius: var(--st-r-element); font-size: 12.5px; outline: none; font-feature-settings: 'tnum' 1; }
+.log-add input[type=text] { flex: 1; min-width: 0; height: 36px; padding: 0 12px;
+  background: var(--st-fill-2); color: var(--st-label); border: 1px solid transparent;
+  border-radius: var(--st-r-full); font-size: 13px; outline: none; }
+.log-add input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+.log-row { display: flex; align-items: baseline; gap: 12px; padding: 9px 2px;
+  border-bottom: 1px solid var(--st-separator); font-size: 13.5px; line-height: 1.6; }
+.log-row:last-child { border-bottom: 0; }
+.log-row .ld { font-size: 11.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; flex-shrink: 0; }
+.log-row .lt { flex: 1; min-width: 0; word-break: break-all; white-space: pre-wrap; }
+.log-row .x { opacity: 0; border: 0; background: none; cursor: pointer;
+  color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
+.log-row:hover .x { opacity: 1; } .log-row .x:hover { color: var(--st-danger-ink); }
+
 /* ══════════ 모바일 ══════════ */
 @media (max-width: 860px) {
   body { overflow: auto; }
@@ -210,6 +260,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   .notes-wrap { grid-template-columns: 1fr; }
   .notes-wrap.editing .note-rail { display: none; }
   .notes-wrap:not(.editing) .note-pane { display: none; }
+  .class-grid { grid-template-columns: 1fr; }
+  .class-grid.editing .note-rail { display: none; }
+  .class-grid:not(.editing) .note-pane { display: none; }
   .note-rail, .note-pane { height: calc(100dvh - 130px); }
   .pane-top .back-btn { display: inline-flex; }
   .desk-views button { padding: 6px 12px; font-size: 12.5px; }
@@ -234,6 +287,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       <nav class="desk-views" id="deskViews">
         <button class="on" data-view="dash">대시보드</button>
         <button data-view="notes">노트</button>
+        <button data-view="class">학급</button>
       </nav>
       <div class="desk-side">
         <span class="save-state" id="saveState"></span>
@@ -269,7 +323,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 
       <!-- 오늘 · 일정 -->
       <div class="panel p-today">
-        <div class="dash-h">오늘 · 일정 <b><a href="vault.html" style="color:inherit;">달력 열기 ↗</a></b></div>
+        <div class="dash-h">오늘 · 일정</div>
         <div class="today-date" id="todayDate"></div>
         <div class="today-sub" id="todaySub"></div>
         <div id="todayEvents"></div>
@@ -327,6 +381,64 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       </section>
     </section>
 
+    <!-- ── 학급 뷰 ── -->
+    <section class="class-wrap" id="classView" style="display:none;">
+
+      <!-- 잠금 화면 -->
+      <div class="class-lock" id="classLock">
+        <div class="panel">
+          <div class="lock-ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <h2 id="lockTitle">학급 기록 잠금 해제</h2>
+          <p id="lockDesc">학생 기록은 암호구절로 암호화되어 저장됩니다.<br>서버에도 암호문만 저장되며, 암호구절은 어디에도 전송되지 않습니다.</p>
+          <input type="password" class="lock-in" id="passInput" placeholder="암호구절" autocomplete="off">
+          <input type="password" class="lock-in" id="passInput2" placeholder="암호구절 다시 입력" autocomplete="off" style="display:none;">
+          <button class="btn-solid" id="unlockBtn" style="width:100%;">잠금 해제</button>
+          <p class="warn" id="lockWarn" style="display:none;"></p>
+          <p class="lock-note" id="lockNote" style="display:none;">⚠ 암호구절을 잊으면 <b>기록을 복구할 방법이 없습니다.</b><br>안전한 곳에 따로 적어 두세요.</p>
+        </div>
+      </div>
+
+      <!-- 학생 목록 + 카드 -->
+      <div class="class-grid" id="classGrid" style="display:none;">
+        <aside class="panel note-rail">
+          <div class="rail-top stu-add">
+            <input type="text" id="stuNum" placeholder="번호" maxlength="5" inputmode="numeric">
+            <input type="text" id="stuName" placeholder="이름" maxlength="15">
+            <button class="btn-solid new-btn" id="stuAddBtn">추가</button>
+          </div>
+          <div class="note-list" id="stuList"></div>
+          <div class="rail-foot-lock">
+            <button class="btn-sub" id="lockNowBtn">🔒 지금 잠그기</button>
+          </div>
+        </aside>
+        <section class="panel note-pane">
+          <div class="pane-top">
+            <button class="btn-sub back-btn" id="stuBackBtn">← 목록</button>
+            <span class="stu-head" id="stuHead"></span>
+            <button class="btn-sub del-btn" id="stuDelBtn" style="display:none;">삭제</button>
+          </div>
+          <div class="stu-card" id="stuCard" style="display:none;">
+            <div class="stu-sec">
+              <div class="dash-h">특이사항 · 메모</div>
+              <textarea id="stuNote" placeholder="알레르기, 가정 연락 사항, 진로 희망 등 — 자동 저장됩니다."></textarea>
+            </div>
+            <div class="stu-sec">
+              <div class="dash-h">상담 · 관찰 기록 <b id="logCount"></b></div>
+              <div class="log-add">
+                <input type="date" id="logDate">
+                <input type="text" id="logText" placeholder="기록 추가 — Enter" maxlength="300">
+              </div>
+              <div id="logList"></div>
+            </div>
+          </div>
+          <div class="pane-blank" id="stuBlank">왼쪽에서 학생을 선택하거나<br>번호·이름을 입력해 추가하세요.</div>
+        </section>
+      </div>
+
+    </section>
+
   </main>
 
   <!-- Toast UI Editor -->
@@ -337,7 +449,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getDatabase, ref, onValue, set, update, remove, push }
+    import { getDatabase, ref, onValue, set, update, remove, push, get }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
     // ── 설정 ─────────────────────────────────────────────
@@ -368,7 +480,8 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       deskViews.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
       $('dashView').style.display = btn.dataset.view === 'dash' ? '' : 'none';
       $('notesView').style.display = btn.dataset.view === 'notes' ? '' : 'none';
-      if (btn.dataset.view === 'notes' && saveTimer) { /* 노트로 돌아올 때 상태 유지 */ }
+      $('classView').style.display = btn.dataset.view === 'class' ? '' : 'none';
+      if (btn.dataset.view === 'class') initClassView();
     });
 
     // ════════════════ 대시보드 ════════════════
@@ -401,11 +514,11 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       if (e.key !== 'Enter') return;
       const text = e.target.value.trim(); if (!text) return;
       e.target.value = '';
-      await push(ref(db, `vault/calendar/${keyOf(new Date())}`), { text });
+      await push(ref(db, `desk/calendar/${keyOf(new Date())}`), { text });
     });
     $('dashView').addEventListener('click', async e => {
       const x = e.target.closest('.ev-row .x');
-      if (x && confirm('일정을 삭제할까요?')) await remove(ref(db, `vault/calendar/${x.dataset.date}/${x.dataset.k}`));
+      if (x && confirm('일정을 삭제할까요?')) await remove(ref(db, `desk/calendar/${x.dataset.date}/${x.dataset.k}`));
     });
 
     // ── 할 일 ──
@@ -495,6 +608,206 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         if (ev.key === 'Enter') inp.blur();
         if (ev.key === 'Escape') { inp.removeEventListener('blur', commit); renderTable(); }
       });
+    });
+
+    // ── vault 달력 → desk 달력 1회 이전 (vault는 폐기) ──
+    async function migrateVaultCalendar() {
+      try {
+        const flag = await get(ref(db, 'desk/meta/calendarMigrated'));
+        if (flag.exists()) return;
+        const old = await get(ref(db, 'vault/calendar'));
+        if (old.exists()) await update(ref(db, 'desk/calendar'), old.val());
+        await set(ref(db, 'desk/meta/calendarMigrated'), Date.now());
+      } catch { /* vault 접근 불가 시 조용히 넘어감 */ }
+    }
+
+    // ════════════════ 학급 — 클라이언트 측 암호화 ════════════════
+    // 저장 전 브라우저에서 AES-GCM 암호화. 서버(Firebase)에는 암호문만 저장되고,
+    // 암호구절·키는 어디에도 전송·저장되지 않는다 (잊으면 복구 불가).
+    const te = new TextEncoder(), td = new TextDecoder();
+    const bufToB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+    const b64ToBuf = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+    const CHECK_TEXT = 'geographia-desk-v1';
+
+    let classKey = null;      // 세션 메모리에만 존재
+    let stuEnc = {}, stuPlain = {}, currentStu = null, stuSaveTimer = null, classAttached = false;
+
+    async function deriveKey(pass, saltB64) {
+      const base = await crypto.subtle.importKey('raw', te.encode(pass), 'PBKDF2', false, ['deriveKey']);
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: b64ToBuf(saltB64), iterations: 150000, hash: 'SHA-256' },
+        base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    }
+    async function encObj(obj) {
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, classKey, te.encode(JSON.stringify(obj)));
+      return { iv: bufToB64(iv), ct: bufToB64(ct) };
+    }
+    async function decObj(blob) {
+      const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64ToBuf(blob.iv) }, classKey, b64ToBuf(blob.ct));
+      return JSON.parse(td.decode(pt));
+    }
+
+    // ── 잠금 화면 흐름 ──
+    let classMetaCache = undefined;   // undefined=미확인, null=미설정, {..}=설정됨
+    async function initClassView() {
+      if (classKey) return;   // 이미 해제됨
+      $('classLock').style.display = '';
+      $('classGrid').style.display = 'none';
+      if (classMetaCache === undefined) {
+        const snap = await get(ref(db, 'desk/class/meta'));
+        classMetaCache = snap.exists() ? snap.val() : null;
+      }
+      const isNew = classMetaCache === null;
+      $('lockTitle').textContent = isNew ? '학급 기록 암호 설정' : '학급 기록 잠금 해제';
+      $('lockDesc').innerHTML = isNew
+        ? '처음 사용합니다. 학생 기록을 암호화할<br>암호구절을 정해 주세요.'
+        : '학생 기록은 암호구절로 암호화되어 저장됩니다.<br>서버에도 암호문만 저장되며, 암호구절은 어디에도 전송되지 않습니다.';
+      $('passInput2').style.display = isNew ? '' : 'none';
+      $('lockNote').style.display = isNew ? '' : 'none';
+      $('unlockBtn').textContent = isNew ? '설정하고 시작' : '잠금 해제';
+      $('passInput').focus();
+    }
+    $('unlockBtn').addEventListener('click', doUnlock);
+    $('passInput').addEventListener('keydown', e => { if (e.key === 'Enter') ($('passInput2').style.display === 'none' ? doUnlock() : $('passInput2').focus()); });
+    $('passInput2').addEventListener('keydown', e => { if (e.key === 'Enter') doUnlock(); });
+    async function doUnlock() {
+      const warn = $('lockWarn'); warn.style.display = 'none';
+      const pass = $('passInput').value;
+      if (pass.length < 4) { warn.textContent = '암호구절은 4자 이상이어야 합니다.'; warn.style.display = ''; return; }
+      try {
+        if (classMetaCache === null) {
+          if (pass !== $('passInput2').value) { warn.textContent = '두 입력이 서로 다릅니다.'; warn.style.display = ''; return; }
+          const salt = bufToB64(crypto.getRandomValues(new Uint8Array(16)));
+          classKey = await deriveKey(pass, salt);
+          const check = await encObj(CHECK_TEXT);
+          classMetaCache = { salt, check };
+          await set(ref(db, 'desk/class/meta'), classMetaCache);
+        } else {
+          classKey = await deriveKey(pass, classMetaCache.salt);
+          try { if (await decObj(classMetaCache.check) !== CHECK_TEXT) throw 0; }
+          catch { classKey = null; warn.textContent = '암호구절이 올바르지 않습니다.'; warn.style.display = ''; return; }
+        }
+      } catch (e) { warn.textContent = '오류: ' + (e.message || e); warn.style.display = ''; return; }
+      $('passInput').value = ''; $('passInput2').value = '';
+      $('classLock').style.display = 'none';
+      $('classGrid').style.display = 'grid';
+      $('logDate').value = keyOf(new Date());
+      if (!classAttached) {
+        classAttached = true;
+        onValue(ref(db, 'desk/class/students'), async s => {
+          stuEnc = s.val() || {};
+          if (!classKey) return;
+          const plain = {};
+          for (const [id, v] of Object.entries(stuEnc)) {
+            try { plain[id] = await decObj(v.enc); } catch { /* 손상/키 불일치 항목 표시 제외 */ }
+          }
+          stuPlain = plain;
+          if (currentStu && !stuPlain[currentStu]) closeStu(); else { renderStuList(); if (currentStu) renderStuCard(false); }
+        });
+      }
+      renderStuList();
+    }
+    function lockClass() {
+      classKey = null; stuPlain = {}; currentStu = null;
+      $('classGrid')?.style && ($('classGrid').style.display = 'none');
+      $('classLock').style.display = '';
+      $('stuList').innerHTML = ''; closeStuUiOnly();
+    }
+    $('lockNowBtn').addEventListener('click', () => { flushStuSave(); lockClass(); initClassView(); });
+
+    // ── 학생 CRUD ──
+    async function saveStu(id) {
+      await set(ref(db, 'desk/class/students/' + id), { enc: await encObj(stuPlain[id]) });
+    }
+    function queueStuSave() {
+      if (!currentStu) return;
+      saveState.textContent = '저장 중…'; saveState.classList.add('busy');
+      clearTimeout(stuSaveTimer);
+      stuSaveTimer = setTimeout(async () => {
+        try { await saveStu(currentStu); saveState.textContent = '저장됨'; saveState.classList.remove('busy'); }
+        catch { saveState.textContent = '저장 실패 — 연결 확인'; }
+      }, 1000);
+    }
+    function flushStuSave() { if (stuSaveTimer) { clearTimeout(stuSaveTimer); stuSaveTimer = null; if (currentStu) saveStu(currentStu); } }
+    window.addEventListener('beforeunload', flushStuSave);
+
+    function renderStuList() {
+      const items = Object.entries(stuPlain).sort((a, b) => (Number(a[1].num)||999) - (Number(b[1].num)||999));
+      $('stuList').innerHTML = items.length
+        ? items.map(([id, s]) =>
+            `<button class="note-item${id===currentStu?' on':''}" data-id="${id}">` +
+            `<span class="t"><span class="stu-item-num">${escapeHTML(String(s.num||'–'))}</span> ${escapeHTML(s.name)}</span>` +
+            `<span class="d">기록 ${(s.logs||[]).length}건</span></button>`).join('')
+        : '<div class="rail-empty">아직 등록된 학생이 없습니다.<br>위에서 번호·이름을 입력해 추가하세요.</div>';
+    }
+    function renderStuCard(fillNote = true) {
+      const s = stuPlain[currentStu]; if (!s) return;
+      $('stuHead').innerHTML = `<small>${escapeHTML(String(s.num||'–'))}번</small>${escapeHTML(s.name)}`;
+      if (fillNote) $('stuNote').value = s.note || '';
+      const logs = (s.logs || []).slice().sort((a, b) => b.date.localeCompare(a.date));
+      $('logCount').textContent = logs.length ? `${logs.length}건` : '';
+      $('logList').innerHTML = logs.map((l, i) =>
+        `<div class="log-row"><span class="ld">${escapeHTML(l.date)}</span><span class="lt">${escapeHTML(l.text)}</span>` +
+        `<button class="x" data-li="${s.logs.indexOf(l)}" title="삭제">×</button></div>`).join('')
+        || '<div class="ev-empty">아직 기록이 없습니다.</div>';
+    }
+    function openStu(id) {
+      flushStuSave();
+      currentStu = id;
+      $('stuCard').style.display = ''; $('stuBlank').style.display = 'none';
+      $('stuDelBtn').style.display = '';
+      $('classGrid').classList.add('editing');
+      renderStuCard(); renderStuList();
+    }
+    function closeStuUiOnly() {
+      $('stuCard').style.display = 'none'; $('stuBlank').style.display = '';
+      $('stuDelBtn').style.display = 'none';
+      $('classGrid').classList.remove('editing');
+    }
+    function closeStu() { currentStu = null; closeStuUiOnly(); renderStuList(); }
+
+    $('stuAddBtn').addEventListener('click', async () => {
+      const num = $('stuNum').value.trim(), name = $('stuName').value.trim();
+      if (!name) { $('stuName').focus(); return; }
+      const r = push(ref(db, 'desk/class/students'));
+      stuPlain[r.key] = { num, name, note: '', logs: [] };
+      await saveStu(r.key);
+      $('stuNum').value = ''; $('stuName').value = '';
+      openStu(r.key);
+    });
+    $('stuName').addEventListener('keydown', e => { if (e.key === 'Enter') $('stuAddBtn').click(); });
+    $('stuList').addEventListener('click', e => {
+      const btn = e.target.closest('.note-item'); if (btn) openStu(btn.dataset.id);
+    });
+    $('stuBackBtn').addEventListener('click', () => { flushStuSave(); $('classGrid').classList.remove('editing'); });
+    $('stuDelBtn').addEventListener('click', async () => {
+      if (!currentStu) return;
+      const s = stuPlain[currentStu];
+      if (!confirm(`${s.num||'–'}번 ${s.name} 학생의 모든 기록을 삭제할까요?\n되돌릴 수 없습니다.`)) return;
+      const id = currentStu; closeStu();
+      await remove(ref(db, 'desk/class/students/' + id));
+    });
+    $('stuNote').addEventListener('input', () => {
+      if (!currentStu) return;
+      stuPlain[currentStu].note = $('stuNote').value;
+      queueStuSave();
+    });
+    $('logText').addEventListener('keydown', async e => {
+      if (e.key !== 'Enter' || !currentStu) return;
+      const text = e.target.value.trim(); if (!text) return;
+      const date = $('logDate').value || keyOf(new Date());
+      e.target.value = '';
+      (stuPlain[currentStu].logs = stuPlain[currentStu].logs || []).push({ date, text });
+      renderStuCard(false);
+      await saveStu(currentStu);
+    });
+    $('logList').addEventListener('click', async e => {
+      const x = e.target.closest('[data-li]'); if (!x || !currentStu) return;
+      if (!confirm('이 기록을 삭제할까요?')) return;
+      stuPlain[currentStu].logs.splice(Number(x.dataset.li), 1);
+      renderStuCard(false);
+      await saveStu(currentStu);
     });
 
     // ════════════════ 노트 ════════════════
@@ -623,7 +936,8 @@ body { display: flex; flex-direction: column; overflow: hidden; }
           attached = true;
           const guard = err => { showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.'); };
           onValue(notesRef, s => { notes = s.val() || {}; if (currentId && !notes[currentId]) closePane(); else renderList(); }, guard);
-          onValue(ref(db, 'vault/calendar'), s => { calendar = s.val() || {}; renderToday(); }, guard);
+          onValue(ref(db, 'desk/calendar'), s => { calendar = s.val() || {}; renderToday(); }, guard);
+          migrateVaultCalendar();
           onValue(ref(db, 'desk/todos'), s => { todos = s.val() || {}; renderTodos(); }, guard);
           onValue(ref(db, 'desk/ddays'), s => { ddays = s.val() || {}; renderDdays(); }, guard);
           onValue(ref(db, 'desk/timetable'), s => { ttable = s.val() || {}; renderTable(); }, guard);
@@ -640,6 +954,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       deskViews.style.display = 'none';
       signOutBtn.style.display = 'none';
       saveState.textContent = '';
+      lockClass();   // 로그아웃 시 학급 키도 파기
     }
   </script>
 </body>
