@@ -100,11 +100,79 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .dash { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin;
   display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 14px; align-content: start; }
 .dash .panel { padding: 18px 20px; }
-.p-today { grid-column: 1; grid-row: 1 / 3; }
-.p-todo  { grid-column: 2; grid-row: 1; }
-.p-dday  { grid-column: 3; grid-row: 1; }
-.p-table { grid-column: 2 / 4; grid-row: 2; }
-.p-cal   { grid-column: 1 / 4; grid-row: 3; }
+.p-today  { grid-column: 1; grid-row: 1 / 3; }
+.p-todo   { grid-column: 2; grid-row: 1; }
+.p-dday   { grid-column: 3; grid-row: 1; }
+.p-table  { grid-column: 2 / 4; grid-row: 2; }
+.p-prog   { grid-column: 1; grid-row: 3; }
+.p-notice { grid-column: 2 / 4; grid-row: 3; }
+.p-cal    { grid-column: 1 / 4; grid-row: 4; }
+
+/* 탭 배지 — 미답변 수 */
+.tab-badge { display: inline-grid; place-items: center; margin-left: 6px; min-width: 16px; height: 16px;
+  padding: 0 4px; border-radius: var(--st-r-full); font-style: normal; font-size: 10px; font-weight: 700;
+  background: var(--st-danger-ink); color: #fff; transform: translateY(-1px); }
+
+/* 수업 진도 */
+.prog-row { display: flex; align-items: center; gap: 10px; padding: 8px 2px;
+  border-bottom: 1px solid var(--st-separator); font-size: 13.5px; min-width: 0; }
+.prog-row:last-child { border-bottom: 0; }
+.prog-row .nm { font-weight: 650; flex-shrink: 0; min-width: 44px; }
+.prog-row .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.prog-row .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--st-fill-2); overflow: hidden; min-width: 30px; }
+.prog-row .bar i { display: block; height: 100%; border-radius: 3px; background: var(--st-accent-solid); transition: width 300ms; }
+.prog-row .cnt { font-size: 11.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; flex-shrink: 0; min-width: 38px; text-align: right; }
+.prog-row .pm { display: inline-flex; gap: 3px; flex-shrink: 0; }
+.prog-row .pm button { width: 24px; height: 24px; border: 0; border-radius: var(--st-r-inner); cursor: pointer;
+  background: var(--st-fill-2); color: var(--st-label-2); font-size: 13px; font-weight: 700; line-height: 1;
+  transition: background 150ms, color 150ms; }
+.prog-row .pm button:hover { background: var(--st-fill); color: var(--st-label); }
+.prog-next { display: block; font-size: 11px; color: var(--st-label-3); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 공지 관리 */
+.notice-row { display: flex; align-items: baseline; gap: 12px; padding: 8px 2px;
+  border-bottom: 1px solid var(--st-separator); font-size: 13.5px; min-width: 0; }
+.notice-row .nd { font-size: 11.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; flex-shrink: 0; }
+.notice-row .nt { flex: 1; min-width: 0; word-break: keep-all; }
+.notice-row .x { opacity: 0; border: 0; background: none; cursor: pointer;
+  color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
+.notice-row:hover .x { opacity: 1; } .notice-row .x:hover { color: var(--st-danger-ink); }
+.notice-add { display: flex; gap: 8px; margin-top: 10px; }
+.notice-add input { height: 36px; padding: 0 12px; background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-full); font-size: 13px; outline: none;
+  transition: border-color 175ms, background 175ms; }
+.notice-add input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+#noticeDate { width: 108px; flex-shrink: 0; font-feature-settings: 'tnum' 1; }
+#noticeText { flex: 1; min-width: 0; }
+
+/* Q&A 인박스 */
+.qa-filter { padding: 2px; }
+.qa-filter span { font-size: 10.5px; color: var(--st-label-3); margin-left: 3px; font-feature-settings: 'tnum' 1; }
+.qa-item-t { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.qa-lock { font-size: 10px; color: var(--st-label-3); flex-shrink: 0; }
+.qa-open-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--st-danger-ink); flex-shrink: 0; transform: translateY(-1px); }
+.qa-detail { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; padding: 18px 20px; }
+.qa-meta { font-size: 12px; color: var(--st-label-3); margin-bottom: 12px; font-feature-settings: 'tnum' 1; }
+.qa-meta b { color: var(--st-label-2); font-weight: 650; }
+.qa-body { font-size: 14px; line-height: 1.75; white-space: pre-wrap; word-break: break-word;
+  padding-bottom: 16px; border-bottom: 1px solid var(--st-separator); margin-bottom: 16px; }
+.qa-body img { max-width: 100%; border-radius: var(--st-r-element); border: 1px solid var(--st-separator); margin-top: 10px; display: block; }
+.qa-reply { display: flex; gap: 10px; padding: 10px 2px; border-bottom: 1px solid var(--st-separator); font-size: 13.5px; }
+.qa-reply:last-child { border-bottom: 0; }
+.qa-reply .rb { flex: 1; min-width: 0; }
+.qa-reply .rt { white-space: pre-wrap; word-break: break-word; line-height: 1.65; }
+.qa-reply .rd { font-size: 11px; color: var(--st-label-3); margin-top: 3px; font-feature-settings: 'tnum' 1; }
+.qa-reply .x { opacity: 0; border: 0; background: none; cursor: pointer; align-self: flex-start;
+  color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
+.qa-reply:hover .x { opacity: 1; } .qa-reply .x:hover { color: var(--st-danger-ink); }
+.qa-compose { display: flex; gap: 10px; margin-top: 14px; align-items: flex-end; }
+.qa-compose textarea { flex: 1; min-width: 0; min-height: 64px; padding: 11px 13px; resize: vertical;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-element);
+  font-family: inherit; font-size: 13.5px; line-height: 1.6; outline: none;
+  transition: border-color 175ms, background 175ms; }
+.qa-compose textarea:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
 
 /* 월간 달력 */
 .cal-nav { display: inline-flex; gap: 4px; }
@@ -311,7 +379,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   body { overflow: auto; }
   .desk { padding: 10px 12px 14px; }
   .dash { grid-template-columns: 1fr; overflow: visible; }
-  .p-today, .p-todo, .p-dday, .p-table, .p-cal { grid-column: 1; grid-row: auto; }
+  .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal { grid-column: 1; grid-row: auto; }
   .cal-cell { min-height: 58px; padding: 4px 5px; }
   .cal-ev { font-size: 10px; padding: 1px 4px; }
   .notes-wrap { grid-template-columns: 1fr; }
@@ -343,6 +411,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       </a>
       <nav class="desk-views" id="deskViews">
         <button class="on" data-view="dash">대시보드</button>
+        <button data-view="qa">Q&amp;A<em class="tab-badge" id="qaBadge" hidden></em></button>
         <button data-view="notes">노트</button>
         <button data-view="class">학급</button>
       </nav>
@@ -416,6 +485,22 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         <table class="tt" id="ttable"></table>
       </div>
 
+      <!-- 수업 진도 -->
+      <div class="panel p-prog">
+        <div class="dash-h">수업 진도 <b><a href="progress.html" style="color:inherit;">진도표 열기 ↗</a></b></div>
+        <div id="progList"><div class="ev-empty">진도표 데이터를 불러오는 중…</div></div>
+      </div>
+
+      <!-- 공지 관리 -->
+      <div class="panel p-notice">
+        <div class="dash-h">메인 페이지 공지 <b>저장 즉시 홈페이지에 반영</b></div>
+        <div id="noticeList"></div>
+        <div class="notice-add">
+          <input type="text" id="noticeDate" placeholder="2026.08.06" maxlength="10">
+          <input type="text" id="noticeText" placeholder="공지 내용 — Enter로 게시" maxlength="120">
+        </div>
+      </div>
+
       <!-- 월간 달력 -->
       <div class="panel p-cal">
         <div class="dash-h">
@@ -448,6 +533,37 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         </div>
         <div id="editorHost"></div>
         <div class="pane-blank" id="paneBlank">왼쪽에서 노트를 선택하거나<br>「+ 새 노트」를 눌러 시작하세요.</div>
+      </section>
+    </section>
+
+    <!-- ── Q&A 인박스 뷰 ── -->
+    <section class="class-grid" id="qaView" style="display:none;">
+      <aside class="panel note-rail">
+        <div class="rail-top">
+          <nav class="desk-views qa-filter" id="qaFilter" style="display:flex; flex:1;">
+            <button class="on" data-f="open" style="flex:1;">미답변 <span id="qaOpenN"></span></button>
+            <button data-f="all" style="flex:1;">전체 <span id="qaAllN"></span></button>
+          </nav>
+        </div>
+        <div class="note-list" id="qaList"></div>
+      </aside>
+      <section class="panel note-pane">
+        <div class="pane-top">
+          <button class="btn-sub back-btn" id="qaBackBtn">← 목록</button>
+          <span class="stu-head" id="qaHead"></span>
+          <button class="btn-sub del-btn" id="qaDelBtn" style="display:none;">질문 삭제</button>
+        </div>
+        <div class="qa-detail" id="qaDetail" style="display:none;">
+          <div class="qa-meta" id="qaMeta"></div>
+          <div class="qa-body" id="qaBody"></div>
+          <div class="qa-replies-cap dash-h">답변</div>
+          <div id="qaReplies"></div>
+          <div class="qa-compose">
+            <textarea id="qaReplyText" placeholder="답변을 입력하세요… (Ctrl+Enter 등록)"></textarea>
+            <button class="btn-solid" id="qaReplyBtn">답변 등록</button>
+          </div>
+        </div>
+        <div class="pane-blank" id="qaBlank">왼쪽에서 질문을 선택하세요.<br>새 질문 알림은 디스코드로 옵니다.</div>
       </section>
     </section>
 
@@ -549,6 +665,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       const btn = e.target.closest('button'); if (!btn) return;
       deskViews.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
       $('dashView').style.display = btn.dataset.view === 'dash' ? '' : 'none';
+      $('qaView').style.display = btn.dataset.view === 'qa' ? '' : 'none';
       $('notesView').style.display = btn.dataset.view === 'notes' ? '' : 'none';
       $('classView').style.display = btn.dataset.view === 'class' ? '' : 'none';
       if (btn.dataset.view === 'class') initClassView();
@@ -931,6 +1048,141 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       await saveStu(currentStu);
     });
 
+    // ════════════════ Q&A 인박스 ════════════════
+    let questions = {}, qaFilterMode = 'open', currentQ = null;
+    // qna.html의 getCurrentTime()과 같은 형식 (YYYY/MM/DD AM/PM h:mm)
+    const qTimeStr = () => { const n = new Date(); const ap = n.getHours() >= 12 ? 'PM' : 'AM';
+      let h = n.getHours() % 12; h = h ? h : 12;
+      return `${n.getFullYear()}/${pad(n.getMonth()+1)}/${pad(n.getDate())} ${ap} ${h}:${pad(n.getMinutes())}`; };
+    const isAnswered = q => q.replies && Object.keys(q.replies).length > 0;
+
+    function renderQa() {
+      const all = Object.entries(questions).sort((a, b) => (b[1].timestamp||0) - (a[1].timestamp||0));
+      const open = all.filter(([, q]) => !isAnswered(q));
+      $('qaOpenN').textContent = open.length; $('qaAllN').textContent = all.length;
+      $('qaBadge').hidden = open.length === 0; $('qaBadge').textContent = open.length;
+      const items = qaFilterMode === 'open' ? open : all;
+      $('qaList').innerHTML = items.length ? items.map(([id, q]) =>
+        `<button class="note-item${id===currentQ?' on':''}" data-id="${id}">` +
+        `<span class="t qa-item-t">${isAnswered(q)?'':'<span class="qa-open-dot"></span>'}` +
+        `${q.isSecret?'<span class="qa-lock">🔒</span>':''}` +
+        `<span style="overflow:hidden;text-overflow:ellipsis;">${escapeHTML(q.title) || '제목 없음'}</span></span>` +
+        `<span class="d">${escapeHTML(q.author||'익명')} · ${escapeHTML(q.time||'')}</span></button>`).join('')
+        : `<div class="rail-empty">${qaFilterMode==='open' ? '미답변 질문이 없습니다 🎉' : '질문이 없습니다.'}</div>`;
+      if (currentQ && !questions[currentQ]) closeQa();
+      else if (currentQ) renderQaDetail();
+    }
+    function renderQaDetail() {
+      const q = questions[currentQ]; if (!q) return;
+      $('qaHead').textContent = q.title || '제목 없음';
+      $('qaMeta').innerHTML = `<b>${escapeHTML(q.author||'익명')}</b> · ${escapeHTML(q.time||'')}${q.isSecret ? ' · 🔒 비밀글' : ''}`;
+      $('qaBody').innerHTML = escapeHTML(q.text||'') + (q.imageUrl ? `<img src="${escapeHTML(q.imageUrl)}" loading="lazy">` : '');
+      const reps = Object.entries(q.replies || {});
+      $('qaReplies').innerHTML = reps.length ? reps.map(([rid, r]) =>
+        `<div class="qa-reply"><div class="rb"><div class="rt">${escapeHTML(r.text||'')}</div>` +
+        (r.imageUrl ? `<img src="${escapeHTML(r.imageUrl)}" loading="lazy" style="max-width:100%;border-radius:8px;margin-top:6px;">` : '') +
+        `<div class="rd">${r.isTeacher ? '교사 답변' : '댓글'} · ${escapeHTML(r.time||'')}</div></div>` +
+        `<button class="x" data-rid="${rid}" title="답변 삭제">×</button></div>`).join('')
+        : '<div class="ev-empty">아직 답변이 없습니다.</div>';
+    }
+    function openQa(id) {
+      currentQ = id;
+      $('qaDetail').style.display = ''; $('qaBlank').style.display = 'none';
+      $('qaDelBtn').style.display = '';
+      $('qaView').classList.add('editing');
+      renderQaDetail(); renderQa();
+    }
+    function closeQa() {
+      currentQ = null;
+      $('qaDetail').style.display = 'none'; $('qaBlank').style.display = '';
+      $('qaDelBtn').style.display = 'none'; $('qaHead').textContent = '';
+      $('qaView').classList.remove('editing');
+    }
+    $('qaFilter').addEventListener('click', e => {
+      const btn = e.target.closest('button'); if (!btn) return;
+      qaFilterMode = btn.dataset.f;
+      $('qaFilter').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+      renderQa();
+    });
+    $('qaList').addEventListener('click', e => {
+      const btn = e.target.closest('.note-item'); if (btn) openQa(btn.dataset.id);
+    });
+    $('qaBackBtn').addEventListener('click', () => $('qaView').classList.remove('editing'));
+    $('qaDelBtn').addEventListener('click', async () => {
+      if (!currentQ) return;
+      const t = questions[currentQ]?.title || '제목 없음';
+      if (!confirm(`「${t}」 질문을 삭제할까요?\n답변까지 모두 삭제되며 되돌릴 수 없습니다.`)) return;
+      const id = currentQ; closeQa();
+      await remove(ref(db, 'questions/' + id));
+    });
+    async function submitQaReply() {
+      if (!currentQ) return;
+      const text = $('qaReplyText').value.trim(); if (!text) return;
+      $('qaReplyBtn').disabled = true;
+      try {
+        await push(ref(db, `questions/${currentQ}/replies`), { text, imageUrl: '', time: qTimeStr(), isTeacher: true });
+        $('qaReplyText').value = '';
+      } catch { alert('답변 등록에 실패했습니다. 연결을 확인하세요.'); }
+      $('qaReplyBtn').disabled = false;
+    }
+    $('qaReplyBtn').addEventListener('click', submitQaReply);
+    $('qaReplyText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitQaReply(); });
+    $('qaReplies').addEventListener('click', async e => {
+      const x = e.target.closest('[data-rid]'); if (!x || !currentQ) return;
+      if (!confirm('이 답변을 삭제할까요?')) return;
+      await remove(ref(db, `questions/${currentQ}/replies/${x.dataset.rid}`));
+    });
+
+    // ════════════════ 수업 진도 (progress.html 데이터 공유) ════════════════
+    let progLessons = [], progClasses = {};
+    function renderProg() {
+      const total = progLessons.length;
+      const cls = Object.entries(progClasses).sort((a, b) => (a[1].order||0) - (b[1].order||0));
+      $('progList').innerHTML = cls.length ? cls.map(([id, c]) => {
+        const done = Math.max(0, Math.min(total, Number(c.done) || 0));
+        const next = progLessons[done];
+        const pct = total ? Math.round(done / total * 100) : 0;
+        return `<div class="prog-row" data-id="${id}"><span class="nm">${escapeHTML(c.name||'')}</span>` +
+          `<span class="mid"><span class="bar"><i style="width:${pct}%"></i></span>` +
+          `<span class="prog-next">${next ? `다음: ${escapeHTML(next.title||'')}` : '진도 완료 🎉'}</span></span>` +
+          `<span class="cnt">${done}/${total}</span>` +
+          `<span class="pm"><button data-d="-1" title="한 차시 되돌리기">−</button><button data-d="1" title="한 차시 완료">+</button></span></div>`;
+      }).join('') : '<div class="ev-empty">진도표에 등록된 반이 없습니다.</div>';
+    }
+    $('progList').addEventListener('click', async e => {
+      const btn = e.target.closest('button[data-d]'); if (!btn) return;
+      const row = btn.closest('.prog-row'); const id = row.dataset.id;
+      const total = progLessons.length;
+      const cur = Math.max(0, Math.min(total, Number(progClasses[id]?.done) || 0));
+      const done = Math.max(0, Math.min(total, cur + Number(btn.dataset.d)));
+      if (done !== cur) await update(ref(db, `progress/classes/${id}`), { done });
+    });
+
+    // ════════════════ 메인 페이지 공지 관리 ════════════════
+    let noticesData = {};
+    const noticeDateStr = () => { const n = new Date(); return `${n.getFullYear()}.${pad(n.getMonth()+1)}.${pad(n.getDate())}`; };
+    function renderNoticeAdmin() {
+      const rows = Object.entries(noticesData).sort((a, b) => (b[1].createdAt||0) - (a[1].createdAt||0));
+      $('noticeList').innerHTML = rows.length ? rows.map(([id, n]) =>
+        `<div class="notice-row"><span class="nd">${escapeHTML(n.date||'')}</span>` +
+        `<span class="nt">${escapeHTML(n.text||'')}</span>` +
+        `<button class="x" data-del="${id}" title="삭제">×</button></div>`).join('')
+        : '<div class="ev-empty">게시된 공지가 없습니다. 아래에서 추가하세요. (최신 3개가 홈페이지에 표시)</div>';
+    }
+    $('noticeText').addEventListener('keydown', async e => {
+      if (e.key !== 'Enter') return;
+      const text = $('noticeText').value.trim(); if (!text) return;
+      const date = $('noticeDate').value.trim() || noticeDateStr();
+      $('noticeText').value = '';
+      try { await push(ref(db, 'notices'), { date, text, createdAt: Date.now() }); }
+      catch { alert('공지 저장 실패 — DB 규칙에 notices 항목이 있는지 확인하세요.'); }
+    });
+    $('noticeList').addEventListener('click', async e => {
+      const del = e.target.closest('[data-del]'); if (!del) return;
+      if (!confirm('이 공지를 삭제할까요? 홈페이지에서도 사라집니다.')) return;
+      await remove(ref(db, 'notices/' + del.dataset.del));
+    });
+
     // ════════════════ 노트 ════════════════
     const notesRef = ref(db, 'desk/notes');
     const gate = $('gate'), desk = $('desk'), gateWarn = $('gateWarn');
@@ -1062,6 +1314,16 @@ body { display: flex; flex-direction: column; overflow: hidden; }
           onValue(ref(db, 'desk/todos'), s => { todos = s.val() || {}; renderTodos(); }, guard);
           onValue(ref(db, 'desk/ddays'), s => { ddays = s.val() || {}; renderDdays(); }, guard);
           onValue(ref(db, 'desk/timetable'), s => { ttable = s.val() || {}; renderTable(); }, guard);
+          onValue(ref(db, 'questions'), s => { questions = s.val() || {}; renderQa(); });
+          onValue(ref(db, 'progress'), s => {
+            const v = s.val() || {};
+            progLessons = Object.values(v.lessons || {}).sort((a, b) => (a.order||0) - (b.order||0));
+            progClasses = v.classes || {};
+            renderProg();
+          });
+          onValue(ref(db, 'notices'), s => { noticesData = s.val() || {}; renderNoticeAdmin(); },
+            () => { $('noticeList').innerHTML = '<div class="ev-empty">DB 보안 규칙에 notices 항목을 추가해야 합니다.</div>'; });
+          $('noticeDate').placeholder = noticeDateStr();
           // 자정이 지나면 '오늘'을 갱신
           setInterval(renderToday, 60 * 1000);
         }

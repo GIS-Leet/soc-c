@@ -446,9 +446,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
    ========================================================================== */
 
 /* 공지사항 — 형식: { date: '연.월.일', text: '내용' } · 비우면 영역이 숨겨집니다 */
-const NOTICES = [
-  { date: '2026.07.12', text: '페이지 수정 중.' },
-];
+/* 공지는 이제 Desk(desk.html)의 「메인 페이지 공지」 패널에서 관리합니다.
+   아래 renderNotices가 DB(notices)에서 최신 3개를 읽어 옵니다. */
 
 /* D-Day — 시험이 끝나면 date만 다음 시험 날짜로 바꾸면 됩니다.
    날짜가 지나면 해당 항목은 자동으로 숨겨집니다. */
@@ -456,16 +455,25 @@ const DDAY = { label: '중간고사', date: '2026-10-01' };
 
 /* ========================================================================== */
 
-(function renderNotices(){
-  if (!NOTICES.length) return;
-  const rows = NOTICES.slice(0, 3);
+(async function renderNotices(){
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let rows = [];
+  try {
+    const res = await fetch('https://soc-c-qna-default-rtdb.firebaseio.com/notices.json');
+    if (res.ok) {
+      const d = await res.json();
+      if (d && typeof d === 'object') rows = Object.values(d).sort((a, b) => (b.createdAt||0) - (a.createdAt||0));
+    }
+  } catch (e) { /* 네트워크 실패 시 공지 영역을 그냥 숨긴다 */ }
+  if (!rows.length) return;
+  rows = rows.slice(0, 3);
   // 메뉴 안 (날짜 → 내용)
   document.getElementById('noticeList').innerHTML = rows.map(n =>
-    `<div class="item"><span class="d">${n.date}</span><span class="m">${n.text}</span></div>`).join('');
+    `<div class="item"><span class="d">${esc(n.date)}</span><span class="m">${esc(n.text)}</span></div>`).join('');
   document.getElementById('menuNotice').hidden = false;
   // 첫 화면 오른쪽 (오른쪽 정렬이라 내용 → 날짜 순서로 둔다)
   document.getElementById('heroNoticeList').innerHTML = rows.map(n =>
-    `<div class="item"><span class="m">${n.text}</span><span class="d">${n.date}</span></div>`).join('');
+    `<div class="item"><span class="m">${esc(n.text)}</span><span class="d">${esc(n.date)}</span></div>`).join('');
   document.getElementById('heroNotice').hidden = false;
 })();
 
