@@ -1326,13 +1326,30 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     $('ghTokenSaveBtn').addEventListener('click', async () => {
       const warn = $('matSetupWarn'); warn.style.display = 'none';
       const token = $('ghTokenInput').value.trim();
-      const repo = $('ghRepoInput').value.trim();
+      let repo = $('ghRepoInput').value.trim();
       if (!token || !repo) return;
       $('ghTokenSaveBtn').disabled = true;
       try {
         // 토큰·저장소 검증 + "진짜 비공개인지" 확인
-        const res = await fetch(`https://api.github.com/repos/${repo}`, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' } });
-        if (!res.ok) throw new Error(res.status === 401 ? '토큰이 유효하지 않습니다.' : `저장소 접근 실패 (HTTP ${res.status}) — 저장소 이름과 토큰의 Repository access를 확인하세요.`);
+        const hd = { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' };
+        let res = await fetch(`https://api.github.com/repos/${repo}`, { headers: hd });
+        if (res.status === 401) throw new Error('토큰이 유효하지 않습니다. 만료됐거나 잘못 복사됐을 수 있으니 새로 생성해 보세요.');
+        if (res.status === 404) {
+          // 자가 진단 — 이 토큰이 실제로 접근 가능한 저장소를 조회해 원인을 짚어 준다
+          const lr = await fetch('https://api.github.com/user/repos?per_page=100', { headers: hd });
+          const names = lr.ok ? (await lr.json()).map(r => r.full_name) : [];
+          const fixed = names.find(n => n.toLowerCase() === repo.toLowerCase());
+          if (fixed) { repo = fixed; $('ghRepoInput').value = fixed; res = await fetch(`https://api.github.com/repos/${fixed}`, { headers: hd }); }
+          else throw new Error(
+            '토큰은 유효하지만 「' + repo + '」에 접근할 수 없습니다.\n' +
+            (names.length
+              ? '이 토큰이 접근 가능한 저장소: ' + names.join(', ')
+              : '이 토큰으로 접근 가능한 저장소가 하나도 없습니다.') +
+            '\n→ github.com → Settings → Developer settings → 해당 토큰 편집에서 ' +
+            'Repository access에 soc-c-private를 추가했는지, Resource owner가 본인 계정(GIS-Leet)인지 확인하세요. ' +
+            '토큰을 만든 "뒤에" 저장소를 만들었다면 목록에 없을 수 있으니 토큰을 편집해 다시 선택해야 합니다.');
+        }
+        if (!res.ok) throw new Error(`저장소 접근 실패 (HTTP ${res.status})`);
         const info = await res.json();
         if (!info.private) throw new Error('⚠ 이 저장소는 공개(Public) 상태입니다. 학생에게 노출될 수 있으니 저장소 Settings에서 Private으로 바꾼 뒤 다시 시도하세요.');
         ghToken = token; matRepo = repo;
