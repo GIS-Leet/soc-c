@@ -360,6 +360,19 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .mat-row .op button:hover { background: var(--st-danger-soft, #e3193b1f); color: var(--st-danger-ink); }
 .mat-foot { flex-shrink: 0; font-size: 11.5px; color: var(--st-label-3); margin: 10px 2px 0; word-break: keep-all; }
 
+/* 인라인 뷰어 — Desk 위를 덮는 전체 화면 */
+.mat-viewer { position: fixed; inset: 0; z-index: 300; display: flex; flex-direction: column; background: var(--st-bg-body, #f2f2f7); }
+.mat-viewer[hidden] { display: none; }
+.mat-viewer__bar {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px;
+  background: var(--st-surface); border-bottom: 1px solid var(--st-separator-strong);
+}
+.mat-viewer__name { font-size: 13.5px; font-weight: 700; letter-spacing: -0.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.mat-viewer__ops { display: inline-flex; gap: 8px; flex-shrink: 0; }
+.mat-viewer iframe { flex: 1; min-height: 0; width: 100%; border: 0; background: #fff; }
+
 /* ══════════ 학급 뷰 ══════════ */
 .class-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .class-lock { flex: 1; display: grid; place-items: center; padding: 24px; }
@@ -613,12 +626,16 @@ body { display: flex; flex-direction: column; overflow: hidden; }
           <div class="lock-ico">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
           </div>
-          <h2>자료 업로드 연결</h2>
-          <p>자료 저장소(kgghs-soc-c)에 올리려면 GitHub 토큰이 한 번 필요합니다.<br><br>
-          <b>github.com → Settings → Developer settings →<br>Fine-grained personal access tokens → Generate</b><br>
-          · Repository access: <b>kgghs-soc-c만 선택</b><br>
-          · Permissions → Contents: <b>Read and write</b><br>
+          <h2>비공개 자료함 연결</h2>
+          <p>여기 올리는 자료는 <b>학생에게 공개되지 않는 비공개 저장소</b>에 보관됩니다. 처음 한 번만 준비하면 됩니다.<br><br>
+          ① <b>github.com/new</b> 에서 새 저장소 만들기<br>
+          &nbsp;&nbsp;· 이름: <b>soc-c-private</b> (아래와 같게)<br>
+          &nbsp;&nbsp;· 공개 범위: 반드시 <b>Private</b> 선택<br><br>
+          ② <b>Settings → Developer settings →<br>Fine-grained personal access tokens → Generate</b><br>
+          &nbsp;&nbsp;· Repository access: <b>soc-c-private만 선택</b><br>
+          &nbsp;&nbsp;· Permissions → Contents: <b>Read and write</b><br><br>
           만든 토큰을 아래에 붙여넣으면 Desk에만 저장됩니다.</p>
+          <input type="text" class="lock-in" id="ghRepoInput" placeholder="저장소 (예: GIS-Leet/soc-c-private)" autocomplete="off" value="GIS-Leet/soc-c-private">
           <input type="password" class="lock-in" id="ghTokenInput" placeholder="github_pat_…" autocomplete="off">
           <button class="btn-solid" id="ghTokenSaveBtn" style="width:100%;">저장하고 시작</button>
           <p class="warn" id="matSetupWarn" style="display:none;"></p>
@@ -629,9 +646,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       <div class="panel mat-panel" id="matPanel" style="display:none;">
         <div class="mat-top">
           <nav class="desk-views" id="matFolders" style="display:flex;">
-            <button class="on" data-folder="학습지">학습지</button>
-            <button data-folder="PPT">PPT</button>
-            <button data-folder="참고자료">참고자료</button>
+            <button class="on" data-folder="수업">수업</button>
+            <button data-folder="평가">평가</button>
+            <button data-folder="기타">기타</button>
           </nav>
           <div class="mat-actions">
             <button class="btn-sub" id="ghTokenEditBtn" title="토큰 변경">토큰</button>
@@ -641,7 +658,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         </div>
         <p class="mat-status" id="matStatus" hidden></p>
         <div class="mat-list" id="matList"><div class="ev-empty">파일 목록을 불러오는 중…</div></div>
-        <p class="mat-foot">업로드하면 자료실·메인 페이지 목록에 자동으로 나타납니다. 새 파일은 배포(약 1분) 후에 열립니다.</p>
+        <p class="mat-foot">🔒 비공개 저장소입니다 — 학생·외부인은 주소를 알아도 볼 수 없고, 「보기」는 본인 인증을 거쳐 열립니다. 자료실(kgghs-soc-c)과는 별개 공간입니다.</p>
       </div>
 
     </section>
@@ -705,6 +722,18 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     </section>
 
   </main>
+
+  <!-- 자료 인라인 뷰어 (비공개 파일을 Desk 안에서 바로 연다) -->
+  <div class="mat-viewer" id="matViewer" hidden>
+    <div class="mat-viewer__bar">
+      <span class="mat-viewer__name" id="matViewerName"></span>
+      <span class="mat-viewer__ops">
+        <button class="btn-sub" id="matViewerTab">새 탭에서 열기</button>
+        <button class="btn-sub" id="matViewerClose">닫기 ✕</button>
+      </span>
+    </div>
+    <iframe id="matViewerFrame" title="자료 미리보기"></iframe>
+  </div>
 
   <!-- Toast UI Editor -->
   <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
@@ -1264,14 +1293,12 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       await remove(ref(db, 'notices/' + del.dataset.del));
     });
 
-    // ════════════════ 자료 업로드 (GitHub 저장소 kgghs-soc-c) ════════════════
-    const MAT_REPO = 'GIS-Leet/kgghs-soc-c';
-    const MAT_PAGES = 'https://gis-leet.github.io/kgghs-soc-c/';
-    let ghToken = null, matFolder = '학습지', matFiles = [], matBusy = false, matInited = false;
+    // ════════════════ 자료 업로드 (비공개 저장소 — 학생에게 노출되지 않음) ════════════════
+    let ghToken = null, matRepo = 'GIS-Leet/soc-c-private';
+    let matFolder = '수업', matFiles = [], matBusy = false, matInited = false;
 
     const ghHeaders = () => ({ 'Authorization': 'Bearer ' + ghToken, 'Accept': 'application/vnd.github+json' });
-    const matApiUrl = name => `https://api.github.com/repos/${MAT_REPO}/contents/${encodeURIComponent(matFolder)}` + (name ? '/' + encodeURIComponent(name) : '');
-    const matPageUrl = name => MAT_PAGES + encodeURIComponent(matFolder) + '/' + encodeURIComponent(name);
+    const matApiUrl = name => `https://api.github.com/repos/${matRepo}/contents/${encodeURIComponent(matFolder)}` + (name ? '/' + encodeURIComponent(name) : '');
     const fmtSize = b => b > 1048576 ? (b/1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b/1024)) + ' KB';
     const fileToB64 = file => new Promise((ok, no) => {
       const r = new FileReader();
@@ -1285,7 +1312,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         matInited = true;
         try {
           const snap = await get(ref(db, 'desk/settings/github'));
-          ghToken = snap.val()?.token || null;
+          const cfg = snap.val() || {};
+          ghToken = cfg.token || null;
+          if (cfg.repo) matRepo = cfg.repo;
         } catch { ghToken = null; }
       }
       if (ghToken) { showMatPanel(); loadMatList(); }
@@ -1297,14 +1326,17 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     $('ghTokenSaveBtn').addEventListener('click', async () => {
       const warn = $('matSetupWarn'); warn.style.display = 'none';
       const token = $('ghTokenInput').value.trim();
-      if (!token) return;
+      const repo = $('ghRepoInput').value.trim();
+      if (!token || !repo) return;
       $('ghTokenSaveBtn').disabled = true;
       try {
-        // 토큰 검증 — 저장소 접근이 되는지 확인
-        const res = await fetch(`https://api.github.com/repos/${MAT_REPO}`, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' } });
-        if (!res.ok) throw new Error(res.status === 401 ? '토큰이 유효하지 않습니다.' : `저장소 접근 실패 (HTTP ${res.status}) — Repository access에 kgghs-soc-c를 선택했는지 확인하세요.`);
-        ghToken = token;
-        await set(ref(db, 'desk/settings/github'), { token, repo: MAT_REPO, savedAt: Date.now() });
+        // 토큰·저장소 검증 + "진짜 비공개인지" 확인
+        const res = await fetch(`https://api.github.com/repos/${repo}`, { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' } });
+        if (!res.ok) throw new Error(res.status === 401 ? '토큰이 유효하지 않습니다.' : `저장소 접근 실패 (HTTP ${res.status}) — 저장소 이름과 토큰의 Repository access를 확인하세요.`);
+        const info = await res.json();
+        if (!info.private) throw new Error('⚠ 이 저장소는 공개(Public) 상태입니다. 학생에게 노출될 수 있으니 저장소 Settings에서 Private으로 바꾼 뒤 다시 시도하세요.');
+        ghToken = token; matRepo = repo;
+        await set(ref(db, 'desk/settings/github'), { token, repo, savedAt: Date.now() });
         $('ghTokenInput').value = '';
         showMatPanel(); loadMatList();
       } catch (e) { warn.textContent = e.message; warn.style.display = ''; }
@@ -1331,10 +1363,46 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         return `<div class="mat-row"><span class="ext">${escapeHTML(ext)}</span>` +
           `<span class="fn">${escapeHTML(f.name)}</span>` +
           `<span class="sz">${fmtSize(f.size||0)}</span>` +
-          `<span class="op"><a href="${matPageUrl(f.name)}" target="_blank" rel="noopener">보기</a>` +
+          `<span class="op"><button class="vw" data-view-name="${escapeHTML(f.name)}">보기</button>` +
           `<button data-name="${escapeHTML(f.name)}" data-sha="${f.sha}">삭제</button></span></div>`;
       }).join('') : '<div class="ev-empty">이 폴더에 파일이 없습니다. 「+ 업로드」로 시작하세요.</div>';
     }
+
+    // 비공개 파일 열람 — 토큰 인증으로 받아 Desk 안 뷰어에서 바로 연다 (공개 URL이 존재하지 않음)
+    let matViewUrl = null;
+    const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    async function viewMatFile(name) {
+      const ext = (name.split('.').pop() || '').toLowerCase();
+      // iOS는 iframe 안 PDF를 첫 페이지만 그리므로 새 탭(전체 뷰어)으로 우회
+      const useTab = IS_IOS && ext === 'pdf';
+      const w = useTab ? window.open('about:blank', '_blank') : null;
+      try {
+        const res = await fetch(matApiUrl(name), {
+          headers: { 'Authorization': 'Bearer ' + ghToken, 'Accept': 'application/vnd.github.raw' }
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const raw = await res.blob();
+        const mime = ext === 'pdf' ? 'application/pdf'
+                   : ext === 'html' ? 'text/html'
+                   : raw.type || 'application/octet-stream';
+        if (matViewUrl) URL.revokeObjectURL(matViewUrl);
+        matViewUrl = URL.createObjectURL(new Blob([raw], { type: mime }));
+        if (useTab) { w.location = matViewUrl; return; }
+        $('matViewerName').textContent = name;
+        $('matViewerFrame').src = matViewUrl;
+        $('matViewer').hidden = false;
+      } catch (e) {
+        if (w) w.close();
+        alert('열기 실패: ' + e.message);
+      }
+    }
+    function closeMatViewer() {
+      $('matViewer').hidden = true;
+      $('matViewerFrame').src = 'about:blank';
+    }
+    $('matViewerClose').addEventListener('click', closeMatViewer);
+    $('matViewerTab').addEventListener('click', () => { if (matViewUrl) window.open(matViewUrl, '_blank'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('matViewer').hidden) closeMatViewer(); });
 
     $('matFolders').addEventListener('click', e => {
       const btn = e.target.closest('button'); if (!btn || matBusy) return;
@@ -1375,6 +1443,8 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     }
 
     $('matList').addEventListener('click', async e => {
+      const vw = e.target.closest('button[data-view-name]');
+      if (vw) { viewMatFile(vw.dataset.viewName); return; }
       const btn = e.target.closest('button[data-sha]'); if (!btn || matBusy) return;
       const name = btn.dataset.name;
       if (!confirm(`「${name}」 파일을 저장소에서 삭제할까요?\n자료실 목록에서도 사라집니다.`)) return;
