@@ -37,6 +37,22 @@
 html, body { height: 100%; }
 body { display: flex; flex-direction: column; overflow: hidden; }
 
+/* ── 가독성 — Desk 한정 대비 강화 (흰 면 위 경계를 또렷하게) ── */
+.desk, .gate { --st-separator: var(--st-separator-strong); }
+.desk .panel, .gate .panel { margin-top: 0; border-color: var(--st-separator-strong); }
+.rail-top input, .quick-add input, .todo-add input, .dday-add input,
+.log-add input, .lock-in, #stuNote { border-color: var(--st-fill); }
+
+/* ── iOS 노치·홈 인디케이터 (설치형 앱에서 상단이 잘려 보이는 문제) ── */
+@supports (top: env(safe-area-inset-top)) {
+  .desk-bar { padding-top: env(safe-area-inset-top); }
+  .desk { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+  .desk {
+    padding-left: max(var(--pad-x, 20px), env(safe-area-inset-left));
+    padding-right: max(var(--pad-x, 20px), env(safe-area-inset-right));
+  }
+}
+
 /* ── 상단 바 ── */
 .desk-bar { flex-shrink: 0; }
 .desk-bar .geo-bar__in { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
@@ -76,7 +92,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .dash-h {
   display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
   font-size: 11px; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase;
-  color: var(--st-label-3); margin-bottom: 12px;
+  color: var(--st-label-2); margin-bottom: 12px;
 }
 .dash-h b { font-size: inherit; color: var(--st-label-2); font-weight: 700; }
 
@@ -190,7 +206,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .tt { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .tt th { font-size: 11px; font-weight: 700; color: var(--st-label-3); letter-spacing: 0.05em;
   padding: 6px 4px; border-bottom: 1px solid var(--st-separator); }
-.tt th.pd { width: 34px; }
+.tt th.pd { width: 46px; }
+.tt td:first-child { line-height: 1.15; padding: 3px 0; }
+.tt td:first-child small { display: block; font-size: 9.5px; color: var(--st-label-3); font-weight: 500; margin-top: 1px; }
 .tt td { border-bottom: 1px solid var(--st-separator); border-left: 1px solid var(--st-separator);
   padding: 0; height: 34px; text-align: center; font-size: 12.5px; cursor: pointer;
   color: var(--st-label); transition: background 150ms; }
@@ -302,7 +320,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   .class-grid { grid-template-columns: 1fr; }
   .class-grid.editing .note-rail { display: none; }
   .class-grid:not(.editing) .note-pane { display: none; }
-  .note-rail, .note-pane { height: calc(100dvh - 130px); }
+  .note-rail, .note-pane { height: calc(100dvh - 130px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
   .pane-top .back-btn { display: inline-flex; }
   .desk-views button { padding: 6px 12px; font-size: 12.5px; }
 }
@@ -630,11 +648,12 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     // ── 주간 시간표 (7교시 × 월–금) ──
     let ttable = {};
     const DAYS = ['mon','tue','wed','thu','fri'], DAY_KO = ['월','화','수','목','금'];
+    const PERIOD_TIMES = { 1:'8:20', 2:'9:20', 3:'10:20', 4:'11:20', 5:'13:10', 6:'14:10', 7:'15:10' };
     function renderTable() {
       const head = '<tr><th class="pd"></th>' + DAY_KO.map(d => `<th>${d}</th>`).join('') + '</tr>';
       let rows = '';
       for (let p = 1; p <= 7; p++) {
-        rows += `<tr><td>${p}</td>` + DAYS.map(d => {
+        rows += `<tr><td>${p}<small>${PERIOD_TIMES[p]}</small></td>` + DAYS.map(d => {
           const v = ttable?.[d]?.[p] || '';
           return `<td data-d="${d}" data-p="${p}">${v ? escapeHTML(v) : '<span class="mt">·</span>'}</td>`;
         }).join('') + '</tr>';
