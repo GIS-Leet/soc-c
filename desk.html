@@ -121,6 +121,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .tab-badge { display: inline-grid; place-items: center; margin-left: 6px; min-width: 16px; height: 16px;
   padding: 0 4px; border-radius: var(--st-r-full); font-style: normal; font-size: 10px; font-weight: 700;
   background: var(--st-danger-ink); color: #fff; transform: translateY(-1px); }
+.tab-badge[hidden] { display: none; }   /* hidden 속성이 display 지정보다 지도록 */
 
 /* 수업 진도 */
 .prog-row { display: flex; align-items: center; gap: 10px; padding: 8px 2px;
