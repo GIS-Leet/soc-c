@@ -1,0 +1,16 @@
+{
+  "name": "Geographia — 통합사회 C",
+  "short_name": "Geographia",
+  "description": "경기여자고등학교 통합사회 C · 수업 자료, Q&A, 공간 시뮬레이터",
+  "lang": "ko",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
