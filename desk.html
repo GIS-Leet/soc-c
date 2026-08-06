@@ -60,11 +60,18 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .save-state { font-size: 12px; color: var(--st-label-3); white-space: nowrap; transition: color 200ms; }
 .save-state.busy { color: var(--st-accent-ink); }
 
-/* 뷰 전환 세그먼트 */
+/* 뷰 전환 세그먼트 — 데스크톱: 상단 바 중앙에 떠 있는 필 */
 .desk-views {
   display: none; gap: 2px; background: var(--st-fill-2);
   border-radius: var(--st-r-full); padding: 3px;
 }
+#deskViews {
+  position: fixed; z-index: 60;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  left: 50%; transform: translateX(-50%);
+  width: max-content;
+}
+.desk-views button { white-space: nowrap; }
 .desk-views button {
   border: 0; background: transparent; cursor: pointer; font-family: inherit;
   font-size: 13px; font-weight: 600; color: var(--st-label-3);
@@ -98,7 +105,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 
 /* ══════════ 대시보드 뷰 ══════════ */
 .dash { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin;
-  display: grid; grid-template-columns: 1.15fr 1fr 1fr; gap: 14px; align-content: start; }
+  display: grid; gap: 14px; align-content: start;
+  /* minmax(0,…) — 셀 내용의 최소폭이 트랙을 부풀리지 못하게 (모바일 가로 넘침 방지) */
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr); }
 .dash .panel { padding: 18px 20px; }
 .p-today  { grid-column: 1; grid-row: 1 / 3; }
 .p-todo   { grid-column: 2; grid-row: 1; }
@@ -288,7 +297,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   text-align: center; font-family: inherit; font-size: 12.5px; color: var(--st-label); outline: none; }
 
 /* ══════════ 노트 뷰 ══════════ */
-.notes-wrap { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+.notes-wrap { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 14px; }
 .note-rail { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
 .rail-top { padding: 14px 14px 10px; display: flex; gap: 8px; flex-shrink: 0; }
 .rail-top input { flex: 1; min-width: 0; height: 36px; padding: 0 12px;
@@ -389,7 +398,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .lock-note { font-size: 12px; color: var(--st-label-3); margin-top: 14px !important; }
 .lock-note b { color: var(--st-danger-ink); }
 
-.class-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+.class-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 14px; }
 .stu-add input#stuNum { flex: 0 0 64px; min-width: 0; }
 .stu-add input#stuName { flex: 1; }
 .rail-foot-lock { padding: 10px 14px; border-top: 1px solid var(--st-separator); flex-shrink: 0; }
@@ -426,8 +435,27 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 /* ══════════ 모바일 ══════════ */
 @media (max-width: 860px) {
   body { overflow: auto; }
-  .desk { padding: 10px 12px 14px; }
-  .dash { grid-template-columns: 1fr; overflow: visible; }
+  /* 탭 5개는 상단 바에 못 들어간다 — 하단 고정 탭 바(iOS 문법)로 이동 */
+  #deskViews {
+    position: fixed; left: 12px; right: 12px;
+    top: auto; transform: none; width: auto;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    z-index: 250;
+    background: color-mix(in srgb, var(--st-surface) 90%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    border: 1px solid var(--st-separator-strong);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+    padding: 4px;
+  }
+  #deskViews button { flex: 1; padding: 10px 4px; font-size: 12.5px; }
+  .save-state { max-width: 88px; overflow: hidden; text-overflow: ellipsis; }
+  /* 하단 탭 바에 가리지 않도록 본문 여백 확보 */
+  .desk { padding: 10px 12px calc(86px + env(safe-area-inset-bottom, 0px)); }
+  .dash { grid-template-columns: minmax(0, 1fr); overflow: visible; }
+  /* 좁은 화면에서 입력줄이 패널을 밀어내지 못하게 */
+  .dash input[type=text], .dash input[type=search] { min-width: 0; }
+  .dday-add .dt-in, .log-add input[type=date] { width: 112px; }
   .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal { grid-column: 1; grid-row: auto; }
   .cal-cell { min-height: 58px; padding: 4px 5px; }
   .cal-ev { font-size: 10px; padding: 1px 4px; }
@@ -437,7 +465,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   .class-grid { grid-template-columns: 1fr; }
   .class-grid.editing .note-rail { display: none; }
   .class-grid:not(.editing) .note-pane { display: none; }
-  .note-rail, .note-pane { height: calc(100dvh - 130px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+  .note-rail, .note-pane { height: calc(100dvh - 200px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
   .pane-top .back-btn { display: inline-flex; }
   .desk-views button { padding: 6px 12px; font-size: 12.5px; }
 }
@@ -458,19 +486,22 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         </svg>
         <b>Geographia</b>
       </a>
-      <nav class="desk-views" id="deskViews">
-        <button class="on" data-view="dash">대시보드</button>
-        <button data-view="qa">Q&amp;A<em class="tab-badge" id="qaBadge" hidden></em></button>
-        <button data-view="mat">자료</button>
-        <button data-view="notes">노트</button>
-        <button data-view="class">학급</button>
-      </nav>
       <div class="desk-side">
         <span class="save-state" id="saveState"></span>
         <button class="btn-sub" id="signOutBtn" style="display:none;">로그아웃</button>
       </div>
     </div>
   </header>
+
+  <!-- 뷰 전환 탭 — header 밖에 두어야 fixed 배치가 뷰포트 기준이 된다
+       (st-glass의 backdrop-filter가 fixed의 기준을 가로채는 것 방지) -->
+  <nav class="desk-views" id="deskViews">
+    <button class="on" data-view="dash">대시보드</button>
+    <button data-view="qa">Q&amp;A<em class="tab-badge" id="qaBadge" hidden></em></button>
+    <button data-view="mat">자료</button>
+    <button data-view="notes">노트</button>
+    <button data-view="class">학급</button>
+  </nav>
 
   <!-- ══════════ 로그인 게이트 ══════════ -->
   <div class="gate" id="gate">
