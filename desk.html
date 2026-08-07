@@ -112,13 +112,53 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr); }
 .dash .panel { padding: 18px 20px; }
 .p-stats  { grid-column: 1 / 4; grid-row: 1; }
-.p-today  { grid-column: 1; grid-row: 2; }
-.p-todo   { grid-column: 2; grid-row: 2; }
-.p-dday   { grid-column: 3; grid-row: 2; }
-.p-notice { grid-column: 1; grid-row: 3; }
-.p-table  { grid-column: 2 / 4; grid-row: 3; }
-.p-prog   { grid-column: 1; grid-row: 4; }
-.p-cal    { grid-column: 2 / 4; grid-row: 4; }
+.p-links  { grid-column: 1 / 4; grid-row: 2; }
+.p-today  { grid-column: 1; grid-row: 3; }
+.p-todo   { grid-column: 2; grid-row: 3; }
+.p-dday   { grid-column: 3; grid-row: 3; }
+.p-notice { grid-column: 1; grid-row: 4; }
+.p-table  { grid-column: 2 / 4; grid-row: 4; }
+.p-prog   { grid-column: 1; grid-row: 5; }
+.p-cal    { grid-column: 2 / 4; grid-row: 5; }
+
+/* 바로가기 링크 바 */
+.p-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px !important; }
+.link-chip { display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; font-weight: 650; color: var(--st-label);
+  background: var(--st-fill-2); padding: 6px 13px; border-radius: var(--st-r-full);
+  transition: background 150ms var(--ease-o), color 150ms var(--ease-o), transform 120ms var(--ease-o); }
+.link-chip:hover { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.link-chip:active { transform: scale(0.96); }
+.link-chip .x { opacity: 0; border: 0; background: none; cursor: pointer; padding: 0;
+  color: inherit; font-size: 12px; transition: opacity 150ms; }
+.link-chip:hover .x { opacity: 0.6; }
+.link-chip.add { background: transparent; border: 1px dashed var(--st-separator-strong); color: var(--st-label-3); cursor: pointer; font-family: inherit; }
+.link-chip.add:hover { color: var(--st-accent-ink); border-color: var(--st-accent-line, var(--st-accent-ink)); background: transparent; }
+.link-add { display: flex; gap: 6px; flex-wrap: wrap; }
+.link-add input { height: 32px; padding: 0 11px; background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-full); font-size: 12.5px; outline: none; }
+.link-add input:focus { background: var(--st-surface); border-color: var(--accent); }
+.link-add #linkLabel { width: 110px; }
+.link-add #linkUrl { width: 220px; }
+.link-add .btn-sub { height: 32px; padding: 0 12px; }
+@media (hover: none) { .link-chip .x { opacity: 0.5; } }
+
+/* 할 일 마감 칩 */
+.todo-add input[type=date] { flex: 0 0 118px; min-width: 0; height: 36px; padding: 0 8px;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-element);
+  font-size: 12px; outline: none; font-feature-settings: 'tnum' 1; }
+.todo-add input[type=date]:focus { background: var(--st-surface); border-color: var(--accent); }
+.todo-due { flex-shrink: 0; font-size: 10.5px; font-weight: 700; font-feature-settings: 'tnum' 1;
+  padding: 1px 8px; border-radius: var(--st-r-full);
+  background: var(--st-fill-2); color: var(--st-label-3); }
+.todo-due.today { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.todo-due.over  { background: var(--st-danger-soft); color: var(--st-danger-ink); }
+.todo-row.done .todo-due { background: var(--st-fill-2); color: var(--st-label-3); }
+
+/* 백업 상태 칸 */
+button.stat-i { border: 0; background: none; cursor: pointer; font-family: inherit; }
+.stat-i.bak-warn b { color: var(--st-danger-ink); }
 
 /* 주간 통계 스트립 */
 .p-stats { display: flex; align-items: stretch; padding: 12px 8px !important; }
@@ -613,7 +653,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
   /* 좁은 화면에서 입력줄이 패널을 밀어내지 못하게 */
   .dash input[type=text], .dash input[type=search] { min-width: 0; }
   .dday-add .dt-in, .log-add input[type=date] { width: 112px; }
-  .p-stats, .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal, .p-quick, .p-recent { grid-column: 1; grid-row: auto; }
+  .p-stats, .p-links, .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal, .p-quick, .p-recent { grid-column: 1; grid-row: auto; }
   .p-stats { flex-wrap: wrap; }
   .stat-i { flex-basis: 50%; padding: 8px; }
   .stat-i:nth-child(3) { border-left: 0; }
@@ -701,6 +741,18 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         <div class="stat-i"><b id="stA">–</b><span>이번 주 답변</span></div>
         <div class="stat-i"><b id="stOpen">–</b><span>미답변</span></div>
         <div class="stat-i"><b id="stTodo">–</b><span>할 일</span></div>
+        <button class="stat-i" id="backupStat" title="노트·상담 백업하러 가기"><b id="stBak">–</b><span>마지막 백업</span></button>
+      </div>
+
+      <!-- 바로가기 -->
+      <div class="panel p-links">
+        <div style="display:contents" id="linkRow"></div>
+        <button class="link-chip add" id="linkAddBtn">＋ 바로가기</button>
+        <div class="link-add" id="linkAdd" hidden>
+          <input type="text" id="linkLabel" placeholder="이름 (예: 나이스)" maxlength="20">
+          <input type="text" id="linkUrl" placeholder="주소 (neis.go.kr)" maxlength="300">
+          <button class="btn-sub" id="linkSaveBtn">추가</button>
+        </div>
       </div>
 
       <!-- 오늘 · 일정 -->
@@ -721,6 +773,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         <div class="dash-h">할 일 <b id="todoCount"></b></div>
         <div class="todo-add">
           <input type="text" id="todoInput" placeholder="할 일 추가 — Enter" maxlength="80">
+          <input type="date" id="todoDue" title="마감일 (선택)">
         </div>
         <div id="todoList"></div>
       </div>
@@ -803,6 +856,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         <div class="pane-top">
           <button class="btn-sub back-btn" id="backBtn">← 목록</button>
           <input type="text" id="noteTitle" placeholder="제목 없음" maxlength="80" disabled>
+          <button class="btn-sub" id="prevNoteBtn" style="display:none;" title="이번 편집을 시작하기 전 상태로 되돌립니다">↩ 이전 버전</button>
           <button class="btn-sub" id="pinNoteBtn" style="display:none;" title="목록 맨 위에 고정">📌 고정</button>
           <button class="btn-sub del-btn" id="delNoteBtn" style="display:none;">삭제</button>
         </div>
@@ -1145,15 +1199,29 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
     // ── 할 일 ──
     let todos = {};
+    function todoDueChip(t) {
+      if (!t.due) return '';
+      const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+      const diff = Math.round((new Date(t.due + 'T00:00:00') - t0) / 864e5);
+      const [, m, d] = t.due.split('-');
+      const label = diff === 0 ? '오늘' : diff === 1 ? '내일' : diff < 0 ? `D+${-diff}` : diff <= 7 ? `D-${diff}` : `${Number(m)}.${d}`;
+      const cls = t.done ? '' : diff < 0 ? ' over' : diff <= 1 ? ' today' : '';
+      return `<span class="todo-due${cls}" title="마감 ${t.due}">${label}</span>`;
+    }
     function renderTodos() {
+      // 미완료 먼저 → 마감 임박순 → 마감 없는 건 등록순, 완료는 맨 아래
       const items = Object.entries(todos).sort((a, b) =>
-        (a[1].done - b[1].done) || (a[1].createdAt - b[1].createdAt));
+        (a[1].done - b[1].done) ||
+        ((a[1].due || '9999-99-99') < (b[1].due || '9999-99-99') ? -1 :
+         (a[1].due || '9999-99-99') > (b[1].due || '9999-99-99') ? 1 : 0) ||
+        (a[1].createdAt - b[1].createdAt));
       const doneN = items.filter(([, t]) => t.done).length;
       $('todoCount').textContent = items.length ? `${doneN}/${items.length}` : '';
       $('todoList').innerHTML = items.map(([id, t]) =>
         `<div class="todo-row${t.done ? ' done' : ''}">` +
         `<input type="checkbox" data-id="${id}" ${t.done ? 'checked' : ''}>` +
         `<span class="txt">${escapeHTML(t.text)}</span>` +
+        todoDueChip(t) +
         `<button class="x" data-del="${id}" title="삭제">×</button></div>`).join('')
         || '<div class="ev-empty">할 일이 없습니다. 홀가분하네요.</div>';
       renderStats();
@@ -1161,8 +1229,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     $('todoInput').addEventListener('keydown', async e => {
       if (e.key !== 'Enter') return;
       const text = e.target.value.trim(); if (!text) return;
-      e.target.value = '';
-      await push(ref(db, 'desk/todos'), { text, done: false, createdAt: Date.now() });
+      const due = $('todoDue').value;
+      e.target.value = ''; $('todoDue').value = '';
+      await push(ref(db, 'desk/todos'), { text, done: false, createdAt: Date.now(), ...(due ? { due } : {}) });
     });
     $('todoList').addEventListener('click', async e => {
       const cb = e.target.closest('input[type=checkbox]');
@@ -1762,6 +1831,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       if (!items.length) { showUndo('내보낼 노트가 없습니다', null); return; }
       const md = items.map(n => `# ${n.title || '제목 없음'}\n\n${n.md || ''}`).join('\n\n---\n\n');
       dlFile(`노트백업-${keyOf(new Date())}.md`, md, 'text/markdown');
+      markBackup();
       showUndo(`노트 ${items.length}개를 내보냈습니다`, null);
     });
     $('classExportBtn').addEventListener('click', () => {
@@ -1769,6 +1839,50 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       if (!Object.keys(stuPlain).length) { showUndo('내보낼 기록이 없습니다', null); return; }
       if (!confirm('상담 기록을 복호화된 JSON 파일로 저장합니다.\n파일 자체에는 암호가 걸려 있지 않으니 안전한 곳에 보관하세요.')) return;
       dlFile(`상담백업-${keyOf(new Date())}.json`, JSON.stringify(stuPlain, null, 2), 'application/json');
+      markBackup();
+    });
+
+    // ── 백업 리마인더 ──
+    function markBackup() { localStorage.setItem('desk-last-backup', Date.now()); renderBackupStat(); }
+    function renderBackupStat() {
+      const ts = Number(localStorage.getItem('desk-last-backup')) || 0;
+      if (!ts) { $('stBak').textContent = '없음'; $('backupStat').classList.add('bak-warn'); return; }
+      const days = Math.floor((Date.now() - ts) / 864e5);
+      $('stBak').textContent = days === 0 ? '오늘' : `${days}일 전`;
+      $('backupStat').classList.toggle('bak-warn', days > 30);
+    }
+    $('backupStat').addEventListener('click', () => gotoView('notes'));
+
+    // ════════════════ 바로가기 링크 ════════════════
+    let links = {};
+    function renderLinks() {
+      const items = Object.entries(links).sort((a, b) => (a[1].createdAt||0) - (b[1].createdAt||0));
+      $('linkRow').innerHTML = items.map(([id, l]) =>
+        `<a class="link-chip" href="${escapeHTML(l.url)}" target="_blank" rel="noopener">` +
+        `${escapeHTML(l.label)}<button class="x" data-del="${id}" title="삭제">×</button></a>`).join('');
+    }
+    $('linkAddBtn').addEventListener('click', () => {
+      const f = $('linkAdd');
+      f.hidden = !f.hidden;
+      if (!f.hidden) $('linkLabel').focus();
+    });
+    async function saveLink() {
+      const label = $('linkLabel').value.trim();
+      let url = $('linkUrl').value.trim();
+      if (!label || !url) return;
+      if (!/^[a-z]+:\/\//i.test(url)) url = 'https://' + url;
+      $('linkLabel').value = ''; $('linkUrl').value = ''; $('linkAdd').hidden = true;
+      await push(ref(db, 'desk/links'), { label, url, createdAt: Date.now() });
+    }
+    $('linkSaveBtn').addEventListener('click', saveLink);
+    $('linkUrl').addEventListener('keydown', e => { if (e.key === 'Enter') saveLink(); });
+    $('linkRow').addEventListener('click', async e => {
+      const x = e.target.closest('[data-del]');
+      if (!x) return;
+      e.preventDefault();   // 칩(링크) 이동 막기
+      const l = links[x.dataset.del];
+      await remove(ref(db, 'desk/links/' + x.dataset.del));
+      if (l) showUndo('바로가기를 삭제했습니다', () => push(ref(db, 'desk/links'), l));
     });
 
     // ════════════════ 자료 업로드 (비공개 저장소 — 학생에게 노출되지 않음) ════════════════
@@ -2042,9 +2156,42 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       delNoteBtn.style.display = '';
       $('pinNoteBtn').style.display = '';
       $('pinNoteBtn').textContent = n.pinned ? '📌 고정됨' : '📌 고정';
+      $('prevNoteBtn').style.display = notePrev[id] ? '' : 'none';
+      loadPrev(id, n);
       notesWrap.classList.add('editing');
       renderList();
     }
+    // ── 이전 버전 — 편집 세션 시작 상태를 자동 보관 (30분에 한 번 갱신) ──
+    let notePrev = {};
+    async function loadPrev(id, n) {
+      let p = notePrev[id];
+      if (p === undefined) {
+        try { p = (await get(ref(db, 'desk/notes-prev/' + id))).val(); } catch { p = null; }
+      }
+      if ((n.md || n.title) && (!p || Date.now() - (p.savedAt || 0) > 30 * 60 * 1000)) {
+        p = { title: n.title || '', md: n.md || '', savedAt: Date.now() };
+        set(ref(db, 'desk/notes-prev/' + id), p).catch(() => {});
+      }
+      notePrev[id] = p || null;
+      if (currentId === id) $('prevNoteBtn').style.display = p ? '' : 'none';
+    }
+    $('prevNoteBtn').addEventListener('click', async () => {
+      const id = currentId, p = id && notePrev[id];
+      if (!p) return;
+      if (!confirm(`${fmt(p.savedAt)} 시점의 이전 버전으로 되돌릴까요?\n지금 내용은 이전 버전 자리에 보관됩니다 (다시 누르면 재교환).`)) return;
+      clearTimeout(saveTimer);
+      const cur = { title: noteTitle.value.trim(), md: editor.getMarkdown(), savedAt: Date.now() };
+      suppressChange = true;
+      noteTitle.value = p.title || '';
+      editor.setMarkdown(p.md || '', false);
+      suppressChange = false;
+      await update(ref(db, 'desk/notes/' + id), { title: p.title || '', md: p.md || '', updatedAt: Date.now() });
+      await set(ref(db, 'desk/notes-prev/' + id), cur);
+      notePrev[id] = cur;
+      saveState.textContent = '저장됨'; saveState.classList.remove('busy');
+      showUndo('이전 버전으로 되돌렸습니다', null);
+      renderList();
+    });
     async function newNote() {
       const r = push(notesRef); const now = Date.now();
       await set(r, { title: '', md: '', createdAt: now, updatedAt: now });
@@ -2064,6 +2211,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       noteTitle.value = ''; noteTitle.disabled = true;
       delNoteBtn.style.display = 'none';
       $('pinNoteBtn').style.display = 'none';
+      $('prevNoteBtn').style.display = 'none';
       paneBlank.style.display = '';
       $('editorHost').style.display = 'none';
       notesWrap.classList.remove('editing');
@@ -2124,6 +2272,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     function cmdkRender(q) {
       const ql = q.trim().toLowerCase();
       const items = CMDK_STATIC.filter(c => !ql || c.t.toLowerCase().includes(ql));
+      Object.values(links)
+        .filter(l => !ql || (l.label||'').toLowerCase().includes(ql))
+        .forEach(l => items.push({ k: '링크', t: l.label, run: () => window.open(l.url, '_blank') }));
       if (ql) {
         Object.entries(notes)
           .filter(([, n]) => (n.title||'').toLowerCase().includes(ql) || (n.md||'').toLowerCase().includes(ql))
@@ -2170,7 +2321,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       snapshotTimer = setTimeout(() => {
         try {
           localStorage.setItem('desk-snapshot', JSON.stringify({
-            notes, todos, ddays, calendar, ttable, noticesData, progLessons, progClasses, t: Date.now()
+            notes, todos, ddays, calendar, ttable, noticesData, progLessons, progClasses, links, t: Date.now()
           }));
         } catch { /* 저장 공간 부족 등은 조용히 무시 */ }
       }, 800);
@@ -2182,8 +2333,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         notes = s.notes || {}; todos = s.todos || {}; ddays = s.ddays || {}; calendar = s.calendar || {};
         ttable = s.ttable || {}; noticesData = s.noticesData || {};
         progLessons = s.progLessons || []; progClasses = s.progClasses || {};
+        links = s.links || {};
         renderList(); renderRecent(); renderTodos(); renderDdays(); renderToday(); renderCal();
-        renderTable(true); renderNoticeAdmin(); renderProg();
+        renderTable(true); renderNoticeAdmin(); renderProg(); renderLinks();
         return true;
       } catch { return false; }
     }
@@ -2226,6 +2378,8 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
           onValue(ref(db, 'desk/todos'), s => { todos = s.val() || {}; renderTodos(); saveSnapshot(); }, guard);
           onValue(ref(db, 'desk/ddays'), s => { ddays = s.val() || {}; renderDdays(); saveSnapshot(); }, guard);
           onValue(ref(db, 'desk/timetable'), s => { ttable = s.val() || {}; renderTable(); saveSnapshot(); }, guard);
+          onValue(ref(db, 'desk/links'), s => { links = s.val() || {}; renderLinks(); saveSnapshot(); }, guard);
+          renderBackupStat();
           onValue(ref(db, 'questions'), s => { questions = s.val() || {}; renderQa(); });
           onValue(ref(db, 'progress'), s => {
             const v = s.val() || {};
@@ -2247,7 +2401,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             } else if (saveState.textContent.startsWith('오프라인')) saveState.textContent = '';
           });
           // 1분마다 '오늘'과 현재 교시 갱신
-          setInterval(() => { renderToday(); renderTable(); }, 60 * 1000);
+          setInterval(() => { renderToday(); renderTable(); renderBackupStat(); }, 60 * 1000);
         }
       } else if (user) {
         showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth);
