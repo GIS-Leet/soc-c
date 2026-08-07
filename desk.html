@@ -75,7 +75,8 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .desk-views button {
   border: 0; background: transparent; cursor: pointer; font-family: inherit;
   font-size: 13px; font-weight: 600; color: var(--st-label-3);
-  padding: 6px 16px; border-radius: var(--st-r-full); transition: all 175ms;
+  padding: 6px 16px; border-radius: var(--st-r-full);
+  transition: background 175ms var(--ease-o), color 175ms var(--ease-o), transform 120ms var(--ease-o);
   white-space: nowrap;
 }
 .desk-views button:hover { color: var(--st-label-2); }
@@ -434,6 +435,85 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
 .log-row:hover .x { opacity: 1; } .log-row .x:hover { color: var(--st-danger-ink); }
 
+/* ══════════ 마감 폴리시 ══════════ */
+:root { --ease-o: cubic-bezier(0.23, 1, 0.32, 1); }
+
+/* 테마 토글 */
+.tbtn { width: 30px; height: 30px; border: 1px solid var(--st-separator-strong); border-radius: var(--st-r-full);
+  background: transparent; color: var(--st-label-2); cursor: pointer; padding: 0;
+  display: inline-grid; place-items: center; flex-shrink: 0;
+  transition: color 175ms var(--ease-o), border-color 175ms var(--ease-o), transform 120ms var(--ease-o); }
+.tbtn:hover { color: var(--st-label); border-color: var(--st-label-3); }
+.tbtn:active { transform: scale(0.94); }
+.tbtn .sun { display: none; }
+html[data-theme="dark"] .tbtn .moon { display: none; }
+html[data-theme="dark"] .tbtn .sun { display: block; }
+
+/* 누르는 맛 — 인터페이스가 듣고 있다는 즉각 피드백 */
+.btn-solid, .btn-sub, .btn-outline { transition: background 175ms var(--ease-o), color 175ms var(--ease-o), border-color 175ms var(--ease-o), transform 120ms var(--ease-o), box-shadow 175ms var(--ease-o); }
+.btn-solid:active, .btn-sub:active, .btn-outline:active { transform: scale(0.97); }
+.desk-views button:active { transform: scale(0.96); }
+
+/* 탭 활성 인디케이터 — 미끄러지는 필 */
+#deskViews { isolation: isolate; }
+#deskViews button { position: relative; z-index: 1; }
+#deskViews button.on { background: transparent; box-shadow: none; color: var(--st-label); }
+.views-ind { position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; z-index: 0;
+  border-radius: var(--st-r-full); background: var(--st-surface);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.10);
+  transition: left 260ms var(--ease-o), width 260ms var(--ease-o); }
+
+/* 뷰 전환 — 상태 변화를 눈이 따라가게 (150ms, 자주 쓰는 동작이라 그 이상은 금물) */
+.view-enter { animation: viewIn 150ms var(--ease-o) both; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(6px); } }
+
+/* 자료 뷰어 등장 */
+.mat-viewer:not([hidden]) { animation: viewerIn 180ms var(--ease-o); }
+@keyframes viewerIn { from { opacity: 0; transform: scale(0.985); } }
+
+/* 실행 취소 토스트 */
+.undo-toast { position: fixed; left: 50%; z-index: 400;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%) translateY(14px);
+  display: flex; align-items: center; gap: 14px;
+  background: var(--st-ink); color: var(--st-on-ink, #fff);
+  padding: 11px 18px; border-radius: var(--st-r-full);
+  font-size: 13px; font-weight: 600; box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  opacity: 0; pointer-events: none; max-width: calc(100vw - 32px);
+  transition: opacity 220ms var(--ease-o), transform 220ms var(--ease-o); }
+.undo-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.undo-toast button { border: 0; background: none; color: var(--st-accent-hover, #3ca5ff); font: inherit; font-weight: 700; cursor: pointer; padding: 0; white-space: nowrap; }
+.undo-toast span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 시간표 — 오늘 열·현재 교시 */
+.tt th.tdy, .tt td.tdy { background: color-mix(in srgb, var(--st-accent-soft) 55%, transparent); }
+.tt td.now { box-shadow: inset 0 0 0 2px var(--st-accent-solid); font-weight: 700; }
+.tt td:first-child.nowp { color: var(--st-accent-ink); font-weight: 700; }
+
+/* 오늘 패널 — 다음 수업 한 줄 */
+.next-class { display: flex; align-items: baseline; gap: 8px; margin: -6px 0 12px; font-size: 12.5px; font-weight: 650; color: var(--st-label); min-width: 0; }
+.next-class .nc-cap { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); text-transform: uppercase; flex-shrink: 0; }
+.next-class[hidden] { display: none; }
+
+/* 빠른 메모 */
+.p-quick { grid-column: 1; grid-row: 4; }
+
+/* rail 푸터 — 버튼 나란히 */
+.rail-foot-lock { display: flex; gap: 8px; }
+.rail-foot-lock .btn-sub { flex: 1; width: auto; }
+
+/* 오프라인 상태 */
+.save-state.off { color: var(--st-danger-ink); font-weight: 700; }
+
+/* 터치 기기 — hover가 없으니 삭제 버튼을 상시 옅게 표시 */
+@media (hover: none) {
+  .ev-row .x, .todo-row .x, .dday-row .x, .notice-row .x, .log-row .x, .qa-reply .x, .cal-ev .x { opacity: 0.45; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .view-enter, .mat-viewer:not([hidden]) { animation: none; }
+  .views-ind { transition: none; }
+}
+
 /* ══════════ 모바일 ══════════ */
 @media (max-width: 860px) {
   body { overflow: auto; }
@@ -458,7 +538,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   /* 좁은 화면에서 입력줄이 패널을 밀어내지 못하게 */
   .dash input[type=text], .dash input[type=search] { min-width: 0; }
   .dday-add .dt-in, .log-add input[type=date] { width: 112px; }
-  .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal { grid-column: 1; grid-row: auto; }
+  .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal, .p-quick { grid-column: 1; grid-row: auto; }
+  /* 실행 취소 토스트는 하단 탭 바 위로 */
+  .undo-toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
   .cal-cell { min-height: 58px; padding: 4px 5px; }
   .cal-ev { font-size: 10px; padding: 1px 4px; }
   .notes-wrap { grid-template-columns: 1fr; }
@@ -490,6 +572,10 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       </a>
       <div class="desk-side">
         <span class="save-state" id="saveState"></span>
+        <button class="tbtn" id="themeToggle" aria-label="다크 모드 전환" title="테마 전환">
+          <svg class="moon ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="sun ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
         <button class="btn-sub" id="signOutBtn" style="display:none;">로그아웃</button>
       </div>
     </div>
@@ -498,6 +584,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   <!-- 뷰 전환 탭 — header 밖에 두어야 fixed 배치가 뷰포트 기준이 된다
        (st-glass의 backdrop-filter가 fixed의 기준을 가로채는 것 방지) -->
   <nav class="desk-views" id="deskViews">
+    <span class="views-ind" id="viewsInd" aria-hidden="true"></span>
     <button class="on" data-view="dash">대시보드</button>
     <button data-view="qa">Q&amp;A<em class="tab-badge" id="qaBadge" hidden></em></button>
     <button data-view="mat">자료</button>
@@ -535,6 +622,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         <div class="dash-h">오늘 · 일정</div>
         <div class="today-date" id="todayDate"></div>
         <div class="today-sub" id="todaySub"></div>
+        <div class="next-class" id="nextClass" hidden></div>
         <div id="todayEvents"></div>
         <div class="quick-add">
           <input type="text" id="quickEvent" placeholder="오늘 일정 추가 — Enter" maxlength="60">
@@ -574,6 +662,14 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         <div id="progList"><div class="ev-empty">진도표 데이터를 불러오는 중…</div></div>
       </div>
 
+      <!-- 빠른 메모 -->
+      <div class="panel p-quick">
+        <div class="dash-h">빠른 메모 <b>Enter로 노트에 저장</b></div>
+        <div class="quick-add">
+          <input type="text" id="quickMemo" placeholder="수업 중 떠오른 것, 그대로 적어두기" maxlength="200">
+        </div>
+      </div>
+
       <!-- 공지 관리 -->
       <div class="panel p-notice">
         <div class="dash-h">메인 페이지 공지 <b>저장 즉시 홈페이지에 반영</b></div>
@@ -607,6 +703,9 @@ body { display: flex; flex-direction: column; overflow: hidden; }
           <button class="btn-solid new-btn" id="newNoteBtn">+ 새 노트</button>
         </div>
         <div class="note-list" id="noteList"></div>
+        <div class="rail-foot-lock">
+          <button class="btn-sub" id="notesExportBtn">전체 백업 (.md)</button>
+        </div>
       </aside>
       <section class="panel note-pane">
         <div class="pane-top">
@@ -726,6 +825,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
           <div class="note-list" id="stuList"></div>
           <div class="rail-foot-lock">
             <button class="btn-sub" id="lockNowBtn">🔒 지금 잠그기</button>
+            <button class="btn-sub" id="classExportBtn">백업 (.json)</button>
           </div>
         </aside>
         <section class="panel note-pane">
@@ -768,6 +868,12 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     <iframe id="matViewerFrame" title="자료 미리보기"></iframe>
   </div>
 
+  <!-- 실행 취소 토스트 -->
+  <div class="undo-toast" id="undoToast" role="status">
+    <span id="undoMsg"></span>
+    <button id="undoBtn">실행 취소</button>
+  </div>
+
   <!-- Toast UI Editor -->
   <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
   <script src="https://uicdn.toast.com/editor/latest/i18n/ko-kr.js"></script>
@@ -802,16 +908,67 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 
     // ════════════════ 뷰 전환 ════════════════
     const deskViews = $('deskViews');
+    const VIEW_EL = { dash: 'dashView', qa: 'qaView', mat: 'matView', notes: 'notesView', class: 'classView' };
+    function moveInd() {
+      const btn = deskViews.querySelector('button.on');
+      if (!btn || deskViews.style.display === 'none') return;
+      const ind = $('viewsInd');
+      if (!ind.style.width) {   // 첫 배치는 미끄러지지 않고 바로 제자리에
+        ind.style.transition = 'none';
+        requestAnimationFrame(() => { ind.style.transition = ''; });
+      }
+      ind.style.left = btn.offsetLeft + 'px';
+      ind.style.width = btn.offsetWidth + 'px';
+    }
+    window.addEventListener('resize', moveInd);
     deskViews.addEventListener('click', e => {
       const btn = e.target.closest('button'); if (!btn) return;
       deskViews.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
-      $('dashView').style.display = btn.dataset.view === 'dash' ? '' : 'none';
-      $('qaView').style.display = btn.dataset.view === 'qa' ? '' : 'none';
-      $('matView').style.display = btn.dataset.view === 'mat' ? '' : 'none';
-      $('notesView').style.display = btn.dataset.view === 'notes' ? '' : 'none';
-      $('classView').style.display = btn.dataset.view === 'class' ? '' : 'none';
+      moveInd();
+      for (const [v, id] of Object.entries(VIEW_EL)) $(id).style.display = v === btn.dataset.view ? '' : 'none';
+      const sec = $(VIEW_EL[btn.dataset.view]);
+      sec.classList.remove('view-enter'); void sec.offsetWidth; sec.classList.add('view-enter');
       if (btn.dataset.view === 'class') initClassView();
       if (btn.dataset.view === 'mat') initMatView();
+    });
+
+    // ════════════════ 실행 취소 토스트 ════════════════
+    let undoTimer = null, undoFn = null;
+    function showUndo(msg, fn) {
+      $('undoMsg').textContent = msg;
+      undoFn = fn || null;
+      $('undoBtn').hidden = !fn;
+      $('undoToast').classList.add('show');
+      clearTimeout(undoTimer);
+      undoTimer = setTimeout(hideUndo, 5000);
+    }
+    function hideUndo() { $('undoToast').classList.remove('show'); undoFn = null; }
+    $('undoBtn').addEventListener('click', async () => {
+      const fn = undoFn; hideUndo();
+      if (fn) try { await fn(); } catch { alert('복구에 실패했습니다. 연결을 확인하세요.'); }
+    });
+
+    // ════════════════ 테마 토글 ════════════════
+    const syncThemeColor = () => {
+      document.querySelector('meta[name="theme-color"]').content = getComputedStyle(document.body).backgroundColor;
+    };
+    syncThemeColor();
+    $('themeToggle').addEventListener('click', () => {
+      const root = document.documentElement;
+      if (root.dataset.theme === 'dark') { delete root.dataset.theme; localStorage.setItem('geo-theme', 'light'); }
+      else { root.dataset.theme = 'dark'; localStorage.setItem('geo-theme', 'dark'); }
+      requestAnimationFrame(() => {
+        syncThemeColor();
+        // Toast UI 에디터는 테마를 런타임에 못 바꾸므로 내용 보존 후 재생성
+        if (editor) {
+          const md = currentId ? editor.getMarkdown() : null;
+          editor.destroy(); editor = null;
+          makeEditor();
+          if (currentId && md !== null) {
+            suppressChange = true; editor.setMarkdown(md, false); suppressChange = false;
+          } else if (!currentId) $('editorHost').style.display = 'none';
+        }
+      });
     });
 
     // ════════════════ 대시보드 ════════════════
@@ -848,7 +1005,11 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     });
     $('dashView').addEventListener('click', async e => {
       const x = e.target.closest('.ev-row .x');
-      if (x && confirm('일정을 삭제할까요?')) await remove(ref(db, `desk/calendar/${x.dataset.date}/${x.dataset.k}`));
+      if (!x) return;
+      const { date, k } = x.dataset;
+      const ev = calendar[date]?.[k];
+      await remove(ref(db, `desk/calendar/${date}/${k}`));
+      if (ev) showUndo('일정을 삭제했습니다', () => push(ref(db, `desk/calendar/${date}`), ev));
     });
 
     // ── 할 일 ──
@@ -875,7 +1036,11 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       const cb = e.target.closest('input[type=checkbox]');
       if (cb) { await update(ref(db, 'desk/todos/' + cb.dataset.id), { done: cb.checked }); return; }
       const del = e.target.closest('[data-del]');
-      if (del) await remove(ref(db, 'desk/todos/' + del.dataset.del));
+      if (del) {
+        const t = todos[del.dataset.del];
+        await remove(ref(db, 'desk/todos/' + del.dataset.del));
+        if (t) showUndo('할 일을 삭제했습니다', () => push(ref(db, 'desk/todos'), t));
+      }
     });
 
     // ── 디데이 ──
@@ -902,23 +1067,63 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     $('ddayLabel').addEventListener('keydown', e => { if (e.key === 'Enter') $('ddayAddBtn').click(); });
     $('ddayList').addEventListener('click', async e => {
       const del = e.target.closest('[data-del]');
-      if (del) await remove(ref(db, 'desk/ddays/' + del.dataset.del));
+      if (del) {
+        const d = ddays[del.dataset.del];
+        await remove(ref(db, 'desk/ddays/' + del.dataset.del));
+        if (d) showUndo('디데이를 삭제했습니다', () => push(ref(db, 'desk/ddays'), d));
+      }
     });
 
     // ── 주간 시간표 (7교시 × 월–금) ──
     let ttable = {};
     const DAYS = ['mon','tue','wed','thu','fri'], DAY_KO = ['월','화','수','목','금'];
     const PERIOD_TIMES = { 1:'8:20', 2:'9:20', 3:'10:20', 4:'11:20', 5:'13:10', 6:'14:10', 7:'15:10' };
-    function renderTable() {
-      const head = '<tr><th class="pd"></th>' + DAY_KO.map(d => `<th>${d}</th>`).join('') + '</tr>';
+    const P_START = { 1: 8*60+20, 2: 9*60+20, 3: 10*60+20, 4: 11*60+20, 5: 13*60+10, 6: 14*60+10, 7: 15*60+10 };
+    const P_LEN = 50;   // 수업 시간(분)
+    function nowInfo() {
+      const n = new Date();
+      const raw = n.getDay() - 1;   // 0=월 … 4=금
+      const mins = n.getHours() * 60 + n.getMinutes();
+      let cur = 0;
+      for (let p = 1; p <= 7; p++) if (mins >= P_START[p] && mins < P_START[p] + P_LEN) cur = p;
+      return { dayIdx: (raw >= 0 && raw <= 4) ? raw : -1, mins, cur };
+    }
+    function renderTable(force) {
+      if (!force && $('ttable').querySelector('input')) return;   // 칸 편집 중엔 건드리지 않기
+      const { dayIdx, cur } = nowInfo();
+      const head = '<tr><th class="pd"></th>' + DAY_KO.map((d, i) =>
+        `<th${i === dayIdx ? ' class="tdy"' : ''}>${d}</th>`).join('') + '</tr>';
       let rows = '';
       for (let p = 1; p <= 7; p++) {
-        rows += `<tr><td>${p}<small>${PERIOD_TIMES[p]}</small></td>` + DAYS.map(d => {
+        const pc = (dayIdx >= 0 && p === cur) ? ' class="nowp"' : '';
+        rows += `<tr><td${pc}>${p}<small>${PERIOD_TIMES[p]}</small></td>` + DAYS.map((d, i) => {
           const v = ttable?.[d]?.[p] || '';
-          return `<td data-d="${d}" data-p="${p}">${v ? escapeHTML(v) : '<span class="mt">·</span>'}</td>`;
+          const cls = [i === dayIdx && 'tdy', i === dayIdx && p === cur && 'now'].filter(Boolean).join(' ');
+          return `<td data-d="${d}" data-p="${p}"${cls ? ` class="${cls}"` : ''}>${v ? escapeHTML(v) : '<span class="mt">·</span>'}</td>`;
         }).join('') + '</tr>';
       }
       $('ttable').innerHTML = head + rows;
+      renderNextClass();
+    }
+    // 오늘 패널 — 지금/다음 수업
+    function renderNextClass() {
+      const el = $('nextClass');
+      const { dayIdx, mins } = nowInfo();
+      if (dayIdx < 0) { el.hidden = true; return; }
+      const d = DAYS[dayIdx];
+      let found = null;
+      for (let p = 1; p <= 7; p++) {
+        const v = ttable?.[d]?.[p];
+        if (v && mins < P_START[p] + P_LEN) { found = { p, v, ing: mins >= P_START[p] }; break; }
+      }
+      if (!found) {
+        const had = ttable?.[d] && Object.values(ttable[d]).some(Boolean);
+        el.innerHTML = had ? '<span class="nc-cap">수업</span>오늘 수업이 모두 끝났습니다' : '';
+        el.hidden = !had;
+        return;
+      }
+      el.innerHTML = `<span class="nc-cap">${found.ing ? '지금 수업' : '다음 수업'}</span>${found.p}교시 ${PERIOD_TIMES[found.p]} · ${escapeHTML(found.v)}`;
+      el.hidden = false;
     }
     $('ttable').addEventListener('click', e => {
       const td = e.target.closest('td[data-d]');
@@ -932,12 +1137,12 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         const v = inp.value.trim();
         if (v) await set(ref(db, `desk/timetable/${d}/${p}`), v);
         else await remove(ref(db, `desk/timetable/${d}/${p}`));
-        renderTable();  // onValue가 갱신하지만, 오프라인 대비 즉시 반영
+        renderTable(true);  // onValue가 갱신하지만, 오프라인 대비 즉시 반영
       };
       inp.addEventListener('blur', commit, { once: true });
       inp.addEventListener('keydown', ev => {
         if (ev.key === 'Enter') inp.blur();
-        if (ev.key === 'Escape') { inp.removeEventListener('blur', commit); renderTable(); }
+        if (ev.key === 'Escape') { inp.removeEventListener('blur', commit); renderTable(true); }
       });
     });
 
@@ -967,7 +1172,10 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     $('calGrid').addEventListener('click', async e => {
       const x = e.target.closest('.cal-ev .x');
       if (x) {
-        if (confirm('일정을 삭제할까요?')) await remove(ref(db, `desk/calendar/${x.dataset.date}/${x.dataset.k}`));
+        const { date, k } = x.dataset;
+        const ev = calendar[date]?.[k];
+        await remove(ref(db, `desk/calendar/${date}/${k}`));
+        if (ev) showUndo('일정을 삭제했습니다', () => push(ref(db, `desk/calendar/${date}`), ev));
         return;
       }
       if (e.target.closest('.cal-in') || e.target.closest('.cal-ev')) return;
@@ -1071,6 +1279,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         }
       } catch (e) { warn.textContent = '오류: ' + (e.message || e); warn.style.display = ''; return; }
       $('passInput').value = ''; $('passInput2').value = '';
+      classLastActive = Date.now();
       $('classLock').style.display = 'none';
       $('classGrid').style.display = 'grid';
       $('logDate').value = keyOf(new Date());
@@ -1096,6 +1305,17 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       $('stuList').innerHTML = ''; closeStuUiOnly();
     }
     $('lockNowBtn').addEventListener('click', () => { flushStuSave(); lockClass(); initClassView(); });
+
+    // 무활동 10분이면 자동 잠금 — 자리 비움 대비
+    let classLastActive = Date.now();
+    ['pointerdown', 'keydown'].forEach(ev =>
+      $('classView').addEventListener(ev, () => { classLastActive = Date.now(); }));
+    setInterval(() => {
+      if (classKey && Date.now() - classLastActive > 10 * 60 * 1000) {
+        flushStuSave(); lockClass();
+        if ($('classView').style.display !== 'none') initClassView();
+      }
+    }, 30 * 1000);
 
     // ── 학생 CRUD ──
     async function saveStu(id) {
@@ -1165,9 +1385,15 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     $('stuDelBtn').addEventListener('click', async () => {
       if (!currentStu) return;
       const s = stuPlain[currentStu];
-      if (!confirm(`${s.num||'–'}번 ${s.name} 학생의 모든 기록을 삭제할까요?\n되돌릴 수 없습니다.`)) return;
-      const id = currentStu; closeStu();
+      if (!confirm(`${s.num||'–'}번 ${s.name} 학생의 모든 기록을 삭제할까요?`)) return;
+      const id = currentStu, saved = stuPlain[id];
+      closeStu();
       await remove(ref(db, 'desk/class/students/' + id));
+      if (saved) showUndo('학생 기록을 삭제했습니다', async () => {
+        if (!classKey) return;
+        stuPlain[id] = saved;
+        await saveStu(id);
+      });
     });
     $('stuNote').addEventListener('input', () => {
       if (!currentStu) return;
@@ -1185,10 +1411,16 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     });
     $('logList').addEventListener('click', async e => {
       const x = e.target.closest('[data-li]'); if (!x || !currentStu) return;
-      if (!confirm('이 기록을 삭제할까요?')) return;
-      stuPlain[currentStu].logs.splice(Number(x.dataset.li), 1);
+      const sid = currentStu;
+      const [removed] = stuPlain[sid].logs.splice(Number(x.dataset.li), 1);
       renderStuCard(false);
-      await saveStu(currentStu);
+      await saveStu(sid);
+      if (removed) showUndo('상담 기록을 삭제했습니다', async () => {
+        if (!classKey || !stuPlain[sid]) return;
+        (stuPlain[sid].logs = stuPlain[sid].logs || []).push(removed);
+        if (currentStu === sid) renderStuCard(false);
+        await saveStu(sid);
+      });
     });
 
     // ════════════════ Q&A 인박스 ════════════════
@@ -1228,15 +1460,20 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         `<button class="x" data-rid="${rid}" title="답변 삭제">×</button></div>`).join('')
         : '<div class="ev-empty">아직 답변이 없습니다.</div>';
     }
+    const qaDrafts = {};   // 질문별 답변 초안 — 다른 질문을 열어도 유실되지 않게
     function openQa(id) {
+      if (currentQ) qaDrafts[currentQ] = $('qaReplyText').value;
       currentQ = id;
+      $('qaReplyText').value = qaDrafts[id] || '';
       $('qaDetail').style.display = ''; $('qaBlank').style.display = 'none';
       $('qaDelBtn').style.display = '';
       $('qaView').classList.add('editing');
       renderQaDetail(); renderQa();
     }
     function closeQa() {
+      if (currentQ) qaDrafts[currentQ] = $('qaReplyText').value;
       currentQ = null;
+      $('qaReplyText').value = '';
       $('qaDetail').style.display = 'none'; $('qaBlank').style.display = '';
       $('qaDelBtn').style.display = 'none'; $('qaHead').textContent = '';
       $('qaView').classList.remove('editing');
@@ -1254,9 +1491,11 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     $('qaDelBtn').addEventListener('click', async () => {
       if (!currentQ) return;
       const t = questions[currentQ]?.title || '제목 없음';
-      if (!confirm(`「${t}」 질문을 삭제할까요?\n답변까지 모두 삭제되며 되돌릴 수 없습니다.`)) return;
-      const id = currentQ; closeQa();
+      if (!confirm(`「${t}」 질문을 삭제할까요?\n답변까지 함께 삭제됩니다.`)) return;
+      const id = currentQ, saved = questions[id];
+      closeQa();
       await remove(ref(db, 'questions/' + id));
+      if (saved) showUndo('질문을 삭제했습니다', () => set(ref(db, 'questions/' + id), saved));
     });
     async function submitQaReply() {
       if (!currentQ) return;
@@ -1265,6 +1504,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       try {
         await push(ref(db, `questions/${currentQ}/replies`), { text, imageUrl: '', time: qTimeStr(), isTeacher: true });
         $('qaReplyText').value = '';
+        delete qaDrafts[currentQ];
       } catch { alert('답변 등록에 실패했습니다. 연결을 확인하세요.'); }
       $('qaReplyBtn').disabled = false;
     }
@@ -1272,8 +1512,10 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     $('qaReplyText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitQaReply(); });
     $('qaReplies').addEventListener('click', async e => {
       const x = e.target.closest('[data-rid]'); if (!x || !currentQ) return;
-      if (!confirm('이 답변을 삭제할까요?')) return;
-      await remove(ref(db, `questions/${currentQ}/replies/${x.dataset.rid}`));
+      const qid = currentQ, rid = x.dataset.rid;
+      const saved = questions[qid]?.replies?.[rid];
+      await remove(ref(db, `questions/${qid}/replies/${rid}`));
+      if (saved) showUndo('답변을 삭제했습니다', () => set(ref(db, `questions/${qid}/replies/${rid}`), saved));
     });
 
     // ════════════════ 수업 진도 (progress.html 데이터 공유) ════════════════
@@ -1322,8 +1564,41 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     });
     $('noticeList').addEventListener('click', async e => {
       const del = e.target.closest('[data-del]'); if (!del) return;
-      if (!confirm('이 공지를 삭제할까요? 홈페이지에서도 사라집니다.')) return;
+      const n = noticesData[del.dataset.del];
       await remove(ref(db, 'notices/' + del.dataset.del));
+      if (n) showUndo('공지를 내렸습니다', () => push(ref(db, 'notices'), n));
+    });
+
+    // ════════════════ 빠른 메모 → 노트 ════════════════
+    $('quickMemo').addEventListener('keydown', async e => {
+      if (e.key !== 'Enter') return;
+      const text = e.target.value.trim(); if (!text) return;
+      e.target.value = '';
+      const now = Date.now();
+      const r = push(ref(db, 'desk/notes'));
+      await set(r, { title: text.length > 24 ? text.slice(0, 24) + '…' : text, md: text, createdAt: now, updatedAt: now });
+      showUndo('노트에 저장했습니다', () => remove(r));
+    });
+
+    // ════════════════ 백업 내보내기 ════════════════
+    function dlFile(name, text, mime) {
+      const a = document.createElement('a');
+      const u = URL.createObjectURL(new Blob([text], { type: mime }));
+      a.href = u; a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(u), 5000);
+    }
+    $('notesExportBtn').addEventListener('click', () => {
+      const items = Object.values(notes).sort((a, b) => (b.updatedAt||0) - (a.updatedAt||0));
+      if (!items.length) { showUndo('내보낼 노트가 없습니다', null); return; }
+      const md = items.map(n => `# ${n.title || '제목 없음'}\n\n${n.md || ''}`).join('\n\n---\n\n');
+      dlFile(`노트백업-${keyOf(new Date())}.md`, md, 'text/markdown');
+      showUndo(`노트 ${items.length}개를 내보냈습니다`, null);
+    });
+    $('classExportBtn').addEventListener('click', () => {
+      if (!classKey) return;
+      if (!Object.keys(stuPlain).length) { showUndo('내보낼 기록이 없습니다', null); return; }
+      if (!confirm('상담 기록을 복호화된 JSON 파일로 저장합니다.\n파일 자체에는 암호가 걸려 있지 않으니 안전한 곳에 보관하세요.')) return;
+      dlFile(`상담백업-${keyOf(new Date())}.json`, JSON.stringify(stuPlain, null, 2), 'application/json');
     });
 
     // ════════════════ 자료 업로드 (비공개 저장소 — 학생에게 노출되지 않음) ════════════════
@@ -1331,6 +1606,10 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     let matFolder = '수업', matFiles = [], matBusy = false, matInited = false;
 
     const ghHeaders = () => ({ 'Authorization': 'Bearer ' + ghToken, 'Accept': 'application/vnd.github+json' });
+    const ghErr = s => s === 401
+      ? '토큰이 만료되었거나 무효합니다 — 「토큰」 버튼에서 새 토큰으로 교체하세요'
+      : s === 403 ? '권한이 없습니다 — 토큰의 Contents 권한이 Read and write인지 확인하세요'
+      : 'HTTP ' + s;
     const matApiUrl = name => `https://api.github.com/repos/${matRepo}/contents/${encodeURIComponent(matFolder)}` + (name ? '/' + encodeURIComponent(name) : '');
     const fmtSize = b => b > 1048576 ? (b/1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b/1024)) + ' KB';
     const fileToB64 = file => new Promise((ok, no) => {
@@ -1399,7 +1678,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
       try {
         const res = await fetch(matApiUrl(), { headers: ghHeaders() });
         if (res.status === 404) { matFiles = []; }
-        else if (!res.ok) throw new Error('HTTP ' + res.status);
+        else if (!res.ok) throw new Error(ghErr(res.status));
         else matFiles = (await res.json()).filter(f => f.type === 'file');
       } catch (e) {
         $('matList').innerHTML = `<div class="ev-empty">목록을 불러오지 못했습니다 (${escapeHTML(e.message)})</div>`;
@@ -1430,7 +1709,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         const res = await fetch(matApiUrl(name), {
           headers: { 'Authorization': 'Bearer ' + ghToken, 'Accept': 'application/vnd.github.raw' }
         });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        if (!res.ok) throw new Error(ghErr(res.status));
         const raw = await res.blob();
         const mime = ext === 'pdf' ? 'application/pdf'
                    : ext === 'html' ? 'text/html'
@@ -1482,7 +1761,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
               content, ...(existing ? { sha: existing.sha } : {})
             })
           });
-          if (!res.ok) throw new Error('HTTP ' + res.status);
+          if (!res.ok) throw new Error(ghErr(res.status));
         } catch (e) { fails.push(`${file.name} (${e.message})`); }
       }
       $('matFileInput').value = '';
@@ -1504,7 +1783,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
           method: 'DELETE', headers: ghHeaders(),
           body: JSON.stringify({ message: `자료 삭제: ${matFolder}/${name} (Desk)`, sha: btn.dataset.sha })
         });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        if (!res.ok) throw new Error(ghErr(res.status));
       } catch (e2) { alert('삭제 실패: ' + e2.message); }
       matBusy = false;
       loadMatList();
@@ -1584,9 +1863,11 @@ body { display: flex; flex-direction: column; overflow: hidden; }
     async function delNote() {
       if (!currentId) return;
       const name = notes[currentId]?.title || '제목 없음';
-      if (!confirm(`「${name}」 노트를 삭제할까요?\n삭제하면 되돌릴 수 없습니다.`)) return;
-      const id = currentId; closePane();
+      if (!confirm(`「${name}」 노트를 삭제할까요?`)) return;
+      const id = currentId, saved = notes[id];
+      closePane();
       await remove(ref(db, 'desk/notes/' + id));
+      if (saved) showUndo('노트를 삭제했습니다', () => set(ref(db, 'desk/notes/' + id), saved));
     }
     function closePane() {
       currentId = null;
@@ -1629,6 +1910,7 @@ body { display: flex; flex-direction: column; overflow: hidden; }
         desk.style.display = 'flex';
         deskViews.style.display = 'flex';
         signOutBtn.style.display = '';
+        requestAnimationFrame(moveInd);
         if (!editor) makeEditor();
         closePane();
         renderToday(); renderTable(); renderCal();
@@ -1651,8 +1933,15 @@ body { display: flex; flex-direction: column; overflow: hidden; }
           onValue(ref(db, 'notices'), s => { noticesData = s.val() || {}; renderNoticeAdmin(); },
             () => { $('noticeList').innerHTML = '<div class="ev-empty">DB 보안 규칙에 notices 항목을 추가해야 합니다.</div>'; });
           $('noticeDate').placeholder = noticeDateStr();
-          // 자정이 지나면 '오늘'을 갱신
-          setInterval(renderToday, 60 * 1000);
+          // 연결 상태 — 오프라인이면 상단에 표시
+          onValue(ref(db, '.info/connected'), s => {
+            const on = s.val() === true;
+            saveState.classList.toggle('off', !on);
+            if (!on) saveState.textContent = '오프라인';
+            else if (saveState.textContent === '오프라인') saveState.textContent = '';
+          });
+          // 1분마다 '오늘'과 현재 교시 갱신
+          setInterval(() => { renderToday(); renderTable(); }, 60 * 1000);
         }
       } else if (user) {
         showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth);
