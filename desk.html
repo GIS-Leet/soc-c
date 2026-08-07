@@ -111,13 +111,61 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   /* minmax(0,…) — 셀 내용의 최소폭이 트랙을 부풀리지 못하게 (모바일 가로 넘침 방지) */
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr); }
 .dash .panel { padding: 18px 20px; }
-.p-today  { grid-column: 1; grid-row: 1; }
-.p-todo   { grid-column: 2; grid-row: 1; }
-.p-dday   { grid-column: 3; grid-row: 1; }
-.p-notice { grid-column: 1; grid-row: 2; }
-.p-table  { grid-column: 2 / 4; grid-row: 2; }
-.p-prog   { grid-column: 1; grid-row: 3; }
-.p-cal    { grid-column: 2 / 4; grid-row: 3; }
+.p-stats  { grid-column: 1 / 4; grid-row: 1; }
+.p-today  { grid-column: 1; grid-row: 2; }
+.p-todo   { grid-column: 2; grid-row: 2; }
+.p-dday   { grid-column: 3; grid-row: 2; }
+.p-notice { grid-column: 1; grid-row: 3; }
+.p-table  { grid-column: 2 / 4; grid-row: 3; }
+.p-prog   { grid-column: 1; grid-row: 4; }
+.p-cal    { grid-column: 2 / 4; grid-row: 4; }
+
+/* 주간 통계 스트립 */
+.p-stats { display: flex; align-items: stretch; padding: 12px 8px !important; }
+.stat-i { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; align-items: center; justify-content: center; padding: 2px 8px; }
+.stat-i + .stat-i { border-left: 1px solid var(--st-separator); }
+.stat-i b { font-size: 19px; font-weight: 700; color: var(--st-accent-ink); font-feature-settings: 'tnum' 1; letter-spacing: -0.02em; }
+.stat-i span { font-size: 10.5px; font-weight: 600; color: var(--st-label-3); letter-spacing: 0.04em; white-space: nowrap; }
+
+/* 최근 노트 위젯 */
+.recent-row { display: flex; align-items: baseline; gap: 10px; width: 100%; text-align: left;
+  background: none; border: 0; cursor: pointer; font-family: inherit; color: inherit;
+  padding: 8px 2px; border-bottom: 1px solid var(--st-separator); min-width: 0;
+  transition: padding-left 200ms var(--ease-o); }
+.recent-row:last-child { border-bottom: 0; }
+.recent-row:hover { padding-left: 7px; }
+.recent-row .t { flex: 1; min-width: 0; font-size: 13.5px; font-weight: 650; letter-spacing: -0.01em;
+  color: var(--st-label); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-row .d { font-size: 11px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; flex-shrink: 0; }
+.recent-row .pin { flex-shrink: 0; font-size: 11px; }
+.note-item .t .pin { font-size: 11px; margin-right: 3px; }
+
+/* 명령 팔레트 (Ctrl/Cmd+K) */
+.cmdk { position: fixed; inset: 0; z-index: 500;
+  background: color-mix(in srgb, var(--st-ink) 26%, transparent);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  display: grid; place-items: start center; padding-top: 14vh; }
+.cmdk[hidden] { display: none; }
+.cmdk__box { width: min(560px, calc(100vw - 32px));
+  background: var(--st-surface); border: 1px solid var(--st-separator-strong);
+  border-radius: var(--st-r-page, 16px); box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+  overflow: hidden; animation: cmdkIn 160ms var(--ease-o); }
+@keyframes cmdkIn { from { opacity: 0; transform: translateY(-6px) scale(0.985); } }
+.cmdk__box input { width: 100%; border: 0; outline: none; background: transparent;
+  font-family: inherit; font-size: 15.5px; color: var(--st-label);
+  padding: 16px 18px; border-bottom: 1px solid var(--st-separator); }
+.cmdk__box input::placeholder { color: var(--st-label-3); }
+.cmdk__list { max-height: 320px; overflow-y: auto; scrollbar-width: thin; padding: 6px; }
+.cmdk__row { display: flex; align-items: baseline; gap: 10px; width: 100%; text-align: left;
+  background: none; border: 0; cursor: pointer; font-family: inherit; color: var(--st-label);
+  font-size: 13.5px; font-weight: 600; padding: 9px 12px; border-radius: var(--st-r-element); min-width: 0; }
+.cmdk__row .k { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--st-label-3); flex-shrink: 0; min-width: 30px; }
+.cmdk__row .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmdk__row.sel { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.cmdk__row.sel .k { color: var(--st-accent-ink); }
+.cmdk__empty { padding: 18px 12px; font-size: 13px; color: var(--st-label-3); text-align: center; }
+@media (prefers-reduced-motion: reduce) { .cmdk__box { animation: none; } }
 
 /* 탭 배지 — 미답변 수 */
 .tab-badge { display: inline-grid; place-items: center; margin-left: 6px; min-width: 16px; height: 16px;
@@ -495,8 +543,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 .next-class .nc-cap { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); text-transform: uppercase; flex-shrink: 0; }
 .next-class[hidden] { display: none; }
 
-/* 빠른 메모 */
-.p-quick { grid-column: 1; grid-row: 4; }
+/* 빠른 메모 · 최근 노트 */
+.p-quick  { grid-column: 1; grid-row: 5; }
+.p-recent { grid-column: 2 / 4; grid-row: 5; }
 
 /* rail 푸터 — 버튼 나란히 */
 .rail-foot-lock { display: flex; gap: 8px; }
@@ -538,7 +587,10 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
   /* 좁은 화면에서 입력줄이 패널을 밀어내지 못하게 */
   .dash input[type=text], .dash input[type=search] { min-width: 0; }
   .dday-add .dt-in, .log-add input[type=date] { width: 112px; }
-  .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal, .p-quick { grid-column: 1; grid-row: auto; }
+  .p-stats, .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal, .p-quick, .p-recent { grid-column: 1; grid-row: auto; }
+  .p-stats { flex-wrap: wrap; }
+  .stat-i { flex-basis: 50%; padding: 8px; }
+  .stat-i:nth-child(3) { border-left: 0; }
   /* 실행 취소 토스트는 하단 탭 바 위로 */
   .undo-toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
   .cal-cell { min-height: 58px; padding: 4px 5px; }
@@ -617,6 +669,14 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     <!-- ── 대시보드 뷰 ── -->
     <section class="dash" id="dashView">
 
+      <!-- 이번 주 통계 -->
+      <div class="panel p-stats">
+        <div class="stat-i"><b id="stQ">–</b><span>이번 주 질문</span></div>
+        <div class="stat-i"><b id="stA">–</b><span>이번 주 답변</span></div>
+        <div class="stat-i"><b id="stOpen">–</b><span>미답변</span></div>
+        <div class="stat-i"><b id="stTodo">–</b><span>할 일</span></div>
+      </div>
+
       <!-- 오늘 · 일정 -->
       <div class="panel p-today">
         <div class="dash-h">오늘 · 일정</div>
@@ -670,6 +730,12 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         </div>
       </div>
 
+      <!-- 최근 노트 -->
+      <div class="panel p-recent">
+        <div class="dash-h">최근 노트</div>
+        <div id="recentNotes"></div>
+      </div>
+
       <!-- 공지 관리 -->
       <div class="panel p-notice">
         <div class="dash-h">메인 페이지 공지 <b>저장 즉시 홈페이지에 반영</b></div>
@@ -711,6 +777,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         <div class="pane-top">
           <button class="btn-sub back-btn" id="backBtn">← 목록</button>
           <input type="text" id="noteTitle" placeholder="제목 없음" maxlength="80" disabled>
+          <button class="btn-sub" id="pinNoteBtn" style="display:none;" title="목록 맨 위에 고정">📌 고정</button>
           <button class="btn-sub del-btn" id="delNoteBtn" style="display:none;">삭제</button>
         </div>
         <div id="editorHost"></div>
@@ -874,6 +941,14 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     <button id="undoBtn">실행 취소</button>
   </div>
 
+  <!-- 명령 팔레트 (Ctrl/Cmd+K) -->
+  <div class="cmdk" id="cmdk" hidden>
+    <div class="cmdk__box">
+      <input id="cmdkInput" placeholder="이동 · 노트/질문 검색 · 명령…" autocomplete="off">
+      <div class="cmdk__list" id="cmdkList"></div>
+    </div>
+  </div>
+
   <!-- Toast UI Editor -->
   <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
   <script src="https://uicdn.toast.com/editor/latest/i18n/ko-kr.js"></script>
@@ -932,20 +1007,31 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       if (btn.dataset.view === 'mat') initMatView();
     });
 
-    // ════════════════ 실행 취소 토스트 ════════════════
-    let undoTimer = null, undoFn = null;
+    // ════════════════ 실행 취소 — 스택 + Ctrl/Cmd+Z (시간 제한 없음) ════════════════
+    const undoStack = [];
+    let undoTimer = null;
     function showUndo(msg, fn) {
+      if (fn) undoStack.push({ fn });
       $('undoMsg').textContent = msg;
-      undoFn = fn || null;
       $('undoBtn').hidden = !fn;
       $('undoToast').classList.add('show');
       clearTimeout(undoTimer);
-      undoTimer = setTimeout(hideUndo, 5000);
+      // 토스트는 알림일 뿐 — 사라져도 Ctrl+Z로 언제든 복구 가능
+      undoTimer = setTimeout(() => $('undoToast').classList.remove('show'), 4000);
     }
-    function hideUndo() { $('undoToast').classList.remove('show'); undoFn = null; }
-    $('undoBtn').addEventListener('click', async () => {
-      const fn = undoFn; hideUndo();
-      if (fn) try { await fn(); } catch { alert('복구에 실패했습니다. 연결을 확인하세요.'); }
+    async function doUndo() {
+      const item = undoStack.pop();
+      if (!item) return;
+      try { await item.fn(); showUndo(undoStack.length ? `복구했습니다 (${undoStack.length}개 더 가능)` : '복구했습니다', null); }
+      catch { showUndo('복구 실패 — 연결을 확인하세요', null); }
+    }
+    $('undoBtn').addEventListener('click', doUndo);
+    document.addEventListener('keydown', e => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== 'z') return;
+      // 텍스트 입력 중에는 브라우저의 글자 undo가 우선
+      const t = e.target;
+      if (t && t.closest && t.closest('input, textarea, [contenteditable="true"], .toastui-editor-defaultUI')) return;
+      if (undoStack.length) { e.preventDefault(); doUndo(); }
     });
 
     // ════════════════ 테마 토글 ════════════════
@@ -1025,6 +1111,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         `<span class="txt">${escapeHTML(t.text)}</span>` +
         `<button class="x" data-del="${id}" title="삭제">×</button></div>`).join('')
         || '<div class="ev-empty">할 일이 없습니다. 홀가분하네요.</div>';
+      renderStats();
     }
     $('todoInput').addEventListener('keydown', async e => {
       if (e.key !== 'Enter') return;
@@ -1446,6 +1533,26 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         : `<div class="rail-empty">${qaFilterMode==='open' ? '미답변 질문이 없습니다 🎉' : '질문이 없습니다.'}</div>`;
       if (currentQ && !questions[currentQ]) closeQa();
       else if (currentQ) renderQaDetail();
+      renderStats();
+    }
+    // ── 이번 주 통계 ──
+    function weekStartTs() { const n = new Date(); const d = (n.getDay() + 6) % 7; return new Date(n.getFullYear(), n.getMonth(), n.getDate() - d).getTime(); }
+    function parseQTime(t) {   // 'YYYY/MM/DD AM/PM h:mm'
+      const m = /^(\d{4})\/(\d{2})\/(\d{2}) (AM|PM) (\d{1,2}):(\d{2})$/.exec(t || '');
+      if (!m) return 0;
+      let h = Number(m[5]) % 12; if (m[4] === 'PM') h += 12;
+      return new Date(+m[1], m[2] - 1, +m[3], h, +m[6]).getTime();
+    }
+    function renderStats() {
+      const ws = weekStartTs();
+      const qs = Object.values(questions);
+      $('stQ').textContent = qs.filter(q => (q.timestamp || 0) >= ws).length;
+      let ans = 0;
+      qs.forEach(q => Object.values(q.replies || {}).forEach(r => { if (r.isTeacher && parseQTime(r.time) >= ws) ans++; }));
+      $('stA').textContent = ans;
+      $('stOpen').textContent = qs.filter(q => !isAnswered(q)).length;
+      const ts = Object.values(todos);
+      $('stTodo').textContent = ts.length ? `${ts.filter(t => t.done).length}/${ts.length}` : '0';
     }
     function renderQaDetail() {
       const q = questions[currentQ]; if (!q) return;
@@ -1832,11 +1939,11 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       const q = noteSearch.value.trim().toLowerCase();
       const items = Object.entries(notes)
         .filter(([, n]) => !q || (n.title||'').toLowerCase().includes(q) || (n.md||'').toLowerCase().includes(q))
-        .sort((a, b) => (b[1].updatedAt||0) - (a[1].updatedAt||0));
+        .sort((a, b) => ((b[1].pinned ? 1 : 0) - (a[1].pinned ? 1 : 0)) || (b[1].updatedAt||0) - (a[1].updatedAt||0));
       noteList.innerHTML = items.length
         ? items.map(([id, n]) =>
             `<button class="note-item${id===currentId?' on':''}" data-id="${id}">` +
-            `<span class="t">${escapeHTML(n.title) || '제목 없음'}</span>` +
+            `<span class="t">${n.pinned ? '<span class="pin">📌</span>' : ''}${escapeHTML(n.title) || '제목 없음'}</span>` +
             `<span class="d">${fmt(n.updatedAt||n.createdAt||Date.now())}</span></button>`).join('')
         : `<div class="rail-empty">${q ? '검색 결과가 없습니다.' : '아직 노트가 없습니다.<br>「+ 새 노트」로 시작하세요.'}</div>`;
     }
@@ -1852,6 +1959,8 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       paneBlank.style.display = 'none';
       $('editorHost').style.display = '';
       delNoteBtn.style.display = '';
+      $('pinNoteBtn').style.display = '';
+      $('pinNoteBtn').textContent = n.pinned ? '📌 고정됨' : '📌 고정';
       notesWrap.classList.add('editing');
       renderList();
     }
@@ -1873,6 +1982,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       currentId = null;
       noteTitle.value = ''; noteTitle.disabled = true;
       delNoteBtn.style.display = 'none';
+      $('pinNoteBtn').style.display = 'none';
       paneBlank.style.display = '';
       $('editorHost').style.display = 'none';
       notesWrap.classList.remove('editing');
@@ -1880,6 +1990,27 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     }
     $('newNoteBtn').addEventListener('click', newNote);
     delNoteBtn.addEventListener('click', delNote);
+    $('pinNoteBtn').addEventListener('click', async () => {
+      if (!currentId) return;
+      const p = !notes[currentId]?.pinned;
+      await update(ref(db, 'desk/notes/' + currentId), { pinned: p });
+      $('pinNoteBtn').textContent = p ? '📌 고정됨' : '📌 고정';
+    });
+    // ── 최근 노트 위젯 (대시보드) ──
+    function renderRecent() {
+      const items = Object.entries(notes)
+        .sort((a, b) => (b[1].updatedAt||0) - (a[1].updatedAt||0)).slice(0, 4);
+      $('recentNotes').innerHTML = items.length ? items.map(([id, n]) =>
+        `<button class="recent-row" data-id="${id}">` +
+        `${n.pinned ? '<span class="pin">📌</span>' : ''}` +
+        `<span class="t">${escapeHTML(n.title) || '제목 없음'}</span>` +
+        `<span class="d">${fmt(n.updatedAt || n.createdAt || 0)}</span></button>`).join('')
+        : '<div class="ev-empty">아직 노트가 없습니다. 빠른 메모로 시작해 보세요.</div>';
+    }
+    $('recentNotes').addEventListener('click', e => {
+      const b = e.target.closest('[data-id]');
+      if (b) { gotoView('notes'); openNote(b.dataset.id); }
+    });
     backBtn.addEventListener('click', () => { if (saveTimer) { clearTimeout(saveTimer); doSave(); } notesWrap.classList.remove('editing'); });
     noteSearch.addEventListener('input', renderList);
     noteTitle.addEventListener('input', () => { if (currentId) { queueSave(); renderList(); } });
@@ -1887,6 +2018,97 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       const btn = e.target.closest('.note-item');
       if (btn) openNote(btn.dataset.id);
     });
+
+    // ════════════════ 명령 팔레트 (Ctrl/Cmd+K) ════════════════
+    function gotoView(v) { const b = deskViews.querySelector(`[data-view="${v}"]`); if (b) b.click(); }
+    const cmdk = $('cmdk'), cmdkInput = $('cmdkInput'), cmdkList = $('cmdkList');
+    let cmdkItems = [], cmdkSel = 0;
+    const CMDK_STATIC = [
+      { k: '이동', t: '대시보드', run: () => gotoView('dash') },
+      { k: '이동', t: 'Q&A 인박스', run: () => gotoView('qa') },
+      { k: '이동', t: '자료함', run: () => gotoView('mat') },
+      { k: '이동', t: '노트', run: () => gotoView('notes') },
+      { k: '이동', t: '상담', run: () => gotoView('class') },
+      { k: '명령', t: '새 노트 만들기', run: () => { gotoView('notes'); newNote(); } },
+      { k: '명령', t: '테마 전환 (라이트/다크)', run: () => $('themeToggle').click() },
+      { k: '명령', t: '노트 전체 백업 (.md)', run: () => $('notesExportBtn').click() },
+      { k: '명령', t: '로그아웃', run: () => signOut(auth) },
+    ];
+    function cmdkOpen() {
+      if (desk.style.display === 'none') return;   // 로그인 후에만
+      cmdk.hidden = false; cmdkInput.value = ''; cmdkRender('');
+      requestAnimationFrame(() => cmdkInput.focus());
+    }
+    function cmdkClose() { cmdk.hidden = true; }
+    function cmdkRender(q) {
+      const ql = q.trim().toLowerCase();
+      const items = CMDK_STATIC.filter(c => !ql || c.t.toLowerCase().includes(ql));
+      if (ql) {
+        Object.entries(notes)
+          .filter(([, n]) => (n.title||'').toLowerCase().includes(ql) || (n.md||'').toLowerCase().includes(ql))
+          .sort((a, b) => (b[1].updatedAt||0) - (a[1].updatedAt||0)).slice(0, 5)
+          .forEach(([id, n]) => items.push({ k: '노트', t: n.title || '제목 없음', run: () => { gotoView('notes'); openNote(id); } }));
+        Object.entries(questions)
+          .filter(([, x]) => (x.title||'').toLowerCase().includes(ql) || (x.author||'').toLowerCase().includes(ql))
+          .sort((a, b) => (b[1].timestamp||0) - (a[1].timestamp||0)).slice(0, 5)
+          .forEach(([id, x]) => items.push({ k: '질문', t: `${x.title || '제목 없음'} — ${x.author || '익명'}`, run: () => { gotoView('qa'); openQa(id); } }));
+      }
+      cmdkItems = items; cmdkSel = 0;
+      cmdkList.innerHTML = items.length
+        ? items.map((c, i) => `<button class="cmdk__row${i === 0 ? ' sel' : ''}" data-i="${i}"><span class="k">${c.k}</span><span class="t">${escapeHTML(c.t)}</span></button>`).join('')
+        : '<div class="cmdk__empty">결과가 없습니다</div>';
+    }
+    function cmdkMove(d) {
+      if (!cmdkItems.length) return;
+      cmdkSel = (cmdkSel + d + cmdkItems.length) % cmdkItems.length;
+      cmdkList.querySelectorAll('.cmdk__row').forEach((el, i) => el.classList.toggle('sel', i === cmdkSel));
+      cmdkList.querySelector('.sel')?.scrollIntoView({ block: 'nearest' });
+    }
+    function cmdkRun(i) { const c = cmdkItems[i]; cmdkClose(); if (c) c.run(); }
+    cmdkInput.addEventListener('input', () => cmdkRender(cmdkInput.value));
+    cmdkInput.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); cmdkMove(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); cmdkMove(-1); }
+      else if (e.key === 'Enter') cmdkRun(cmdkSel);
+      else if (e.key === 'Escape') cmdkClose();
+    });
+    cmdkList.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) cmdkRun(Number(b.dataset.i)); });
+    cmdk.addEventListener('click', e => { if (e.target === cmdk) cmdkClose(); });
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        cmdk.hidden ? cmdkOpen() : cmdkClose();
+      }
+    });
+
+    // ════════════════ 오프라인 스냅샷 — 마지막 동기화 내용을 읽기용으로 보관 ════════════════
+    // (상담 기록은 암호화 원칙상 스냅샷에 저장하지 않는다)
+    let dataArrived = false, snapshotTimer = null;
+    function saveSnapshot() {
+      clearTimeout(snapshotTimer);
+      snapshotTimer = setTimeout(() => {
+        try {
+          localStorage.setItem('desk-snapshot', JSON.stringify({
+            notes, todos, ddays, calendar, ttable, noticesData, progLessons, progClasses, t: Date.now()
+          }));
+        } catch { /* 저장 공간 부족 등은 조용히 무시 */ }
+      }, 800);
+    }
+    function loadSnapshot() {
+      try {
+        const s = JSON.parse(localStorage.getItem('desk-snapshot') || 'null');
+        if (!s) return false;
+        notes = s.notes || {}; todos = s.todos || {}; ddays = s.ddays || {}; calendar = s.calendar || {};
+        ttable = s.ttable || {}; noticesData = s.noticesData || {};
+        progLessons = s.progLessons || []; progClasses = s.progClasses || {};
+        renderList(); renderRecent(); renderTodos(); renderDdays(); renderToday(); renderCal();
+        renderTable(true); renderNoticeAdmin(); renderProg();
+        return true;
+      } catch { return false; }
+    }
+
+    // 앱 셸 오프라인 캐시
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 
     // ════════════════ 인증 ════════════════
     const provider = new GoogleAuthProvider();
@@ -1917,28 +2139,31 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         if (!attached) {
           attached = true;
           const guard = err => { showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.'); };
-          onValue(notesRef, s => { notes = s.val() || {}; if (currentId && !notes[currentId]) closePane(); else renderList(); }, guard);
-          onValue(ref(db, 'desk/calendar'), s => { calendar = s.val() || {}; renderToday(); renderCal(); }, guard);
+          onValue(notesRef, s => { dataArrived = true; notes = s.val() || {}; if (currentId && !notes[currentId]) closePane(); else renderList(); renderRecent(); saveSnapshot(); }, guard);
+          onValue(ref(db, 'desk/calendar'), s => { calendar = s.val() || {}; renderToday(); renderCal(); saveSnapshot(); }, guard);
           migrateVaultCalendar();
-          onValue(ref(db, 'desk/todos'), s => { todos = s.val() || {}; renderTodos(); }, guard);
-          onValue(ref(db, 'desk/ddays'), s => { ddays = s.val() || {}; renderDdays(); }, guard);
-          onValue(ref(db, 'desk/timetable'), s => { ttable = s.val() || {}; renderTable(); }, guard);
+          onValue(ref(db, 'desk/todos'), s => { todos = s.val() || {}; renderTodos(); saveSnapshot(); }, guard);
+          onValue(ref(db, 'desk/ddays'), s => { ddays = s.val() || {}; renderDdays(); saveSnapshot(); }, guard);
+          onValue(ref(db, 'desk/timetable'), s => { ttable = s.val() || {}; renderTable(); saveSnapshot(); }, guard);
           onValue(ref(db, 'questions'), s => { questions = s.val() || {}; renderQa(); });
           onValue(ref(db, 'progress'), s => {
             const v = s.val() || {};
             progLessons = Object.values(v.lessons || {}).sort((a, b) => (a.order||0) - (b.order||0));
             progClasses = v.classes || {};
-            renderProg();
+            renderProg(); saveSnapshot();
           });
-          onValue(ref(db, 'notices'), s => { noticesData = s.val() || {}; renderNoticeAdmin(); },
+          onValue(ref(db, 'notices'), s => { noticesData = s.val() || {}; renderNoticeAdmin(); saveSnapshot(); },
             () => { $('noticeList').innerHTML = '<div class="ev-empty">DB 보안 규칙에 notices 항목을 추가해야 합니다.</div>'; });
           $('noticeDate').placeholder = noticeDateStr();
           // 연결 상태 — 오프라인이면 상단에 표시
           onValue(ref(db, '.info/connected'), s => {
             const on = s.val() === true;
             saveState.classList.toggle('off', !on);
-            if (!on) saveState.textContent = '오프라인';
-            else if (saveState.textContent === '오프라인') saveState.textContent = '';
+            if (!on) {
+              saveState.textContent = '오프라인';
+              // 실시간 데이터가 오기 전이면 마지막 동기화 스냅샷으로 읽기 전용 표시
+              if (!dataArrived && loadSnapshot()) saveState.textContent = '오프라인 — 마지막 동기화 내용';
+            } else if (saveState.textContent.startsWith('오프라인')) saveState.textContent = '';
           });
           // 1분마다 '오늘'과 현재 교시 갱신
           setInterval(() => { renderToday(); renderTable(); }, 60 * 1000);
