@@ -549,6 +549,65 @@ button.stat-i { border: 0; background: none; cursor: pointer; font-family: inher
   color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
 .log-row:hover .x { opacity: 1; } .log-row .x:hover { color: var(--st-danger-ink); }
 
+/* ══════════ 살아있는 배경 — 자전 지구 + 오로라 ══════════ */
+.desk-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.desk-bg canvas {
+  --gsize: min(88vh, 58vw, 1040px);
+  position: absolute;
+  right: calc(-0.22 * var(--gsize));
+  top: 50%;
+  width: var(--gsize); height: var(--gsize);
+  transform: translateY(-50%);
+  opacity: 0.5;
+  animation: deskGlobeIn 2s var(--ease-o) 0.15s both;
+}
+html[data-theme="dark"] .desk-bg canvas { opacity: 0.6; }
+@keyframes deskGlobeIn { from { opacity: 0; transform: translateY(-50%) scale(0.95); } }
+.aurora { position: absolute; width: 58vmax; height: 58vmax; border-radius: 50%; filter: blur(70px); }
+.a1 { left: -20vmax; top: -24vmax;
+  background: radial-gradient(circle, rgba(0,105,217,0.15), transparent 65%);
+  animation: drift1 47s ease-in-out infinite alternate; }
+.a2 { right: 4vmax; bottom: -28vmax;
+  background: radial-gradient(circle, rgba(30,170,140,0.11), transparent 65%);
+  animation: drift2 61s ease-in-out infinite alternate; }
+html[data-theme="dark"] .a1 { background: radial-gradient(circle, rgba(60,165,255,0.13), transparent 65%); }
+html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,150,0.09), transparent 65%); }
+@keyframes drift1 { to { transform: translate(9vmax, 6vmax); } }
+@keyframes drift2 { to { transform: translate(-8vmax, -5vmax); } }
+
+/* ══════════ Liquid Glass 패널 — 배경이 은은히 비쳐 굴절되는 재질 ══════════ */
+@supports ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .desk .panel, .gate .panel {
+    background: color-mix(in srgb, var(--st-surface) 72%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    backdrop-filter: blur(18px) saturate(1.6);
+  }
+  html[data-theme="dark"] .desk .panel, html[data-theme="dark"] .gate .panel {
+    background: color-mix(in srgb, var(--st-surface) 62%, transparent);
+  }
+}
+
+/* 로그인 직후 첫 화면 — 패널이 차례로 떠오른다 (한 번만) */
+.dash.boot .panel { animation: panelIn 460ms var(--ease-o) both; }
+@keyframes panelIn { from { opacity: 0; transform: translateY(12px) scale(0.99); } }
+.dash.boot .panel:nth-child(1) { animation-delay: 30ms; }
+.dash.boot .panel:nth-child(2) { animation-delay: 65ms; }
+.dash.boot .panel:nth-child(3) { animation-delay: 100ms; }
+.dash.boot .panel:nth-child(4) { animation-delay: 135ms; }
+.dash.boot .panel:nth-child(5) { animation-delay: 170ms; }
+.dash.boot .panel:nth-child(6) { animation-delay: 205ms; }
+.dash.boot .panel:nth-child(n+7) { animation-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .desk-bg canvas, .aurora, .dash.boot .panel { animation: none !important; }
+}
+@media (max-width: 860px) {
+  .desk-bg canvas { --gsize: min(70vh, 120vw); right: calc(-0.35 * var(--gsize)); opacity: 0.38; }
+  html[data-theme="dark"] .desk-bg canvas { opacity: 0.45; }
+  .aurora { filter: blur(55px); }
+  .desk .panel, .gate .panel { -webkit-backdrop-filter: blur(13px) saturate(1.5); backdrop-filter: blur(13px) saturate(1.5); }
+}
+
 /* ══════════ 마감 폴리시 ══════════ */
 :root { --ease-o: cubic-bezier(0.23, 1, 0.32, 1); }
 
@@ -674,6 +733,13 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 </style>
 </head>
 <body>
+
+  <!-- ══════════ 살아있는 배경 — 자전 지구 + 오로라 ══════════ -->
+  <div class="desk-bg" aria-hidden="true">
+    <div class="aurora a1"></div>
+    <div class="aurora a2"></div>
+    <canvas id="globe"></canvas>
+  </div>
 
   <!-- ══════════ 상단 바 ══════════ -->
   <header class="st-glass st-bar desk-bar">
@@ -1048,6 +1114,8 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
   <!-- Toast UI Editor -->
   <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
   <script src="https://uicdn.toast.com/editor/latest/i18n/ko-kr.js"></script>
+  <!-- 자전 지구 (index와 공용) -->
+  <script src="design-system/globe.js" defer></script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -2366,6 +2434,11 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         deskViews.style.display = 'flex';
         signOutBtn.style.display = '';
         requestAnimationFrame(moveInd);
+        if (!showGate.booted) {   // 첫 진입에만 패널 스태거
+          showGate.booted = true;
+          $('dashView').classList.add('boot');
+          setTimeout(() => $('dashView').classList.remove('boot'), 1500);
+        }
         if (!editor) makeEditor();
         closePane();
         renderToday(); renderTable(); renderCal();

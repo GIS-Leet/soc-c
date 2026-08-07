@@ -1,10 +1,11 @@
 /* Desk 앱 셸 오프라인 캐시.
    같은 출처의 셸 파일과 CDN 정적 자원만 다루고, 나머지(Firebase 등)는 건드리지 않는다. */
-const CACHE = 'desk-shell-v1';
+const CACHE = 'desk-shell-v2';
 const SHELL = [
   'desk.html',
   'design-system/stratum.css',
   'design-system/geo.css',
+  'design-system/globe.js',
   'desk.webmanifest',
   'manifest.json',
   'icons/desk-icon-192.png',
