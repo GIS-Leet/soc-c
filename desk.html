@@ -474,6 +474,32 @@ body { display: flex; flex-direction: column; overflow: hidden; }
   background: var(--st-fill-2); color: var(--st-label); border: 1px solid transparent;
   border-radius: var(--st-r-full); font-size: 13px; outline: none; }
 .log-add input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+/* 학생 검색 */
+.stu-find { padding: 0 14px 10px !important; }
+.stu-find input { flex: 1; min-width: 0; height: 36px; padding: 0 12px;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-full);
+  font-size: 13px; outline: none; transition: border-color 175ms, background 175ms; }
+.stu-find input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+
+/* 기록 태그 */
+.log-filter { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+.log-filter button { border: 0; background: var(--st-fill-2); color: var(--st-label-3); cursor: pointer;
+  font-family: inherit; font-size: 11px; font-weight: 650; padding: 4px 11px; border-radius: var(--st-r-full);
+  transition: background 150ms var(--ease-o), color 150ms var(--ease-o), transform 120ms var(--ease-o); }
+.log-filter button:active { transform: scale(0.95); }
+.log-filter button.on { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.log-add select { height: 36px; padding: 0 8px; flex-shrink: 0;
+  background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-element);
+  font-family: inherit; font-size: 12.5px; outline: none; cursor: pointer; }
+.log-tag { flex-shrink: 0; font-size: 10px; font-weight: 700; letter-spacing: 0.03em;
+  padding: 2px 8px; border-radius: var(--st-r-full);
+  background: var(--st-fill-2); color: var(--st-label-2); }
+.log-tag[data-t="상담"] { background: var(--st-accent-soft);  color: var(--st-accent-ink); }
+.log-tag[data-t="관찰"] { background: var(--st-success-soft); color: var(--st-success-ink); }
+.log-tag[data-t="세특"] { background: var(--st-warning-soft); color: var(--st-warning-ink); }
+
 .log-row { display: flex; align-items: baseline; gap: 12px; padding: 9px 2px;
   border-bottom: 1px solid var(--st-separator); font-size: 13.5px; line-height: 1.6; }
 .log-row:last-child { border-bottom: 0; }
@@ -889,6 +915,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             <input type="text" id="stuName" placeholder="이름" maxlength="15">
             <button class="btn-solid new-btn" id="stuAddBtn">추가</button>
           </div>
+          <div class="rail-top stu-find">
+            <input type="search" id="stuSearch" placeholder="이름·번호 검색" autocomplete="off">
+          </div>
           <div class="note-list" id="stuList"></div>
           <div class="rail-foot-lock">
             <button class="btn-sub" id="lockNowBtn">🔒 지금 잠그기</button>
@@ -908,7 +937,20 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             </div>
             <div class="stu-sec">
               <div class="dash-h">상담 · 관찰 기록 <b id="logCount"></b></div>
+              <div class="log-filter" id="logFilter">
+                <button class="on" data-t="all">전체</button>
+                <button data-t="관찰">관찰</button>
+                <button data-t="상담">상담</button>
+                <button data-t="세특">세특</button>
+                <button data-t="생활">생활</button>
+              </div>
               <div class="log-add">
+                <select id="logTag" title="기록 종류">
+                  <option>관찰</option>
+                  <option>상담</option>
+                  <option>세특</option>
+                  <option>생활</option>
+                </select>
                 <input type="date" id="logDate">
                 <input type="text" id="logText" placeholder="기록 추가 — Enter" maxlength="300">
               </div>
@@ -959,6 +1001,8 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getDatabase, ref, onValue, set, update, remove, push, get }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+    import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
+      from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
     // ── 설정 ─────────────────────────────────────────────
     const OWNER_EMAIL = "leetae712@gmail.com";
@@ -974,6 +1018,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
+    const storage = getStorage(app);
 
     const $ = id => document.getElementById(id);
     const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1421,28 +1466,45 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     window.addEventListener('beforeunload', flushStuSave);
 
     function renderStuList() {
-      const items = Object.entries(stuPlain).sort((a, b) => (Number(a[1].num)||999) - (Number(b[1].num)||999));
+      const q = ($('stuSearch').value || '').trim().toLowerCase();
+      const items = Object.entries(stuPlain)
+        .filter(([, s]) => !q || (s.name||'').toLowerCase().includes(q) || String(s.num||'').includes(q))
+        .sort((a, b) => (Number(a[1].num)||999) - (Number(b[1].num)||999));
       $('stuList').innerHTML = items.length
         ? items.map(([id, s]) =>
             `<button class="note-item${id===currentStu?' on':''}" data-id="${id}">` +
             `<span class="t"><span class="stu-item-num">${escapeHTML(String(s.num||'–'))}</span> ${escapeHTML(s.name)}</span>` +
             `<span class="d">기록 ${(s.logs||[]).length}건</span></button>`).join('')
-        : '<div class="rail-empty">아직 등록된 학생이 없습니다.<br>위에서 번호·이름을 입력해 추가하세요.</div>';
+        : `<div class="rail-empty">${q ? '검색 결과가 없습니다.' : '아직 등록된 학생이 없습니다.<br>위에서 번호·이름을 입력해 추가하세요.'}</div>`;
     }
+    $('stuSearch').addEventListener('input', renderStuList);
+    let stuLogFilter = 'all';
     function renderStuCard(fillNote = true) {
       const s = stuPlain[currentStu]; if (!s) return;
       $('stuHead').innerHTML = `<small>${escapeHTML(String(s.num||'–'))}번</small>${escapeHTML(s.name)}`;
       if (fillNote) $('stuNote').value = s.note || '';
-      const logs = (s.logs || []).slice().sort((a, b) => b.date.localeCompare(a.date));
-      $('logCount').textContent = logs.length ? `${logs.length}건` : '';
-      $('logList').innerHTML = logs.map((l, i) =>
-        `<div class="log-row"><span class="ld">${escapeHTML(l.date)}</span><span class="lt">${escapeHTML(l.text)}</span>` +
+      const all = (s.logs || []).slice().sort((a, b) => b.date.localeCompare(a.date));
+      const logs = stuLogFilter === 'all' ? all : all.filter(l => (l.tag || '생활') === stuLogFilter);
+      $('logCount').textContent = stuLogFilter === 'all'
+        ? (all.length ? `${all.length}건` : '')
+        : `${logs.length}/${all.length}건`;
+      $('logList').innerHTML = logs.map(l =>
+        `<div class="log-row"><span class="log-tag" data-t="${escapeHTML(l.tag || '생활')}">${escapeHTML(l.tag || '생활')}</span>` +
+        `<span class="ld">${escapeHTML(l.date)}</span><span class="lt">${escapeHTML(l.text)}</span>` +
         `<button class="x" data-li="${s.logs.indexOf(l)}" title="삭제">×</button></div>`).join('')
-        || '<div class="ev-empty">아직 기록이 없습니다.</div>';
+        || `<div class="ev-empty">${stuLogFilter === 'all' ? '아직 기록이 없습니다.' : `'${stuLogFilter}' 기록이 없습니다.`}</div>`;
     }
+    $('logFilter').addEventListener('click', e => {
+      const btn = e.target.closest('button'); if (!btn) return;
+      stuLogFilter = btn.dataset.t;
+      $('logFilter').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
+      if (currentStu) renderStuCard(false);
+    });
     function openStu(id) {
       flushStuSave();
       currentStu = id;
+      stuLogFilter = 'all';
+      $('logFilter').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.t === 'all'));
       $('stuCard').style.display = ''; $('stuBlank').style.display = 'none';
       $('stuDelBtn').style.display = '';
       $('classGrid').classList.add('editing');
@@ -1491,8 +1553,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       if (e.key !== 'Enter' || !currentStu) return;
       const text = e.target.value.trim(); if (!text) return;
       const date = $('logDate').value || keyOf(new Date());
+      const tag = $('logTag').value;
       e.target.value = '';
-      (stuPlain[currentStu].logs = stuPlain[currentStu].logs || []).push({ date, text });
+      (stuPlain[currentStu].logs = stuPlain[currentStu].logs || []).push({ date, text, tag });
       renderStuCard(false);
       await saveStu(currentStu);
     });
@@ -1913,7 +1976,25 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         el: $('editorHost'), height: '100%',
         initialEditType: 'wysiwyg', previewStyle: 'tab', language: 'ko-KR',
         placeholder: '내용을 입력하세요…', theme: dark ? 'dark' : 'light',
-        usageStatistics: false, autofocus: false
+        usageStatistics: false, autofocus: false,
+        hooks: {
+          // 이미지는 base64로 노트에 박지 않고 Storage에 올려 링크만 남긴다
+          // (base64 인라인은 사진 한 장에 노트가 수 MB로 불어나 DB를 짓누른다)
+          addImageBlobHook: async (blob, callback) => {
+            try {
+              if (blob.size > 10 * 1024 * 1024) { alert('이미지는 10MB 이하만 넣을 수 있습니다.'); return; }
+              saveState.textContent = '이미지 업로드 중…'; saveState.classList.add('busy');
+              const name = `desk-images/${Date.now()}_${(blob.name || 'image.png').replace(/[^\w.\-가-힣]/g, '_')}`;
+              const r = sRef(storage, name);
+              await uploadBytes(r, blob);
+              callback(await getDownloadURL(r), blob.name || 'image');
+              saveState.textContent = '저장됨'; saveState.classList.remove('busy');
+            } catch (e) {
+              saveState.textContent = '이미지 업로드 실패'; saveState.classList.remove('busy');
+              alert('이미지 업로드에 실패했습니다: ' + (e.message || e));
+            }
+          }
+        }
       });
       editor.on('change', () => { if (!suppressChange && currentId) queueSave(); });
     }
