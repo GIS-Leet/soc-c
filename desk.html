@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
 <!-- 디자인 시스템 -->
@@ -613,11 +614,11 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
   display: grid; gap: 14px; align-content: start;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); }
 .study .panel { padding: 18px 20px; }
-.p-timer { grid-column: 1 / 3; grid-row: 1; display: flex; flex-direction: column; }
-.p-goal  { grid-column: 3; grid-row: 1; }
-.p-heat  { grid-column: 1 / 4; grid-row: 2; }
-.p-week  { grid-column: 1; grid-row: 3; }
-.p-log   { grid-column: 2 / 4; grid-row: 3; }
+.p-timer { grid-column: 1 / 3; grid-row: 2; display: flex; flex-direction: column; }
+.p-goal  { grid-column: 3; grid-row: 2; }
+.p-heat  { grid-column: 1 / 4; grid-row: 3; }
+.p-week  { grid-column: 1; grid-row: 4; }
+.p-log   { grid-column: 2 / 4; grid-row: 4; }
 .p-week  { align-self: start; }
 #sessList { max-height: 380px; overflow-y: auto; scrollbar-width: thin; }
 .study.boot .panel { animation: panelIn 460ms var(--ease-o) both; }
@@ -626,6 +627,37 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .study.boot .panel:nth-child(3) { animation-delay: 100ms; }
 .study.boot .panel:nth-child(4) { animation-delay: 135ms; }
 .study.boot .panel:nth-child(5) { animation-delay: 170ms; }
+.study.boot .panel:nth-child(6) { animation-delay: 205ms; }
+/* ── 오늘의 일본어 배너 ── */
+[lang="ja"] { font-family: 'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', 'Pretendard Variable', sans-serif; }
+.p-jp { grid-column: 1 / 4; grid-row: 1; }
+.jp-wrap { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
+.jp-s { font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; line-height: 1.45; letter-spacing: 0.01em; color: var(--st-label); word-break: keep-all; }
+.jp-m { font-size: 14px; color: var(--st-label-2); margin-top: 6px; }
+.jp-g { font-size: 12.5px; line-height: 1.65; color: var(--st-label-2); margin-top: 14px; padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.jp-g::before { content: '문법'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
+.jp-e { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-top: 10px; font-size: 13.5px; }
+.jp-e [lang] { font-weight: 600; color: var(--st-label); }
+.jp-e .k { font-size: 12.5px; color: var(--st-label-3); }
+.jp-vocab { display: flex; flex-direction: column; }
+.jp-row { display: flex; align-items: baseline; gap: 10px; padding: 7px 2px; border-bottom: 1px solid var(--st-separator); min-width: 0; font-size: 13.5px; }
+.jp-row:last-child { border-bottom: 0; }
+.jp-row b { font-weight: 600; color: var(--st-label); flex-shrink: 0; }
+.jp-row .r { font-size: 11.5px; color: var(--st-label-3); flex-shrink: 0; }
+.jp-row .k { margin-left: auto; text-align: right; color: var(--st-label-2); font-size: 13px; min-width: 0; }
+.jp-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.jp-foot .cal-nav { margin-right: 2px; }
+.jp-foot .btn-sub, .jp-foot .btn-solid { height: 32px; padding: 0 14px; }
+.jp-left { margin-left: auto; font-size: 11.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
+.jp-left.warn { color: var(--st-warning-ink); font-weight: 700; }
+/* 뜻 가리기 — 흐리게 덮고, 눌러서 하나씩 확인 */
+.p-jp.quiz .jp-m, .p-jp.quiz .jp-e .k, .p-jp.quiz .jp-row .k { filter: blur(6px); cursor: pointer; transition: filter 200ms var(--ease-o); user-select: none; }
+.p-jp.quiz .jp-m.show, .p-jp.quiz .jp-e .k.show, .p-jp.quiz .jp-row .k.show { filter: none; }
+@media (max-width: 860px) {
+  .p-jp { grid-column: 1; grid-row: auto; }
+  .jp-wrap { grid-template-columns: minmax(0, 1fr); }
+  .jp-left { margin-left: 0; width: 100%; }
+}
 
 /* 과목 칩 */
 .subj-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
@@ -1093,6 +1125,30 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
     <!-- ── 공부 뷰 — 미라클모닝 기록실 ── -->
     <section class="study" id="studyView" style="display:none;">
+
+      <!-- 오늘의 일본어 — data/japanese-daily.json 을 날짜순으로 한 장씩 -->
+      <div class="panel p-jp" id="jpPanel">
+        <div class="dash-h">오늘의 일본어 <b id="jpCap">불러오는 중…</b></div>
+        <div class="jp-wrap">
+          <div class="jp-main">
+            <div class="jp-s" id="jpS" lang="ja"></div>
+            <div class="jp-m" id="jpM"></div>
+            <div class="jp-g" id="jpG"></div>
+            <div class="jp-e" id="jpE"></div>
+          </div>
+          <div class="jp-vocab" id="jpV"></div>
+        </div>
+        <div class="jp-foot">
+          <span class="cal-nav">
+            <button id="jpPrev" aria-label="어제 것">‹</button>
+            <button id="jpToday">오늘</button>
+            <button id="jpNext" aria-label="내일 것">›</button>
+          </span>
+          <button class="btn-sub" id="jpQuiz" title="뜻을 흐리게 가리고, 눌러서 하나씩 확인">뜻 가리기</button>
+          <button class="btn-solid" id="jpStart">일본어로 타이머 시작</button>
+          <span class="jp-left" id="jpLeft"></span>
+        </div>
+      </div>
 
       <!-- 타이머 -->
       <div class="panel p-timer">
@@ -2892,6 +2948,53 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       if (Date.now() - r.start > 12 * 3600 * 1000) { studyRun = null; saveRun(); return; }   // 반나절 넘게 방치된 것은 버린다
       studyRun = r; startTick(); if (r.since) keepAwake(true);
     }
+
+    // ════════════════ 오늘의 일본어 — 미리 만들어 둔 커리큘럼(data/japanese-daily.json)을 날짜에 따라 한 장씩 ════════════════
+    let jp = null, jpOffset = 0;   // jpOffset: 오늘 기준 며칠 앞뒤로 넘겨 보는 중인지
+    const JP_SUBJECT = '일본어';
+    function jpTodayIndex() { return Math.floor((dayStart(new Date()) - new Date(jp.start + 'T00:00:00')) / 86400000); }
+    async function loadJp() {
+      try { jp = await (await fetch('data/japanese-daily.json', { cache: 'no-cache' })).json(); renderJp(); }
+      catch { $('jpCap').textContent = '학습 자료를 불러오지 못했습니다'; }
+    }
+    function renderJp() {
+      if (!jp || !jp.days.length) return;
+      const n = jp.days.length, today = Math.max(0, jpTodayIndex());
+      let i = today + jpOffset; if (i < 0) { jpOffset = -today; i = 0; }
+      const round = Math.floor(i / n) + 1, d = jp.days[i % n];
+      $('jpCap').textContent = `Day ${i % n + 1} · ${d.t}` + (round > 1 ? ` · ${round}회차` : '') +
+        (jpOffset < 0 ? ` · ${-jpOffset}일 전` : jpOffset > 0 ? ` · ${jpOffset}일 후` : '');
+      $('jpS').textContent = d.s; $('jpM').textContent = d.m; $('jpG').textContent = d.g;
+      $('jpE').innerHTML = `<span lang="ja">${escapeHTML(d.e[0])}</span><span class="k">${escapeHTML(d.e[1])}</span>`;
+      $('jpV').innerHTML = d.v.map(([w, r, k]) =>
+        `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b>${r ? `<span class="r" lang="ja">${escapeHTML(r)}</span>` : ''}<span class="k">${escapeHTML(k)}</span></div>`).join('');
+      $('jpPanel').querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+      // 남은 분량 — 떨어져 가면 알려서 다음 묶음을 만들 때를 놓치지 않게
+      const left = n - 1 - today, el = $('jpLeft');
+      el.textContent = left < 0 ? `${Math.floor(today / n) + 1}회차 복습 중 — 새 묶음이 필요합니다` : left <= 14 ? `남은 분량 ${left}일 — 다음 묶음을 만들 때` : `${n}일 과정 · ${left}일 남음`;
+      el.classList.toggle('warn', left <= 14);
+    }
+    $('jpPrev').addEventListener('click', () => { jpOffset--; renderJp(); });
+    $('jpNext').addEventListener('click', () => { jpOffset++; renderJp(); });
+    $('jpToday').addEventListener('click', () => { jpOffset = 0; renderJp(); });
+    $('jpQuiz').addEventListener('click', () => {
+      const on = $('jpPanel').classList.toggle('quiz');
+      $('jpQuiz').textContent = on ? '뜻 보이기' : '뜻 가리기';
+      if (!on) $('jpPanel').querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+    });
+    $('jpPanel').addEventListener('click', e => {
+      if (!$('jpPanel').classList.contains('quiz')) return;
+      const t = e.target.closest('.jp-m, .jp-e .k, .jp-row .k'); if (t) t.classList.add('show');
+    });
+    $('jpStart').addEventListener('click', async () => {
+      if (!subjNames().some(([, s]) => s.name === JP_SUBJECT)) await push(ref(db, 'desk/study/subjects'), { name: JP_SUBJECT, createdAt: Date.now() });
+      try { localStorage.setItem(SUBJ_KEY, JP_SUBJECT); } catch {}
+      if (studyRun) { studyRun.subject = JP_SUBJECT; saveRun(); }
+      renderSubjects();
+      if (!studyRun?.since) studyStart(); else renderClock();
+      $('clockWrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    loadJp();
 
     // ════════════════ 명령 팔레트 (Ctrl/Cmd+K) ════════════════
     function gotoView(v) { const b = deskViews.querySelector(`[data-view="${v}"]`); if (b) b.click(); }
