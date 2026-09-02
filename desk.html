@@ -614,11 +614,11 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
   display: grid; gap: 14px; align-content: start;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); }
 .study .panel { padding: 18px 20px; }
-.p-timer { grid-column: 1 / 3; grid-row: 2; display: flex; flex-direction: column; }
-.p-goal  { grid-column: 3; grid-row: 2; }
-.p-heat  { grid-column: 1 / 4; grid-row: 3; }
-.p-week  { grid-column: 1; grid-row: 4; }
-.p-log   { grid-column: 2 / 4; grid-row: 4; }
+.p-timer { grid-column: 1 / 3; grid-row: 3; display: flex; flex-direction: column; }
+.p-goal  { grid-column: 3; grid-row: 3; }
+.p-heat  { grid-column: 1 / 4; grid-row: 4; }
+.p-week  { grid-column: 1; grid-row: 5; }
+.p-log   { grid-column: 2 / 4; grid-row: 5; }
 .p-week  { align-self: start; }
 #sessList { max-height: 380px; overflow-y: auto; scrollbar-width: thin; }
 .study.boot .panel { animation: panelIn 460ms var(--ease-o) both; }
@@ -628,6 +628,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .study.boot .panel:nth-child(4) { animation-delay: 135ms; }
 .study.boot .panel:nth-child(5) { animation-delay: 170ms; }
 .study.boot .panel:nth-child(6) { animation-delay: 205ms; }
+.study.boot .panel:nth-child(n+7) { animation-delay: 240ms; }
 /* ── 오늘의 일본어 배너 ── */
 [lang="ja"] { font-family: 'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', 'Pretendard Variable', sans-serif; }
 .p-jp { grid-column: 1 / 4; grid-row: 1; }
@@ -650,12 +651,26 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .jp-foot .btn-sub, .jp-foot .btn-solid { height: 32px; padding: 0 14px; }
 .jp-left { margin-left: auto; font-size: 11.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
 .jp-left.warn { color: var(--st-warning-ink); font-weight: 700; }
-/* 뜻 가리기 — 흐리게 덮고, 눌러서 하나씩 확인 */
-.p-jp.quiz .jp-m, .p-jp.quiz .jp-e .k, .p-jp.quiz .jp-row .k { filter: blur(6px); cursor: pointer; transition: filter 200ms var(--ease-o); user-select: none; }
-.p-jp.quiz .jp-m.show, .p-jp.quiz .jp-e .k.show, .p-jp.quiz .jp-row .k.show { filter: none; }
+/* ── 지리 교사의 한 걸음 배너 ── */
+.p-geo { grid-column: 1 / 4; grid-row: 2; }
+.geo-wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
+.geo-cap { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
+.geo-cat { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
+.geo-q { font-size: clamp(16px, 1.6vw, 20px); font-weight: 700; line-height: 1.45; letter-spacing: -0.015em; color: var(--st-label); word-break: keep-all; }
+.geo-a { margin-top: 14px; font-size: 13.5px; line-height: 1.7; color: var(--st-label); word-break: keep-all; }
+.geo-x { margin-top: 12px; font-size: 12.5px; line-height: 1.65; color: var(--st-label-2); padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.geo-x::before { content: '한 걸음 더'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
+.geo-term { padding: 8px 2px; border-bottom: 1px solid var(--st-separator); font-size: 13px; line-height: 1.55; }
+.geo-term:last-child { border-bottom: 0; }
+.geo-term b { display: block; font-weight: 700; color: var(--st-label); margin-bottom: 1px; }
+.geo-term span { color: var(--st-label-2); font-size: 12.5px; word-break: keep-all; }
+.geo-r { margin-top: 12px; font-size: 11.5px; color: var(--st-label-3); word-break: keep-all; line-height: 1.5; }
+/* 가리기 — 배너 공통: .q 표시 요소를 흐리게, 눌러서 하나씩 확인 */
+.p-daily.quiz .q { filter: blur(6px); cursor: pointer; transition: filter 200ms var(--ease-o); user-select: none; }
+.p-daily.quiz .q.show { filter: none; }
 @media (max-width: 860px) {
-  .p-jp { grid-column: 1; grid-row: auto; }
-  .jp-wrap { grid-template-columns: minmax(0, 1fr); }
+  .p-jp, .p-geo { grid-column: 1; grid-row: auto; }
+  .jp-wrap, .geo-wrap { grid-template-columns: minmax(0, 1fr); }
   .jp-left { margin-left: 0; width: 100%; }
 }
 
@@ -1127,12 +1142,12 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     <section class="study" id="studyView" style="display:none;">
 
       <!-- 오늘의 일본어 — data/japanese-daily.json 을 날짜순으로 한 장씩 -->
-      <div class="panel p-jp" id="jpPanel">
+      <div class="panel p-daily p-jp" id="jpPanel">
         <div class="dash-h">오늘의 일본어 <b id="jpCap">불러오는 중…</b></div>
         <div class="jp-wrap">
           <div class="jp-main">
             <div class="jp-s" id="jpS" lang="ja"></div>
-            <div class="jp-m" id="jpM"></div>
+            <div class="jp-m q" id="jpM"></div>
             <div class="jp-g" id="jpG"></div>
             <div class="jp-e" id="jpE"></div>
           </div>
@@ -1144,9 +1159,38 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             <button id="jpToday">오늘</button>
             <button id="jpNext" aria-label="내일 것">›</button>
           </span>
-          <button class="btn-sub" id="jpQuiz" title="뜻을 흐리게 가리고, 눌러서 하나씩 확인">뜻 가리기</button>
-          <button class="btn-solid" id="jpStart">일본어로 타이머 시작</button>
+          <button class="btn-sub" id="jpQuiz" data-label="뜻 가리기" title="뜻을 흐리게 가리고, 눌러서 하나씩 확인">뜻 가리기</button>
+          <button class="btn-solid" id="jpStart" data-subject="일본어">일본어로 타이머 시작</button>
           <span class="jp-left" id="jpLeft"></span>
+        </div>
+      </div>
+
+      <!-- 지리 교사의 한 걸음 — data/geography-daily.json 을 날짜순으로 한 장씩 -->
+      <div class="panel p-daily p-geo" id="geoPanel">
+        <div class="dash-h">지리 교사의 한 걸음 <b id="geoCap">불러오는 중…</b></div>
+        <div class="geo-wrap">
+          <div class="geo-main">
+            <div class="geo-cat" id="geoCat"></div>
+            <span class="geo-cap">학생이 이렇게 물으면</span>
+            <div class="geo-q" id="geoQ"></div>
+            <div class="geo-a q" id="geoA"></div>
+            <div class="geo-x q" id="geoX"></div>
+          </div>
+          <div class="geo-side">
+            <span class="geo-cap">핵심 용어</span>
+            <div class="geo-terms" id="geoK"></div>
+            <div class="geo-r" id="geoR"></div>
+          </div>
+        </div>
+        <div class="jp-foot">
+          <span class="cal-nav">
+            <button id="geoPrev" aria-label="어제 것">‹</button>
+            <button id="geoToday">오늘</button>
+            <button id="geoNext" aria-label="내일 것">›</button>
+          </span>
+          <button class="btn-sub" id="geoQuiz" data-label="답 가리기" title="답과 용어 설명을 가리고, 질문만 보며 답해 본 뒤 눌러서 확인">답 가리기</button>
+          <button class="btn-solid" id="geoStart" data-subject="지리">지리로 타이머 시작</button>
+          <span class="jp-left" id="geoLeft"></span>
         </div>
       </div>
 
@@ -2949,52 +2993,70 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       studyRun = r; startTick(); if (r.since) keepAwake(true);
     }
 
-    // ════════════════ 오늘의 일본어 — 미리 만들어 둔 커리큘럼(data/japanese-daily.json)을 날짜에 따라 한 장씩 ════════════════
-    let jp = null, jpOffset = 0;   // jpOffset: 오늘 기준 며칠 앞뒤로 넘겨 보는 중인지
-    const JP_SUBJECT = '일본어';
-    function jpTodayIndex() { return Math.floor((dayStart(new Date()) - new Date(jp.start + 'T00:00:00')) / 86400000); }
-    async function loadJp() {
-      try { jp = await (await fetch('data/japanese-daily.json', { cache: 'no-cache' })).json(); renderJp(); }
-      catch { $('jpCap').textContent = '학습 자료를 불러오지 못했습니다'; }
+    // ════════════════ 매일 배너 — 미리 만들어 둔 커리큘럼(data/*.json)을 날짜에 따라 한 장씩 ════════════════
+    // 공통: Day 계산·앞뒤 넘기기·가리기·남은 분량 경고·과목 타이머 시작.  render(d)만 배너마다 다르다.
+    // 데이터: { start:'YYYY-MM-DD', days:[...] }. Day = start부터 지난 날수. 다 쓰면 1일차로 돌아가 회차를 표시한다.
+    function makeDaily(key, file, render) {
+      const B = { key, data: null, offset: 0, panel: $(key + 'Panel') };
+      const todayIndex = () => Math.floor((dayStart(new Date()) - new Date(B.data.start + 'T00:00:00')) / 86400000);
+      B.render = () => {
+        const D = B.data; if (!D || !D.days.length) return;
+        const n = D.days.length, today = Math.max(0, todayIndex());
+        let i = today + B.offset; if (i < 0) { B.offset = -today; i = 0; }
+        const round = Math.floor(i / n) + 1, d = D.days[i % n];
+        $(key + 'Cap').textContent = `Day ${i % n + 1} · ${d.t}` + (round > 1 ? ` · ${round}회차` : '') +
+          (B.offset < 0 ? ` · ${-B.offset}일 전` : B.offset > 0 ? ` · ${B.offset}일 후` : '');
+        render(d);
+        B.panel.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+        // 남은 분량 — 떨어져 가면 알려서 다음 묶음을 만들 때를 놓치지 않게
+        const left = n - 1 - today, el = $(key + 'Left');
+        el.textContent = left < 0 ? `${Math.floor(today / n) + 1}회차 복습 중 — 새 묶음이 필요합니다` : left <= 14 ? `남은 분량 ${left}일 — 다음 묶음을 만들 때` : `${n}일 과정 · ${left}일 남음`;
+        el.classList.toggle('warn', left <= 14);
+      };
+      B.load = async () => {
+        try { B.data = await (await fetch(file, { cache: 'no-cache' })).json(); B.render(); }
+        catch { $(key + 'Cap').textContent = '학습 자료를 불러오지 못했습니다'; }
+      };
+      $(key + 'Prev').addEventListener('click', () => { B.offset--; B.render(); });
+      $(key + 'Next').addEventListener('click', () => { B.offset++; B.render(); });
+      $(key + 'Today').addEventListener('click', () => { B.offset = 0; B.render(); });
+      const quiz = $(key + 'Quiz');
+      quiz.addEventListener('click', () => {
+        const on = B.panel.classList.toggle('quiz');
+        quiz.textContent = on ? '가린 것 보이기' : quiz.dataset.label;
+        if (!on) B.panel.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+      });
+      B.panel.addEventListener('click', e => {
+        if (!B.panel.classList.contains('quiz')) return;
+        const t = e.target.closest('.q'); if (t) t.classList.add('show');
+      });
+      const start = $(key + 'Start');
+      if (start) start.addEventListener('click', async () => {
+        const name = start.dataset.subject;
+        if (!subjNames().some(([, s]) => s.name === name)) await push(ref(db, 'desk/study/subjects'), { name, createdAt: Date.now() });
+        try { localStorage.setItem(SUBJ_KEY, name); } catch {}
+        if (studyRun) { studyRun.subject = name; saveRun(); }
+        renderSubjects();
+        if (!studyRun?.since) studyStart(); else renderClock();
+        $('clockWrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      B.load();
+      return B;
     }
-    function renderJp() {
-      if (!jp || !jp.days.length) return;
-      const n = jp.days.length, today = Math.max(0, jpTodayIndex());
-      let i = today + jpOffset; if (i < 0) { jpOffset = -today; i = 0; }
-      const round = Math.floor(i / n) + 1, d = jp.days[i % n];
-      $('jpCap').textContent = `Day ${i % n + 1} · ${d.t}` + (round > 1 ? ` · ${round}회차` : '') +
-        (jpOffset < 0 ? ` · ${-jpOffset}일 전` : jpOffset > 0 ? ` · ${jpOffset}일 후` : '');
+    // 오늘의 일본어 — { t 테마, s 문장, m 뜻, v [[단어,읽기,뜻]×5], g 문법, e [예문,뜻] }
+    makeDaily('jp', 'data/japanese-daily.json', d => {
       $('jpS').textContent = d.s; $('jpM').textContent = d.m; $('jpG').textContent = d.g;
-      $('jpE').innerHTML = `<span lang="ja">${escapeHTML(d.e[0])}</span><span class="k">${escapeHTML(d.e[1])}</span>`;
+      $('jpE').innerHTML = `<span lang="ja">${escapeHTML(d.e[0])}</span><span class="k q">${escapeHTML(d.e[1])}</span>`;
       $('jpV').innerHTML = d.v.map(([w, r, k]) =>
-        `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b>${r ? `<span class="r" lang="ja">${escapeHTML(r)}</span>` : ''}<span class="k">${escapeHTML(k)}</span></div>`).join('');
-      $('jpPanel').querySelectorAll('.show').forEach(el => el.classList.remove('show'));
-      // 남은 분량 — 떨어져 가면 알려서 다음 묶음을 만들 때를 놓치지 않게
-      const left = n - 1 - today, el = $('jpLeft');
-      el.textContent = left < 0 ? `${Math.floor(today / n) + 1}회차 복습 중 — 새 묶음이 필요합니다` : left <= 14 ? `남은 분량 ${left}일 — 다음 묶음을 만들 때` : `${n}일 과정 · ${left}일 남음`;
-      el.classList.toggle('warn', left <= 14);
-    }
-    $('jpPrev').addEventListener('click', () => { jpOffset--; renderJp(); });
-    $('jpNext').addEventListener('click', () => { jpOffset++; renderJp(); });
-    $('jpToday').addEventListener('click', () => { jpOffset = 0; renderJp(); });
-    $('jpQuiz').addEventListener('click', () => {
-      const on = $('jpPanel').classList.toggle('quiz');
-      $('jpQuiz').textContent = on ? '뜻 보이기' : '뜻 가리기';
-      if (!on) $('jpPanel').querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+        `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b>${r ? `<span class="r" lang="ja">${escapeHTML(r)}</span>` : ''}<span class="k q">${escapeHTML(k)}</span></div>`).join('');
     });
-    $('jpPanel').addEventListener('click', e => {
-      if (!$('jpPanel').classList.contains('quiz')) return;
-      const t = e.target.closest('.jp-m, .jp-e .k, .jp-row .k'); if (t) t.classList.add('show');
+    // 지리 교사의 한 걸음 — { c 분야, t 테마, q 학생 질문, a 답의 뼈대, k [[용어,설명]×3], x 한 걸음 더, r 더 읽기 }
+    makeDaily('geo', 'data/geography-daily.json', d => {
+      $('geoCat').textContent = d.c;
+      $('geoQ').textContent = d.q; $('geoA').textContent = d.a; $('geoX').textContent = d.x;
+      $('geoK').innerHTML = d.k.map(([k, v]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span class="q">${escapeHTML(v)}</span></div>`).join('');
+      $('geoR').textContent = d.r ? '더 읽기 · ' + d.r : '';
     });
-    $('jpStart').addEventListener('click', async () => {
-      if (!subjNames().some(([, s]) => s.name === JP_SUBJECT)) await push(ref(db, 'desk/study/subjects'), { name: JP_SUBJECT, createdAt: Date.now() });
-      try { localStorage.setItem(SUBJ_KEY, JP_SUBJECT); } catch {}
-      if (studyRun) { studyRun.subject = JP_SUBJECT; saveRun(); }
-      renderSubjects();
-      if (!studyRun?.since) studyStart(); else renderClock();
-      $('clockWrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-    loadJp();
 
     // ════════════════ 명령 팔레트 (Ctrl/Cmd+K) ════════════════
     function gotoView(v) { const b = deskViews.querySelector(`[data-view="${v}"]`); if (b) b.click(); }
