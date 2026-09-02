@@ -608,6 +608,189 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
   .desk .panel, .gate .panel { -webkit-backdrop-filter: blur(13px) saturate(1.5); backdrop-filter: blur(13px) saturate(1.5); }
 }
 
+/* ══════════ 공부 뷰 — 미라클모닝 기록실 ══════════ */
+.study { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin;
+  display: grid; gap: 14px; align-content: start;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); }
+.study .panel { padding: 18px 20px; }
+.p-timer { grid-column: 1 / 3; grid-row: 1; display: flex; flex-direction: column; }
+.p-goal  { grid-column: 3; grid-row: 1; }
+.p-heat  { grid-column: 1 / 4; grid-row: 2; }
+.p-week  { grid-column: 1; grid-row: 3; }
+.p-log   { grid-column: 2 / 4; grid-row: 3; }
+.p-week  { align-self: start; }
+#sessList { max-height: 380px; overflow-y: auto; scrollbar-width: thin; }
+.study.boot .panel { animation: panelIn 460ms var(--ease-o) both; }
+.study.boot .panel:nth-child(1) { animation-delay: 30ms; }
+.study.boot .panel:nth-child(2) { animation-delay: 65ms; }
+.study.boot .panel:nth-child(3) { animation-delay: 100ms; }
+.study.boot .panel:nth-child(4) { animation-delay: 135ms; }
+.study.boot .panel:nth-child(5) { animation-delay: 170ms; }
+
+/* 과목 칩 */
+.subj-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 6px; }
+.subj-chip { display: inline-flex; align-items: center; gap: 6px; border: 0; cursor: pointer; font-family: inherit;
+  font-size: 12.5px; font-weight: 650; color: var(--st-label-2);
+  background: var(--st-fill-2); padding: 6px 13px; border-radius: var(--st-r-full);
+  transition: background 150ms var(--ease-o), color 150ms var(--ease-o), transform 120ms var(--ease-o); }
+.subj-chip:hover { color: var(--st-label); }
+.subj-chip:active { transform: scale(0.96); }
+.subj-chip.on { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.subj-chip .x { opacity: 0; font-size: 11px; line-height: 1; transition: opacity 150ms; }
+.subj-chip:hover .x { opacity: 0.6; }
+.subj-chip.add { background: transparent; border: 1px dashed var(--st-separator-strong); color: var(--st-label-3); }
+.subj-chip.add:hover { color: var(--st-accent-ink); border-color: var(--st-accent-ink); background: transparent; }
+.subj-add { display: flex; gap: 6px; align-items: center; }
+.subj-add[hidden] { display: none; }
+.subj-add input { height: 30px; width: 130px; padding: 0 11px; background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-full); font-size: 12.5px; outline: none; }
+.subj-add input:focus { background: var(--st-surface); border-color: var(--accent); }
+.subj-add .btn-sub { height: 30px; padding: 0 11px; }
+@media (hover: none) { .subj-chip .x { opacity: 0.5; } }
+
+/* 큰 시계 */
+.clock-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 0 10px; min-height: 150px; }
+.clock { font-family: 'Space Grotesk', var(--st-font-sans); font-size: clamp(52px, 8vw, 84px); font-weight: 600;
+  letter-spacing: -0.035em; line-height: 1; font-feature-settings: 'tnum' 1;
+  color: var(--st-label); transition: color 250ms var(--ease-o); }
+.clock-wrap.idle .clock { color: var(--st-label-3); }
+.clock-wrap.paused .clock { color: var(--st-label-2); animation: clockBlink 1.6s ease-in-out infinite; }
+@keyframes clockBlink { 50% { opacity: 0.45; } }
+.clock-sub { margin-top: 10px; font-size: 12.5px; font-weight: 600; color: var(--st-label-3); min-height: 18px; font-feature-settings: 'tnum' 1; }
+.clock-sub b { color: var(--st-accent-ink); font-weight: 700; }
+.clock-ops { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.clock-ops .btn-solid, .clock-ops .btn-sub, .clock-ops .btn-outline { min-width: 92px; height: 38px; }
+.clock-ops .btn-solid { padding: 0 26px; }
+.clock-ops .stop { color: var(--st-danger-ink); }
+
+/* 종료 후 진도 입력 */
+.finish { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+.finish[hidden] { display: none; }
+.finish input { flex: 1; min-width: 0; height: 38px; padding: 0 14px; background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-full); font-size: 13.5px; outline: none;
+  transition: border-color 175ms, background 175ms; }
+.finish input:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+.finish .btn-solid { height: 38px; padding: 0 20px; }
+.finish .m { font-size: 13px; font-weight: 700; color: var(--st-accent-ink); flex-shrink: 0; font-feature-settings: 'tnum' 1; }
+
+/* 타이머 없이 직접 기록 */
+.manual-tog { margin-top: 12px; text-align: center; }
+.manual-tog button { border: 0; background: none; cursor: pointer; font-family: inherit;
+  font-size: 12px; font-weight: 600; color: var(--st-label-3); padding: 4px 8px; }
+.manual-tog button:hover { color: var(--st-accent-ink); }
+.manual { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+.manual[hidden] { display: none; }
+.manual input { height: 32px; padding: 0 11px; background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid var(--st-fill); border-radius: var(--st-r-full); font-size: 12.5px; outline: none; font-feature-settings: 'tnum' 1; }
+.manual input:focus { background: var(--st-surface); border-color: var(--accent); }
+.manual input[type=date] { width: 128px; } .manual input[type=number] { width: 72px; } .manual .mn { flex: 1; min-width: 140px; }
+.manual .btn-sub { height: 32px; padding: 0 12px; }
+
+/* 오늘 · 목표 링 */
+.goal-wrap { display: flex; flex-direction: column; align-items: center; }
+.ring { position: relative; width: 152px; height: 152px; margin: 4px 0 10px; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 10; }
+.ring .bg { stroke: var(--st-fill-2); }
+.ring .fg { stroke: var(--st-accent-solid); stroke-linecap: round;
+  transition: stroke-dashoffset 900ms var(--ease-o); }
+.ring.hit .fg { stroke: var(--st-success); }
+.ring-c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ring-c b { font-family: 'Space Grotesk', var(--st-font-sans); font-size: 30px; font-weight: 600; letter-spacing: -0.03em;
+  color: var(--st-label); font-feature-settings: 'tnum' 1; line-height: 1; }
+.ring-c b small { font-size: 14px; font-weight: 600; color: var(--st-label-3); margin-left: 1px; }
+.ring-c span { font-size: 11px; font-weight: 600; color: var(--st-label-3); margin-top: 5px; }
+.goal-line { font-size: 12.5px; color: var(--st-label-2); font-feature-settings: 'tnum' 1; display: flex; gap: 6px; align-items: baseline; }
+.goal-line button { border: 0; background: none; cursor: pointer; font-family: inherit; font-size: inherit;
+  font-weight: 700; color: var(--st-accent-ink); padding: 0 2px; border-bottom: 1px dashed currentColor; }
+.goal-line input { width: 54px; height: 24px; padding: 0 6px; border: 1px solid var(--accent); border-radius: var(--st-r-inner);
+  background: var(--st-surface); color: var(--st-label); font-family: inherit; font-size: 12.5px; outline: none; font-feature-settings: 'tnum' 1; }
+.streaks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; width: 100%; margin-top: 16px; }
+.streak { display: flex; flex-direction: column; align-items: center; padding: 10px 6px; border-radius: var(--st-r-element); background: var(--st-fill-2); }
+.streak b { font-family: 'Space Grotesk', var(--st-font-sans); font-size: 26px; font-weight: 600; letter-spacing: -0.03em; line-height: 1;
+  color: var(--st-accent-ink); font-feature-settings: 'tnum' 1; }
+.streak b small { font-size: 12px; font-weight: 600; margin-left: 1px; }
+.streak span { font-size: 10.5px; font-weight: 600; color: var(--st-label-3); margin-top: 6px; letter-spacing: 0.02em; }
+.streak.hot b { color: var(--st-orange-ink, #c2410c); }
+.streak.zero b { color: var(--st-label-3); }
+
+/* 히트맵 */
+.heat-wrap { display: flex; gap: 22px; align-items: flex-start; min-width: 0; }
+.heat-main { flex: 1; min-width: 0; }
+.heat-months { display: grid; margin-left: 24px; margin-bottom: 4px; height: 14px; font-size: 10.5px; font-weight: 600; color: var(--st-label-3); }
+.heat-months span { white-space: nowrap; }
+.heat-body { display: flex; gap: 6px; }
+.heat-days { display: grid; grid-template-rows: repeat(7, var(--hc, 13px)); gap: var(--hg, 3px); width: 18px;
+  font-size: 9.5px; font-weight: 600; color: var(--st-label-3); }
+.heat-days span { display: flex; align-items: center; }
+.heat-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, var(--hc, 13px)); grid-auto-columns: var(--hc, 13px);
+  gap: var(--hg, 3px); }
+.heat-cell { border-radius: 3px; background: var(--st-fill); transition: transform 120ms var(--ease-o); }
+.heat-cell.l1 { background: color-mix(in srgb, var(--st-accent-solid) 28%, var(--st-fill-2)); }
+.heat-cell.l2 { background: color-mix(in srgb, var(--st-accent-solid) 52%, var(--st-fill-2)); }
+.heat-cell.l3 { background: color-mix(in srgb, var(--st-accent-solid) 76%, var(--st-fill-2)); }
+.heat-cell.l4 { background: var(--st-accent-solid); }
+.heat-cell.future { background: transparent; }
+.heat-cell.today { box-shadow: inset 0 0 0 1.5px var(--st-label); }
+.heat-cell:hover { transform: scale(1.35); z-index: 1; position: relative; }
+.heat-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 11px; color: var(--st-label-3); }
+.heat-legend { display: inline-flex; align-items: center; gap: 3px; }
+.heat-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.heat-stats { flex-shrink: 0; display: grid; grid-template-columns: 1fr; gap: 12px; min-width: 120px; }
+.heat-stats div { display: flex; flex-direction: column; gap: 3px; }
+.heat-stats b { font-family: 'Space Grotesk', var(--st-font-sans); font-size: 22px; font-weight: 600; letter-spacing: -0.03em; line-height: 1;
+  color: var(--st-label); font-feature-settings: 'tnum' 1; }
+.heat-stats b small { font-size: 12px; font-weight: 600; color: var(--st-label-3); margin-left: 1px; }
+.heat-stats span { font-size: 10.5px; font-weight: 600; color: var(--st-label-3); letter-spacing: 0.03em; }
+
+/* 이번 주 막대 */
+.week-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; height: 150px; margin-top: 6px; }
+.wbar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; gap: 5px; min-width: 0; }
+.wbar .v { font-size: 10.5px; font-weight: 700; color: var(--st-label-3); font-feature-settings: 'tnum' 1; white-space: nowrap; }
+.wbar .b { width: 100%; max-width: 30px; border-radius: 5px 5px 3px 3px; background: var(--st-fill); min-height: 3px;
+  transition: height 500ms var(--ease-o), background 200ms; }
+.wbar.has .b { background: color-mix(in srgb, var(--st-accent-solid) 55%, var(--st-fill-2)); }
+.wbar.hit .b { background: var(--st-accent-solid); }
+.wbar.hit .v { color: var(--st-accent-ink); }
+.wbar .d { font-size: 11px; font-weight: 600; color: var(--st-label-3); }
+.wbar.today .d { color: var(--st-accent-ink); font-weight: 700; }
+.wbar.future .b { background: transparent; }
+.week-sum { margin-top: 12px; font-size: 12.5px; color: var(--st-label-2); font-feature-settings: 'tnum' 1; }
+.week-sum b { color: var(--st-label); font-weight: 700; }
+
+/* 기록 목록 */
+.log-day { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--st-label-3); margin: 14px 0 2px; font-feature-settings: 'tnum' 1; }
+.log-day:first-child { margin-top: 0; }
+.log-day em { font-style: normal; font-weight: 600; margin-left: 6px; color: var(--st-accent-ink); }
+.ss-row { display: flex; align-items: baseline; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--st-separator); font-size: 13.5px; min-width: 0; }
+.ss-row:last-child { border-bottom: 0; }
+.ss-row .tm { font-size: 11.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; flex-shrink: 0; min-width: 44px; }
+.ss-row .sj { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: var(--st-r-full);
+  background: var(--st-fill-2); color: var(--st-label-2); flex-shrink: 0; }
+.ss-row .sj.am { background: var(--st-warning-soft); color: var(--st-warning-ink); }
+.ss-row .nt { flex: 1; min-width: 0; word-break: keep-all; color: var(--st-label); }
+.ss-row .nt.empty { color: var(--st-label-3); }
+.ss-row .mn { font-weight: 700; color: var(--st-accent-ink); font-feature-settings: 'tnum' 1; flex-shrink: 0; }
+.ss-row .x { opacity: 0; border: 0; background: none; cursor: pointer;
+  color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
+.ss-row:hover .x { opacity: 1; } .ss-row .x:hover { color: var(--st-danger-ink); }
+@media (hover: none) { .ss-row .x { opacity: 0.45; } }
+
+@media (max-width: 860px) {
+  .study { grid-template-columns: minmax(0, 1fr); overflow: visible; }
+  .p-timer, .p-goal, .p-heat, .p-week, .p-log { grid-column: 1; grid-row: auto; }
+  .heat-wrap { flex-direction: column; gap: 14px; }
+  .heat-stats { grid-template-columns: repeat(3, 1fr); width: 100%; }
+  .heat-main { --hc: 11px; --hg: 2px; }
+  .week-bars { height: 120px; }
+  #deskViews button { padding: 10px 2px; font-size: 12px; }
+  .stat-i:nth-child(odd) { border-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clock-wrap.paused .clock { animation: none; }
+  .ring .fg, .wbar .b { transition: none; }
+}
+
 /* ══════════ 마감 폴리시 ══════════ */
 :root { --ease-o: cubic-bezier(0.23, 1, 0.32, 1); }
 
@@ -770,6 +953,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
   <nav class="desk-views" id="deskViews">
     <span class="views-ind" id="viewsInd" aria-hidden="true"></span>
     <button class="on" data-view="dash">대시보드</button>
+    <button data-view="study">공부</button>
     <button data-view="qa">Q&amp;A<em class="tab-badge" id="qaBadge" hidden></em></button>
     <button data-view="mat">자료</button>
     <button data-view="notes">노트</button>
@@ -807,6 +991,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         <div class="stat-i"><b id="stA">–</b><span>이번 주 답변</span></div>
         <div class="stat-i"><b id="stOpen">–</b><span>미답변</span></div>
         <div class="stat-i"><b id="stTodo">–</b><span>할 일</span></div>
+        <button class="stat-i" id="studyStat" title="공부 기록으로 가기"><b id="stStudy">–</b><span>오늘 공부</span></button>
         <button class="stat-i" id="backupStat" title="노트·상담 백업하러 가기"><b id="stBak">–</b><span>마지막 백업</span></button>
       </div>
 
@@ -902,6 +1087,94 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
           </span>
         </div>
         <div class="cal-grid" id="calGrid"></div>
+      </div>
+
+    </section>
+
+    <!-- ── 공부 뷰 — 미라클모닝 기록실 ── -->
+    <section class="study" id="studyView" style="display:none;">
+
+      <!-- 타이머 -->
+      <div class="panel p-timer">
+        <div class="dash-h">공부 · 타이머 <b id="studyGreet"></b></div>
+        <div class="subj-row" id="subjRow"></div>
+        <div class="clock-wrap idle" id="clockWrap">
+          <div class="clock" id="clock">00:00</div>
+          <div class="clock-sub" id="clockSub">과목을 고르고 시작을 누르세요</div>
+        </div>
+        <div class="clock-ops">
+          <button class="btn-solid" id="stStart">시작</button>
+          <button class="btn-sub" id="stPause" style="display:none;">일시정지</button>
+          <button class="btn-sub stop" id="stStop" style="display:none;">종료</button>
+        </div>
+        <div class="finish" id="finishRow" hidden>
+          <span class="m" id="finishMin"></span>
+          <input type="text" id="finishNote" placeholder="무엇을 했나요? (진도 — 예: 한국지리 3단원 p.42~58)" maxlength="120">
+          <button class="btn-solid" id="finishSave">저장</button>
+          <button class="btn-sub" id="finishDiscard" title="이 세션을 기록하지 않습니다">버리기</button>
+        </div>
+        <div class="manual-tog"><button id="manualTog">타이머 없이 직접 기록하기</button></div>
+        <div class="manual" id="manualRow" hidden>
+          <input type="date" id="mDate">
+          <input type="number" id="mMin" placeholder="분" min="1" max="720">
+          <input type="text" class="mn" id="mNote" placeholder="진도 (선택)" maxlength="120">
+          <button class="btn-sub" id="mSave">기록</button>
+        </div>
+      </div>
+
+      <!-- 오늘 · 목표 -->
+      <div class="panel p-goal">
+        <div class="dash-h">오늘 <b id="goalDate"></b></div>
+        <div class="goal-wrap">
+          <div class="ring" id="ring">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="bg" cx="60" cy="60" r="52"/>
+              <circle class="fg" id="ringFg" cx="60" cy="60" r="52"/>
+            </svg>
+            <div class="ring-c"><b id="ringMin">0<small>분</small></b><span id="ringPct">목표의 0%</span></div>
+          </div>
+          <div class="goal-line" id="goalLine">하루 목표 <button id="goalBtn" title="눌러서 바꾸기">60분</button></div>
+          <div class="streaks">
+            <div class="streak" id="stkAll"><b>0<small>일</small></b><span>연속 공부</span></div>
+            <div class="streak" id="stkAm"><b>0<small>일</small></b><span>아침 공부 연속</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 히트맵 -->
+      <div class="panel p-heat">
+        <div class="dash-h">공부한 날들 <b id="heatCap"></b></div>
+        <div class="heat-wrap">
+          <div class="heat-main" id="heatMain">
+            <div class="heat-months" id="heatMonths"></div>
+            <div class="heat-body">
+              <div class="heat-days"><span>월</span><span></span><span>수</span><span></span><span>금</span><span></span><span>일</span></div>
+              <div class="heat-grid" id="heatGrid"></div>
+            </div>
+            <div class="heat-foot">
+              <span id="heatNote"></span>
+              <span class="heat-legend">적게 <i class="heat-cell"></i><i class="heat-cell l1"></i><i class="heat-cell l2"></i><i class="heat-cell l3"></i><i class="heat-cell l4"></i> 많이</span>
+            </div>
+          </div>
+          <div class="heat-stats">
+            <div><b id="hsTotal">0<small>시간</small></b><span>누적</span></div>
+            <div><b id="hsDays">0<small>일</small></b><span>공부한 날</span></div>
+            <div><b id="hsBest">0<small>분</small></b><span>최고 기록</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 이번 주 -->
+      <div class="panel p-week">
+        <div class="dash-h">이번 주</div>
+        <div class="week-bars" id="weekBars"></div>
+        <div class="week-sum" id="weekSum"></div>
+      </div>
+
+      <!-- 기록 -->
+      <div class="panel p-log">
+        <div class="dash-h">기록 <b id="logCap"></b></div>
+        <div id="sessList"></div>
       </div>
 
     </section>
@@ -1150,7 +1423,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
     // ════════════════ 뷰 전환 ════════════════
     const deskViews = $('deskViews');
-    const VIEW_EL = { dash: 'dashView', qa: 'qaView', mat: 'matView', notes: 'notesView', class: 'classView' };
+    const VIEW_EL = { dash: 'dashView', study: 'studyView', qa: 'qaView', mat: 'matView', notes: 'notesView', class: 'classView' };
     function moveInd() {
       const btn = deskViews.querySelector('button.on');
       if (!btn || deskViews.style.display === 'none') return;
@@ -1172,6 +1445,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       sec.classList.remove('view-enter'); void sec.offsetWidth; sec.classList.add('view-enter');
       if (btn.dataset.view === 'class') initClassView();
       if (btn.dataset.view === 'mat') initMatView();
+      if (btn.dataset.view === 'study') renderHeat(minByDay());   // 숨겨져 있던 동안은 폭을 몰라 그리지 못했다
     });
 
     // ════════════════ 실행 취소 — 스택 + Ctrl/Cmd+Z (시간 제한 없음) ════════════════
@@ -2316,16 +2590,321 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       if (btn) openNote(btn.dataset.id);
     });
 
+    // ════════════════ 공부 — 미라클모닝 기록실 ════════════════
+    // DB: desk/study/{sessions, subjects, settings, running}
+    //   session = { subject, note, start, end, min, date:'YYYY-MM-DD', morning, manual? }
+    let study = {};
+    let studyRun = null;     // { subject, start, accMs, since } — since=null이면 일시정지
+    let runTick = null, wakeLock = null;
+    const RUN_KEY = 'desk-study-run', SUBJ_KEY = 'desk-study-subj';
+    const MORNING_H = 8;     // 이 시각 전에 시작한 세션 = 아침 공부
+    const DEFAULT_TITLE = document.title;
+    const goalMin = () => Math.max(5, Number(study.settings?.goalMin) || 60);
+    const fmtMin = m => m >= 60 ? `${Math.floor(m / 60)}시간${m % 60 ? ' ' + (m % 60) + '분' : ''}` : `${m}분`;
+    const dayStart = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const sessionList = () => Object.entries(study.sessions || {});
+    function minByDay() { const m = {}; for (const [, s] of sessionList()) m[s.date] = (m[s.date] || 0) + (s.min || 0); return m; }
+    function morningByDay() { const m = {}; for (const [, s] of sessionList()) if (s.morning) m[s.date] = true; return m; }
+    // 오늘부터 거꾸로 센다. 오늘 아직 없으면 어제부터 — 하루가 끝나기 전엔 끊긴 게 아니다
+    function streakOf(has) {
+      let d = dayStart(new Date());
+      if (!has(keyOf(d))) d.setDate(d.getDate() - 1);
+      let n = 0; while (has(keyOf(d))) { n++; d.setDate(d.getDate() - 1); }
+      return n;
+    }
+
+    // ── 타이머 상태 ──
+    const elapsedMs = () => studyRun ? studyRun.accMs + (studyRun.since ? Date.now() - studyRun.since : 0) : 0;
+    function saveRun() {
+      try { studyRun ? localStorage.setItem(RUN_KEY, JSON.stringify(studyRun)) : localStorage.removeItem(RUN_KEY); } catch {}
+      (studyRun ? set(ref(db, 'desk/study/running'), studyRun) : remove(ref(db, 'desk/study/running'))).catch(() => {});
+    }
+    async function keepAwake(on) {
+      try {
+        if (on && !wakeLock && 'wakeLock' in navigator && document.visibilityState === 'visible') wakeLock = await navigator.wakeLock.request('screen');
+        if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+      } catch { wakeLock = null; }
+    }
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && studyRun?.since) keepAwake(true); });
+    function fmtClock(ms) {
+      const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = s % 60;
+      return (h ? `${h}:${pad(m)}` : pad(m)) + ':' + pad(sec);
+    }
+    function renderClock() {
+      const wrap = $('clockWrap'), ms = elapsedMs();
+      $('clock').textContent = fmtClock(ms);
+      wrap.classList.toggle('idle', !studyRun);
+      wrap.classList.toggle('paused', !!studyRun && !studyRun.since);
+      $('stStart').style.display = studyRun?.since ? 'none' : '';
+      $('stStart').textContent = studyRun ? '계속' : '시작';
+      $('stPause').style.display = studyRun?.since ? '' : 'none';
+      $('stStop').style.display = studyRun && $('finishRow').hidden ? '' : 'none';
+      if (studyRun) {
+        const st = new Date(studyRun.start);
+        $('clockSub').innerHTML = `<b>${escapeHTML(studyRun.subject)}</b> · ${pad(st.getHours())}:${pad(st.getMinutes())} 시작` +
+          (studyRun.since ? '' : ' · 일시정지');
+        document.title = `${studyRun.since ? '▶' : '⏸'} ${fmtClock(ms)} · Desk`;
+      } else {
+        const goal = goalMin(), today = minByDay()[keyOf(new Date())] || 0;
+        $('clockSub').innerHTML = today >= goal ? `오늘 목표 달성 — <b>${fmtMin(today)}</b>` :
+          today ? `오늘 <b>${fmtMin(today)}</b> · 목표까지 ${fmtMin(goal - today)}` : '과목을 고르고 시작을 누르세요';
+        document.title = DEFAULT_TITLE;
+      }
+    }
+    function startTick() { clearInterval(runTick); runTick = setInterval(renderClock, 500); renderClock(); }
+    function studyStart() {
+      if (!studyRun) {
+        studyRun = { subject: currentSubj(), start: Date.now(), accMs: 0, since: Date.now() };
+      } else if (!studyRun.since) studyRun.since = Date.now();
+      $('finishRow').hidden = true;
+      saveRun(); keepAwake(true); startTick();
+    }
+    function studyPause() {
+      if (!studyRun?.since) return;
+      studyRun.accMs += Date.now() - studyRun.since; studyRun.since = null;
+      saveRun(); keepAwake(false); renderClock();
+    }
+    function studyStop() {
+      if (!studyRun) return;
+      studyPause();
+      const ms = elapsedMs();
+      if (ms < 30 * 1000) { studyRun = null; saveRun(); renderClock(); showUndo('30초 미만은 기록하지 않습니다', null); return; }
+      $('finishMin').textContent = fmtMin(Math.max(1, Math.round(ms / 60000)));
+      $('finishNote').value = '';
+      $('finishRow').hidden = false; renderClock();
+      requestAnimationFrame(() => $('finishNote').focus());
+    }
+    async function studyFinish(save) {
+      if (!studyRun) return;
+      const run = studyRun, ms = elapsedMs();
+      studyRun = null; $('finishRow').hidden = true; saveRun(); keepAwake(false); renderClock();
+      if (!save) { showUndo('세션을 버렸습니다', null); return; }
+      const st = new Date(run.start);
+      const goal = goalMin(), before = minByDay()[keyOf(st)] || 0;
+      await push(ref(db, 'desk/study/sessions'), {
+        subject: run.subject, note: $('finishNote').value.trim(), start: run.start, end: Date.now(),
+        min: Math.max(1, Math.round(ms / 60000)), date: keyOf(st), morning: st.getHours() < MORNING_H
+      });
+      const after = before + Math.max(1, Math.round(ms / 60000));
+      showUndo(before < goal && after >= goal ? '🎉 오늘 목표 달성!' : (st.getHours() < MORNING_H ? '🌅 아침 공부 기록 완료' : '기록했습니다'), null);
+    }
+    $('stStart').addEventListener('click', studyStart);
+    $('stPause').addEventListener('click', studyPause);
+    $('stStop').addEventListener('click', studyStop);
+    $('finishSave').addEventListener('click', () => studyFinish(true));
+    $('finishDiscard').addEventListener('click', () => studyFinish(false));
+    $('finishNote').addEventListener('keydown', e => { if (e.key === 'Enter') studyFinish(true); });
+    // 직접 기록
+    $('manualTog').addEventListener('click', () => {
+      const r = $('manualRow'); r.hidden = !r.hidden;
+      if (!r.hidden) { $('mDate').value = keyOf(new Date()); $('mMin').focus(); }
+    });
+    async function manualSave() {
+      const date = $('mDate').value, min = Math.round(Number($('mMin').value));
+      if (!date || !(min > 0)) { $('mMin').focus(); return; }
+      const now = new Date(), isToday = date === keyOf(now);
+      const [y, mo, d] = date.split('-').map(Number);
+      await push(ref(db, 'desk/study/sessions'), {
+        subject: currentSubj(), note: $('mNote').value.trim(), manual: true,
+        start: isToday ? Date.now() - min * 60000 : new Date(y, mo - 1, d, 12).getTime(), end: isToday ? Date.now() : new Date(y, mo - 1, d, 12).getTime(),
+        min: Math.min(720, min), date, morning: isToday && now.getHours() < MORNING_H
+      });
+      $('mMin').value = ''; $('mNote').value = ''; $('manualRow').hidden = true;
+      showUndo('기록했습니다', null);
+    }
+    $('mSave').addEventListener('click', manualSave);
+    $('mNote').addEventListener('keydown', e => { if (e.key === 'Enter') manualSave(); });
+    $('mMin').addEventListener('keydown', e => { if (e.key === 'Enter') manualSave(); });
+
+    // ── 과목 ──
+    function subjNames() { return Object.entries(study.subjects || {}).sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0)); }
+    function currentSubj() {
+      const names = subjNames().map(([, s]) => s.name);
+      let cur = null; try { cur = localStorage.getItem(SUBJ_KEY); } catch {}
+      return names.includes(cur) ? cur : (names[0] || '공부');
+    }
+    function renderSubjects() {
+      const cur = currentSubj();
+      $('subjRow').innerHTML = subjNames().map(([id, s]) =>
+        `<button class="subj-chip${s.name === cur ? ' on' : ''}" data-name="${escapeHTML(s.name)}">${escapeHTML(s.name)}` +
+        `<span class="x" data-del="${id}" title="과목 삭제">×</span></button>`).join('') +
+        `<button class="subj-chip add" id="subjAddBtn">＋ 과목</button>` +
+        `<span class="subj-add" id="subjAdd" hidden><input type="text" id="subjIn" placeholder="과목 이름" maxlength="16"><button class="btn-sub" id="subjSave">추가</button></span>`;
+    }
+    $('subjRow').addEventListener('click', async e => {
+      const del = e.target.closest('[data-del]');
+      if (del) {
+        e.stopPropagation();
+        const id = del.dataset.del, saved = study.subjects?.[id];
+        await remove(ref(db, 'desk/study/subjects/' + id));
+        if (saved) showUndo('과목을 삭제했습니다 (기록은 남습니다)', () => set(ref(db, 'desk/study/subjects/' + id), saved));
+        return;
+      }
+      if (e.target.closest('#subjAddBtn')) { $('subjAdd').hidden = false; $('subjAddBtn').hidden = true; $('subjIn').focus(); return; }
+      if (e.target.closest('#subjSave')) { await addSubject(); return; }
+      const chip = e.target.closest('.subj-chip[data-name]');
+      if (chip) {
+        try { localStorage.setItem(SUBJ_KEY, chip.dataset.name); } catch {}
+        if (studyRun) { studyRun.subject = chip.dataset.name; saveRun(); }
+        renderSubjects(); renderClock();
+      }
+    });
+    $('subjRow').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'subjIn') addSubject(); if (e.key === 'Escape' && e.target.id === 'subjIn') renderSubjects(); });
+    async function addSubject() {
+      const name = ($('subjIn')?.value || '').trim(); if (!name) return;
+      if (subjNames().some(([, s]) => s.name === name)) { renderSubjects(); return; }
+      await push(ref(db, 'desk/study/subjects'), { name, createdAt: Date.now() });
+      try { localStorage.setItem(SUBJ_KEY, name); } catch {}
+    }
+
+    // ── 목표 ──
+    $('goalLine').addEventListener('click', e => {
+      if (!e.target.closest('#goalBtn')) return;
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.min = 5; inp.max = 720; inp.value = goalMin();
+      e.target.replaceWith(inp); inp.focus(); inp.select();
+      const done = async () => {
+        const v = Math.min(720, Math.max(5, Math.round(Number(inp.value)) || goalMin()));
+        await update(ref(db, 'desk/study/settings'), { goalMin: v });
+        renderStudy();
+      };
+      inp.addEventListener('blur', done);
+      inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') inp.blur(); if (ev.key === 'Escape') { inp.removeEventListener('blur', done); renderStudy(); } });
+    });
+
+    // ── 렌더 ──
+    function renderGoal(byDay) {
+      const now = new Date(), tKey = keyOf(now), goal = goalMin(), today = byDay[tKey] || 0;
+      const ratio = Math.min(1, today / goal), C = 2 * Math.PI * 52;
+      $('goalDate').textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${WEEKDAYS[now.getDay()]}요일`;
+      const fg = $('ringFg'); fg.style.strokeDasharray = C; fg.style.strokeDashoffset = C * (1 - ratio);
+      $('ring').classList.toggle('hit', today >= goal);
+      $('ringMin').innerHTML = today >= 60 ? `${Math.floor(today / 60)}<small>시간</small>${today % 60 ? ` ${today % 60}<small>분</small>` : ''}` : `${today}<small>분</small>`;
+      $('ringPct').textContent = today >= goal ? `목표 달성 · ${Math.round(today / goal * 100)}%` : `목표의 ${Math.round(ratio * 100)}%`;
+      if ($('goalBtn')) $('goalBtn').textContent = fmtMin(goal);
+      else if (!$('goalLine').querySelector('input:focus')) $('goalLine').innerHTML = `하루 목표 <button id="goalBtn" title="눌러서 바꾸기">${fmtMin(goal)}</button>`;   // 편집이 끝나면 버튼으로 복귀
+      const am = morningByDay();
+      const sAll = streakOf(k => (byDay[k] || 0) > 0), sAm = streakOf(k => !!am[k]);
+      const put = (id, n) => { const el = $(id); el.querySelector('b').innerHTML = `${n}<small>일</small>`; el.classList.toggle('hot', n >= 7); el.classList.toggle('zero', n === 0); };
+      put('stkAll', sAll); put('stkAm', sAm);
+      const h = now.getHours();
+      $('studyGreet').textContent = h < 5 ? '아직 새벽 — 무리하지 않기' : h < MORNING_H ? `좋은 아침 ☀️ ${sAm ? `아침 공부 ${sAm}일째` : '아침 공부 첫날'}` :
+        h < 12 ? '오전' : h < 18 ? '오후' : '저녁 — 내일 아침을 위해 일찍 자기';
+      return sAm;
+    }
+    function renderHeat(byDay) {
+      const main = $('heatMain'); if (!main.offsetWidth) return;   // 숨겨진 뷰에서는 폭을 알 수 없다
+      const cs = getComputedStyle(main), hc = parseFloat(cs.getPropertyValue('--hc')) || 13, hg = parseFloat(cs.getPropertyValue('--hg')) || 3;
+      const cols = Math.max(10, Math.min(30, Math.floor((main.offsetWidth - 24) / (hc + hg))));
+      const now = dayStart(new Date()), tKey = keyOf(now), goal = goalMin();
+      const monday = new Date(now); monday.setDate(now.getDate() - (now.getDay() + 6) % 7 - (cols - 1) * 7);
+      let cells = '', months = '', lastMonth = -1, monthCols = [];
+      for (let c = 0; c < cols; c++) {
+        const wk = new Date(monday); wk.setDate(monday.getDate() + c * 7);
+        if (wk.getMonth() !== lastMonth) { lastMonth = wk.getMonth(); monthCols.push([c, lastMonth + 1]); }
+        for (let r = 0; r < 7; r++) {
+          const d = new Date(wk); d.setDate(wk.getDate() + r);
+          const k = keyOf(d), m = byDay[k] || 0;
+          const lv = d > now ? 'future' : m <= 0 ? '' : m < goal * 0.25 ? 'l1' : m < goal * 0.5 ? 'l2' : m < goal ? 'l3' : 'l4';
+          cells += `<div class="heat-cell ${lv}${k === tKey ? ' today' : ''}" title="${d.getMonth() + 1}.${d.getDate()} (${WEEKDAYS[d.getDay()]}) · ${m ? fmtMin(m) : '없음'}"></div>`;
+        }
+      }
+      $('heatGrid').innerHTML = cells;
+      $('heatMonths').style.gridTemplateColumns = `repeat(${cols}, ${hc + hg}px)`;
+      // 글자가 겹치지 않게 — 다음 달 라벨과 3열 미만으로 붙은 첫 라벨, 오른쪽 끝에 걸린 마지막 라벨은 뺀다
+      $('heatMonths').innerHTML = monthCols.filter(([c], i) => (i > 0 || !monthCols[1] || monthCols[1][0] - c >= 3) && cols - c >= 2)
+        .map(([c, mo]) => `<span style="grid-column:${c + 1}">${mo}월</span>`).join('');
+      $('heatCap').textContent = `지난 ${cols}주`;
+      const days = Object.entries(byDay).filter(([, m]) => m > 0);
+      const total = days.reduce((a, [, m]) => a + m, 0), best = days.reduce((a, [, m]) => Math.max(a, m), 0);
+      $('hsTotal').innerHTML = total >= 60 ? `${Math.round(total / 60 * 10) / 10}<small>시간</small>` : `${total}<small>분</small>`;
+      $('hsDays').innerHTML = `${days.length}<small>일</small>`;
+      $('hsBest').innerHTML = best >= 60 ? `${Math.round(best / 60 * 10) / 10}<small>시간</small>` : `${best}<small>분</small>`;
+      const mk = tKey.slice(0, 7), mDays = days.filter(([k]) => k.startsWith(mk));
+      $('heatNote').textContent = mDays.length ? `이번 달 ${mDays.length}일 · ${fmtMin(mDays.reduce((a, [, m]) => a + m, 0))}` : '이번 달은 아직 비어 있습니다';
+    }
+    function renderWeek(byDay) {
+      const now = dayStart(new Date()), goal = goalMin();
+      const mon = new Date(now); mon.setDate(now.getDate() - (now.getDay() + 6) % 7);
+      let sum = 0, hit = 0, maxM = goal, html = '', last = 0;
+      const vals = [];
+      for (let i = 0; i < 7; i++) { const d = new Date(mon); d.setDate(mon.getDate() + i); vals.push([d, byDay[keyOf(d)] || 0]); }
+      for (let i = 0; i < 7; i++) { const d = new Date(mon); d.setDate(mon.getDate() + i - 7); last += byDay[keyOf(d)] || 0; }
+      vals.forEach(([, m]) => { maxM = Math.max(maxM, m); });
+      vals.forEach(([d, m]) => {
+        const fut = d > now; sum += m; if (m >= goal) hit++;
+        html += `<div class="wbar${m ? ' has' : ''}${m >= goal ? ' hit' : ''}${keyOf(d) === keyOf(now) ? ' today' : ''}${fut ? ' future' : ''}">` +
+          `<span class="v">${m ? m + '분' : ''}</span><div class="b" style="height:${m ? Math.max(3, m / maxM * 100) : 0}%"></div><span class="d">${WEEKDAYS[d.getDay()]}</span></div>`;
+      });
+      $('weekBars').innerHTML = html;
+      const diff = sum - last;
+      $('weekSum').innerHTML = `이번 주 <b>${fmtMin(sum)}</b> · 목표 달성 <b>${hit}</b>/7일` +
+        (last || sum ? ` · 지난주 대비 <b>${diff >= 0 ? '+' : '−'}${fmtMin(Math.abs(diff))}</b>` : '');
+    }
+    function renderSessions(byDay) {
+      const tKey = keyOf(new Date());
+      const items = sessionList().sort((a, b) => (b[1].start || 0) - (a[1].start || 0)).slice(0, 60);
+      let html = '', day = null;
+      for (const [id, s] of items) {
+        if (s.date !== day) {
+          day = s.date; const [y, mo, d] = day.split('-').map(Number); const dd = new Date(y, mo - 1, d);
+          html += `<div class="log-day">${day === tKey ? '오늘' : `${mo}.${pad(d)} ${WEEKDAYS[dd.getDay()]}`}<em>${fmtMin(byDay[day] || 0)}</em></div>`;
+        }
+        const st = new Date(s.start || 0);
+        html += `<div class="ss-row"><span class="tm">${s.manual ? '직접' : `${pad(st.getHours())}:${pad(st.getMinutes())}`}</span>` +
+          `<span class="sj${s.morning ? ' am' : ''}">${escapeHTML(s.subject || '공부')}</span>` +
+          `<span class="nt${s.note ? '' : ' empty'}">${s.note ? escapeHTML(s.note) : '진도 메모 없음'}</span>` +
+          `<span class="mn">${fmtMin(s.min || 0)}</span><button class="x" data-del="${id}" title="삭제">×</button></div>`;
+      }
+      $('sessList').innerHTML = html || '<div class="ev-empty">아직 기록이 없습니다. 위에서 타이머를 시작해 보세요.</div>';
+      $('logCap').textContent = items.length ? `최근 ${items.length}건` : '';
+    }
+    $('sessList').addEventListener('click', async e => {
+      const del = e.target.closest('[data-del]'); if (!del) return;
+      const id = del.dataset.del, saved = study.sessions?.[id];
+      await remove(ref(db, 'desk/study/sessions/' + id));
+      if (saved) showUndo('기록을 삭제했습니다', () => set(ref(db, 'desk/study/sessions/' + id), saved));
+    });
+    function renderStudy() {
+      const byDay = minByDay();
+      renderSubjects(); renderGoal(byDay); renderHeat(byDay); renderWeek(byDay); renderSessions(byDay); renderClock();
+      const t = byDay[keyOf(new Date())] || 0;
+      $('stStudy').textContent = t ? fmtMin(t) : '0분';
+    }
+    let lastDayKey = keyOf(new Date());
+    function studyMinute() {   // 자정을 넘기면 전부 다시, 아니면 오늘 링만
+      const k = keyOf(new Date());
+      if (k !== lastDayKey) { lastDayKey = k; renderStudy(); } else { renderGoal(minByDay()); if (!studyRun) renderClock(); }
+    }
+    window.addEventListener('hashchange', () => { if (location.hash === '#study') gotoView('study'); });
+    // 패널 폭이 바뀌면 히트맵 열 수도 바뀐다 — 창 크기뿐 아니라 뷰가 나타날 때도 잡히도록 ResizeObserver
+    let heatW = 0, heatResize = null;
+    new ResizeObserver(([e]) => {
+      const w = e.contentRect.width; if (!w || Math.abs(w - heatW) < 8) return; heatW = w;
+      clearTimeout(heatResize); heatResize = setTimeout(() => renderHeat(minByDay()), 120);
+    }).observe($('heatMain'));
+    $('studyStat').addEventListener('click', () => gotoView('study'));
+    // 새로고침·재부팅 뒤에도 진행 중이던 타이머 이어가기
+    function restoreRun(fromDb) {
+      let local = null; try { local = JSON.parse(localStorage.getItem(RUN_KEY) || 'null'); } catch {}
+      const r = local || fromDb;
+      if (!r || !r.start) return;
+      if (Date.now() - r.start > 12 * 3600 * 1000) { studyRun = null; saveRun(); return; }   // 반나절 넘게 방치된 것은 버린다
+      studyRun = r; startTick(); if (r.since) keepAwake(true);
+    }
+
     // ════════════════ 명령 팔레트 (Ctrl/Cmd+K) ════════════════
     function gotoView(v) { const b = deskViews.querySelector(`[data-view="${v}"]`); if (b) b.click(); }
     const cmdk = $('cmdk'), cmdkInput = $('cmdkInput'), cmdkList = $('cmdkList');
     let cmdkItems = [], cmdkSel = 0;
     const CMDK_STATIC = [
       { k: '이동', t: '대시보드', run: () => gotoView('dash') },
+      { k: '이동', t: '공부', run: () => gotoView('study') },
       { k: '이동', t: 'Q&A 인박스', run: () => gotoView('qa') },
       { k: '이동', t: '자료함', run: () => gotoView('mat') },
       { k: '이동', t: '노트', run: () => gotoView('notes') },
       { k: '이동', t: '상담', run: () => gotoView('class') },
+      { k: '명령', t: '공부 시작 / 계속', run: () => { gotoView('study'); studyStart(); } },
       { k: '명령', t: '새 노트 만들기', run: () => { gotoView('notes'); newNote(); } },
       { k: '명령', t: '테마 전환 (라이트/다크)', run: () => $('themeToggle').click() },
       { k: '명령', t: '노트 전체 백업 (.md)', run: () => $('notesExportBtn').click() },
@@ -2389,7 +2968,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       snapshotTimer = setTimeout(() => {
         try {
           localStorage.setItem('desk-snapshot', JSON.stringify({
-            notes, todos, ddays, calendar, ttable, noticesData, progLessons, progClasses, links, t: Date.now()
+            notes, todos, ddays, calendar, ttable, noticesData, progLessons, progClasses, links, study, t: Date.now()
           }));
         } catch { /* 저장 공간 부족 등은 조용히 무시 */ }
       }, 800);
@@ -2401,8 +2980,8 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         notes = s.notes || {}; todos = s.todos || {}; ddays = s.ddays || {}; calendar = s.calendar || {};
         ttable = s.ttable || {}; noticesData = s.noticesData || {};
         progLessons = s.progLessons || []; progClasses = s.progClasses || {};
-        links = s.links || {};
-        renderList(); renderRecent(); renderTodos(); renderDdays(); renderToday(); renderCal();
+        links = s.links || {}; study = s.study || {};
+        renderStudy(); renderList(); renderRecent(); renderTodos(); renderDdays(); renderToday(); renderCal();
         renderTable(true); renderNoticeAdmin(); renderProg(); renderLinks();
         return true;
       } catch { return false; }
@@ -2436,8 +3015,10 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         requestAnimationFrame(moveInd);
         if (!showGate.booted) {   // 첫 진입에만 패널 스태거
           showGate.booted = true;
-          $('dashView').classList.add('boot');
-          setTimeout(() => $('dashView').classList.remove('boot'), 1500);
+          if (location.hash === '#study') gotoView('study');   // 아침 자동 부팅 → desk.html#study
+          const first = $(VIEW_EL[deskViews.querySelector('button.on').dataset.view]);
+          first.classList.add('boot');
+          setTimeout(() => first.classList.remove('boot'), 1500);
         }
         if (!editor) makeEditor();
         closePane();
@@ -2452,6 +3033,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
           onValue(ref(db, 'desk/ddays'), s => { ddays = s.val() || {}; renderDdays(); saveSnapshot(); }, guard);
           onValue(ref(db, 'desk/timetable'), s => { ttable = s.val() || {}; renderTable(); saveSnapshot(); }, guard);
           onValue(ref(db, 'desk/links'), s => { links = s.val() || {}; renderLinks(); saveSnapshot(); }, guard);
+          onValue(ref(db, 'desk/study'), s => { study = s.val() || {}; if (!restoreRun.done) { restoreRun.done = true; restoreRun(study.running); } renderStudy(); saveSnapshot(); }, guard);
           renderBackupStat();
           onValue(ref(db, 'questions'), s => { questions = s.val() || {}; renderQa(); });
           onValue(ref(db, 'progress'), s => {
@@ -2474,7 +3056,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             } else if (saveState.textContent.startsWith('오프라인')) saveState.textContent = '';
           });
           // 1분마다 '오늘'과 현재 교시 갱신
-          setInterval(() => { renderToday(); renderTable(); renderBackupStat(); }, 60 * 1000);
+          setInterval(() => { renderToday(); renderTable(); renderBackupStat(); studyMinute(); }, 60 * 1000);
         }
       } else if (user) {
         showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth);
