@@ -613,7 +613,8 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .study { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin;
   display: grid; gap: 14px; align-content: start;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); }
-.study .panel { padding: 18px 20px; }
+.study .panel { padding: 20px 22px; }
+.study .dash-h { font-size: 12px; }
 .p-timer { grid-column: 1 / 3; grid-row: 3; display: flex; flex-direction: column; }
 .p-goal  { grid-column: 3; grid-row: 3; }
 .p-heat  { grid-column: 1 / 4; grid-row: 4; }
@@ -632,45 +633,48 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 /* ── 오늘의 일본어 배너 ── */
 [lang="ja"] { font-family: 'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', 'Pretendard Variable', sans-serif; }
 .p-jp { grid-column: 1 / 4; grid-row: 1; }
-.jp-wrap { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
-.jp-s { font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; line-height: 1.45; letter-spacing: 0.01em; color: var(--st-label); word-break: keep-all; }
-.jp-m { font-size: 14px; color: var(--st-label-2); margin-top: 6px; }
-.jp-g { font-size: 12.5px; line-height: 1.65; color: var(--st-label-2); margin-top: 14px; padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.jp-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 12px 32px; align-items: start; }
+.jp-s { font-size: clamp(26px, 3vw, 36px); font-weight: 700; line-height: 1.45; letter-spacing: 0.01em; color: var(--st-label); word-break: keep-all; }
+.jp-p { font-size: 15.5px; color: var(--st-label-2); margin-top: 6px; letter-spacing: 0.01em; }
+.jp-m { font-size: 17px; color: var(--st-label); margin-top: 6px; }
+.jp-g { font-size: 14.5px; line-height: 1.7; color: var(--st-label-2); margin-top: 14px; padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
 .jp-g::before { content: '문법'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
-.jp-e { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-top: 10px; font-size: 13.5px; }
+.jp-e { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-top: 12px; font-size: 16.5px; }
+.jp-e .r { font-size: 13px; color: var(--st-label-3); }
 .jp-e [lang] { font-weight: 600; color: var(--st-label); }
-.jp-e .k { font-size: 12.5px; color: var(--st-label-3); }
-.jp-vocab { display: flex; flex-direction: column; }
-.jp-row { display: flex; align-items: baseline; gap: 10px; padding: 7px 2px; border-bottom: 1px solid var(--st-separator); min-width: 0; font-size: 13.5px; }
+.jp-e .k { font-size: 14.5px; color: var(--st-label-2); }
+.jp-vocab { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; }
+.jp-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 8px 2px; border-bottom: 1px solid var(--st-separator); min-width: 0; font-size: 16px; }
 .jp-row:last-child { border-bottom: 0; }
-.jp-row b { font-weight: 600; color: var(--st-label); flex-shrink: 0; }
-.jp-row .r { font-size: 11.5px; color: var(--st-label-3); flex-shrink: 0; }
-.jp-row .k { margin-left: auto; text-align: right; color: var(--st-label-2); font-size: 13px; min-width: 0; }
+.jp-row b { font-weight: 600; color: var(--st-label); }
+.jp-row .r { font-size: 13px; color: var(--st-label-3); }
+.jp-row .k { flex-basis: 100%; color: var(--st-label-2); font-size: 14px; line-height: 1.4; min-width: 0; }
 .jp-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
 .jp-foot .cal-nav { margin-right: 2px; }
-.jp-foot .btn-sub, .jp-foot .btn-solid { height: 32px; padding: 0 14px; }
-.jp-left { margin-left: auto; font-size: 11.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
+.jp-foot .btn-sub, .jp-foot .btn-solid { height: 36px; padding: 0 16px; font-size: 13.5px; }
+.jp-left { margin-left: auto; font-size: 13px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
 .jp-left.warn { color: var(--st-warning-ink); font-weight: 700; }
 /* ── 지리 교사의 한 걸음 배너 ── */
 .p-geo { grid-column: 1 / 4; grid-row: 2; }
 .geo-wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
-.geo-cap { display: block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
-.geo-cat { font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
-.geo-q { font-size: clamp(16px, 1.6vw, 20px); font-weight: 700; line-height: 1.45; letter-spacing: -0.015em; color: var(--st-label); word-break: keep-all; }
-.geo-a { margin-top: 14px; font-size: 13.5px; line-height: 1.7; color: var(--st-label); word-break: keep-all; }
-.geo-x { margin-top: 12px; font-size: 12.5px; line-height: 1.65; color: var(--st-label-2); padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.geo-cap { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
+.geo-cat { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
+.geo-q { font-size: clamp(19px, 1.9vw, 24px); font-weight: 700; line-height: 1.45; letter-spacing: -0.015em; color: var(--st-label); word-break: keep-all; }
+.geo-a { margin-top: 14px; font-size: 16px; line-height: 1.75; color: var(--st-label); word-break: keep-all; }
+.geo-x { margin-top: 12px; font-size: 14.5px; line-height: 1.7; color: var(--st-label-2); padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
 .geo-x::before { content: '한 걸음 더'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
-.geo-term { padding: 8px 2px; border-bottom: 1px solid var(--st-separator); font-size: 13px; line-height: 1.55; }
+.geo-term { padding: 9px 2px; border-bottom: 1px solid var(--st-separator); font-size: 15.5px; line-height: 1.55; }
 .geo-term:last-child { border-bottom: 0; }
 .geo-term b { display: block; font-weight: 700; color: var(--st-label); margin-bottom: 1px; }
-.geo-term span { color: var(--st-label-2); font-size: 12.5px; word-break: keep-all; }
-.geo-r { margin-top: 12px; font-size: 11.5px; color: var(--st-label-3); word-break: keep-all; line-height: 1.5; }
+.geo-term span { color: var(--st-label-2); font-size: 14px; word-break: keep-all; }
+.geo-r { margin-top: 12px; font-size: 13px; color: var(--st-label-3); word-break: keep-all; line-height: 1.5; }
 /* 가리기 — 배너 공통: .q 표시 요소를 흐리게, 눌러서 하나씩 확인 */
 .p-daily.quiz .q { filter: blur(6px); cursor: pointer; transition: filter 200ms var(--ease-o); user-select: none; }
 .p-daily.quiz .q.show { filter: none; }
 @media (max-width: 860px) {
   .p-jp, .p-geo { grid-column: 1; grid-row: auto; }
   .jp-wrap, .geo-wrap { grid-template-columns: minmax(0, 1fr); }
+  .jp-vocab { grid-template-columns: 1fr; }
   .jp-left { margin-left: 0; width: 100%; }
 }
 
@@ -703,7 +707,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .clock-wrap.idle .clock { color: var(--st-label-3); }
 .clock-wrap.paused .clock { color: var(--st-label-2); animation: clockBlink 1.6s ease-in-out infinite; }
 @keyframes clockBlink { 50% { opacity: 0.45; } }
-.clock-sub { margin-top: 10px; font-size: 12.5px; font-weight: 600; color: var(--st-label-3); min-height: 18px; font-feature-settings: 'tnum' 1; }
+.clock-sub { margin-top: 10px; font-size: 14.5px; font-weight: 600; color: var(--st-label-3); min-height: 18px; font-feature-settings: 'tnum' 1; }
 .clock-sub b { color: var(--st-accent-ink); font-weight: 700; }
 .clock-ops { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .clock-ops .btn-solid, .clock-ops .btn-sub, .clock-ops .btn-outline { min-width: 92px; height: 38px; }
@@ -757,7 +761,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .streak b { font-family: 'Space Grotesk', var(--st-font-sans); font-size: 26px; font-weight: 600; letter-spacing: -0.03em; line-height: 1;
   color: var(--st-accent-ink); font-feature-settings: 'tnum' 1; }
 .streak b small { font-size: 12px; font-weight: 600; margin-left: 1px; }
-.streak span { font-size: 10.5px; font-weight: 600; color: var(--st-label-3); margin-top: 6px; letter-spacing: 0.02em; }
+.streak span { font-size: 12px; font-weight: 600; color: var(--st-label-3); margin-top: 6px; letter-spacing: 0.02em; }
 .streak.hot b { color: var(--st-orange-ink, #c2410c); }
 .streak.zero b { color: var(--st-label-3); }
 
@@ -788,7 +792,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .heat-stats b { font-family: 'Space Grotesk', var(--st-font-sans); font-size: 22px; font-weight: 600; letter-spacing: -0.03em; line-height: 1;
   color: var(--st-label); font-feature-settings: 'tnum' 1; }
 .heat-stats b small { font-size: 12px; font-weight: 600; color: var(--st-label-3); margin-left: 1px; }
-.heat-stats span { font-size: 10.5px; font-weight: 600; color: var(--st-label-3); letter-spacing: 0.03em; }
+.heat-stats span { font-size: 12px; font-weight: 600; color: var(--st-label-3); letter-spacing: 0.03em; }
 
 /* 이번 주 막대 */
 .week-bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; height: 150px; margin-top: 6px; }
@@ -802,14 +806,14 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .wbar .d { font-size: 11px; font-weight: 600; color: var(--st-label-3); }
 .wbar.today .d { color: var(--st-accent-ink); font-weight: 700; }
 .wbar.future .b { background: transparent; }
-.week-sum { margin-top: 12px; font-size: 12.5px; color: var(--st-label-2); font-feature-settings: 'tnum' 1; }
+.week-sum { margin-top: 12px; font-size: 14px; color: var(--st-label-2); font-feature-settings: 'tnum' 1; }
 .week-sum b { color: var(--st-label); font-weight: 700; }
 
 /* 기록 목록 */
-.log-day { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--st-label-3); margin: 14px 0 2px; font-feature-settings: 'tnum' 1; }
+.log-day { font-size: 12.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--st-label-3); margin: 14px 0 2px; font-feature-settings: 'tnum' 1; }
 .log-day:first-child { margin-top: 0; }
 .log-day em { font-style: normal; font-weight: 600; margin-left: 6px; color: var(--st-accent-ink); }
-.ss-row { display: flex; align-items: baseline; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--st-separator); font-size: 13.5px; min-width: 0; }
+.ss-row { display: flex; align-items: baseline; gap: 10px; padding: 9px 2px; border-bottom: 1px solid var(--st-separator); font-size: 15px; min-width: 0; }
 .ss-row:last-child { border-bottom: 0; }
 .ss-row .tm { font-size: 11.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; flex-shrink: 0; min-width: 44px; }
 .ss-row .sj { font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: var(--st-r-full);
@@ -1147,11 +1151,12 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         <div class="jp-wrap">
           <div class="jp-main">
             <div class="jp-s" id="jpS" lang="ja"></div>
+            <div class="jp-p" id="jpP"></div>
             <div class="jp-m q" id="jpM"></div>
             <div class="jp-g" id="jpG"></div>
             <div class="jp-e" id="jpE"></div>
           </div>
-          <div class="jp-vocab" id="jpV"></div>
+          <div class="jp-side"><span class="geo-cap" id="jpVcap">오늘의 단어</span><div class="jp-vocab" id="jpV"></div></div>
         </div>
         <div class="jp-foot">
           <span class="cal-nav">
@@ -3043,12 +3048,64 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       B.load();
       return B;
     }
-    // 오늘의 일본어 — { t 테마, s 문장, m 뜻, v [[단어,읽기,뜻]×5], g 문법, e [예문,뜻] }
+    // ── 가나 → 한글 발음 (히라가나가 서툰 단계용) ──
+    // 외래어 표기법을 따르되 초보가 읽기 쉽게: 어두 か·た행은 ㄱ·ㄷ, 어중은 ㅋ·ㅌ / っ은 ㅅ받침 / ん은 ㄴ받침 / 장음은 '-'
+    // 조사 は·へ는 낱말 끝에 올 때 와·에로. 가타카나는 히라가나로 바꿔 같은 규칙. 한자·기호는 그대로 둔다.
+    const KANA = (() => {
+      const C = { '': 11, k: 15, g: 0, s: 9, z: 12, t: 16, d: 3, n: 2, h: 18, b: 7, p: 17, m: 6, r: 5 };   // 초성 인덱스
+      const V = [0, 20, 13, 5, 8];   // ㅏ ㅣ ㅜ ㅔ ㅗ
+      const t = {};
+      [['', 'あいうえお'], ['k', 'かきくけこ'], ['g', 'がぎぐげご'], ['s', 'さしすせそ'], ['z', 'ざじずぜぞ'], ['t', 'たちつてと'], ['d', 'だぢづでど'],
+       ['n', 'なにぬねの'], ['h', 'はひふへほ'], ['b', 'ばびぶべぼ'], ['p', 'ぱぴぷぺぽ'], ['m', 'まみむめも'], ['r', 'らりるれろ']]
+        .forEach(([c, ks]) => [...ks].forEach((k, i) => { t[k] = [C[c], V[i]]; }));
+      Object.assign(t, { 'す': [9, 18], 'ず': [12, 18], 'つ': [14, 18], 'づ': [12, 18], 'ち': [14, 20], 'ぢ': [12, 20],
+        'や': [11, 2], 'ゆ': [11, 17], 'よ': [11, 12], 'わ': [11, 9], 'を': [11, 8] });
+      const Y = { 'ゃ': 2, 'ゅ': 17, 'ょ': 12 };                       // 요음 모음 ㅑ ㅠ ㅛ
+      const yBase = 'きぎしじちにひびぴみり';                              // 요음이 붙을 수 있는 い단
+      return { t, Y, yBase };
+    })();
+    function kanaToHangul(text) {
+      const S = (c, v, j = 0) => String.fromCharCode(0xAC00 + (c * 21 + v) * 28 + j);
+      const isU = v => v === 13 || v === 18 || v === 17;
+      return text.split(/(\s+)/).map(word => {
+        if (!word || /^\s+$/.test(word)) return word;
+        const ks = [...word].map(ch => { const cp = ch.charCodeAt(0); return cp >= 0x30A1 && cp <= 0x30F6 ? String.fromCharCode(cp - 0x60) : ch; });
+        const syl = [];
+        for (let i = 0; i < ks.length; i++) {
+          const ch = ks[i], last = i === ks.length - 1 && ks.length > 1, prev = syl[syl.length - 1];
+          if (ch === 'は' && last) { syl.push({ c: 11, v: 9 }); continue; }
+          if (ch === 'へ' && last) { syl.push({ c: 11, v: 5 }); continue; }
+          if (ch === 'ん') { if (prev && prev.c !== undefined) prev.j = 4; else syl.push({ c: 11, v: 18, j: 4 }); continue; }
+          if (ch === 'っ') { if (prev && prev.c !== undefined) prev.j = 19; continue; }
+          if (ch === 'ー') { syl.push({ long: true }); continue; }
+          if (KANA.Y[ch] !== undefined && prev && prev.c !== undefined && KANA.yBase.includes(ks[i - 1])) {
+            prev.v = KANA.Y[ch];
+            if (prev.c === 12 || prev.c === 14) prev.v = { 2: 0, 17: 13, 12: 8 }[prev.v];   // じゃ→자 ちゃ→차
+            continue;
+          }
+          const m = KANA.t[ch];
+          if (!m) { syl.push({ raw: ch }); continue; }
+          let [c, v] = m;
+          if ((i === 0 || (prev && prev.raw !== undefined)) && (c === 15 || c === 16)) c = c === 15 ? 0 : 3;   // 어두(기호 뒤 포함) か행→ㄱ, た행→ㄷ
+          if (prev && prev.c !== undefined && prev.j === undefined && c === 11) {   // 장음
+            const pv = prev.v;
+            if ((ch === 'う' && (pv === 8 || pv === 12 || isU(pv))) || (ch === 'い' && (pv === 5 || pv === 20)) ||
+                (ch === 'あ' && (pv === 0 || pv === 2)) || (ch === 'え' && pv === 5) || (ch === 'お' && pv === 8)) { syl.push({ long: true }); continue; }
+          }
+          syl.push({ c, v });
+        }
+        return syl.map(s => s.raw !== undefined ? s.raw : s.long ? '-' : S(s.c, s.v, s.j || 0)).join('');
+      }).join('').replace(/。/g, '.').replace(/、/g, ',');
+    }
+    // 오늘의 일본어 — { t 테마, s 문장, m 뜻, v [[단어,읽기,뜻]×5], w [[단어,뜻]×6], g 문법, e [예문,뜻] }
     makeDaily('jp', 'data/japanese-daily.json', d => {
-      $('jpS').textContent = d.s; $('jpM').textContent = d.m; $('jpG').textContent = d.g;
-      $('jpE').innerHTML = `<span lang="ja">${escapeHTML(d.e[0])}</span><span class="k q">${escapeHTML(d.e[1])}</span>`;
-      $('jpV').innerHTML = d.v.map(([w, r, k]) =>
-        `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b>${r ? `<span class="r" lang="ja">${escapeHTML(r)}</span>` : ''}<span class="k q">${escapeHTML(k)}</span></div>`).join('');
+      $('jpS').textContent = d.s; $('jpP').textContent = kanaToHangul(d.s);
+      $('jpM').textContent = d.m; $('jpG').textContent = d.g;
+      $('jpE').innerHTML = `<span lang="ja">${escapeHTML(d.e[0])}</span><span class="r">${escapeHTML(kanaToHangul(d.e[0]))}</span><span class="k q">${escapeHTML(d.e[1])}</span>`;
+      const words = [...d.v.map(([w, , k]) => [w, k]), ...(d.w || [])];
+      $('jpV').innerHTML = words.map(([w, k]) =>
+        `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b><span class="r">${escapeHTML(kanaToHangul(w))}</span><span class="k q">${escapeHTML(k)}</span></div>`).join('');
+      $('jpVcap').textContent = `오늘의 단어 · ${words.length}개`;
     });
     // 지리 교사의 한 걸음 — { c 분야, t 테마, q 학생 질문, a 답의 뼈대, k [[용어,설명]×3], x 한 걸음 더, r 더 읽기 }
     makeDaily('geo', 'data/geography-daily.json', d => {
