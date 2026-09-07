@@ -1,0 +1,397 @@
+<!doctype html>
+<!-- 아이폰 복습 페이지 — 오늘의 지리·일본어 카드를 두 단계로 통과하면 desk 공부 기록(Firebase)에 남김. 관리자 전용 -->
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Study — Geographia</title>
+<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/stratum.css">
+<link rel="stylesheet" href="design-system/geo.css">
+
+<!-- 홈 화면 앱 — 단축어의 「앱 열기」로 전체화면 실행 -->
+<link rel="manifest" href="study.webmanifest">
+<link rel="apple-touch-icon" href="icons/desk-apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Study">
+<meta name="theme-color" content="#f2f2f7">
+
+<style>
+/* ============================================================================
+   STUDY — 저녁 복습 (아이폰). 골격·색·재질은 stratum.css + geo.css.
+   카드 규칙(.dash-h .geo-* .jp-* .lock-in .btn-solid)은 desk.html 「공부」탭에서 옮김 — desk가 바뀌면 여기도.
+   ========================================================================== */
+html, body { height: 100%; }
+body { display: flex; flex-direction: column; }
+[lang="ja"] { font-family: 'Noto Sans JP', var(--sans); }
+
+.study-bar { flex-shrink: 0; padding-top: env(safe-area-inset-top); }
+.study-bar .geo-bar__in { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.bar-meta { font-size: 12.5px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; white-space: nowrap; }
+.bar-meta b { color: var(--st-label-2); font-weight: 600; }
+
+/* 로그인 게이트 (desk.html과 동일) */
+.gate { flex: 1; display: grid; place-items: center; padding: 24px; }
+.gate .panel { width: 100%; max-width: 380px; text-align: center; padding: 40px 32px; margin-top: 0; }
+.gate .geo-seal { width: 44px; height: 44px; margin: 0 auto 18px; color: var(--st-label); }
+.gate h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
+.gate p { font-size: 13.5px; color: var(--st-label-2); margin: 0 0 24px; line-height: 1.6; word-break: keep-all; }
+.gate .warn { color: var(--st-danger-ink); font-size: 13px; margin-top: 14px; }
+.g-btn { display: inline-flex; align-items: center; gap: 10px; width: 100%; justify-content: center; }
+.g-btn svg { width: 16px; height: 16px; }
+
+/* 본문 — 한 열 */
+.app { flex: 1; width: 100%; max-width: 720px; margin: 0 auto; display: grid; gap: 14px; align-content: start;
+  padding: 14px max(var(--pad-x, 20px), env(safe-area-inset-left)) calc(24px + env(safe-area-inset-bottom)); }
+.app .panel { margin-top: 0; border-color: var(--st-separator-strong); padding: 20px 20px; transition: opacity 300ms var(--ease); }
+.panel.locked { opacity: 0.45; pointer-events: none; }
+.dash-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.11em; text-transform: uppercase; color: var(--st-accent-ink); margin-bottom: 12px; }
+.dash-h b { font-size: inherit; color: var(--st-label-3); font-weight: 650; text-align: right; min-width: 0; }
+.dash-h .ok { display: none; color: var(--st-success-ink); letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; }
+.panel.pass .dash-h .ok { display: inline; }
+
+.geo-cap { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
+.geo-cat { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
+.geo-q { font-size: 21px; font-weight: 700; line-height: 1.45; letter-spacing: -0.015em; color: var(--st-label); word-break: keep-all; }
+.geo-a { margin-top: 14px; font-size: 16px; line-height: 1.75; color: var(--st-label); word-break: keep-all; }
+.geo-x { margin-top: 12px; font-size: 14.5px; line-height: 1.7; color: var(--st-label-2); padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.geo-x::before { content: '한 걸음 더'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
+.geo-terms { margin-top: 18px; }
+.geo-term { padding: 9px 2px; border-bottom: 1px solid var(--st-separator); font-size: 15.5px; line-height: 1.55; }
+.geo-term:last-child { border-bottom: 0; }
+.geo-term b { display: block; font-weight: 700; color: var(--st-label); margin-bottom: 1px; }
+.geo-term span { color: var(--st-label-2); font-size: 14px; word-break: keep-all; }
+.geo-r { margin-top: 12px; font-size: 13px; color: var(--st-label-3); word-break: keep-all; line-height: 1.5; }
+
+.jp-s { font-size: 30px; font-weight: 700; line-height: 1.45; letter-spacing: 0.01em; color: var(--st-label); word-break: keep-all; }
+.jp-p { font-size: 15.5px; color: var(--st-label-2); margin-top: 6px; letter-spacing: 0.01em; }
+.jp-m { font-size: 17px; color: var(--st-label); margin-top: 6px; }
+.jp-g { font-size: 14.5px; line-height: 1.7; color: var(--st-label-2); margin-top: 14px; padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.jp-g::before { content: '문법'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
+.jp-e { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-top: 12px; font-size: 16.5px; }
+.jp-e .r { font-size: 13px; color: var(--st-label-3); }
+.jp-e [lang] { font-weight: 600; color: var(--st-label); }
+.jp-e .k { font-size: 14.5px; color: var(--st-label-2); }
+.jp-vocab { margin-top: 18px; }
+.jp-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; padding: 8px 2px; border-bottom: 1px solid var(--st-separator); min-width: 0; font-size: 16px; }
+.jp-row:last-child { border-bottom: 0; }
+.jp-row b { font-weight: 600; color: var(--st-label); }
+.jp-row .r { font-size: 13px; color: var(--st-label-3); }
+.jp-row .k { flex-basis: 100%; color: var(--st-label-2); font-size: 14px; line-height: 1.4; min-width: 0; }
+
+/* 답 가리기 — desk .p-daily.quiz .q 와 같은 블러. 통과하면 걷힘 */
+.q { filter: blur(6px); user-select: none; -webkit-user-select: none; transition: filter 260ms var(--ease); }
+.panel.pass .q { filter: none; user-select: auto; -webkit-user-select: auto; }
+
+.ans-cap { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin: 16px 0 6px; }
+.lock-in { width: 100%; height: 44px; padding: 0 14px; background: var(--st-fill-2); color: var(--st-label);
+  border: 1px solid transparent; border-radius: var(--st-r-element); font-size: 16px; outline: none; transition: border-color 175ms, background 175ms; }
+.lock-in:focus { background: var(--st-surface); border-color: var(--accent); box-shadow: var(--st-ring); }
+textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 1.6; font-family: inherit; }
+.lock-in[readonly] { background: transparent; border-color: var(--st-separator); box-shadow: none; }
+.jp-foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.jp-foot .hint { font-size: 13px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
+.jp-foot .hint.bad { color: var(--st-danger-ink); font-weight: 600; }
+.jp-foot .hint.good { color: var(--st-success-ink); font-weight: 600; }
+.jp-foot .btn-solid { margin-left: auto; height: 40px; }
+
+.foot-row { display: flex; align-items: center; gap: 12px; padding: 4px 2px 0; }
+.foot-row .note { font-size: 12.5px; color: var(--st-label-3); line-height: 1.5; }
+.foot-row .btn-solid { margin-left: auto; height: 44px; padding: 0 22px; flex-shrink: 0; }
+.foot-row .warn { color: var(--st-danger-ink); font-size: 13px; }
+
+/* 완료 화면 */
+.done-h { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 6px 0 4px; }
+.done-p { font-size: 14px; color: var(--st-label-2); line-height: 1.6; }
+.done-ans { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--st-separator); font-size: 15px; line-height: 1.7; color: var(--st-label); word-break: keep-all; }
+.done-ans .geo-cap { margin-top: 12px; }
+</style>
+</head>
+<body>
+<header class="st-glass st-bar study-bar">
+  <div class="geo-bar__in">
+    <a class="geo-logo" href="desk.html#study" aria-label="Desk 공부 탭">
+      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="24" cy="24" r="20"/><circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/><path d="M24 4v40M4 24h40"/>
+        <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/><path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+      </svg>
+      <b>Study</b>
+    </a>
+    <div class="bar-meta" id="meta"></div>
+  </div>
+</header>
+
+<!-- 로그인 게이트 (desk.html과 동일한 방식) -->
+<div class="gate" id="gate">
+  <div class="panel">
+    <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="24" cy="24" r="20"/><circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/><path d="M24 4v40M4 24h40"/>
+      <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+    </svg>
+    <h1>Study</h1>
+    <p>오늘의 복습 — 관리자 전용입니다.<br>본인 확인 후 이용할 수 있습니다.</p>
+    <button class="btn-solid g-btn" id="signInBtn">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1H12v2.9h5.35c-.5 2.5-2.6 4.3-5.35 4.3a6.3 6.3 0 1 1 0-12.6c1.6 0 3.05.6 4.15 1.6l2.15-2.15A9.6 9.6 0 1 0 12 21.6c5.55 0 9.6-3.9 9.6-9.4 0-.38-.1-.75-.25-1.1z"/></svg>
+      Google 계정으로 로그인
+    </button>
+    <p class="warn" id="gateWarn" style="display:none;"></p>
+  </div>
+</div>
+
+<main class="app" id="app" style="display:none;">
+  <section class="panel" id="done" hidden>
+    <div class="dash-h">오늘의 복습 <b id="doneCap"></b></div>
+    <div class="done-h">오늘 복습을 마쳤습니다</div>
+    <div class="done-p" id="doneP"></div>
+    <div class="done-ans" id="doneAns"></div>
+  </section>
+
+  <section class="panel" id="geo" hidden>
+    <div class="dash-h"><span id="geoTitle"></span><b id="geoCap"></b><span class="ok">통과</span></div>
+    <div class="geo-cat" id="geoCat"></div>
+    <span class="geo-cap">학생이 이렇게 물으면</span>
+    <div class="geo-q" id="geoQ"></div>
+    <span class="ans-cap">내 답 · 20자 이상</span>
+    <textarea class="lock-in" id="geoIn" rows="4" placeholder="학생에게 말하듯이 써 보세요."></textarea>
+    <div class="jp-foot"><span class="hint" id="geoHint">0 / 20</span><button class="btn-solid" id="geoBtn" disabled>답 확인</button></div>
+    <div class="geo-a q" id="geoA"></div>
+    <div class="geo-x q" id="geoX"></div>
+    <div class="geo-terms"><span class="geo-cap">핵심 용어</span><div id="geoK"></div></div>
+    <div class="geo-r" id="geoR"></div>
+  </section>
+
+  <section class="panel locked" id="jp" hidden>
+    <div class="dash-h"><span id="jpTitle"></span><b id="jpCap"></b><span class="ok">통과</span></div>
+    <div class="jp-s" id="jpS" lang="ja"></div>
+    <div class="jp-p" id="jpP"></div>
+    <div class="jp-m" id="jpM"></div>
+    <span class="ans-cap">문장을 일본어로 그대로 입력</span>
+    <input type="text" class="lock-in" id="jpIn" lang="ja" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="일본어 키보드로 따라 쓰세요.">
+    <div class="jp-foot"><span class="hint" id="jpHint"></span><button class="btn-solid" id="jpBtn" disabled>따라 쓰기 확인</button></div>
+    <div class="jp-g q" id="jpG"></div>
+    <div class="jp-e" id="jpE"></div>
+    <div class="jp-vocab"><span class="geo-cap">오늘의 단어</span><div id="jpV"></div></div>
+  </section>
+
+  <div class="foot-row" id="footRow" hidden>
+    <span class="note" id="footNote">두 단계를 마치면 desk 공부 기록에 「복습」으로 남습니다.</span>
+    <button class="btn-solid" id="finish" disabled>오늘 복습 완료</button>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getDatabase, ref, set, push, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+  // ── 설정 (desk.html과 동일) ──
+  const OWNER_EMAIL = "leetae712@gmail.com";
+  const firebaseConfig = {
+    apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
+    authDomain: "soc-c-qna.web.app",
+    databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
+    projectId: "soc-c-qna",
+    storageBucket: "soc-c-qna.firebasestorage.app",
+    messagingSenderId: "927605189358",
+    appId: "1:927605189358:web:9ea5171373ac4c9e8661ff"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const $ = id => document.getElementById(id);
+  const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const pad = n => String(n).padStart(2, '0');
+  const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const dayStart = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const WEEKDAYS = ['일','월','화','수','목','금','토'];
+  const MORNING_H = 8;   // desk와 동일: 이 시각 전 시작 = 아침 공부
+
+  const KANA = (() => {
+  const C = { '': 11, k: 15, g: 0, s: 9, z: 12, t: 16, d: 3, n: 2, h: 18, b: 7, p: 17, m: 6, r: 5 };   // 초성 인덱스
+  const V = [0, 20, 13, 5, 8];   // ㅏ ㅣ ㅜ ㅔ ㅗ
+  const t = {};
+  [['', 'あいうえお'], ['k', 'かきくけこ'], ['g', 'がぎぐげご'], ['s', 'さしすせそ'], ['z', 'ざじずぜぞ'], ['t', 'たちつてと'], ['d', 'だぢづでど'],
+   ['n', 'なにぬねの'], ['h', 'はひふへほ'], ['b', 'ばびぶべぼ'], ['p', 'ぱぴぷぺぽ'], ['m', 'まみむめも'], ['r', 'らりるれろ']]
+    .forEach(([c, ks]) => [...ks].forEach((k, i) => { t[k] = [C[c], V[i]]; }));
+  Object.assign(t, { 'す': [9, 18], 'ず': [12, 18], 'つ': [14, 18], 'づ': [12, 18], 'ち': [14, 20], 'ぢ': [12, 20],
+    'や': [11, 2], 'ゆ': [11, 17], 'よ': [11, 12], 'わ': [11, 9], 'を': [11, 8] });
+  const Y = { 'ゃ': 2, 'ゅ': 17, 'ょ': 12 };                       // 요음 모음 ㅑ ㅠ ㅛ
+  const yBase = 'きぎしじちにひびぴみり';                              // 요음이 붙을 수 있는 い단
+  return { t, Y, yBase };
+})();
+function kanaToHangul(text) {
+  const S = (c, v, j = 0) => String.fromCharCode(0xAC00 + (c * 21 + v) * 28 + j);
+  const isU = v => v === 13 || v === 18 || v === 17;
+  return text.split(/(\s+)/).map(word => {
+    if (!word || /^\s+$/.test(word)) return word;
+    const ks = [...word].map(ch => { const cp = ch.charCodeAt(0); return cp >= 0x30A1 && cp <= 0x30F6 ? String.fromCharCode(cp - 0x60) : ch; });
+    const syl = [];
+    for (let i = 0; i < ks.length; i++) {
+      const ch = ks[i], last = i === ks.length - 1 && ks.length > 1, prev = syl[syl.length - 1];
+      if (ch === 'は' && last) { syl.push({ c: 11, v: 9 }); continue; }
+      if (ch === 'へ' && last) { syl.push({ c: 11, v: 5 }); continue; }
+      if (ch === 'ん') { if (prev && prev.c !== undefined) prev.j = 4; else syl.push({ c: 11, v: 18, j: 4 }); continue; }
+      if (ch === 'っ') { if (prev && prev.c !== undefined) prev.j = 19; continue; }
+      if (ch === 'ー') { syl.push({ long: true }); continue; }
+      if (KANA.Y[ch] !== undefined && prev && prev.c !== undefined && KANA.yBase.includes(ks[i - 1])) {
+        prev.v = KANA.Y[ch];
+        if (prev.c === 12 || prev.c === 14) prev.v = { 2: 0, 17: 13, 12: 8 }[prev.v];   // じゃ→자 ちゃ→차
+        continue;
+      }
+      const m = KANA.t[ch];
+      if (!m) { syl.push({ raw: ch }); continue; }
+      let [c, v] = m;
+      if ((i === 0 || (prev && prev.raw !== undefined)) && (c === 15 || c === 16)) c = c === 15 ? 0 : 3;   // 어두(기호 뒤 포함) か행→ㄱ, た행→ㄷ
+      if (prev && prev.c !== undefined && prev.j === undefined && c === 11) {   // 장음
+        const pv = prev.v;
+        if ((ch === 'う' && (pv === 8 || pv === 12 || isU(pv))) || (ch === 'い' && (pv === 5 || pv === 20)) ||
+            (ch === 'あ' && (pv === 0 || pv === 2)) || (ch === 'え' && pv === 5) || (ch === 'お' && pv === 8)) { syl.push({ long: true }); continue; }
+      }
+      syl.push({ c, v });
+    }
+    return syl.map(s => s.raw !== undefined ? s.raw : s.long ? '-' : S(s.c, s.v, s.j || 0)).join('');
+  }).join('').replace(/。/g, '.').replace(/、/g, ',');
+}
+
+
+  // ── 카드 선택 (desk makeDaily와 동일) ──
+  function pick(D, today) {
+    const n = D.days.length, i = Math.max(0, Math.floor((dayStart(today) - new Date(D.start + 'T00:00:00')) / 86400000));
+    return { card: D.days[i % n], day: i % n + 1, round: Math.floor(i / n) + 1, title: D.title };
+  }
+  const cap = x => `Day ${x.day} · ${x.card.t}` + (x.round > 1 ? ` · ${x.round}회차` : '');
+  // 일본어 비교 — Mac 창(daily_study.py)과 같은 규칙: NFKC 후 공백·구두점 제거, 완전 일치
+  const normJa = s => (s || '').normalize('NFKC').replace(/[\s。、．，！？.,!?「」『』・…\-–—~〜]/g, '');
+  const jaMatch = (typed, answer) => normJa(answer) !== '' && normJa(typed) === normJa(answer);
+
+  // ── 게이트 ──
+  const gate = $('gate'), appEl = $('app'), gateWarn = $('gateWarn');
+  const showWarn = msg => { gateWarn.textContent = msg; gateWarn.style.display = ''; };
+  const showGate = () => { gate.style.display = ''; appEl.style.display = 'none'; };
+  const provider = new GoogleAuthProvider();
+  $('signInBtn').addEventListener('click', async () => {
+    gateWarn.style.display = 'none';
+    try { await signInWithPopup(auth, provider); }
+    catch (e) {
+      if (e.code === 'auth/popup-blocked' || e.code === 'auth/operation-not-supported-in-this-environment' || e.code === 'auth/cancelled-popup-request') {
+        try { await signInWithRedirect(auth, provider); } catch (e2) { showWarn(e2.message); }
+      } else if (e.code !== 'auth/popup-closed-by-user') showWarn(e.message);
+    }
+  });
+  getRedirectResult(auth).catch(() => {});
+  let booted = false;
+  onAuthStateChanged(auth, user => {
+    if (user && user.email === OWNER_EMAIL) { if (!booted) { booted = true; boot(); } }
+    else if (user) { showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth); }
+    else showGate();
+  });
+  // 로컬 미리보기 전용 — localhost에서만 게이트를 건너뛰어 화면을 확인 (기록 쓰기는 권한이 없어 실패함)
+  if (location.hostname === 'localhost') window.__studyPreview = () => boot({ preview: true });
+
+  // ── 본문 ──
+  let G, J, openedAt, geoPass = false, jpPass = false;
+  async function boot(opt = {}) {
+    gate.style.display = 'none'; appEl.style.display = '';
+    const now = new Date(), today = keyOf(now);
+    openedAt = Date.now();
+    $('meta').innerHTML = `<b>${today}</b> (${WEEKDAYS[now.getDay()]})`;
+    let doneRec = null;
+    if (!opt.preview) {
+      try { doneRec = (await get(ref(db, 'desk/study/daily/' + today))).val(); }
+      catch (e) { showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.'); return; }
+    }
+    if (doneRec) { renderDone(doneRec); return; }
+    let geoD, jpD;
+    try {
+      [geoD, jpD] = await Promise.all(['data/geography-daily.json', 'data/japanese-daily.json'].map(f => fetch(f, { cache: 'no-cache' }).then(r => r.json())));
+    } catch (e) { showGate(); showWarn('카드를 불러오지 못했습니다. 네트워크를 확인하세요.'); return; }
+    G = pick(geoD, now); J = pick(jpD, now);
+    renderGeo(); renderJp();
+    $('geo').hidden = false; $('jp').hidden = false; $('footRow').hidden = false;
+  }
+
+  function renderGeo() {
+    const c = G.card;
+    $('geoTitle').textContent = G.title; $('geoCap').textContent = cap(G);
+    $('geoCat').textContent = c.c; $('geoQ').textContent = c.q;
+    $('geoA').textContent = c.a; $('geoX').textContent = c.x; $('geoR').textContent = c.r || '';
+    $('geoK').innerHTML = (c.k || []).map(([k, d]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span class="q">${escapeHTML(d)}</span></div>`).join('');
+  }
+  function renderJp() {
+    const c = J.card;
+    $('jpTitle').textContent = J.title; $('jpCap').textContent = cap(J);
+    $('jpS').textContent = c.s; $('jpP').textContent = kanaToHangul(c.s); $('jpM').textContent = c.m; $('jpG').textContent = c.g;
+    $('jpE').innerHTML = `<span lang="ja">${escapeHTML(c.e[0])}</span><span class="r">${escapeHTML(kanaToHangul(c.e[0]))}</span><span class="k q">${escapeHTML(c.e[1])}</span>`;
+    const words = [...(c.v || []).map(([w, , k]) => [w, k]), ...(c.w || [])];
+    $('jpV').innerHTML = words.map(([w, k]) =>
+      `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b><span class="r">${escapeHTML(kanaToHangul(w))}</span><span class="k q">${escapeHTML(k)}</span></div>`).join('');
+  }
+  function renderDone(rec) {
+    $('done').hidden = false; $('footRow').hidden = true;
+    $('doneCap').textContent = `지리 Day ${rec.geo?.day ?? '–'} · 일본어 Day ${rec.jp?.day ?? '–'}`;
+    const t = rec.finishedAt ? new Date(rec.finishedAt) : null;
+    $('doneP').textContent = t ? `${pad(t.getHours())}:${pad(t.getMinutes())}에 마쳤습니다. desk 공부 기록에 「복습」으로 남았습니다.` : 'desk 공부 기록에 「복습」으로 남았습니다.';
+    $('doneAns').innerHTML = rec.geo ? `<span class="geo-cap">${escapeHTML(rec.geo.t || '')}</span>${escapeHTML(rec.geo.q || '')}<span class="geo-cap">내 답</span>${escapeHTML(rec.geo.myAnswer || '')}` : '';
+  }
+
+  // 01 지리
+  $('geoIn').addEventListener('input', () => {
+    const n = $('geoIn').value.trim().length;
+    $('geoHint').textContent = `${n} / 20`; $('geoBtn').disabled = n < 20;
+  });
+  $('geoBtn').addEventListener('click', () => {
+    geoPass = true;
+    $('geo').classList.add('pass'); $('geoIn').readOnly = true; $('geoBtn').disabled = true;
+    $('geoHint').textContent = '내 답과 비교해 보세요';
+    $('jp').classList.remove('locked');
+    $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  // 02 일본어
+  $('jpIn').addEventListener('input', () => { $('jpBtn').disabled = !$('jpIn').value.trim(); $('jpHint').textContent = ''; $('jpHint').className = 'hint'; });
+  $('jpIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('jpBtn').disabled) $('jpBtn').click(); });
+  $('jpBtn').addEventListener('click', () => {
+    if (!jaMatch($('jpIn').value, J.card.s)) { $('jpHint').textContent = '문장이 다릅니다 — 다시'; $('jpHint').className = 'hint bad'; $('jpIn').select(); return; }
+    jpPass = true;
+    $('jp').classList.add('pass'); $('jpIn').readOnly = true; $('jpBtn').disabled = true;
+    $('jpHint').textContent = '정확합니다'; $('jpHint').className = 'hint good';
+    $('finish').disabled = !(geoPass && jpPass);
+    $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
+  });
+
+  // 완료 → desk 공부 기록 (세션은 desk 타이머와 같은 형식이라 히트맵·연속일에 그대로 잡힘)
+  $('finish').addEventListener('click', async () => {
+    if (!(geoPass && jpPass)) return;
+    $('finish').disabled = true; $('finish').textContent = '기록 중…';
+    const end = Date.now(), st = new Date(openedAt), date = keyOf(st);
+    const min = Math.min(60, Math.max(1, Math.round((end - openedAt) / 60000)));
+    const rec = { finishedAt: new Date(end).toISOString(),
+      geo: { day: G.day, t: G.card.t, q: G.card.q, myAnswer: $('geoIn').value.trim() },
+      jp: { day: J.day, t: J.card.t, s: J.card.s } };
+    try {
+      await push(ref(db, 'desk/study/sessions'), { subject: '복습', note: `지리 Day ${G.day} · 일본어 Day ${J.day}`,
+        start: openedAt, end, min, date, morning: st.getHours() < MORNING_H, daily: true });
+      await set(ref(db, 'desk/study/daily/' + date), rec);
+      const subs = (await get(ref(db, 'desk/study/subjects'))).val() || {};
+      if (!Object.values(subs).some(s => s && s.name === '복습')) await push(ref(db, 'desk/study/subjects'), { name: '복습', createdAt: Date.now() });
+    } catch (e) {
+      $('finish').textContent = '오늘 복습 완료'; $('finish').disabled = false;
+      $('footNote').innerHTML = `<span class="warn">기록하지 못했습니다: ${escapeHTML(e.message || String(e))}</span>`;
+      return;
+    }
+    $('geo').hidden = true; $('jp').hidden = true;
+    renderDone(rec);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+</body>
+</html>
