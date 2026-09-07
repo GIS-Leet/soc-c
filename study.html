@@ -1,5 +1,6 @@
 <!doctype html>
-<!-- 아이폰 복습 페이지 — 오늘의 지리·일본어 카드를 두 단계로 통과하면 desk 공부 기록(Firebase)에 남김. 관리자 전용 -->
+<!-- 아이폰 복습 페이지 — 오늘의 지리·일본어 카드를 두 단계로 통과하면 desk 공부 기록(Firebase)에 남김. 관리자 전용.
+     ?demo=열쇠 로 열면 1회용 체험판: 로그인 없음, 기록 없음, 완료 시 열쇠 소모(demo/keys/열쇠 → false) -->
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -56,6 +57,7 @@ body { display: flex; flex-direction: column; }
   letter-spacing: 0.11em; text-transform: uppercase; color: var(--st-accent-ink); margin-bottom: 12px; }
 .dash-h b { font-size: inherit; color: var(--st-label-3); font-weight: 650; text-align: right; min-width: 0; }
 .dash-h .ok { display: none; color: var(--st-success-ink); letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; }
+.dash-h > span:first-child { white-space: nowrap; flex-shrink: 0; }
 .panel.pass .dash-h .ok { display: inline; }
 
 .geo-cap { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
@@ -107,6 +109,13 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 .foot-row .note { font-size: 12.5px; color: var(--st-label-3); line-height: 1.5; }
 .foot-row .btn-solid { margin-left: auto; height: 44px; padding: 0 22px; flex-shrink: 0; }
 .foot-row .warn { color: var(--st-danger-ink); font-size: 13px; }
+
+/* 체험판 */
+.demo-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); background: var(--st-accent-soft); padding: 3px 9px; border-radius: var(--st-r-full); margin-right: 8px; }
+.jp-foot .btn-sub { height: 40px; }
+.tool-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.tool-row .lock-in { flex: 1; min-width: 200px; font-size: 13px; font-family: var(--st-font-mono); }
+.tool-p { font-size: 13px; color: var(--st-label-2); line-height: 1.6; margin-top: 8px; }
 
 /* 완료 화면 */
 .done-h { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 6px 0 4px; }
@@ -175,7 +184,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
     <div class="jp-m" id="jpM"></div>
     <span class="ans-cap">문장을 일본어로 그대로 입력</span>
     <input type="text" class="lock-in" id="jpIn" lang="ja" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="일본어 키보드로 따라 쓰세요.">
-    <div class="jp-foot"><span class="hint" id="jpHint"></span><button class="btn-solid" id="jpBtn" disabled>따라 쓰기 확인</button></div>
+    <div class="jp-foot"><span class="hint" id="jpHint"></span><button class="btn-sub" id="jpSkip" hidden>건너뛰기</button><button class="btn-solid" id="jpBtn" disabled>따라 쓰기 확인</button></div>
     <div class="jp-g q" id="jpG"></div>
     <div class="jp-e" id="jpE"></div>
     <div class="jp-vocab"><span class="geo-cap">오늘의 단어</span><div id="jpV"></div></div>
@@ -185,6 +194,13 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
     <span class="note" id="footNote">두 단계를 마치면 desk 공부 기록에 「복습」으로 남습니다.</span>
     <button class="btn-solid" id="finish" disabled>오늘 복습 완료</button>
   </div>
+
+  <!-- 관리자 전용: 1회용 체험 링크 만들기 -->
+  <section class="panel" id="demoTool" hidden>
+    <div class="dash-h">체험 링크 <b>한 사람에 하나, 완료하면 소모됨</b></div>
+    <div class="tool-row"><button class="btn-sub" id="demoMake">체험 링크 만들기</button><input type="text" class="lock-in" id="demoUrl" readonly hidden><button class="btn-solid" id="demoCopy" hidden>복사</button></div>
+    <p class="tool-p" id="demoMsg">로그인 없이 오늘 카드를 한 번 체험하는 링크입니다. 기록은 남지 않고, 완료하는 순간 링크가 만료됩니다.</p>
+  </section>
 </main>
 
 <script type="module">
@@ -209,6 +225,9 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   const db = getDatabase(app);
 
   const $ = id => document.getElementById(id);
+  const DEMO_KEY = (new URLSearchParams(location.search).get('demo') || '').replace(/[^A-Za-z0-9]/g, '');
+  const DEMO = DEMO_KEY.length >= 8;
+  const DEMO_USED_LS = 'study-demo-used';
   const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pad = n => String(n).padStart(2, '0');
   const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -290,13 +309,14 @@ function kanaToHangul(text) {
   });
   getRedirectResult(auth).catch(() => {});
   let booted = false;
-  onAuthStateChanged(auth, user => {
+  if (DEMO) bootDemo();
+  else onAuthStateChanged(auth, user => {
     if (user && user.email === OWNER_EMAIL) { if (!booted) { booted = true; boot(); } }
     else if (user) { showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth); }
     else showGate();
   });
   // 로컬 미리보기 전용 — localhost에서만 게이트를 건너뛰어 화면을 확인 (기록 쓰기는 권한이 없어 실패함)
-  if (location.hostname === 'localhost') window.__studyPreview = () => boot({ preview: true });
+  if (location.hostname === 'localhost') window.__studyPreview = (demo = false) => boot({ preview: true, demo });
 
   // ── 본문 ──
   let G, J, openedAt, geoPass = false, jpPass = false;
@@ -305,10 +325,17 @@ function kanaToHangul(text) {
     const now = new Date(), today = keyOf(now);
     openedAt = Date.now();
     $('meta').innerHTML = `<b>${today}</b> (${WEEKDAYS[now.getDay()]})`;
+    if (opt.demo) {
+      $('meta').innerHTML = `<span class="demo-tag">체험판</span>` + $('meta').innerHTML;
+      $('footNote').textContent = '체험판 — 기록은 남지 않고, 완료하면 이 링크는 더 쓸 수 없습니다.';
+      $('finish').textContent = '체험 완료';
+      $('jpSkip').hidden = false;
+    }
     let doneRec = null;
-    if (!opt.preview) {
+    if (!opt.preview && !opt.demo) {
       try { doneRec = (await get(ref(db, 'desk/study/daily/' + today))).val(); }
       catch (e) { showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.'); return; }
+      $('demoTool').hidden = false;
     }
     if (doneRec) { renderDone(doneRec); return; }
     let geoD, jpD;
@@ -344,6 +371,44 @@ function kanaToHangul(text) {
     $('doneAns').innerHTML = rec.geo ? `<span class="geo-cap">${escapeHTML(rec.geo.t || '')}</span>${escapeHTML(rec.geo.q || '')}<span class="geo-cap">내 답</span>${escapeHTML(rec.geo.myAnswer || '')}` : '';
   }
 
+  // ── 체험판: 열쇠 확인 → 부팅. 열쇠는 demo/keys/{열쇠} 가 true 일 때만 유효 ──
+  async function bootDemo() {
+    const used = (() => { try { return localStorage.getItem(DEMO_USED_LS) === DEMO_KEY; } catch { return false; } })();
+    let valid = false;
+    if (!used) {
+      try { valid = (await get(ref(db, 'demo/keys/' + DEMO_KEY))).val() === true; }
+      catch (e) { valid = false; }
+    }
+    if (!valid) {
+      $('signInBtn').style.display = 'none';
+      gate.querySelector('h1').textContent = '체험 링크';
+      gate.querySelector('p').innerHTML = '이미 사용되었거나 유효하지 않은 링크입니다.<br>체험은 링크당 한 번만 할 수 있습니다.';
+      showGate(); return;
+    }
+    boot({ demo: true });
+  }
+  function renderDemoDone() {
+    $('done').hidden = false; $('footRow').hidden = true;
+    $('doneCap').textContent = `지리 Day ${G.day} · 일본어 Day ${J.day}`;
+    $('done').querySelector('.done-h').textContent = '체험을 마쳤습니다';
+    $('doneP').textContent = '이 링크는 이제 만료되었습니다. 기록은 어디에도 남지 않았습니다.';
+    $('doneAns').innerHTML = `<span class="geo-cap">${escapeHTML(G.card.t)}</span>${escapeHTML(G.card.q)}<span class="geo-cap">내 답</span>${escapeHTML($('geoIn').value.trim())}`;
+  }
+  // ── 관리자: 1회용 체험 링크 만들기 ──
+  $('demoMake').addEventListener('click', async () => {
+    const buf = new Uint8Array(12); crypto.getRandomValues(buf);
+    const key = Array.from(buf, b => 'abcdefghjkmnpqrstuvwxyz23456789'[b % 31]).join('');
+    try { await set(ref(db, 'demo/keys/' + key), true); }
+    catch (e) { $('demoMsg').innerHTML = `<span class="warn">링크를 만들지 못했습니다: ${escapeHTML(e.message || String(e))}</span>`; return; }
+    const url = `${location.origin}${location.pathname}?demo=${key}`;
+    $('demoUrl').value = url; $('demoUrl').hidden = false; $('demoCopy').hidden = false;
+    $('demoMsg').textContent = '이 링크를 한 사람에게 보내세요. 완료하면 자동으로 만료됩니다.';
+  });
+  $('demoCopy').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText($('demoUrl').value); $('demoCopy').textContent = '복사됨'; }
+    catch { $('demoUrl').select(); }
+  });
+
   // 01 지리
   $('geoIn').addEventListener('input', () => {
     const n = $('geoIn').value.trim().length;
@@ -368,10 +433,26 @@ function kanaToHangul(text) {
     $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
   });
 
-  // 완료 → desk 공부 기록 (세션은 desk 타이머와 같은 형식이라 히트맵·연속일에 그대로 잡힘)
+  $('jpSkip').addEventListener('click', () => {
+    jpPass = true;
+    $('jp').classList.add('pass'); $('jpIn').readOnly = true; $('jpBtn').disabled = true; $('jpSkip').hidden = true;
+    $('jpHint').textContent = '건너뛰었습니다 — 답을 확인해 보세요'; $('jpHint').className = 'hint';
+    $('finish').disabled = !(geoPass && jpPass);
+    $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
+  });
+
+  // 완료 → desk 공부 기록 (체험판은 열쇠만 소모) (세션은 desk 타이머와 같은 형식이라 히트맵·연속일에 그대로 잡힘)
   $('finish').addEventListener('click', async () => {
     if (!(geoPass && jpPass)) return;
     $('finish').disabled = true; $('finish').textContent = '기록 중…';
+    if (DEMO) {
+      try { await set(ref(db, 'demo/keys/' + DEMO_KEY), false); }
+      catch (e) { $('finish').textContent = '체험 완료'; $('finish').disabled = false;
+        $('footNote').innerHTML = `<span class="warn">완료 처리에 실패했습니다: ${escapeHTML(e.message || String(e))}</span>`; return; }
+      try { localStorage.setItem(DEMO_USED_LS, DEMO_KEY); } catch {}
+      $('geo').hidden = true; $('jp').hidden = true; renderDemoDone(); window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     const end = Date.now(), st = new Date(openedAt), date = keyOf(st);
     const min = Math.min(60, Math.max(1, Math.round((end - openedAt) / 60000)));
     const rec = { finishedAt: new Date(end).toISOString(),
