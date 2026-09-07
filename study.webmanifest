@@ -1,0 +1,16 @@
+{
+  "name": "Study — Geographia",
+  "short_name": "Study",
+  "description": "오늘의 지리·일본어 복습 — 관리자 전용",
+  "lang": "ko",
+  "start_url": "./study.html",
+  "scope": "./study.html",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
+  "icons": [
+    { "src": "icons/desk-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/desk-icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/desk-icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
