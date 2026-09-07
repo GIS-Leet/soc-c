@@ -157,7 +157,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   <section class="panel" id="geo" hidden>
     <div class="dash-h"><span id="geoTitle"></span><b id="geoCap"></b><span class="ok">통과</span></div>
     <div class="geo-cat" id="geoCat"></div>
-    <span class="geo-cap">학생이 이렇게 물으면</span>
+    <span class="geo-cap">오늘의 질문</span>
     <div class="geo-q" id="geoQ"></div>
     <span class="ans-cap">내 답 · 20자 이상</span>
     <textarea class="lock-in" id="geoIn" rows="4" placeholder="학생에게 말하듯이 써 보세요."></textarea>
@@ -322,7 +322,7 @@ function kanaToHangul(text) {
 
   function renderGeo() {
     const c = G.card;
-    $('geoTitle').textContent = G.title; $('geoCap').textContent = cap(G);
+    $('geoTitle').textContent = '지리학'; $('geoCap').textContent = cap(G);
     $('geoCat').textContent = c.c; $('geoQ').textContent = c.q;
     $('geoA').textContent = c.a; $('geoX').textContent = c.x; $('geoR').textContent = c.r || '';
     $('geoK').innerHTML = (c.k || []).map(([k, d]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span class="q">${escapeHTML(d)}</span></div>`).join('');
