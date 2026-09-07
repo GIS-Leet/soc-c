@@ -659,10 +659,13 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .geo-wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
 .geo-cap { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
 .geo-cat { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
-.geo-q { font-size: clamp(19px, 1.9vw, 24px); font-weight: 700; line-height: 1.45; letter-spacing: -0.015em; color: var(--st-label); word-break: keep-all; }
-.geo-a { margin-top: 14px; font-size: 16px; line-height: 1.75; color: var(--st-label); word-break: keep-all; }
+.geo-q { font-size: clamp(24px, 2.4vw, 30px); font-weight: 700; line-height: 1.3; letter-spacing: -0.02em; color: var(--st-label); word-break: keep-all; }
+.geo-en { margin-top: 4px; font-family: 'Space Grotesk', var(--st-font-sans); font-size: 14px; font-weight: 500; color: var(--st-label-3); letter-spacing: 0.01em; }
+.geo-m { margin-top: 10px; font-size: 16.5px; line-height: 1.6; color: var(--st-label); word-break: keep-all; }
+.geo-a::before { content: '핵심 정리'; display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
+.geo-a { margin-top: 16px; font-size: 15.5px; line-height: 1.8; color: var(--st-label-2); word-break: keep-all; }
 .geo-x { margin-top: 12px; font-size: 14.5px; line-height: 1.7; color: var(--st-label-2); padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
-.geo-x::before { content: '한 걸음 더'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
+.geo-x::before { content: '더 깊이'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
 .geo-term { padding: 9px 2px; border-bottom: 1px solid var(--st-separator); font-size: 15.5px; line-height: 1.55; }
 .geo-term:last-child { border-bottom: 0; }
 .geo-term b { display: block; font-weight: 700; color: var(--st-label); margin-bottom: 1px; }
@@ -1240,8 +1243,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         <div class="geo-wrap">
           <div class="geo-main">
             <div class="geo-cat" id="geoCat"></div>
-            <span class="geo-cap">오늘의 질문</span>
             <div class="geo-q" id="geoQ"></div>
+            <div class="geo-en" id="geoEn"></div>
+            <div class="geo-m" id="geoM"></div>
             <div class="geo-a q" id="geoA"></div>
             <div class="geo-x q" id="geoX"></div>
           </div>
@@ -1257,7 +1261,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             <button id="geoToday">오늘</button>
             <button id="geoNext" aria-label="내일 것">›</button>
           </span>
-          <button class="btn-sub" id="geoQuiz" data-label="답 가리기" title="답과 용어 설명을 가리고, 질문만 보며 답해 본 뒤 눌러서 확인">답 가리기</button>
+          <button class="btn-sub" id="geoQuiz" data-label="정리 가리기" title="핵심 정리·용어 설명·더 깊이를 가리고, 개념명만 보며 떠올린 뒤 눌러서 확인">정리 가리기</button>
           <button class="btn-solid" id="geoStart" data-subject="지리">지리로 타이머 시작</button>
           <span class="jp-left" id="geoLeft"></span>
         </div>
@@ -3267,12 +3271,13 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b><span class="r">${escapeHTML(kanaToHangul(w))}</span><span class="k q">${escapeHTML(k)}</span></div>`).join('');
       $('jpVcap').textContent = `오늘의 단어 · ${words.length}개`;
     });
-    // 지리 교사의 한 걸음 — { c 분야, t 테마, q 학생 질문, a 답의 뼈대, k [[용어,설명]×3], x 한 걸음 더, r 더 읽기 }
+    // 지리학 — { c 분야, t 개념, en 영문, m 한 줄 정의, a 핵심 정리, k [[용어,설명]×3], x 더 깊이, r 문헌 }
     makeDaily('geo', 'data/geography-daily.json', d => {
       $('geoCat').textContent = d.c;
-      $('geoQ').textContent = d.q; $('geoA').textContent = d.a; $('geoX').textContent = d.x;
+      $('geoQ').textContent = d.t; $('geoEn').textContent = d.en || ''; $('geoM').textContent = d.m || '';
+      $('geoA').textContent = d.a; $('geoX').textContent = d.x;
       $('geoK').innerHTML = d.k.map(([k, v]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span class="q">${escapeHTML(v)}</span></div>`).join('');
-      $('geoR').textContent = d.r ? '더 읽기 · ' + d.r : '';
+      $('geoR').textContent = d.r ? '문헌 · ' + d.r : '';
     });
 
     // ════════════════ 명령 팔레트 (Ctrl/Cmd+K) ════════════════

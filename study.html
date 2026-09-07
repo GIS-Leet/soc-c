@@ -61,6 +61,8 @@ body { display: flex; flex-direction: column; }
 .panel.pass .dash-h .ok { display: inline; }
 
 .geo-cap { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
+.geo-en { margin-top: 4px; font-size: 13px; color: var(--st-label-3); letter-spacing: 0.01em; }
+.geo-m { margin-top: 8px; font-size: 15.5px; line-height: 1.6; color: var(--st-label); word-break: keep-all; }
 .geo-cat { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
 .geo-q { font-size: 21px; font-weight: 700; line-height: 1.45; letter-spacing: -0.015em; color: var(--st-label); word-break: keep-all; }
 .geo-a { margin-top: 14px; font-size: 16px; line-height: 1.75; color: var(--st-label); word-break: keep-all; }
@@ -166,10 +168,11 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   <section class="panel" id="geo" hidden>
     <div class="dash-h"><span id="geoTitle"></span><b id="geoCap"></b><span class="ok">통과</span></div>
     <div class="geo-cat" id="geoCat"></div>
-    <span class="geo-cap">오늘의 질문</span>
     <div class="geo-q" id="geoQ"></div>
+    <div class="geo-en" id="geoEn"></div>
+    <div class="geo-m" id="geoM"></div>
     <span class="ans-cap">내 답 · 20자 이상</span>
-    <textarea class="lock-in" id="geoIn" rows="4" placeholder="학생에게 말하듯이 써 보세요."></textarea>
+    <textarea class="lock-in" id="geoIn" rows="4" placeholder="핵심 정리를 보기 전에, 이 개념을 내 말로 20자 이상 써 보세요."></textarea>
     <div class="jp-foot"><span class="hint" id="geoHint">0 / 20</span><button class="btn-solid" id="geoBtn" disabled>답 확인</button></div>
     <div class="geo-a q" id="geoA"></div>
     <div class="geo-x q" id="geoX"></div>
@@ -352,7 +355,7 @@ function kanaToHangul(text, opt = {}) {
   function renderGeo() {
     const c = G.card;
     $('geoTitle').textContent = '지리학'; $('geoCap').textContent = cap(G);
-    $('geoCat').textContent = c.c; $('geoQ').textContent = c.q;
+    $('geoCat').textContent = c.c; $('geoQ').textContent = c.t; $('geoEn').textContent = c.en || ''; $('geoM').textContent = c.m || '';
     $('geoA').textContent = c.a; $('geoX').textContent = c.x; $('geoR').textContent = c.r || '';
     $('geoK').innerHTML = (c.k || []).map(([k, d]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span class="q">${escapeHTML(d)}</span></div>`).join('');
   }
@@ -372,7 +375,7 @@ function kanaToHangul(text, opt = {}) {
     $('doneCap').textContent = `지리 Day ${rec.geo?.day ?? '–'} · 일본어 Day ${rec.jp?.day ?? '–'}`;
     const t = rec.finishedAt ? new Date(rec.finishedAt) : null;
     $('doneP').textContent = t ? `${pad(t.getHours())}:${pad(t.getMinutes())}에 마쳤습니다. desk 공부 기록에 「복습」으로 남았습니다.` : 'desk 공부 기록에 「복습」으로 남았습니다.';
-    $('doneAns').innerHTML = rec.geo ? `<span class="geo-cap">${escapeHTML(rec.geo.t || '')}</span>${escapeHTML(rec.geo.q || '')}<span class="geo-cap">내 답</span>${escapeHTML(rec.geo.myAnswer || '')}` : '';
+    $('doneAns').innerHTML = rec.geo ? `<span class="geo-cap">${escapeHTML(rec.geo.t || '')}</span>${escapeHTML(rec.geo.q || rec.geo.m || '')}<span class="geo-cap">내 정리</span>${escapeHTML(rec.geo.myAnswer || '')}` : '';
   }
 
   // ── 체험판: 열쇠 확인 → 부팅. 열쇠는 demo/keys/{열쇠} 가 true 일 때만 유효 ──
@@ -396,7 +399,7 @@ function kanaToHangul(text, opt = {}) {
     $('doneCap').textContent = `지리 Day ${G.day} · 일본어 Day ${J.day}`;
     $('done').querySelector('.done-h').textContent = '체험을 마쳤습니다';
     $('doneP').textContent = '이 링크는 이제 만료되었습니다. 기록은 어디에도 남지 않았습니다.';
-    $('doneAns').innerHTML = `<span class="geo-cap">${escapeHTML(G.card.t)}</span>${escapeHTML(G.card.q)}<span class="geo-cap">내 답</span>${escapeHTML($('geoIn').value.trim())}`;
+    $('doneAns').innerHTML = `<span class="geo-cap">${escapeHTML(G.card.t)}</span>${escapeHTML(G.card.q || G.card.m || '')}<span class="geo-cap">내 정리</span>${escapeHTML($('geoIn').value.trim())}`;
   }
   // ── 관리자: 1회용 체험 링크 만들기 ──
   $('demoMake').addEventListener('click', async () => {
@@ -421,7 +424,7 @@ function kanaToHangul(text, opt = {}) {
   $('geoBtn').addEventListener('click', () => {
     geoPass = true;
     $('geo').classList.add('pass'); $('geoIn').readOnly = true; $('geoBtn').disabled = true;
-    $('geoHint').textContent = '내 답과 비교해 보세요';
+    $('geoHint').textContent = '핵심 정리와 비교해 보세요';
     $('jp').classList.remove('locked');
     $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
@@ -460,7 +463,7 @@ function kanaToHangul(text, opt = {}) {
     const end = Date.now(), st = new Date(openedAt), date = keyOf(st);
     const min = Math.min(60, Math.max(1, Math.round((end - openedAt) / 60000)));
     const rec = { finishedAt: new Date(end).toISOString(),
-      geo: { day: G.day, t: G.card.t, q: G.card.q, myAnswer: $('geoIn').value.trim() },
+      geo: { day: G.day, t: G.card.t, m: G.card.m || G.card.q || '', myAnswer: $('geoIn').value.trim() },
       jp: { day: J.day, t: J.card.t, s: jpAnswer(J.card) } };
     try {
       await push(ref(db, 'desk/study/sessions'), { subject: '복습', note: `지리 Day ${G.day} · 일본어 Day ${J.day}`,
