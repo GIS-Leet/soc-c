@@ -248,7 +248,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   const yBase = 'きぎしじちにひびぴみり';                              // 요음이 붙을 수 있는 い단
   return { t, Y, yBase };
 })();
-function kanaToHangul(text) {
+function kanaToHangul(text, opt = {}) {
   const S = (c, v, j = 0) => String.fromCharCode(0xAC00 + (c * 21 + v) * 28 + j);
   const isU = v => v === 13 || v === 18 || v === 17;
   return text.split(/(\s+)/).map(word => {
@@ -270,7 +270,7 @@ function kanaToHangul(text) {
       const m = KANA.t[ch];
       if (!m) { syl.push({ raw: ch }); continue; }
       let [c, v] = m;
-      if ((i === 0 || (prev && prev.raw !== undefined)) && (c === 15 || c === 16)) c = c === 15 ? 0 : 3;   // 어두(기호 뒤 포함) か행→ㄱ, た행→ㄷ
+      if (!opt.noInitial && (i === 0 || (prev && prev.raw !== undefined)) && (c === 15 || c === 16)) c = c === 15 ? 0 : 3;   // 어두(기호 뒤 포함) か행→ㄱ, た행→ㄷ
       if (prev && prev.c !== undefined && prev.j === undefined && c === 11) {   // 장음
         const pv = prev.v;
         if ((ch === 'う' && (pv === 8 || pv === 12 || isU(pv))) || (ch === 'い' && (pv === 5 || pv === 20)) ||
@@ -289,6 +289,8 @@ function kanaToHangul(text) {
     return { card: D.days[i % n], day: i % n + 1, round: Math.floor(i / n) + 1, title: D.title };
   }
   const cap = x => `Day ${x.day} · ${x.card.t}` + (x.round > 1 ? ` · ${x.round}회차` : '');
+  // 가나 집중 기간(type:'kana')에는 문장이 없다 — 따라 쓸 답은 그날 글자 전부
+  const jpAnswer = c => c.type === 'kana' ? (c.rows || []).join(' ') : c.s;
   // 일본어 비교 — Mac 창(daily_study.py)과 같은 규칙: NFKC 후 공백·구두점 제거, 완전 일치
   const normJa = s => (s || '').normalize('NFKC').replace(/[\s。、．，！？.,!?「」『』・…\-–—~〜]/g, '');
   const jaMatch = (typed, answer) => normJa(answer) !== '' && normJa(typed) === normJa(answer);
@@ -357,8 +359,10 @@ function kanaToHangul(text) {
   function renderJp() {
     const c = J.card;
     $('jpTitle').textContent = J.title; $('jpCap').textContent = cap(J);
-    $('jpS').textContent = c.s; $('jpP').textContent = kanaToHangul(c.s); $('jpM').textContent = c.m; $('jpG').textContent = c.g;
-    $('jpE').innerHTML = `<span lang="ja">${escapeHTML(c.e[0])}</span><span class="r">${escapeHTML(kanaToHangul(c.e[0]))}</span><span class="k q">${escapeHTML(c.e[1])}</span>`;
+    const s = jpAnswer(c);
+    $('jpS').textContent = s; $('jpP').textContent = kanaToHangul(s, { noInitial: c.type === 'kana' }); $('jpM').textContent = c.m; $('jpG').textContent = c.g;
+    $('jpE').innerHTML = c.e ? `<span lang="ja">${escapeHTML(c.e[0])}</span><span class="r">${escapeHTML(kanaToHangul(c.e[0]))}</span><span class="k q">${escapeHTML(c.e[1])}</span>` : '';
+    if (c.type === 'kana') $('jpIn').placeholder = '오늘의 글자를 순서대로 따라 쓰세요.';
     const words = [...(c.v || []).map(([w, , k]) => [w, k]), ...(c.w || [])];
     $('jpV').innerHTML = words.map(([w, k]) =>
       `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b><span class="r">${escapeHTML(kanaToHangul(w))}</span><span class="k q">${escapeHTML(k)}</span></div>`).join('');
@@ -425,7 +429,7 @@ function kanaToHangul(text) {
   $('jpIn').addEventListener('input', () => { $('jpBtn').disabled = !$('jpIn').value.trim(); $('jpHint').textContent = ''; $('jpHint').className = 'hint'; });
   $('jpIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('jpBtn').disabled) $('jpBtn').click(); });
   $('jpBtn').addEventListener('click', () => {
-    if (!jaMatch($('jpIn').value, J.card.s)) { $('jpHint').textContent = '문장이 다릅니다 — 다시'; $('jpHint').className = 'hint bad'; $('jpIn').select(); return; }
+    if (!jaMatch($('jpIn').value, jpAnswer(J.card))) { $('jpHint').textContent = '문장이 다릅니다 — 다시'; $('jpHint').className = 'hint bad'; $('jpIn').select(); return; }
     jpPass = true;
     $('jp').classList.add('pass'); $('jpIn').readOnly = true; $('jpBtn').disabled = true;
     $('jpHint').textContent = '정확합니다'; $('jpHint').className = 'hint good';
@@ -457,7 +461,7 @@ function kanaToHangul(text) {
     const min = Math.min(60, Math.max(1, Math.round((end - openedAt) / 60000)));
     const rec = { finishedAt: new Date(end).toISOString(),
       geo: { day: G.day, t: G.card.t, q: G.card.q, myAnswer: $('geoIn').value.trim() },
-      jp: { day: J.day, t: J.card.t, s: J.card.s } };
+      jp: { day: J.day, t: J.card.t, s: jpAnswer(J.card) } };
     try {
       await push(ref(db, 'desk/study/sessions'), { subject: '복습', note: `지리 Day ${G.day} · 일본어 Day ${J.day}`,
         start: openedAt, end, min, date, morning: st.getHours() < MORNING_H, daily: true });
