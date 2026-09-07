@@ -668,6 +668,53 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .geo-term b { display: block; font-weight: 700; color: var(--st-label); margin-bottom: 1px; }
 .geo-term span { color: var(--st-label-2); font-size: 14px; word-break: keep-all; }
 .geo-r { margin-top: 12px; font-size: 13px; color: var(--st-label-3); word-break: keep-all; line-height: 1.5; }
+/* ── 가나 표 · 퀴즈 ── */
+.p-jp.kana .jp-vocab { display: block; }
+.p-jp.kana .jp-s { letter-spacing: 0.12em; }
+.kana-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.kana-cell { flex: 1 1 56px; min-width: 56px; max-width: 96px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 4px 7px; border-radius: var(--st-r-element); background: var(--st-fill-2); }
+.kana-cell b { font-size: 30px; font-weight: 500; line-height: 1.1; color: var(--st-label); }
+.kana-cell .ro { font-size: 11.5px; color: var(--st-label-3); font-family: 'Space Grotesk', var(--st-font-sans); letter-spacing: 0.02em; }
+.kana-cell .hg { font-size: 14px; font-weight: 700; color: var(--st-accent-ink); }
+.kana-words { display: grid; grid-template-columns: 1fr 1fr; column-gap: 26px; margin-top: 10px; }
+.kq { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--st-separator); }
+.kq[hidden] { display: none; }
+.kq-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.kq-modes { display: inline-flex; gap: 2px; background: var(--st-fill-2); border-radius: var(--st-r-full); padding: 3px; }
+.kq-modes button { border: 0; background: transparent; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 650;
+  color: var(--st-label-3); padding: 6px 14px; border-radius: var(--st-r-full); transition: background 150ms, color 150ms; }
+.kq-modes button.on { background: var(--st-surface); color: var(--st-label); box-shadow: 0 1px 3px rgba(0,0,0,0.10); }
+.kq-opt { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; color: var(--st-label-2); cursor: pointer; }
+.kq-opt input { accent-color: var(--st-accent-solid); }
+.kq-top .btn-solid { height: 36px; padding: 0 18px; }
+.kq-best { font-size: 13px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; margin-left: auto; }
+.kq-q { display: flex; flex-direction: column; align-items: center; padding: 18px 0 6px; }
+.kq-q[hidden] { display: none; }
+.kq-prog { font-size: 12.5px; font-weight: 700; color: var(--st-label-3); font-feature-settings: 'tnum' 1; letter-spacing: 0.06em; }
+.kq-kana { font-size: 96px; font-weight: 500; line-height: 1.15; color: var(--st-label); margin: 4px 0 14px; }
+.kq-opts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: min(560px, 100%); }
+.kq-opts button { position: relative; border: 1px solid var(--st-separator-strong); background: var(--st-surface); cursor: pointer;
+  font-family: inherit; font-size: 22px; font-weight: 700; color: var(--st-label); height: 60px; border-radius: var(--st-r-element);
+  transition: background 120ms, border-color 120ms, transform 100ms; }
+.kq-opts button:hover { border-color: var(--st-label-3); }
+.kq-opts button:active { transform: scale(0.97); }
+.kq-opts button i { position: absolute; left: 8px; top: 5px; font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--st-label-3); font-family: 'Space Grotesk', var(--st-font-sans); }
+.kq-opts button.ok { background: var(--st-success-soft); border-color: var(--st-success); color: var(--st-success-ink); }
+.kq-opts button.ng { background: var(--st-danger-soft); border-color: var(--st-danger); color: var(--st-danger-ink); }
+.kq-done { text-align: center; padding: 16px 0 6px; font-size: 16px; color: var(--st-label-2); font-feature-settings: 'tnum' 1; }
+.kq-done[hidden] { display: none; }
+.kq-done b { font-family: 'Space Grotesk', var(--st-font-sans); font-size: 34px; font-weight: 600; letter-spacing: -0.03em; color: var(--st-accent-ink); }
+.kq-wrong { margin: 10px 0 14px; font-size: 15px; color: var(--st-label-2); line-height: 2; }
+.kq-wrong [lang] { font-size: 22px; color: var(--st-label); }
+.kq-wrong small { font-size: 12px; color: var(--st-label-3); margin: 0 6px 0 3px; }
+@media (max-width: 860px) {
+  .kana-words { grid-template-columns: 1fr; }
+  .kq-kana { font-size: 76px; }
+  .kq-opts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kq-opts button { font-size: 20px; height: 54px; }
+  .kq-best { margin-left: 0; width: 100%; }
+}
 /* 가리기 — 배너 공통: .q 표시 요소를 흐리게, 눌러서 하나씩 확인 */
 .p-daily.quiz .q { filter: blur(6px); cursor: pointer; transition: filter 200ms var(--ease-o); user-select: none; }
 .p-daily.quiz .q.show { filter: none; }
@@ -1158,12 +1205,29 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
           </div>
           <div class="jp-side"><span class="geo-cap" id="jpVcap">오늘의 단어</span><div class="jp-vocab" id="jpV"></div></div>
         </div>
+        <!-- 가나 퀴즈 — 20문제 4지선다, 틀린 글자는 더 자주 출제 -->
+        <div class="kq" id="kq" hidden>
+          <div class="kq-top">
+            <span class="kq-modes" id="kqModes"><button data-m="hira" class="on">히라가나</button><button data-m="kata">가타카나</button><button data-m="mix">섞어서</button></span>
+            <label class="kq-opt"><input type="checkbox" id="kqDaku" checked> 탁음</label>
+            <label class="kq-opt"><input type="checkbox" id="kqYoon"> 요음</label>
+            <button class="btn-solid" id="kqStart">20문제 시작</button>
+            <span class="kq-best" id="kqBest"></span>
+          </div>
+          <div class="kq-q" id="kqQ" hidden>
+            <div class="kq-prog" id="kqProg"></div>
+            <div class="kq-kana" id="kqKana" lang="ja"></div>
+            <div class="kq-opts" id="kqOpts"></div>
+          </div>
+          <div class="kq-done" id="kqDone" hidden></div>
+        </div>
         <div class="jp-foot">
           <span class="cal-nav">
             <button id="jpPrev" aria-label="어제 것">‹</button>
             <button id="jpToday">오늘</button>
             <button id="jpNext" aria-label="내일 것">›</button>
           </span>
+          <button class="btn-sub" id="jpKq" title="히라가나·가타카나 4지선다 20문제">가나 퀴즈</button>
           <button class="btn-sub" id="jpQuiz" data-label="뜻 가리기" title="뜻을 흐리게 가리고, 눌러서 하나씩 확인">뜻 가리기</button>
           <button class="btn-solid" id="jpStart" data-subject="일본어">일본어로 타이머 시작</button>
           <span class="jp-left" id="jpLeft"></span>
@@ -3064,7 +3128,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       const yBase = 'きぎしじちにひびぴみり';                              // 요음이 붙을 수 있는 い단
       return { t, Y, yBase };
     })();
-    function kanaToHangul(text) {
+    function kanaToHangul(text, opt = {}) {
       const S = (c, v, j = 0) => String.fromCharCode(0xAC00 + (c * 21 + v) * 28 + j);
       const isU = v => v === 13 || v === 18 || v === 17;
       return text.split(/(\s+)/).map(word => {
@@ -3086,7 +3150,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
           const m = KANA.t[ch];
           if (!m) { syl.push({ raw: ch }); continue; }
           let [c, v] = m;
-          if ((i === 0 || (prev && prev.raw !== undefined)) && (c === 15 || c === 16)) c = c === 15 ? 0 : 3;   // 어두(기호 뒤 포함) か행→ㄱ, た행→ㄷ
+          if (!opt.noInitial && (i === 0 || (prev && prev.raw !== undefined)) && (c === 15 || c === 16)) c = c === 15 ? 0 : 3;   // 어두(기호 뒤 포함) か행→ㄱ, た행→ㄷ
           if (prev && prev.c !== undefined && prev.j === undefined && c === 11) {   // 장음
             const pv = prev.v;
             if ((ch === 'う' && (pv === 8 || pv === 12 || isU(pv))) || (ch === 'い' && (pv === 5 || pv === 20)) ||
@@ -3097,10 +3161,106 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         return syl.map(s => s.raw !== undefined ? s.raw : s.long ? '-' : S(s.c, s.v, s.j || 0)).join('');
       }).join('').replace(/。/g, '.').replace(/、/g, ',');
     }
-    // 오늘의 일본어 — { t 테마, s 문장, m 뜻, v [[단어,읽기,뜻]×5], w [[단어,뜻]×6], g 문법, e [예문,뜻] }
+    // ── 가나 표 + 로마자 + 4지선다 퀴즈 ──
+    const KANA_ROMA = (() => {
+      const R = {};
+      const put = (ks, rs) => [...ks].forEach((k, i) => { R[k] = rs[i]; });
+      put('あいうえお', ['a', 'i', 'u', 'e', 'o']); put('かきくけこ', ['ka', 'ki', 'ku', 'ke', 'ko']); put('さしすせそ', ['sa', 'shi', 'su', 'se', 'so']);
+      put('たちつてと', ['ta', 'chi', 'tsu', 'te', 'to']); put('なにぬねの', ['na', 'ni', 'nu', 'ne', 'no']); put('はひふへほ', ['ha', 'hi', 'fu', 'he', 'ho']);
+      put('まみむめも', ['ma', 'mi', 'mu', 'me', 'mo']); put('やゆよ', ['ya', 'yu', 'yo']); put('らりるれろ', ['ra', 'ri', 'ru', 're', 'ro']); put('わをん', ['wa', 'o', 'n']);
+      put('がぎぐげご', ['ga', 'gi', 'gu', 'ge', 'go']); put('ざじずぜぞ', ['za', 'ji', 'zu', 'ze', 'zo']); put('だぢづでど', ['da', 'ji', 'zu', 'de', 'do']);
+      put('ばびぶべぼ', ['ba', 'bi', 'bu', 'be', 'bo']); put('ぱぴぷぺぽ', ['pa', 'pi', 'pu', 'pe', 'po']);
+      const Y = { 'き': 'ky', 'ぎ': 'gy', 'し': 'sh', 'じ': 'j', 'ち': 'ch', 'に': 'ny', 'ひ': 'hy', 'び': 'by', 'ぴ': 'py', 'み': 'my', 'り': 'ry' };
+      for (const [b, p] of Object.entries(Y)) { R[b + 'ゃ'] = p + 'a'; R[b + 'ゅ'] = p + 'u'; R[b + 'ょ'] = p + 'o'; }
+      Object.assign(R, { 'っ': '(받침)', 'ー': '(장음)', 'てぃ': 'ti', 'でぃ': 'di', 'ふぁ': 'fa', 'ふぃ': 'fi', 'ふぇ': 'fe', 'ふぉ': 'fo', 'うぃ': 'wi', 'うぇ': 'we', 'うぉ': 'wo' });
+      return R;
+    })();
+    const toHira = s => [...s].map(ch => { const cp = ch.charCodeAt(0); return cp >= 0x30A1 && cp <= 0x30F6 ? String.fromCharCode(cp - 0x60) : ch; }).join('');
+    const isSmall = ch => 'ゃゅょぁぃぅぇぉャュョァィゥェォ'.includes(ch);
+    // 행 문자열을 글자 단위로 자른다 — 작은 글자는 앞 글자에 붙인다 (きゃ, ティ)
+    function splitKana(row) { const out = []; for (const ch of row) { if (isSmall(ch) && out.length) out[out.length - 1] += ch; else out.push(ch); } return out; }
+    const kanaRead = k => k === 'っ' || k === 'ッ' ? 'ㅅ 받침' : k === 'ー' ? '길게' : k === 'ん' || k === 'ン' ? 'ㄴ 받침' : kanaToHangul(k, { noInitial: true });
+    function kanaChart(rows) {
+      return rows.map(row => `<div class="kana-row">` + splitKana(row).map(k =>
+        `<div class="kana-cell"><b lang="ja">${k}</b><span class="ro">${KANA_ROMA[toHira(k)] || ''}</span><span class="hg q">${escapeHTML(kanaRead(k))}</span></div>`).join('') + `</div>`).join('');
+    }
+    // 퀴즈: 풀에서 20문제, 틀린 글자는 가중치를 높여 더 자주 낸다
+    const KQ = { mode: 'hira', pool: [], q: [], i: 0, ok: 0, wrong: [], t0: 0, busy: false, stats: {}, best: {} };
+    try { KQ.stats = JSON.parse(localStorage.getItem('desk-kana-stats') || '{}'); KQ.best = JSON.parse(localStorage.getItem('desk-kana-best') || '{}'); } catch {}
+    const BASIC = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん';
+    const DAKU = 'がぎぐげござじずぜぞだでどばびぶべぼぱぴぷぺぽ';
+    const YOON = ['きゃ', 'きゅ', 'きょ', 'しゃ', 'しゅ', 'しょ', 'ちゃ', 'ちゅ', 'ちょ', 'にゃ', 'にゅ', 'にょ', 'ひゃ', 'ひゅ', 'ひょ', 'みゃ', 'みゅ', 'みょ', 'りゃ', 'りゅ', 'りょ', 'ぎゃ', 'ぎゅ', 'ぎょ', 'じゃ', 'じゅ', 'じょ', 'びゃ', 'びゅ', 'びょ', 'ぴゃ', 'ぴゅ', 'ぴょ'];
+    const toKata = s => [...s].map(ch => String.fromCharCode(ch.charCodeAt(0) + 0x60)).join('');
+    function kqKey() { return KQ.mode + ($('kqDaku').checked ? '+d' : '') + ($('kqYoon').checked ? '+y' : ''); }
+    function kqShowBest() {
+      const b = KQ.best[kqKey()];
+      $('kqBest').textContent = b ? `최고 기록 ${b.ok}/20 · ${b.sec}초` : '아직 기록 없음';
+    }
+    function kqStart() {
+      let pool = [...BASIC]; if ($('kqDaku').checked) pool.push(...DAKU); if ($('kqYoon').checked) pool.push(...YOON);
+      KQ.pool = pool;
+      const weight = k => 1 + 2 * ((KQ.stats[k] || {}).wrong || 0);
+      const pick = () => { const tot = pool.reduce((a, k) => a + weight(k), 0); let r = Math.random() * tot; for (const k of pool) { r -= weight(k); if (r <= 0) return k; } return pool[pool.length - 1]; };
+      const qs = []; const used = new Set();
+      while (qs.length < 20 && used.size < pool.length) { const k = pick(); if (used.has(k)) continue; used.add(k); qs.push(k); }
+      KQ.q = qs; KQ.i = 0; KQ.ok = 0; KQ.wrong = []; KQ.t0 = Date.now();
+      $('kqDone').hidden = true; $('kqQ').hidden = false; kqNext();
+    }
+    function kqNext() {
+      if (KQ.i >= KQ.q.length) return kqFinish();
+      const k = KQ.q[KQ.i], ans = kanaRead(k);
+      const kata = KQ.mode === 'kata' || (KQ.mode === 'mix' && Math.random() < 0.5);
+      $('kqKana').textContent = kata ? toKata(k) : k;
+      $('kqProg').textContent = `${KQ.i + 1} / ${KQ.q.length}`;
+      const others = KQ.pool.filter(x => kanaRead(x) !== ans).sort(() => Math.random() - 0.5).slice(0, 3).map(kanaRead);
+      const opts = [ans, ...others].sort(() => Math.random() - 0.5);
+      $('kqOpts').innerHTML = opts.map((o, i) => `<button data-a="${escapeHTML(o)}"><i>${i + 1}</i>${escapeHTML(o)}</button>`).join('');
+      KQ.busy = false;
+    }
+    function kqAnswer(a) {
+      if (KQ.busy) return; KQ.busy = true;
+      const k = KQ.q[KQ.i], ans = kanaRead(k), right = a === ans;
+      const st = KQ.stats[k] = KQ.stats[k] || { seen: 0, wrong: 0 }; st.seen++; if (!right) st.wrong++; else st.wrong = Math.max(0, st.wrong - 0.5);
+      try { localStorage.setItem('desk-kana-stats', JSON.stringify(KQ.stats)); } catch {}
+      $('kqOpts').querySelectorAll('button').forEach(b => { if (b.dataset.a === ans) b.classList.add('ok'); else if (b.dataset.a === a) b.classList.add('ng'); });
+      if (right) KQ.ok++; else KQ.wrong.push(k);
+      KQ.i++; setTimeout(kqNext, right ? 350 : 900);
+    }
+    function kqFinish() {
+      const sec = Math.round((Date.now() - KQ.t0) / 1000), key = kqKey(), b = KQ.best[key];
+      const isBest = !b || KQ.ok > b.ok || (KQ.ok === b.ok && sec < b.sec);
+      if (isBest) { KQ.best[key] = { ok: KQ.ok, sec }; try { localStorage.setItem('desk-kana-best', JSON.stringify(KQ.best)); } catch {} }
+      $('kqQ').hidden = true; $('kqDone').hidden = false;
+      $('kqDone').innerHTML = `<b>${KQ.ok} / ${KQ.q.length}</b> · ${sec}초${isBest ? ' · 🏆 최고 기록' : ''}` +
+        (KQ.wrong.length ? `<div class="kq-wrong">틀린 글자 <span lang="ja">${KQ.wrong.map(k => `${k}<small>${escapeHTML(kanaRead(k))}</small>`).join(' ')}</span></div>` : '<div class="kq-wrong">전부 맞았습니다 — 다음엔 옵션을 하나 더 켜 보세요.</div>') +
+        `<button class="btn-solid" id="kqAgain">한 번 더</button>`;
+      kqShowBest();
+    }
+    $('jpKq').addEventListener('click', () => { const kq = $('kq'); kq.hidden = !kq.hidden; $('jpKq').textContent = kq.hidden ? '가나 퀴즈' : '퀴즈 닫기'; if (!kq.hidden) { kqShowBest(); kq.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } });
+    $('kqModes').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; KQ.mode = b.dataset.m; $('kqModes').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); kqShowBest(); });
+    $('kqDaku').addEventListener('change', kqShowBest); $('kqYoon').addEventListener('change', kqShowBest);
+    $('kqStart').addEventListener('click', kqStart);
+    $('kqOpts').addEventListener('click', e => { const b = e.target.closest('button'); if (b) kqAnswer(b.dataset.a); });
+    $('kqDone').addEventListener('click', e => { if (e.target.closest('#kqAgain')) kqStart(); });
+    document.addEventListener('keydown', e => {   // 1~4 키로 답하기 (퀴즈가 보일 때만)
+      if ($('kqQ').hidden || $('kq').hidden || !/^[1-4]$/.test(e.key)) return;
+      const t = e.target; if (t && t.closest && t.closest('input, textarea, [contenteditable="true"]')) return;
+      const b = $('kqOpts').querySelectorAll('button')[Number(e.key) - 1]; if (b) { e.preventDefault(); kqAnswer(b.dataset.a); }
+    });
+    // 오늘의 일본어 — type:'kana' { t, rows, m, g, w } 또는 문장 { t 테마, s 문장, m 뜻, v [[단어,읽기,뜻]×5], w [[단어,뜻]×6], g 문법, e [예문,뜻] }
     makeDaily('jp', 'data/japanese-daily.json', d => {
-      $('jpS').textContent = d.s; $('jpP').textContent = kanaToHangul(d.s);
+      const kana = d.type === 'kana';
+      $('jpPanel').classList.toggle('kana', kana);
       $('jpM').textContent = d.m; $('jpG').textContent = d.g;
+      if (kana) {
+        $('jpS').textContent = d.rows.map(r => splitKana(r)[0]).join(' ');
+        $('jpP').textContent = ''; $('jpE').innerHTML = '';
+        $('jpV').innerHTML = kanaChart(d.rows) + `<div class="kana-words">` + d.w.map(([w, k]) =>
+          `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b><span class="r">${escapeHTML(kanaToHangul(w))}</span><span class="k q">${escapeHTML(k)}</span></div>`).join('') + `</div>`;
+        $('jpVcap').textContent = `오늘의 글자 ${d.rows.reduce((a, r) => a + splitKana(r).length, 0)}자 · 연습 단어 ${d.w.length}`;
+        return;
+      }
+      $('jpS').textContent = d.s; $('jpP').textContent = kanaToHangul(d.s);
       $('jpE').innerHTML = `<span lang="ja">${escapeHTML(d.e[0])}</span><span class="r">${escapeHTML(kanaToHangul(d.e[0]))}</span><span class="k q">${escapeHTML(d.e[1])}</span>`;
       const words = [...d.v.map(([w, , k]) => [w, k]), ...(d.w || [])];
       $('jpV').innerHTML = words.map(([w, k]) =>
