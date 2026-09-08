@@ -214,7 +214,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 <script src="study-quiz.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut }
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, signInWithCredential }
     from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
   import { getDatabase, ref, set, push, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
@@ -237,6 +237,14 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   const DEMO_KEY = (new URLSearchParams(location.search).get('demo') || '').replace(/[^A-Za-z0-9]/g, '');
   const DEMO = DEMO_KEY.length >= 8;
   const DEMO_USED_LS = 'study-demo-used';
+  // ── iPhone 앱(Study.app) 모드: ?app=1&slot=N&mode=full|test. 앱이 네이티브 Google 토큰을 window.nativeSignIn 으로 넘기고, 완료는 messageHandlers.study 로 받는다 ──
+  const Q = new URLSearchParams(location.search);
+  const APP = Q.get('app') === '1', SLOT = Number(Q.get('slot') || 0), MODE = Q.get('mode') === 'test' ? 'test' : 'full';
+  const post = m => { try { window.webkit.messageHandlers.study.postMessage(m); } catch {} };
+  window.nativeSignIn = async (idToken, accessToken) => {
+    try { await signInWithCredential(auth, GoogleAuthProvider.credential(idToken, accessToken)); }
+    catch (e) { showWarn('앱 로그인 실패: ' + (e.message || e)); }
+  };
   const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const pad = n => String(n).padStart(2, '0');
   const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -320,11 +328,12 @@ function kanaToHangul(text, opt = {}) {
   });
   getRedirectResult(auth).catch(() => {});
   let booted = false;
+  if (APP) { $('signInBtn').style.display = 'none'; gate.querySelector('p').textContent = '앱에서 로그인 중…'; }
   if (DEMO) bootDemo();
   else onAuthStateChanged(auth, user => {
     if (user && user.email === OWNER_EMAIL) { if (!booted) { booted = true; boot(); } }
     else if (user) { showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth); }
-    else showGate();
+    else { showGate(); if (APP) post({ needSignIn: true }); }
   });
   // 로컬 미리보기 전용 — localhost에서만 게이트를 건너뛰어 화면을 확인 (기록 쓰기는 권한이 없어 실패함)
   if (location.hostname === 'localhost') window.__studyPreview = (demo = false) => boot({ preview: true, demo });
@@ -342,11 +351,15 @@ function kanaToHangul(text, opt = {}) {
       $('finish').textContent = '체험 완료';
       $('jpSkip').hidden = false;
     }
+    if (APP) {
+      $('meta').innerHTML = `<b>${today}</b> (${WEEKDAYS[now.getDay()]})` + (SLOT ? ` · ${SLOT}회차` : ' · 추가') + (MODE === 'test' ? ' · 시험' : '');
+      $('footNote').textContent = MODE === 'test' ? '시험만 봅니다 — 두 과목 모두 통과하면 앱 잠금이 풀립니다.' : '카드를 읽고 두 과목 시험을 통과하면 앱 잠금이 풀립니다.';
+    }
     let doneRec = null;
-    if (!opt.preview && !opt.demo) {
+    if (!opt.preview && !opt.demo && !APP) {
       try { doneRec = (await get(ref(db, 'desk/study/daily/' + today))).val(); }
       catch (e) { showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.'); return; }
-      $('demoTool').hidden = false;
+      if (!APP) $('demoTool').hidden = false;
     }
     if (doneRec) { renderDone(doneRec); return; }
     let geoD, jpD;
@@ -356,6 +369,7 @@ function kanaToHangul(text, opt = {}) {
     GEO_D = geoD; JP_D = jpD; G = pick(geoD, now); J = pick(jpD, now);
     renderGeo(); renderJp();
     $('geo').hidden = false; $('jp').hidden = false; $('footRow').hidden = false;
+    if (APP && MODE === 'test') runTest('geo');   // 2회차부터: 읽기 없이 바로 시험 (지리 통과 → 일본어 자동)
   }
 
   function renderGeo() {
@@ -444,8 +458,13 @@ function kanaToHangul(text, opt = {}) {
       if (key === 'geo') geoPass = true; else jpPass = true;
       panel.classList.add('pass'); panel.querySelector('.dash-h .ok').textContent = `통과 · ${score}/${total}`;
       hint.textContent = `통과 — ${score}/${total}`; hint.className = 'hint good';
-      if (key === 'geo') { $('jp').classList.remove('locked'); $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-      else { $('finish').disabled = !(geoPass && jpPass); $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' }); }
+      if (key === 'geo') {
+        $('jp').classList.remove('locked'); $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (APP && MODE === 'test') setTimeout(() => runTest('jp'), 600);
+      } else {
+        $('finish').disabled = !(geoPass && jpPass); $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
+        if (APP) setTimeout(() => $('finish').click(), 600);   // 앱에서는 통과 즉시 기록·해제
+      }
     } else {
       hint.textContent = `${score}/${total} — 다시 읽고 재시험 (4문제 이상)`; hint.className = 'hint bad';
       const btn = $(key + 'Test'); btn.hidden = false; btn.textContent = '재시험';
@@ -480,12 +499,14 @@ function kanaToHangul(text, opt = {}) {
     const rec = { finishedAt: new Date(end).toISOString(),
       geo: { day: G.day, t: G.card.t, m: G.card.m || '', ...result.geo },
       jp: { day: J.day, t: J.card.t, s: jpAnswer(J.card), ...result.jp } };
+    const subject = APP ? '폰 공부' : '복습';
     try {
-      await push(ref(db, 'desk/study/sessions'), { subject: '복습', note: `지리 Day ${G.day} · 일본어 Day ${J.day}`,
-        start: openedAt, end, min, date, morning: st.getHours() < MORNING_H, daily: true });
-      await set(ref(db, 'desk/study/daily/' + date), rec);
+      await push(ref(db, 'desk/study/sessions'), { subject, note: (APP ? `${SLOT || '추가'}회차 · ` : '') + `지리 Day ${G.day} ${scoreOf(result.geo)} · 일본어 Day ${J.day} ${scoreOf(result.jp)}`,
+        start: openedAt, end, min, date, morning: st.getHours() < MORNING_H, daily: !APP, phone: APP || null });
+      if (APP) await set(ref(db, `desk/study/phone/${date}/${SLOT || 'x' + end}`), { ...rec, slot: SLOT, mode: MODE });
+      else await set(ref(db, 'desk/study/daily/' + date), rec);
       const subs = (await get(ref(db, 'desk/study/subjects'))).val() || {};
-      if (!Object.values(subs).some(s => s && s.name === '복습')) await push(ref(db, 'desk/study/subjects'), { name: '복습', createdAt: Date.now() });
+      if (!Object.values(subs).some(s => s && s.name === subject)) await push(ref(db, 'desk/study/subjects'), { name: subject, createdAt: Date.now() });
     } catch (e) {
       $('finish').textContent = '오늘 복습 완료'; $('finish').disabled = false;
       $('footNote').innerHTML = `<span class="warn">기록하지 못했습니다: ${escapeHTML(e.message || String(e))}</span>`;
@@ -494,6 +515,7 @@ function kanaToHangul(text, opt = {}) {
     $('geo').hidden = true; $('jp').hidden = true;
     renderDone(rec);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (APP) { $('doneP').textContent = '앱 잠금이 풀립니다.'; post({ done: true, slot: SLOT }); }
   });
 </script>
 </body>
