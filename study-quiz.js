@@ -1,5 +1,5 @@
 // 공부 → 시험: 1일차부터 오늘까지의 카드에서 문제를 만들고 화면에 띄운다. study.html과 Mac 창(daily_study)이 함께 씀.
-// v2 — 주관식(떠올리기) 위주 + 같은 분야 오답 보기 + 출제 이력(SRS): 최근 낸 문제는 피하고, 틀렸거나 오래된 것을 먼저.
+// v3 — 주관식(떠올리기) 위주 + 같은 분야 오답 보기 + 간격 반복(SRS): 연속 정답에 따라 1·3·7·14·30일 간격, 틀린 문제 최우선.
 (function (root) {
   'use strict';
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -19,13 +19,18 @@
   }
 
   // ── 출제 이력 ──
-  // log: { [id]: { last: ms, right: n, wrong: n, streak: n } }. 우선순위: 틀린 지 얼마 안 됨 > 한 번도 안 냄 > 오래됨. 최근 AVOID_DAYS 안에 낸 건 뒤로.
+  // log: { [id]: { last: ms, right: n, wrong: n, streak: n } }
+  // 간격 반복: 연속 정답 횟수(streak)에 따라 1·3·7·14·30일 뒤에 다시. 기한이 지난 문제일수록 우선, 기한 전 문제는 회피.
+  // 틀린 문제(2연속 정답 전)는 최우선, 한 번도 안 낸 문제는 그다음.
+  const INTERVALS = [1, 3, 7, 14, 30];
+  const intervalDays = e => INTERVALS[Math.min(e.streak || 0, INTERVALS.length - 1)];
   function priority(entry, now) {
     if (!entry) return 1000;
     const age = (now - (entry.last || 0)) / DAY;
-    const recent = age < AVOID_DAYS;
-    const wrongBoost = (entry.wrong || 0) > 0 && (entry.streak || 0) < 2 ? 1500 : 0;  // 틀린 뒤 2연속 정답 전까지는 '한 번도 안 낸 문제'보다 우선
-    return (recent ? -1000 : 0) + wrongBoost + Math.min(age, 60) * 5 - Math.min(entry.streak || 0, 5) * 20;
+    if ((entry.wrong || 0) > 0 && (entry.streak || 0) < 2) return age < AVOID_DAYS ? 500 : 1500;   // 틀린 문제: 이틀은 쉬고 최우선
+    const due = intervalDays(entry);
+    if (age >= due) return 1200 + Math.min(age - due, 60) * 5;                                     // 기한 지남: 새 문제보다 먼저(복습 우선), 오래 지날수록 앞으로
+    return -500 - (due - age) * 5;                                                                 // 기한 전: 회피
   }
   // 후보 중 count개 고르기: 오늘 카드 최소 minToday, 형식 비율(주관식 typedN) 맞춤, 우선순위 높은 순 + 약간의 무작위
   function select(cands, count, typedN, isToday, log, now) {
@@ -208,5 +213,5 @@
     return { destroy() { el.removeEventListener('click', onClick); document.removeEventListener('keydown', onKey); el.innerHTML = ''; } };
   }
   const pass = (score, total) => total > 0 && score >= Math.ceil(total * 0.8);
-  root.StudyQuiz = { geo, jp, mount, pass, grade, norm, applyLog, keyOK, splitKana, geoCandidates, TYPED_PER_TEST, AVOID_DAYS };
+  root.StudyQuiz = { geo, jp, mount, pass, grade, norm, applyLog, keyOK, splitKana, geoCandidates, priority, intervalDays, TYPED_PER_TEST, AVOID_DAYS, INTERVALS };
 })(typeof window !== 'undefined' ? window : globalThis);
