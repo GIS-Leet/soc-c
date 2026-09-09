@@ -1565,7 +1565,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut }
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, signInWithCredential }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getDatabase, ref, onValue, set, update, remove, push, get }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
@@ -1590,6 +1590,13 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
     const $ = id => document.getElementById(id);
     const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    // ── iPhone 앱(Desk.app) 모드: ?app=1 — 앱이 네이티브 Google 토큰을 window.nativeSignIn 으로 넘긴다 (study.html과 동일) ──
+    const APP = new URLSearchParams(location.search).get('app') === '1';
+    const postApp = m => { try { window.webkit.messageHandlers.study.postMessage(m); } catch {} };
+    window.nativeSignIn = async (idToken, accessToken) => {
+      try { await signInWithCredential(auth, GoogleAuthProvider.credential(idToken, accessToken)); }
+      catch (e) { showWarn('앱 로그인 실패: ' + (e.message || e)); }
+    };
     const pad = n => String(n).padStart(2, '0');
     const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
     const WEEKDAYS = ['일','월','화','수','목','금','토'];
@@ -3447,8 +3454,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         }
       } else if (user) {
         showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth);
-      } else showGate();
+      } else { showGate(); if (APP) postApp({ needSignIn: true }); }
     });
+    if (APP) { $('signInBtn').style.display = 'none'; gate.querySelector('p').textContent = '앱에서 로그인 중…'; }
     function showGate() {
       gate.style.display = '';
       desk.style.display = 'none';
