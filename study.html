@@ -199,7 +199,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   </section>
 
   <div class="foot-row" id="footRow" hidden>
-    <span class="note" id="footNote">두 단계를 마치면 desk 공부 기록에 「복습」으로 남습니다.</span>
+    <span class="note" id="footNote">두 단계를 마치면 desk 공부 기록에 「복습」으로 남습니다. 시험은 주관식 3 + 4지선다 2, 틀린 문제는 다시 나옵니다.</span>
     <button class="btn-solid" id="finish" disabled>오늘 복습 완료</button>
   </div>
 
@@ -216,7 +216,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, signInWithCredential }
     from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-  import { getDatabase, ref, set, push, get } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+  import { getDatabase, ref, set, push, get, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
   // ── 설정 (desk.html과 동일) ──
   const OWNER_EMAIL = "leetae712@gmail.com";
@@ -340,6 +340,7 @@ function kanaToHangul(text, opt = {}) {
 
   // ── 본문 ──
   let G, J, GEO_D, JP_D, openedAt, geoPass = false, jpPass = false;
+  let QUIZLOG = {};   // 출제 이력(desk/study/quizlog) — 최근 낸 문제 회피·틀린 문제 우선
   async function boot(opt = {}) {
     gate.style.display = 'none'; appEl.style.display = '';
     const now = new Date(), today = keyOf(now);
@@ -367,6 +368,7 @@ function kanaToHangul(text, opt = {}) {
       [geoD, jpD] = await Promise.all(['data/geography-daily.json', 'data/japanese-daily.json'].map(f => fetch(f, { cache: 'no-cache' }).then(r => r.json())));
     } catch (e) { showGate(); showWarn('카드를 불러오지 못했습니다. 네트워크를 확인하세요.'); return; }
     GEO_D = geoD; JP_D = jpD; G = pick(geoD, now); J = pick(jpD, now);
+    if (!opt.preview && !opt.demo) { try { QUIZLOG = (await get(ref(db, 'desk/study/quizlog'))).val() || {}; } catch { QUIZLOG = {}; } }
     renderGeo(); renderJp();
     $('geo').hidden = false; $('jp').hidden = false; $('footRow').hidden = false;
     if (APP && MODE === 'test') runTest('geo');   // 2회차부터: 읽기 없이 바로 시험 (지리 통과 → 일본어 자동)
@@ -440,15 +442,20 @@ function kanaToHangul(text, opt = {}) {
   const result = { geo: { attempts: 0 }, jp: { attempts: 0 } };
   let quizHandle = null;
   function runTest(key) {
-    const qs = key === 'geo' ? StudyQuiz.geo(GEO_D, G.idx) : StudyQuiz.jp(JP_D, J.idx, { kanaToHangul });
+    const qs = key === 'geo' ? StudyQuiz.geo(GEO_D, G.idx, { log: QUIZLOG }) : StudyQuiz.jp(JP_D, J.idx, { kanaToHangul, log: QUIZLOG });
     if (!qs.length) { finishTest(key, 1, 1); return; }          // 문제를 못 만들 만큼 데이터가 적으면 통과 처리
     result[key].attempts++;
     $(key + 'Body').hidden = true; $(key + 'Test').hidden = true; if (key === 'jp') $('jpSkip').hidden = true;
     $(key + 'Hint').textContent = '시험 중 — 1~4 키로도 답할 수 있습니다'; $(key + 'Hint').className = 'hint';
     const box = $(key + 'Quiz'); box.hidden = false;
     if (quizHandle) quizHandle.destroy();
-    quizHandle = StudyQuiz.mount(box, qs, { checkTyped: (t, a) => jaMatch(t, a), onFinish: (score, total) => finishTest(key, score, total) });
+    quizHandle = StudyQuiz.mount(box, qs, { onFinish: (score, total, wrong, answered) => { saveLog(answered); finishTest(key, score, total); } });
     $(key).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  async function saveLog(answered) {   // 출제 이력 저장 — 실패해도 시험 진행엔 영향 없음
+    const patch = StudyQuiz.applyLog(QUIZLOG, answered);
+    if (DEMO || !Object.keys(patch).length) return;
+    try { await update(ref(db, 'desk/study/quizlog'), Object.fromEntries(Object.entries(patch).map(([k, v]) => [StudyQuiz.keyOK(k), v]))); } catch {}
   }
   function finishTest(key, score, total) {
     $(key + 'Quiz').hidden = true; $(key + 'Body').hidden = false;
