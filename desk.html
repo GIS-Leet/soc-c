@@ -2194,7 +2194,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     // 학생이 답변 아래에 이어서 물었는데(subReplies) 그 뒤로 교사 답이 없으면 '답변 필요'
     const subsOf = r => Object.entries(r.subReplies || {}).sort((a, b) => a[0] < b[0] ? -1 : 1);
     // '확인함(답변 불필요)' 처리(followUpResolvedAt) 이전의 학생 대댓글은 답변 필요로 치지 않음 — 앱과 같은 규칙
-    const replyNeedsFollowUp = (r, q) => { const ss = subsOf(r); if (!ss.length || ss[ss.length - 1][1].isTeacher) return false; return parseQTime(ss[ss.length - 1][1].time) > (q?.followUpResolvedAt || 0); };
+    const replyNeedsFollowUp = (r, q) => { const ss = subsOf(r); if (!ss.length || ss[ss.length - 1][1].isTeacher) return false; return !(q?.followUpResolvedAt) || parseQTime(ss[ss.length - 1][1].time) > q.followUpResolvedAt; };
     const needsFollowUp = q => Object.values(q.replies || {}).some(r => replyNeedsFollowUp(r, q));
     const isOpen = q => !isAnswered(q) || needsFollowUp(q);
 
