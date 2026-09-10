@@ -286,6 +286,8 @@ button.stat-i { border: 0; background: none; cursor: pointer; font-family: inher
 .qa-subcompose button { font: inherit; font-size: 12px; padding: 6px 10px; border: 1px solid var(--st-separator); border-radius: var(--st-r-element, 8px); background: var(--st-fill-2); color: var(--st-label-2); cursor: pointer; white-space: nowrap; }
 .qa-subcompose button:hover { color: var(--st-accent-ink, #0069d9); }
 .qa-reply .rd .fu { margin-left: 6px; color: var(--st-danger-ink); font-weight: 650; }
+.qa-reply .rd .fu-ok { margin-left: 4px; font: inherit; font-size: 11px; font-weight: 650; padding: 1px 7px; border: 1px solid var(--st-separator); border-radius: 999px; background: var(--st-fill-2); color: var(--st-label-2); cursor: pointer; }
+.qa-reply .rd .fu-ok:hover { color: var(--st-accent-ink, #0069d9); border-color: var(--st-accent-ink, #0069d9); }
 .qa-compose textarea { flex: 1; min-width: 0; min-height: 64px; padding: 11px 13px; resize: vertical;
   background: var(--st-fill-2); color: var(--st-label);
   border: 1px solid var(--st-fill); border-radius: var(--st-r-element);
@@ -2191,8 +2193,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     const isAnswered = q => q.replies && Object.keys(q.replies).length > 0;
     // 학생이 답변 아래에 이어서 물었는데(subReplies) 그 뒤로 교사 답이 없으면 '답변 필요'
     const subsOf = r => Object.entries(r.subReplies || {}).sort((a, b) => a[0] < b[0] ? -1 : 1);
-    const replyNeedsFollowUp = r => { const ss = subsOf(r); return ss.length > 0 && !ss[ss.length - 1][1].isTeacher; };
-    const needsFollowUp = q => Object.values(q.replies || {}).some(replyNeedsFollowUp);
+    // '확인함(답변 불필요)' 처리(followUpResolvedAt) 이전의 학생 대댓글은 답변 필요로 치지 않음 — 앱과 같은 규칙
+    const replyNeedsFollowUp = (r, q) => { const ss = subsOf(r); if (!ss.length || ss[ss.length - 1][1].isTeacher) return false; return parseQTime(ss[ss.length - 1][1].time) > (q?.followUpResolvedAt || 0); };
+    const needsFollowUp = q => Object.values(q.replies || {}).some(r => replyNeedsFollowUp(r, q));
     const isOpen = q => !isAnswered(q) || needsFollowUp(q);
 
     function renderQa() {
@@ -2238,7 +2241,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       $('qaBody').innerHTML = escapeHTML(q.text||'') + (q.imageUrl ? `<img src="${escapeHTML(q.imageUrl)}" loading="lazy">` : '');
       const reps = Object.entries(q.replies || {});
       const subHTML = (rid, r) => {
-        const ss = subsOf(r); const pend = replyNeedsFollowUp(r);
+        const ss = subsOf(r); const pend = replyNeedsFollowUp(r, q);
         const list = ss.length ? `<div class="qa-subs">` + ss.map(([sid, x], i) =>
           `<div class="qa-sub${x.isTeacher ? ' t' : ''}${pend && i === ss.length - 1 ? ' pending' : ''}"><div class="av">${x.isTeacher ? 'T' : escapeHTML((x.author||'익명').slice(0, 1))}</div>` +
           `<div class="sb"><div class="sm"><b>${x.isTeacher ? '선생님' : escapeHTML(x.author||'익명')}</b> · ${escapeHTML(x.time||'')}</div><div class="st">${escapeHTML(x.text||'')}</div>` +
@@ -2249,7 +2252,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       $('qaReplies').innerHTML = reps.length ? reps.map(([rid, r]) =>
         `<div class="qa-reply"><div class="rb"><div class="rt">${escapeHTML(r.text||'')}</div>` +
         (r.imageUrl ? `<img src="${escapeHTML(r.imageUrl)}" loading="lazy" style="max-width:100%;border-radius:8px;margin-top:6px;">` : '') +
-        `<div class="rd">${r.isTeacher ? '교사 답변' : '댓글'} · ${escapeHTML(r.time||'')}${replyNeedsFollowUp(r) ? '<span class="fu">학생이 이어서 물었습니다</span>' : ''}</div>` +
+        `<div class="rd">${r.isTeacher ? '교사 답변' : '댓글'} · ${escapeHTML(r.time||'')}${replyNeedsFollowUp(r, q) ? '<span class="fu">학생이 이어서 물었습니다</span> <button type="button" class="fu-ok" title="답할 게 없으면(예: 확인했습니다) 미답변에서 뺍니다">확인함</button>' : ''}</div>` +
         subHTML(rid, r) + `</div>` +
         `<button class="x" data-rid="${rid}" title="답변 삭제">×</button></div>`).join('')
         : '<div class="ev-empty">아직 답변이 없습니다.</div>';
@@ -2305,6 +2308,8 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     $('qaReplyBtn').addEventListener('click', submitQaReply);
     $('qaReplyText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitQaReply(); });
     $('qaReplies').addEventListener('click', async e => {
+      const ok = e.target.closest('button.fu-ok');
+      if (ok && currentQ) { await update(ref(db, `questions/${currentQ}`), { followUpResolvedAt: Date.now() }); return; }
       const x = e.target.closest('button.x[data-rid]'); if (!x || !currentQ) return;
       const qid = currentQ, rid = x.dataset.rid, sid = x.dataset.sid;
       if (sid) {   // 대댓글 삭제
