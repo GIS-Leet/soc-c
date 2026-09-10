@@ -268,6 +268,24 @@ button.stat-i { border: 0; background: none; cursor: pointer; font-family: inher
   color: var(--st-label-3); font-size: 13px; padding: 0 4px; transition: opacity 150ms, color 150ms; }
 .qa-reply:hover .x { opacity: 1; } .qa-reply .x:hover { color: var(--st-danger-ink); }
 .qa-compose { display: flex; gap: 10px; margin-top: 14px; align-items: flex-end; }
+.qa-subs { margin: 8px 0 4px 14px; padding-left: 12px; border-left: 2px solid var(--st-separator); display: flex; flex-direction: column; gap: 6px; }
+.qa-sub { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+.qa-sub .av { width: 20px; height: 20px; border-radius: 50%; background: var(--st-fill-2); color: var(--st-label-2); font-size: 10.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.qa-sub.t .av { background: var(--st-accent-tint, #e3efff); color: var(--st-accent-ink, #0069d9); }
+.qa-sub .sb { flex: 1; min-width: 0; }
+.qa-sub .sm { font-size: 11px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
+.qa-sub .sm b { color: var(--st-label-2); font-weight: 650; }
+.qa-sub.t .sm b { color: var(--st-accent-ink, #0069d9); }
+.qa-sub .st { white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
+.qa-sub .x { opacity: 0; border: 0; background: none; cursor: pointer; color: var(--st-label-3); font-size: 12px; padding: 0 4px; }
+.qa-sub:hover .x { opacity: 1; } .qa-sub .x:hover { color: var(--st-danger-ink); }
+.qa-sub.pending .sm::after { content: '답변 필요'; margin-left: 6px; color: var(--st-danger-ink); font-weight: 650; }
+.qa-subcompose { display: flex; gap: 6px; margin: 6px 0 2px 14px; padding-left: 12px; }
+.qa-subcompose input { flex: 1; min-width: 0; font: inherit; font-size: 13px; padding: 6px 9px; border: 1px solid var(--st-separator); border-radius: var(--st-r-element, 8px); background: var(--st-bg-elevated, #fff); color: inherit; }
+.qa-subcompose input:focus { outline: none; border-color: var(--st-accent-ink, #0069d9); }
+.qa-subcompose button { font: inherit; font-size: 12px; padding: 6px 10px; border: 1px solid var(--st-separator); border-radius: var(--st-r-element, 8px); background: var(--st-fill-2); color: var(--st-label-2); cursor: pointer; white-space: nowrap; }
+.qa-subcompose button:hover { color: var(--st-accent-ink, #0069d9); }
+.qa-reply .rd .fu { margin-left: 6px; color: var(--st-danger-ink); font-weight: 650; }
 .qa-compose textarea { flex: 1; min-width: 0; min-height: 64px; padding: 11px 13px; resize: vertical;
   background: var(--st-fill-2); color: var(--st-label);
   border: 1px solid var(--st-fill); border-radius: var(--st-r-element);
@@ -1404,7 +1422,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             <button class="btn-solid" id="qaReplyBtn">답변 등록</button>
           </div>
         </div>
-        <div class="pane-blank" id="qaBlank">왼쪽에서 질문을 선택하세요.<br>새 질문 알림은 디스코드로 옵니다.</div>
+        <div class="pane-blank" id="qaBlank">왼쪽에서 질문을 선택하세요.<br>새 질문·대댓글 알림은 Desk 앱으로 옵니다.</div>
       </section>
     </section>
 
@@ -2171,10 +2189,15 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       let h = n.getHours() % 12; h = h ? h : 12;
       return `${n.getFullYear()}/${pad(n.getMonth()+1)}/${pad(n.getDate())} ${ap} ${h}:${pad(n.getMinutes())}`; };
     const isAnswered = q => q.replies && Object.keys(q.replies).length > 0;
+    // 학생이 답변 아래에 이어서 물었는데(subReplies) 그 뒤로 교사 답이 없으면 '답변 필요'
+    const subsOf = r => Object.entries(r.subReplies || {}).sort((a, b) => a[0] < b[0] ? -1 : 1);
+    const replyNeedsFollowUp = r => { const ss = subsOf(r); return ss.length > 0 && !ss[ss.length - 1][1].isTeacher; };
+    const needsFollowUp = q => Object.values(q.replies || {}).some(replyNeedsFollowUp);
+    const isOpen = q => !isAnswered(q) || needsFollowUp(q);
 
     function renderQa() {
       const all = Object.entries(questions).sort((a, b) => (b[1].timestamp||0) - (a[1].timestamp||0));
-      const open = all.filter(([, q]) => !isAnswered(q));
+      const open = all.filter(([, q]) => isOpen(q));
       $('qaOpenN').textContent = open.length; $('qaAllN').textContent = all.length;
       $('qaBadge').hidden = open.length === 0; $('qaBadge').textContent = open.length;
       const items = qaFilterMode === 'open' ? open : all;
@@ -2204,7 +2227,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       let ans = 0;
       qs.forEach(q => Object.values(q.replies || {}).forEach(r => { if (r.isTeacher && parseQTime(r.time) >= ws) ans++; }));
       $('stA').textContent = ans;
-      $('stOpen').textContent = qs.filter(q => !isAnswered(q)).length;
+      $('stOpen').textContent = qs.filter(isOpen).length;
       const ts = Object.values(todos);
       $('stTodo').textContent = ts.length ? `${ts.filter(t => t.done).length}/${ts.length}` : '0';
     }
@@ -2214,10 +2237,20 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       $('qaMeta').innerHTML = `<b>${escapeHTML(q.author||'익명')}</b> · ${escapeHTML(q.time||'')}${q.isSecret ? ' · 🔒 비밀글' : ''}`;
       $('qaBody').innerHTML = escapeHTML(q.text||'') + (q.imageUrl ? `<img src="${escapeHTML(q.imageUrl)}" loading="lazy">` : '');
       const reps = Object.entries(q.replies || {});
+      const subHTML = (rid, r) => {
+        const ss = subsOf(r); const pend = replyNeedsFollowUp(r);
+        const list = ss.length ? `<div class="qa-subs">` + ss.map(([sid, x], i) =>
+          `<div class="qa-sub${x.isTeacher ? ' t' : ''}${pend && i === ss.length - 1 ? ' pending' : ''}"><div class="av">${x.isTeacher ? 'T' : escapeHTML((x.author||'익명').slice(0, 1))}</div>` +
+          `<div class="sb"><div class="sm"><b>${x.isTeacher ? '선생님' : escapeHTML(x.author||'익명')}</b> · ${escapeHTML(x.time||'')}</div><div class="st">${escapeHTML(x.text||'')}</div>` +
+          (x.imageUrl ? `<img src="${escapeHTML(x.imageUrl)}" loading="lazy" style="max-width:100%;border-radius:8px;margin-top:4px;">` : '') + `</div>` +
+          `<button class="x" data-rid="${rid}" data-sid="${sid}" title="대댓글 삭제">×</button></div>`).join('') + `</div>` : '';
+        return list + `<form class="qa-subcompose" data-rid="${rid}"><input type="text" placeholder="이 답변에 이어서 답하기…" maxlength="1000"><button type="submit">등록</button></form>`;
+      };
       $('qaReplies').innerHTML = reps.length ? reps.map(([rid, r]) =>
         `<div class="qa-reply"><div class="rb"><div class="rt">${escapeHTML(r.text||'')}</div>` +
         (r.imageUrl ? `<img src="${escapeHTML(r.imageUrl)}" loading="lazy" style="max-width:100%;border-radius:8px;margin-top:6px;">` : '') +
-        `<div class="rd">${r.isTeacher ? '교사 답변' : '댓글'} · ${escapeHTML(r.time||'')}</div></div>` +
+        `<div class="rd">${r.isTeacher ? '교사 답변' : '댓글'} · ${escapeHTML(r.time||'')}${replyNeedsFollowUp(r) ? '<span class="fu">학생이 이어서 물었습니다</span>' : ''}</div>` +
+        subHTML(rid, r) + `</div>` +
         `<button class="x" data-rid="${rid}" title="답변 삭제">×</button></div>`).join('')
         : '<div class="ev-empty">아직 답변이 없습니다.</div>';
     }
@@ -2272,11 +2305,29 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     $('qaReplyBtn').addEventListener('click', submitQaReply);
     $('qaReplyText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitQaReply(); });
     $('qaReplies').addEventListener('click', async e => {
-      const x = e.target.closest('[data-rid]'); if (!x || !currentQ) return;
-      const qid = currentQ, rid = x.dataset.rid;
+      const x = e.target.closest('button.x[data-rid]'); if (!x || !currentQ) return;
+      const qid = currentQ, rid = x.dataset.rid, sid = x.dataset.sid;
+      if (sid) {   // 대댓글 삭제
+        const saved = questions[qid]?.replies?.[rid]?.subReplies?.[sid];
+        await remove(ref(db, `questions/${qid}/replies/${rid}/subReplies/${sid}`));
+        if (saved) showUndo('대댓글을 삭제했습니다', () => set(ref(db, `questions/${qid}/replies/${rid}/subReplies/${sid}`), saved));
+        return;
+      }
       const saved = questions[qid]?.replies?.[rid];
       await remove(ref(db, `questions/${qid}/replies/${rid}`));
       if (saved) showUndo('답변을 삭제했습니다', () => set(ref(db, `questions/${qid}/replies/${rid}`), saved));
+    });
+    // 답변 아래 이어서 답하기(대댓글) — 학생 페이지 qna.html·앱과 같은 필드
+    $('qaReplies').addEventListener('submit', async e => {
+      const form = e.target.closest('form.qa-subcompose'); if (!form || !currentQ) return;
+      e.preventDefault();
+      const input = form.querySelector('input'); const text = input.value.trim(); if (!text) return;
+      const btn = form.querySelector('button'); btn.disabled = true;
+      try {
+        await push(ref(db, `questions/${currentQ}/replies/${form.dataset.rid}/subReplies`), { author: '관리자', text, imageUrl: '', isTeacher: true, time: qTimeStr() });
+        input.value = '';
+      } catch { alert('대댓글 등록에 실패했습니다. 연결을 확인하세요.'); }
+      btn.disabled = false;
     });
 
     // ════════════════ 수업 진도 (progress.html 데이터 공유) ════════════════

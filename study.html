@@ -227,7 +227,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   </section>
 </main>
 
-<script src="study-quiz.js"></script>
+<script>document.write('<script src="study-quiz.js?v=' + Math.floor(Date.now() / 3600000) + '"><\/script>')</script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, signInWithCredential }

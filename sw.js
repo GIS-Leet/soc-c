@@ -1,6 +1,6 @@
 /* Desk 앱 셸 오프라인 캐시.
    같은 출처의 셸 파일과 CDN 정적 자원만 다루고, 나머지(Firebase 등)는 건드리지 않는다. */
-const CACHE = 'desk-shell-v2';
+const CACHE = 'desk-shell-v3';
 const SHELL = [
   'desk.html',
   'design-system/stratum.css',
@@ -38,7 +38,17 @@ self.addEventListener('fetch', e => {
   const isCDN = CDN_HOSTS.test(url.host);
   if (!isShell && !isCDN) return;   // Firebase·API 등은 네트워크 그대로
 
-  // stale-while-revalidate: 캐시를 먼저 주고 뒤에서 갱신
+  // HTML 은 네트워크 먼저(업데이트 즉시 반영), 실패할 때만 캐시
+  if (url.pathname.endsWith('.html')) {
+    e.respondWith(
+      caches.open(CACHE).then(async c => {
+        try { const res = await fetch(e.request, { cache: 'no-cache' }); if (res && res.ok) c.put(e.request, res.clone()); return res; }
+        catch { return (await c.match(e.request)) || Response.error(); }
+      })
+    );
+    return;
+  }
+  // 정적 자원: stale-while-revalidate — 캐시를 먼저 주고 뒤에서 갱신
   e.respondWith(
     caches.open(CACHE).then(async c => {
       const hit = await c.match(e.request);
