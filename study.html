@@ -75,6 +75,20 @@ body { display: flex; flex-direction: column; }
 .geo-term b { display: block; font-weight: 700; color: var(--st-label); margin-bottom: 1px; }
 .geo-term span { color: var(--st-label-2); font-size: 14px; word-break: keep-all; }
 .geo-r { margin-top: 12px; font-size: 13px; color: var(--st-label-3); word-break: keep-all; line-height: 1.5; }
+/* 발음 숨기기·자세히 보기 (2026-09-10) */
+.r-toggle { margin-left: auto; font: inherit; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--st-accent-ink); background: var(--st-fill-2); border: 0; border-radius: 999px; padding: 4px 10px; cursor: pointer; white-space: nowrap; }
+.r-toggle[hidden] { display: none; }
+.hide-r .jp-p, .hide-r .r { filter: blur(6px); cursor: pointer; user-select: none; transition: filter .15s; }
+.hide-r .jp-p.reveal, .hide-r .r.reveal { filter: none; }
+.geo-d { margin-top: 12px; border-radius: var(--st-r-element); background: var(--st-fill-2); }
+.geo-d[hidden] { display: none; }
+.geo-d summary { cursor: pointer; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); padding: 10px 13px; list-style: none; }
+.geo-d summary::-webkit-details-marker { display: none; }
+.geo-d summary::after { content: ' ▾'; }
+.geo-d[open] summary::after { content: ' ▴'; }
+.geo-d .geo-d-body { padding: 0 13px 12px; font-size: 14.5px; line-height: 1.75; color: var(--st-label-2); word-break: keep-all; white-space: pre-line; }
+.jp-e2 { display: grid; gap: 2px; }
+
 
 .jp-s { font-size: 30px; font-weight: 700; line-height: 1.45; letter-spacing: 0.01em; color: var(--st-label); word-break: keep-all; }
 .jp-p { font-size: 15.5px; color: var(--st-label-2); margin-top: 6px; letter-spacing: 0.01em; }
@@ -177,6 +191,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
       <div class="geo-m" id="geoM"></div>
       <div class="geo-a" id="geoA"></div>
       <div class="geo-x" id="geoX"></div>
+      <details class="geo-d" id="geoD" hidden><summary>자세히 보기</summary><div class="geo-d-body" id="geoDBody"></div></details>
       <div class="geo-terms"><span class="geo-cap">핵심 용어</span><div id="geoK"></div></div>
       <div class="geo-r" id="geoR"></div>
     </div>
@@ -185,13 +200,14 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   </section>
 
   <section class="panel locked" id="jp" hidden>
-    <div class="dash-h"><span id="jpTitle"></span><b id="jpCap"></b><span class="ok">통과</span></div>
+    <div class="dash-h"><span id="jpTitle"></span><b id="jpCap"></b><button class="r-toggle" id="rToggle" type="button">발음 숨기기</button><span class="ok">통과</span></div>
     <div id="jpBody">
       <div class="jp-s" id="jpS" lang="ja"></div>
       <div class="jp-p" id="jpP"></div>
       <div class="jp-m" id="jpM"></div>
       <div class="jp-g" id="jpG"></div>
       <div class="jp-e" id="jpE"></div>
+      <div class="jp-e2" id="jpE2"></div>
       <div class="jp-vocab"><span class="geo-cap">오늘의 단어</span><div id="jpV"></div></div>
     </div>
     <div class="sq" id="jpQuiz" hidden></div>
@@ -379,6 +395,7 @@ function kanaToHangul(text, opt = {}) {
     $('geoTitle').textContent = '지리학'; $('geoCap').textContent = cap(G);
     $('geoCat').textContent = c.c; $('geoQ').textContent = c.t; $('geoEn').textContent = c.en || ''; $('geoM').textContent = c.m || '';
     $('geoA').textContent = c.a; $('geoX').textContent = c.x; $('geoR').textContent = c.r || '';
+    $('geoD').hidden = !c.d; $('geoD').open = false; $('geoDBody').textContent = c.d || '';
     $('geoK').innerHTML = (c.k || []).map(([k, d]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span>${escapeHTML(d)}</span></div>`).join('');
   }
   function renderJp() {
@@ -390,7 +407,20 @@ function kanaToHangul(text, opt = {}) {
     const words = [...(c.v || []).map(([w, , k]) => [w, k]), ...(c.w || [])];
     $('jpV').innerHTML = words.map(([w, k]) =>
       `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b><span class="r">${escapeHTML(kanaToHangul(w))}</span><span class="k">${escapeHTML(k)}</span></div>`).join('');
+    $('jpE2').innerHTML = (c.e2 || []).map(([j, k]) => `<div class="jp-e"><span lang="ja">${escapeHTML(j)}</span><span class="r">${escapeHTML(kanaToHangul(j))}</span><span class="k">${escapeHTML(k)}</span></div>`).join('');
+    applyHideR();
   }
+  // 발음 숨기기 — 문장·예문·단어의 한글 발음을 흐리게, 탭하면 그 항목만 보임. 가나 카드는 발음이 학습 대상이라 항상 표시
+  const HIDE_R_LS = 'study-hide-r';
+  const hideROn = () => { try { return localStorage.getItem(HIDE_R_LS) === '1'; } catch { return false; } };
+  function applyHideR() {
+    const kana = J.card.type === 'kana', on = hideROn() && !kana;
+    $('jpBody').classList.toggle('hide-r', on);
+    $('rToggle').hidden = kana; $('rToggle').textContent = on ? '발음 보기' : '발음 숨기기';
+    $('jpBody').querySelectorAll('.reveal').forEach(el => el.classList.remove('reveal'));
+  }
+  $('rToggle').addEventListener('click', () => { try { localStorage.setItem(HIDE_R_LS, hideROn() ? '0' : '1'); } catch {} applyHideR(); });
+  $('jpBody').addEventListener('click', e => { const el = e.target.closest('.jp-p, .r'); if (el && $('jpBody').classList.contains('hide-r')) el.classList.toggle('reveal'); });
   const scoreOf = x => !x ? '–' : x.skipped ? '건너뜀' : x.total ? `${x.score}/${x.total}` + (x.attempts > 1 ? ` (${x.attempts}회째 통과)` : '') : '–';
   function renderDone(rec) {
     $('done').hidden = false; $('footRow').hidden = true;
