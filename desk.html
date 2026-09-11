@@ -691,6 +691,18 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .geo-term b { display: block; font-weight: 700; color: var(--st-label); margin-bottom: 1px; }
 .geo-term span { color: var(--st-label-2); font-size: 14px; word-break: keep-all; }
 .geo-r { margin-top: 12px; font-size: 13px; color: var(--st-label-3); word-break: keep-all; line-height: 1.5; }
+/* 자세히 보기·발음 숨기기 — study.html 과 동일 (2026-09-11) */
+.geo-d { margin-top: 12px; border-radius: var(--st-r-element); background: var(--st-fill-2); }
+.geo-d[hidden] { display: none; }
+.geo-d summary { cursor: pointer; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); padding: 10px 13px; list-style: none; }
+.geo-d summary::-webkit-details-marker { display: none; }
+.geo-d summary::after { content: ' ▾'; }
+.geo-d[open] summary::after { content: ' ▴'; }
+.geo-d .geo-d-body { padding: 0 13px 12px; font-size: 14.5px; line-height: 1.75; color: var(--st-label-2); word-break: keep-all; white-space: pre-line; }
+.r-toggle { margin-left: auto; font: inherit; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: var(--st-accent-ink); background: var(--st-fill-2); border: 0; border-radius: 999px; padding: 4px 10px; cursor: pointer; white-space: nowrap; }
+.r-toggle[hidden] { display: none; }
+.hide-r .jp-p, .hide-r .r { filter: blur(6px); cursor: pointer; user-select: none; transition: filter .15s; }
+.hide-r .jp-p.reveal, .hide-r .r.reveal { filter: none; }
 /* ── 가나 표 · 퀴즈 ── */
 .p-jp.kana .jp-vocab { display: block; }
 .p-jp.kana .jp-s { letter-spacing: 0.12em; }
@@ -1217,7 +1229,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
       <!-- 오늘의 일본어 — data/japanese-daily.json 을 날짜순으로 한 장씩 -->
       <div class="panel p-daily p-jp" id="jpPanel">
-        <div class="dash-h">오늘의 일본어 <b id="jpCap">불러오는 중…</b></div>
+        <div class="dash-h">오늘의 일본어 <b id="jpCap">불러오는 중…</b><button class="r-toggle" id="rToggle" type="button">발음 숨기기</button></div>
         <div class="jp-wrap">
           <div class="jp-main">
             <div class="jp-s" id="jpS" lang="ja"></div>
@@ -1268,6 +1280,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             <div class="geo-m" id="geoM"></div>
             <div class="geo-a q" id="geoA"></div>
             <div class="geo-x q" id="geoX"></div>
+            <details class="geo-d" id="geoD" hidden><summary>자세히 보기</summary><div class="geo-d-body" id="geoDBody"></div></details>
           </div>
           <div class="geo-side">
             <span class="geo-cap">핵심 용어</span>
@@ -3325,6 +3338,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         $('jpV').innerHTML = kanaChart(d.rows) + `<div class="kana-words">` + d.w.map(([w, k]) =>
           `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b><span class="r">${escapeHTML(kanaToHangul(w))}</span><span class="k q">${escapeHTML(k)}</span></div>`).join('') + `</div>`;
         $('jpVcap').textContent = `오늘의 글자 ${d.rows.reduce((a, r) => a + splitKana(r).length, 0)}자 · 연습 단어 ${d.w.length}`;
+        applyHideR(true);
         return;
       }
       $('jpS').textContent = d.s; $('jpP').textContent = kanaToHangul(d.s);
@@ -3333,7 +3347,19 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       $('jpV').innerHTML = words.map(([w, k]) =>
         `<div class="jp-row"><b lang="ja">${escapeHTML(w)}</b><span class="r">${escapeHTML(kanaToHangul(w))}</span><span class="k q">${escapeHTML(k)}</span></div>`).join('');
       $('jpVcap').textContent = `오늘의 단어 · ${words.length}개`;
+      applyHideR(false);
     });
+    // 발음 숨기기 — study.html 과 같은 localStorage 키. 가린 발음은 눌러서 잠깐 보기
+    const HIDE_R_LS = 'study-hide-r';
+    const hideROn = () => { try { return localStorage.getItem(HIDE_R_LS) === '1'; } catch { return false; } };
+    function applyHideR(kana) {
+      const on = hideROn() && !kana;
+      $('jpPanel').classList.toggle('hide-r', on);
+      $('rToggle').hidden = kana; $('rToggle').textContent = on ? '발음 보기' : '발음 숨기기';
+      $('jpPanel').querySelectorAll('.reveal').forEach(el => el.classList.remove('reveal'));
+    }
+    $('rToggle').addEventListener('click', () => { try { localStorage.setItem(HIDE_R_LS, hideROn() ? '0' : '1'); } catch {} applyHideR($('jpPanel').classList.contains('kana')); });
+    $('jpPanel').addEventListener('click', e => { const el = e.target.closest('.jp-p, .r'); if (el && $('jpPanel').classList.contains('hide-r')) el.classList.toggle('reveal'); });
     // 지리학 — { c 분야, t 개념, en 영문, m 한 줄 정의, a 핵심 정리, k [[용어,설명]×3], x 더 깊이, r 문헌 }
     makeDaily('geo', 'data/geography-daily.json', d => {
       $('geoCat').textContent = d.c;
@@ -3341,6 +3367,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       $('geoA').textContent = d.a; $('geoX').textContent = d.x;
       $('geoK').innerHTML = d.k.map(([k, v]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span class="q">${escapeHTML(v)}</span></div>`).join('');
       $('geoR').textContent = d.r ? '문헌 · ' + d.r : '';
+      $('geoD').hidden = !d.d; $('geoD').open = false; $('geoDBody').textContent = d.d || '';
     });
 
     // ════════════════ 명령 팔레트 (Ctrl/Cmd+K) ════════════════
