@@ -635,11 +635,11 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); }
 .study .panel { padding: 20px 22px; }
 .study .dash-h { font-size: 12px; }
-.p-timer { grid-column: 1 / 3; grid-row: 3; display: flex; flex-direction: column; }
-.p-goal  { grid-column: 3; grid-row: 3; }
-.p-heat  { grid-column: 1 / 4; grid-row: 4; }
-.p-week  { grid-column: 1; grid-row: 5; }
-.p-log   { grid-column: 2 / 4; grid-row: 5; }
+.p-timer { grid-column: 1 / 3; grid-row: 4; display: flex; flex-direction: column; }
+.p-goal  { grid-column: 3; grid-row: 4; }
+.p-heat  { grid-column: 1 / 4; grid-row: 5; }
+.p-week  { grid-column: 1; grid-row: 6; }
+.p-log   { grid-column: 2 / 4; grid-row: 6; }
 .p-week  { align-self: start; }
 #sessList { max-height: 380px; overflow-y: auto; scrollbar-width: thin; }
 .study.boot .panel { animation: panelIn 460ms var(--ease-o) both; }
@@ -705,6 +705,48 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .r-toggle[hidden] { display: none; }
 .hide-r .jp-p, .hide-r .r { filter: blur(6px); cursor: pointer; user-select: none; transition: filter .15s; }
 .hide-r .jp-p.reveal, .hide-r .r.reveal { filter: none; }
+/* ── 오늘의 영어 회화 배너 ── */
+.p-en { grid-column: 1 / 4; grid-row: 3; }
+.en-wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
+.en-s { display: flex; align-items: flex-start; gap: 10px; }
+.en-s .jp-s { letter-spacing: -0.01em; font-size: clamp(24px, 2.6vw, 32px); line-height: 1.4; }
+.en-spk { flex-shrink: 0; width: 38px; height: 38px; margin-top: 4px; border: 0; border-radius: var(--st-r-full); background: var(--st-fill-2); color: var(--st-accent-ink);
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background 150ms, transform 100ms; }
+.en-spk:hover { background: var(--st-fill-3, var(--st-fill-2)); }
+.en-spk:active { transform: scale(0.94); }
+.en-spk svg { width: 18px; height: 18px; }
+.en-spk.on { background: var(--st-accent-soft); }
+.en-p::before { content: '표현'; }
+.en-x { margin-top: 10px; font-size: 14.5px; line-height: 1.7; color: var(--st-label-2); padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.en-x::before { content: '발음'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
+.en-dlg { margin-top: 2px; }
+.en-line { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 2px 10px; padding: 8px 2px; border-bottom: 1px solid var(--st-separator); cursor: pointer; border-radius: var(--st-r-element); transition: background 150ms; }
+.en-line:hover { background: var(--st-fill-1, var(--st-fill-2)); }
+.en-line:last-child { border-bottom: 0; }
+.en-line .who { grid-row: 1 / 3; width: 26px; height: 26px; border-radius: var(--st-r-full); background: var(--st-fill-2); color: var(--st-label-3);
+  font-family: 'Space Grotesk', var(--st-font-sans); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; }
+.en-line .who.b { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.en-line .en { font-size: 16.5px; font-weight: 600; color: var(--st-label); line-height: 1.45; }
+.en-line .ko { font-size: 14px; color: var(--st-label-2); line-height: 1.4; }
+.en-line.playing .en { color: var(--st-accent-ink); }
+.en-cap { display: flex; align-items: center; gap: 10px; }
+.en-cap .geo-cap { margin-bottom: 0; }
+.en-cap button { border: 0; background: transparent; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700; color: var(--st-label-3); padding: 2px 6px; border-radius: var(--st-r-full); }
+.en-cap button:hover { color: var(--st-accent-ink); background: var(--st-fill-2); }
+.en-v { margin-top: 12px; }
+.en-v .jp-row b { font-weight: 600; }
+/* 따라 말하기 결과 */
+.en-sr { margin-top: 12px; padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); font-size: 15px; line-height: 1.6; color: var(--st-label-2); }
+.en-sr[hidden] { display: none; }
+.en-sr b { font-family: 'Space Grotesk', var(--st-font-sans); font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-right: 8px; }
+.en-sr.ok b { color: var(--st-success-ink); }
+.en-sr.near b { color: var(--st-warning-ink); }
+.en-sr.ng b { color: var(--st-danger-ink); }
+.en-sr .heard { color: var(--st-label); font-weight: 600; }
+.en-sr .heard .miss { color: var(--st-danger-ink); text-decoration: underline dotted; }
+.en-sr.listening { color: var(--st-accent-ink); font-weight: 600; }
+#enSay.on { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.jp-foot [hidden] { display: none !important; }   /* .btn-sub 의 display 가 hidden 속성을 이기지 않도록 */
 /* ── 가나 표 · 퀴즈 ── */
 .p-jp.kana .jp-vocab { display: block; }
 .p-jp.kana .jp-s { letter-spacing: 0.12em; }
@@ -756,8 +798,8 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .p-daily.quiz .q { filter: blur(6px); cursor: pointer; transition: filter 200ms var(--ease-o); user-select: none; }
 .p-daily.quiz .q.show { filter: none; }
 @media (max-width: 860px) {
-  .p-jp, .p-geo { grid-column: 1; grid-row: auto; }
-  .jp-wrap, .geo-wrap { grid-template-columns: minmax(0, 1fr); }
+  .p-jp, .p-geo, .p-en { grid-column: 1; grid-row: auto; }
+  .jp-wrap, .geo-wrap, .en-wrap { grid-template-columns: minmax(0, 1fr); }
   .jp-vocab { grid-template-columns: 1fr; }
   .jp-left { margin-left: 0; width: 100%; }
 }
@@ -1300,6 +1342,39 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
           <button class="btn-sub" id="geoQuiz" data-label="정리 가리기" title="핵심 정리·용어 설명·더 깊이를 가리고, 개념명만 보며 떠올린 뒤 눌러서 확인">정리 가리기</button>
           <button class="btn-solid" id="geoStart" data-subject="지리">지리로 타이머 시작</button>
           <span class="jp-left" id="geoLeft"></span>
+        </div>
+      </div>
+
+      <!-- 오늘의 영어 회화 — data/english-daily.json 을 날짜순으로 한 장씩. 듣기는 브라우저 TTS, 따라 말하기는 Web Speech 인식 -->
+      <div class="panel p-daily p-en" id="enPanel">
+        <div class="dash-h">오늘의 영어 회화 <b id="enCap">불러오는 중…</b></div>
+        <div class="en-wrap">
+          <div class="en-main">
+            <div class="en-s">
+              <button class="en-spk" id="enSpk" title="문장 듣기" aria-label="문장 듣기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
+              <div class="jp-s" id="enS" lang="en"></div>
+            </div>
+            <div class="jp-m q" id="enM"></div>
+            <div class="jp-g en-p" id="enP"></div>
+            <div class="en-x" id="enX"></div>
+            <div class="en-sr" id="enSr" hidden></div>
+          </div>
+          <div class="en-side">
+            <div class="en-cap"><span class="geo-cap">오늘의 대화</span><button id="enPlayAll" title="대화 전체를 차례로 듣기">▶ 전체 듣기</button></div>
+            <div class="en-dlg" id="enD"></div>
+            <div class="en-v"><span class="geo-cap" id="enVcap">오늘의 표현</span><div class="jp-vocab" id="enV"></div></div>
+          </div>
+        </div>
+        <div class="jp-foot">
+          <span class="cal-nav">
+            <button id="enPrev" aria-label="어제 것">‹</button>
+            <button id="enToday">오늘</button>
+            <button id="enNext" aria-label="내일 것">›</button>
+          </span>
+          <button class="btn-sub" id="enSay" title="마이크로 핵심 문장을 따라 말하면 얼마나 맞았는지 보여 줍니다" hidden>따라 말하기</button>
+          <button class="btn-sub" id="enQuiz" data-label="뜻 가리기" title="뜻을 흐리게 가리고, 눌러서 하나씩 확인">뜻 가리기</button>
+          <button class="btn-solid" id="enStart" data-subject="영어">영어로 타이머 시작</button>
+          <span class="jp-left" id="enLeft"></span>
         </div>
       </div>
 
@@ -3373,6 +3448,112 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       $('geoR').textContent = d.r ? '문헌 · ' + d.r : '';
       $('geoD').hidden = !d.d; $('geoD').open = false; $('geoDBody').textContent = d.d || '';
     });
+    // ── 영어 회화 — { t 주제, s 핵심 문장, m 뜻, p 표현 설명, d [[화자,영문,뜻]×4], v [[표현,뜻]×6], x 발음 팁 } ──
+    // 듣기: 브라우저 내장 TTS(speechSynthesis, en-US 목소리). 따라 말하기: Web Speech API(Chrome/Edge/Safari) — 없는 브라우저면 버튼을 숨긴다.
+    const TTS = 'speechSynthesis' in window;
+    let enVoice = null;
+    function pickEnVoice() {
+      if (!TTS) return;
+      const vs = speechSynthesis.getVoices().filter(v => /^en[-_]/i.test(v.lang));
+      enVoice = vs.find(v => /natural|neural|premium|enhanced/i.test(v.name) && /en[-_]US/i.test(v.lang)) ||
+        vs.find(v => /Google US English|Samantha|Aria|Jenny|Zira/i.test(v.name)) ||
+        vs.find(v => /en[-_]US/i.test(v.lang)) || vs[0] || null;
+    }
+    if (TTS) { pickEnVoice(); speechSynthesis.addEventListener('voiceschanged', pickEnVoice); }
+    function speakEn(text, opt = {}) {
+      if (!TTS || !text) return null;
+      if (!opt.queue) speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text.replace(/\s+—\s+/g, '. '));
+      u.lang = 'en-US'; if (enVoice) u.voice = enVoice; u.rate = opt.rate || 0.92; u.pitch = opt.pitch || 1;
+      speechSynthesis.speak(u);
+      return u;
+    }
+    let enCur = null;   // 지금 화면의 카드 (따라 말하기 비교용)
+    makeDaily('en', 'data/english-daily.json', d => {
+      enCur = d;
+      $('enS').textContent = d.s; $('enM').textContent = d.m; $('enP').textContent = d.p; $('enX').textContent = d.x || '';
+      $('enD').innerHTML = d.d.map(([who, en, ko], i) =>
+        `<div class="en-line" data-i="${i}"><span class="who${who === 'B' ? ' b' : ''}">${escapeHTML(who)}</span><span class="en" lang="en">${escapeHTML(en)}</span><span class="ko q">${escapeHTML(ko)}</span></div>`).join('');
+      $('enV').innerHTML = d.v.map(([w, k]) =>
+        `<div class="jp-row"><b lang="en">${escapeHTML(w)}</b><span class="k q">${escapeHTML(k)}</span></div>`).join('');
+      $('enVcap').textContent = `오늘의 표현 · ${d.v.length}개`;
+      $('enSr').hidden = true; $('enSr').className = 'en-sr';
+      if (TTS) speechSynthesis.cancel();
+    });
+    if (!TTS) { $('enSpk').hidden = true; $('enPlayAll').hidden = true; }
+    $('enSpk').addEventListener('click', () => {
+      const u = speakEn(enCur && enCur.s); if (!u) return;
+      $('enSpk').classList.add('on'); u.onend = u.onerror = () => $('enSpk').classList.remove('on');
+    });
+    // 대화 한 줄 누르면 그 줄만, 전체 듣기는 A·B 목소리 높낮이를 조금 달리해 차례로
+    $('enD').addEventListener('click', e => {
+      const row = e.target.closest('.en-line'); if (!row || !enCur) return;
+      if (e.target.closest('.q') && $('enPanel').classList.contains('quiz')) return;   // 가리기 모드에서 뜻을 누른 건 '보이기'
+      const [who, en] = enCur.d[Number(row.dataset.i)];
+      const u = speakEn(en, { pitch: who === 'B' ? 0.9 : 1.05 }); if (!u) return;
+      $('enD').querySelectorAll('.playing').forEach(x => x.classList.remove('playing'));
+      row.classList.add('playing'); u.onend = u.onerror = () => row.classList.remove('playing');
+    });
+    $('enPlayAll').addEventListener('click', () => {
+      if (!enCur) return; speechSynthesis.cancel();
+      const rows = $('enD').querySelectorAll('.en-line');
+      enCur.d.forEach(([who, en], i) => {
+        const u = speakEn(en, { queue: true, pitch: who === 'B' ? 0.9 : 1.05 }); if (!u) return;
+        u.onstart = () => { rows.forEach(x => x.classList.remove('playing')); rows[i].classList.add('playing'); };
+        u.onend = u.onerror = () => rows[i].classList.remove('playing');
+      });
+    });
+    // 따라 말하기 — 인식된 문장을 핵심 문장과 단어 단위로 비교(LCS), 맞은 비율을 보여 준다
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const enNorm = s => (s || '').toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+    function enScore(answer, heard) {
+      const a = enNorm(answer).split(' ').filter(Boolean), b = enNorm(heard).split(' ').filter(Boolean);
+      const L = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
+      for (let i = a.length - 1; i >= 0; i--) for (let j = b.length - 1; j >= 0; j--)
+        L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+      const hit = new Array(a.length).fill(false);   // 정답 단어 중 맞춘 것 표시
+      for (let i = 0, j = 0; i < a.length && j < b.length;) {
+        if (a[i] === b[j]) { hit[i] = true; i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
+      }
+      return { pct: a.length ? Math.round(L[0][0] / a.length * 100) : 0, words: a, hit };
+    }
+    let enRec = null;
+    if (SR) {
+      $('enSay').hidden = false;
+      $('enSay').addEventListener('click', () => {
+        if (enRec) { enRec.stop(); return; }
+        if (!enCur) return;
+        if (TTS) speechSynthesis.cancel();
+        const r = new SR(); r.lang = 'en-US'; r.interimResults = true; r.maxAlternatives = 3;
+        const box = $('enSr'); box.hidden = false; box.className = 'en-sr listening'; box.textContent = '듣고 있어요 — 핵심 문장을 말해 보세요';
+        $('enSay').classList.add('on'); $('enSay').textContent = '그만 듣기';
+        let finalText = '', interim = '';
+        r.onresult = e => {
+          interim = '';
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            const alt = e.results[i];
+            if (alt.isFinal) {   // 여러 후보 중 정답에 가장 가까운 것을 고른다
+              let best = alt[0].transcript, bs = -1;
+              for (let k = 0; k < alt.length; k++) { const s = enScore(enCur.s, alt[k].transcript).pct; if (s > bs) { bs = s; best = alt[k].transcript; } }
+              finalText += ' ' + best;
+            } else interim += alt[0].transcript;
+          }
+          if (!finalText) box.textContent = '… ' + interim;
+        };
+        r.onerror = e => { box.className = 'en-sr ng'; box.textContent = e.error === 'not-allowed' ? '마이크 권한이 없어요. 주소창 왼쪽에서 마이크를 허용해 주세요.' : e.error === 'no-speech' ? '아무것도 안 들렸어요. 다시 눌러 말해 보세요.' : '인식에 실패했어요 (' + e.error + ')'; };
+        r.onend = () => {
+          enRec = null; $('enSay').classList.remove('on'); $('enSay').textContent = '따라 말하기';
+          if (!finalText.trim()) { if (box.classList.contains('listening')) { box.className = 'en-sr ng'; box.textContent = '아무것도 안 들렸어요. 다시 눌러 말해 보세요.'; } return; }
+          const { pct, words, hit } = enScore(enCur.s, finalText);
+          box.className = 'en-sr ' + (pct >= 90 ? 'ok' : pct >= 65 ? 'near' : 'ng');
+          const marked = words.map((w, i) => hit[i] ? escapeHTML(w) : '<span class="miss">' + escapeHTML(w) + '</span>').join(' ');
+          const verdict = pct >= 90 ? '정확해요' : pct >= 65 ? '거의 다 왔어요 — 밑줄 친 단어를 다시' : '다시 한번 — 밑줄 친 단어가 안 들렸어요';
+          box.innerHTML = `<b>${pct}%</b>${verdict}<br><span class="heard">${marked}</span><br><span style="font-size:13px;color:var(--st-label-3)">들린 말 · ${escapeHTML(finalText.trim())}</span>`;
+        };
+        enRec = r;
+        try { r.start(); } catch (e) { enRec = null; box.className = 'en-sr ng'; box.textContent = '마이크를 시작하지 못했어요.'; }
+      });
+    }
 
     // ════════════════ 명령 팔레트 (Ctrl/Cmd+K) ════════════════
     function gotoView(v) { const b = deskViews.querySelector(`[data-view="${v}"]`); if (b) b.click(); }
@@ -3386,6 +3567,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       { k: '이동', t: '노트', run: () => gotoView('notes') },
       { k: '이동', t: '상담', run: () => gotoView('class') },
       { k: '명령', t: '공부 시작 / 계속', run: () => { gotoView('study'); studyStart(); } },
+      { k: '명령', t: '오늘의 영어 회화 듣기', run: () => { gotoView('study'); $('enPanel').scrollIntoView({ behavior: 'smooth', block: 'start' }); $('enSpk').click(); } },
       { k: '명령', t: '새 노트 만들기', run: () => { gotoView('notes'); newNote(); } },
       { k: '명령', t: '테마 전환 (라이트/다크)', run: () => $('themeToggle').click() },
       { k: '명령', t: '노트 전체 백업 (.md)', run: () => $('notesExportBtn').click() },

@@ -106,6 +106,25 @@ body { display: flex; flex-direction: column; }
 .jp-row .r { font-size: 13px; color: var(--st-label-3); }
 .jp-row .k { flex-basis: 100%; color: var(--st-label-2); font-size: 14px; line-height: 1.4; min-width: 0; }
 
+/* 영어 회화 — 뜻을 보고(또는 듣고) 핵심 문장을 영어로. 완료 조건에는 들어가지 않는 선택 단계 */
+.en-m { font-size: 21px; font-weight: 700; line-height: 1.45; letter-spacing: -0.015em; color: var(--st-label); word-break: keep-all; }
+.en-t { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
+.en-hint { margin-top: 8px; font-family: var(--st-font-mono); font-size: 15px; letter-spacing: 0.06em; color: var(--st-label-2); word-break: break-word; }
+.en-s { margin-top: 14px; font-size: 22px; font-weight: 700; line-height: 1.4; color: var(--st-label); }
+.en-p::before { content: '표현'; }
+.en-x { margin-top: 10px; font-size: 14.5px; line-height: 1.7; color: var(--st-label-2); padding: 10px 13px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.en-x::before { content: '발음'; display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-right: 8px; transform: translateY(-1px); }
+.en-line { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 2px 10px; padding: 8px 2px; border-bottom: 1px solid var(--st-separator); }
+.en-line:last-child { border-bottom: 0; }
+.en-line .who { grid-row: 1 / 3; width: 26px; height: 26px; border-radius: var(--st-r-full); background: var(--st-fill-2); color: var(--st-label-3); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; }
+.en-line .who.b { background: var(--st-accent-soft); color: var(--st-accent-ink); }
+.en-line .en { font-size: 16px; font-weight: 600; color: var(--st-label); line-height: 1.45; }
+.en-line .ko { font-size: 14px; color: var(--st-label-2); line-height: 1.4; }
+.en-tools { display: flex; gap: 8px; margin-top: 10px; }
+.en-tools .btn-sub { height: 36px; padding: 0 14px; font-size: 13.5px; }
+#en .q { filter: blur(6px); user-select: none; -webkit-user-select: none; transition: filter 260ms var(--ease); }
+#en.pass .q, #en.show .q { filter: none; user-select: auto; -webkit-user-select: auto; }
+.jp-foot [hidden], .en-tools [hidden] { display: none !important; }   /* .btn-sub 의 display 가 hidden 속성을 이기지 않도록 */
 /* 답 가리기 — desk .p-daily.quiz .q 와 같은 블러. 통과하면 걷힘 */
 .q { filter: blur(6px); user-select: none; -webkit-user-select: none; transition: filter 260ms var(--ease); }
 .panel.pass .q { filter: none; user-select: auto; -webkit-user-select: auto; }
@@ -212,6 +231,23 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
     </div>
     <div class="sq" id="jpQuiz" hidden></div>
     <div class="jp-foot"><span class="hint" id="jpHint">다 읽고 시험을 보세요 · 1일차부터 5문제, 4문제 이상 통과</span><button class="btn-sub" id="jpSkip" hidden>시험 건너뛰기</button><button class="btn-solid" id="jpTest">다 읽었음 — 시험 보기</button></div>
+  </section>
+
+  <!-- 영어 회화 — data/english-daily.json. 시험은 없고, 듣고 따라 쓰기만. 완료 조건 아님 -->
+  <section class="panel" id="en" hidden>
+    <div class="dash-h"><span>영어 회화</span><b id="enCap"></b><span class="ok">따라 씀</span></div>
+    <div class="en-t" id="enT"></div>
+    <div class="en-m" id="enM"></div>
+    <div class="en-tools"><button class="btn-sub" id="enListen" hidden>🔊 듣기</button><button class="btn-sub" id="enHintBtn">첫 글자 힌트</button><button class="btn-sub" id="enShow">문장 보기</button></div>
+    <div class="en-hint" id="enHint" hidden></div>
+    <span class="ans-cap">이 뜻을 영어 핵심 문장으로 (선택)</span>
+    <input type="text" class="lock-in" id="enIn" lang="en" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="영어로 써 보세요. 대소문자·문장부호는 안 봅니다.">
+    <div class="jp-foot"><span class="hint" id="enHintMsg"></span><button class="btn-solid" id="enBtn" disabled>문장 확인</button></div>
+    <div class="en-s q" id="enS" lang="en"></div>
+    <div class="jp-g en-p q" id="enP"></div>
+    <div class="en-x q" id="enX"></div>
+    <div class="jp-vocab"><span class="geo-cap">오늘의 대화</span><div id="enD"></div></div>
+    <div class="jp-vocab"><span class="geo-cap">오늘의 표현</span><div id="enV"></div></div>
   </section>
 
   <div class="foot-row" id="footRow" hidden>
@@ -327,6 +363,20 @@ function kanaToHangul(text, opt = {}) {
   // 일본어 비교 — Mac 창(daily_study.py)과 같은 규칙: NFKC 후 공백·구두점 제거, 완전 일치
   const normJa = s => (s || '').normalize('NFKC').replace(/[\s。、．，！？.,!?「」『』・…\-–—~〜]/g, '');
   const jaMatch = (typed, answer) => normJa(answer) !== '' && normJa(typed) === normJa(answer);
+  // 영어 비교 — 소문자화, 아포스트로피·문장부호 제거, 공백 정리 후 완전 일치 (How's = hows)
+  const normEn = s => (s || '').toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const enMatch = (typed, answer) => normEn(answer) !== '' && normEn(typed) === normEn(answer);
+  const enSkeleton = s => (s || '').split(/\s+/).map(w => { const m = w.match(/^([^A-Za-z]*)([A-Za-z])([A-Za-z']*)(.*)$/); return m ? m[1] + m[2] + '_'.repeat(m[3].length) + m[4] : w; }).join(' ');
+  const TTS = 'speechSynthesis' in window;
+  function speakEn(text) {
+    if (!TTS || !text) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/\s+—\s+/g, '. '));
+    u.lang = 'en-US'; u.rate = 0.9;
+    const v = speechSynthesis.getVoices().filter(x => /^en[-_]US/i.test(x.lang));
+    const pick = v.find(x => /natural|neural|premium|enhanced|Samantha|Google US/i.test(x.name)) || v[0]; if (pick) u.voice = pick;
+    speechSynthesis.speak(u);
+  }
 
   // ── 게이트 ──
   const gate = $('gate'), appEl = $('app'), gateWarn = $('gateWarn');
@@ -355,7 +405,7 @@ function kanaToHangul(text, opt = {}) {
   if (location.hostname === 'localhost') window.__studyPreview = (demo = false) => boot({ preview: true, demo });
 
   // ── 본문 ──
-  let G, J, GEO_D, JP_D, openedAt, geoPass = false, jpPass = false;
+  let G, J, E, GEO_D, JP_D, openedAt, geoPass = false, jpPass = false, enDone = false;
   let QUIZLOG = {};   // 출제 이력(desk/study/quizlog) — 최근 낸 문제 회피·틀린 문제 우선
   async function boot(opt = {}) {
     gate.style.display = 'none'; appEl.style.display = '';
@@ -384,9 +434,11 @@ function kanaToHangul(text, opt = {}) {
       [geoD, jpD] = await Promise.all(['data/geography-daily.json', 'data/japanese-daily.json'].map(f => fetch(f, { cache: 'no-cache' }).then(r => r.json())));
     } catch (e) { showGate(); showWarn('카드를 불러오지 못했습니다. 네트워크를 확인하세요.'); return; }
     GEO_D = geoD; JP_D = jpD; G = pick(geoD, now); J = pick(jpD, now);
+    try { E = pick(await fetch('data/english-daily.json', { cache: 'no-cache' }).then(r => r.json()), now); } catch { E = null; }
     if (!opt.preview && !opt.demo) { try { QUIZLOG = (await get(ref(db, 'desk/study/quizlog'))).val() || {}; } catch { QUIZLOG = {}; } }
-    renderGeo(); renderJp();
+    renderGeo(); renderJp(); if (E) renderEn();
     $('geo').hidden = false; $('jp').hidden = false; $('footRow').hidden = false;
+    $('en').hidden = !E || (APP && MODE === 'test');   // 앱 시험 모드는 두 과목 시험만
     if (APP && MODE === 'test') runTest('geo');   // 2회차부터: 읽기 없이 바로 시험 (지리 통과 → 일본어 자동)
   }
 
@@ -421,10 +473,30 @@ function kanaToHangul(text, opt = {}) {
   }
   $('rToggle').addEventListener('click', () => { try { localStorage.setItem(HIDE_R_LS, hideROn() ? '0' : '1'); } catch {} applyHideR(); });
   $('jpBody').addEventListener('click', e => { const el = e.target.closest('.jp-p, .r'); if (el && $('jpBody').classList.contains('hide-r')) el.classList.toggle('reveal'); });
+  function renderEn() {
+    const c = E.card;
+    $('enCap').textContent = cap(E);
+    $('enT').textContent = c.t; $('enM').textContent = c.m; $('enS').textContent = c.s; $('enP').textContent = c.p; $('enX').textContent = c.x || '';
+    $('enD').innerHTML = (c.d || []).map(([who, en, ko]) => `<div class="en-line"><span class="who${who === 'B' ? ' b' : ''}">${escapeHTML(who)}</span><span class="en q" lang="en">${escapeHTML(en)}</span><span class="ko">${escapeHTML(ko)}</span></div>`).join('');
+    $('enV').innerHTML = (c.v || []).map(([w, k]) => `<div class="jp-row"><b lang="en">${escapeHTML(w)}</b><span class="k q">${escapeHTML(k)}</span></div>`).join('');
+    $('enListen').hidden = !TTS;
+  }
+  // 영어 — 듣기·힌트·문장 보기·따라 쓰기 확인. 통과 여부는 완료 조건이 아니다
+  $('enListen').addEventListener('click', () => E && speakEn(E.card.s));
+  $('enHintBtn').addEventListener('click', () => { $('enHint').hidden = false; $('enHint').textContent = enSkeleton(E.card.s); $('enHintBtn').disabled = true; });
+  $('enShow').addEventListener('click', () => { const on = $('en').classList.toggle('show'); $('enShow').textContent = on ? '문장 가리기' : '문장 보기'; });
+  $('enIn').addEventListener('input', () => { $('enBtn').disabled = !$('enIn').value.trim(); $('enHintMsg').textContent = ''; $('enHintMsg').className = 'hint'; });
+  $('enIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('enBtn').disabled) $('enBtn').click(); });
+  $('enBtn').addEventListener('click', () => {
+    if (!enMatch($('enIn').value, E.card.s)) { $('enHintMsg').textContent = '문장이 다릅니다 — 다시 (힌트·듣기를 써도 좋아요)'; $('enHintMsg').className = 'hint bad'; $('enIn').select(); return; }
+    enDone = true;
+    $('en').classList.add('pass'); $('enIn').readOnly = true; $('enBtn').disabled = true; $('enHintBtn').disabled = true; $('enShow').hidden = true;
+    $('enHintMsg').textContent = '정확합니다 — 소리 내어 세 번 읽어 보세요'; $('enHintMsg').className = 'hint good';
+  });
   const scoreOf = x => !x ? '–' : x.skipped ? '건너뜀' : x.total ? `${x.score}/${x.total}` + (x.attempts > 1 ? ` (${x.attempts}회째 통과)` : '') : '–';
   function renderDone(rec) {
     $('done').hidden = false; $('footRow').hidden = true;
-    $('doneCap').textContent = `지리 Day ${rec.geo?.day ?? '–'} · 일본어 Day ${rec.jp?.day ?? '–'}`;
+    $('doneCap').textContent = `지리 Day ${rec.geo?.day ?? '–'} · 일본어 Day ${rec.jp?.day ?? '–'}` + (rec.en ? ` · 영어 Day ${rec.en.day}` : '');
     const t = rec.finishedAt ? new Date(rec.finishedAt) : null;
     $('doneP').textContent = t ? `${pad(t.getHours())}:${pad(t.getMinutes())}에 마쳤습니다. desk 공부 기록에 「복습」으로 남았습니다.` : 'desk 공부 기록에 「복습」으로 남았습니다.';
     $('doneAns').innerHTML = rec.geo ? `<span class="geo-cap">${escapeHTML(rec.geo.t || '')}</span>${escapeHTML(rec.geo.m || rec.geo.q || '')}<span class="geo-cap">시험</span>지리 ${scoreOf(rec.geo)} · 일본어 ${scoreOf(rec.jp)}` : '';
@@ -528,7 +600,7 @@ function kanaToHangul(text, opt = {}) {
       catch (e) { $('finish').textContent = '체험 완료'; $('finish').disabled = false;
         $('footNote').innerHTML = `<span class="warn">완료 처리에 실패했습니다: ${escapeHTML(e.message || String(e))}</span>`; return; }
       try { localStorage.setItem(DEMO_USED_LS, DEMO_KEY); } catch {}
-      $('geo').hidden = true; $('jp').hidden = true; renderDemoDone(); window.scrollTo({ top: 0, behavior: 'smooth' });
+      $('geo').hidden = true; $('jp').hidden = true; $('en').hidden = true; renderDemoDone(); window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     const end = Date.now(), st = new Date(openedAt), date = keyOf(st);
@@ -536,6 +608,7 @@ function kanaToHangul(text, opt = {}) {
     const rec = { finishedAt: new Date(end).toISOString(),
       geo: { day: G.day, t: G.card.t, m: G.card.m || '', ...result.geo },
       jp: { day: J.day, t: J.card.t, s: jpAnswer(J.card), ...result.jp } };
+    if (E && enDone) rec.en = { day: E.day, t: E.card.t, s: E.card.s, typed: $('enIn').value.trim() };
     const subject = APP ? '폰 공부' : '복습';
     try {
       await push(ref(db, 'desk/study/sessions'), { subject, note: (APP ? `${SLOT || '추가'}회차 · ` : '') + `지리 Day ${G.day} ${scoreOf(result.geo)} · 일본어 Day ${J.day} ${scoreOf(result.jp)}`,
@@ -549,7 +622,7 @@ function kanaToHangul(text, opt = {}) {
       $('footNote').innerHTML = `<span class="warn">기록하지 못했습니다: ${escapeHTML(e.message || String(e))}</span>`;
       return;
     }
-    $('geo').hidden = true; $('jp').hidden = true;
+    $('geo').hidden = true; $('jp').hidden = true; $('en').hidden = true;
     renderDone(rec);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (APP) { $('doneP').textContent = '앱 잠금이 풀립니다.'; post({ done: true, slot: SLOT }); }
