@@ -157,7 +157,6 @@
       </a>
       <nav class="geo-nav">
         <a class="lg on" href="library.html">자료실</a>
-        <a class="lg" href="lecture.html">강의 영상</a>
         <a class="lg" href="progress.html">진도표</a>
         <a class="lg" href="qna.html">Q&amp;A</a>
         <a class="lg" href="simulators.html">시뮬레이터</a>
@@ -339,6 +338,18 @@
         </div>`;
     }
 
+    // 자료실 최상위에만 붙는 고정 항목: 강의 영상(lecture.html, 학번·이름 확인 뒤 시청)
+    const LECTURE_CARD = `<div class="card">
+        <div class="card-top">
+            <svg class="card-ico dir" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>
+            <div class="card-head">
+                <div class="card-name">강의 영상</div>
+                <div class="card-meta"><span class="tag dir">영상</span><span class="size">학번·이름 확인 뒤 시청</span></div>
+            </div>
+        </div>
+        <div class="card-act"><a class="btn" href="lecture.html">열기</a></div>
+    </div>`;
+
     function renderList(items, stale) {
         const box = document.getElementById('listing');
         const visible = (Array.isArray(items) ? items : [])
@@ -346,15 +357,16 @@
         const dirs = visible.filter(i => i.type === 'dir').sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const files = visible.filter(i => i.type === 'file').sort((a, b) => a.name.localeCompare(b.name, 'ko'));
         const ordered = [...dirs, ...files];
+        const cards = (currentPath() === ROOT ? [LECTURE_CARD] : []).concat(ordered.map(cardHTML));
 
-        if (!ordered.length) {
+        if (!cards.length) {
             box.innerHTML = `<div class="state">
                 <div class="ttl">아직 등록된 자료가 없음</div>
             </div>`;
             return;
         }
         const note = stale ? `<div class="stale">최신 목록을 불러오지 못해 저장된 목록을 보여 줌.</div>` : '';
-        box.innerHTML = note + `<div class="arch-grid reveal">${ordered.map(cardHTML).join('')}</div>`;
+        box.innerHTML = note + `<div class="arch-grid reveal">${cards.join('')}</div>`;
     }
 
     async function render() {
@@ -400,7 +412,6 @@
   </div>
   <div class="geo-menu__links">
     <a class="lg" href="library.html">자료실</a>
-    <a class="lg" href="lecture.html">강의 영상</a>
     <a class="lg" href="progress.html">진도표</a>
     <a class="lg" href="qna.html">Q&amp;A</a>
     <a class="lg" href="simulators.html">시뮬레이터</a>
