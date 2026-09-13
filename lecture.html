@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<!-- 학생용 강의 영상: 학번·이름 인증(Firebase 익명 로그인 + 명단 해시) 뒤 YouTube 일부 공개 영상 목록·재생·시청 기록 -->
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E1W226W5M4');
+    </script>
+    <meta charset="UTF-8">
+    <script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>강의 영상 — Leet's Geographia Class</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<!-- 디자인 시스템 -->
+<link rel="stylesheet" href="design-system/stratum.css">
+<link rel="stylesheet" href="design-system/geo.css">
+
+<style>
+/* ============================================================================
+   강의 영상 — 페이지 전용. 골격·색·재질은 stratum.css + geo.css
+   ========================================================================== */
+.wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x); }
+.rule { height: 1px; background: var(--st-separator); border: 0; margin: 0; max-width: 1180px; margin-inline: auto; }
+.lecture { padding-block: clamp(24px, 3vw, 40px) clamp(48px, 7vw, 96px); max-width: 760px; }
+.gate { display: grid; gap: var(--st-sp-3); }
+.gate-row { display: grid; grid-template-columns: 1fr 1.4fr; gap: var(--st-sp-2); }
+.gate-err { color: var(--st-danger-ink); min-height: 1.4em; margin: 0; }
+.who { display: flex; justify-content: space-between; align-items: center; gap: var(--st-sp-3); margin-bottom: var(--st-sp-3); }
+.who button { background: none; border: 0; color: var(--st-accent-ink); font: inherit; cursor: pointer; padding: 0; }
+.unit { margin-top: var(--st-sp-6); }
+.unit .st-eyebrow { margin-bottom: var(--st-sp-2); }
+.vrow { cursor: pointer; }
+.vrow:focus-visible { outline: none; box-shadow: var(--st-ring); border-radius: var(--st-r-element); }
+.vrow .thumb { width: 96px; aspect-ratio: 16/9; border-radius: var(--st-r-element); object-fit: cover; background: var(--st-fill-3); flex: none; }
+.vrow .body { flex: 1; min-width: 0; }
+.vrow .st-row__title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vrow .pct { flex: none; min-width: 3.2em; text-align: right; }
+.player { margin-bottom: var(--st-sp-4); }
+.player .frame { aspect-ratio: 16/9; width: 100%; border-radius: var(--st-r-element); overflow: hidden; background: var(--st-label); }
+.player .frame iframe, .player .frame > div { width: 100%; height: 100%; border: 0; }
+.player .st-between { margin-top: var(--st-sp-2); }
+[hidden] { display: none !important; }
+</style>
+
+<!-- PWA — 홈 화면에 추가 시 앱처럼 동작 -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Geographia">
+<meta name="theme-color" content="#f2f2f7">
+</head>
+<body>
+    <!-- ══════════ MASTHEAD ══════════ -->
+    <header class="st-glass st-bar">
+    <div class="geo-bar__in">
+      <a class="geo-logo lg" href="index.html" aria-label="Geographia 홈">
+        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+        <b>Geographia</b>
+      </a>
+      <nav class="geo-nav">
+        <a class="lg" href="library.html">자료실</a>
+        <a class="lg on" href="lecture.html">강의 영상</a>
+        <a class="lg" href="progress.html">진도표</a>
+        <a class="lg" href="qna.html">Q&amp;A</a>
+        <a class="lg" href="simulators.html">시뮬레이터</a>
+        <a class="lg" href="feedback.html">건의</a>
+      </nav>
+      <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+    <!-- ══════════ HERO ══════════ -->
+    <section class="wrap sheet-head">
+        <div class="sheet-num reveal">수업 영상</div>
+        <h1 class="sheet-title reveal">Lecture</h1>
+        <p class="sheet-meta reveal">수업 내용을 다시 볼 수 있도록 강의 영상을 모아 둡니다.<br>학번과 이름으로 본인 확인을 한 뒤 볼 수 있습니다.</p>
+    </section>
+    <hr class="rule">
+
+    <!-- ══════════ LECTURE ══════════ -->
+    <main class="wrap lecture">
+        <div id="gate" class="st-card" hidden>
+            <div class="st-eyebrow">본인 확인</div>
+            <form id="gateForm" class="gate" autocomplete="off">
+                <div class="gate-row">
+                    <input class="st-field" id="sid" inputmode="numeric" placeholder="학번" aria-label="학번" required>
+                    <input class="st-field" id="name" placeholder="이름" aria-label="이름" required>
+                </div>
+                <p class="st-footnote gate-err" id="gateErr" aria-live="polite"></p>
+                <button class="st-btn st-btn--filled" id="gateBtn" type="submit">확인</button>
+            </form>
+        </div>
+        <div id="list" hidden>
+            <div class="who st-footnote st-dim"><span id="whoText"></span><button type="button" id="whoReset">다른 사람으로</button></div>
+            <div id="player" class="player" hidden>
+                <div class="frame"><div id="yt"></div></div>
+                <div class="st-between"><span class="st-subhead" id="playerTitle"></span><button class="st-btn st-btn--sm st-btn--outline" id="playerClose" type="button">닫기</button></div>
+            </div>
+            <div id="units"></div>
+            <p class="st-footnote st-dim" id="listEmpty" hidden>아직 올라온 영상이 없습니다.</p>
+        </div>
+        <p class="st-callout st-dim" id="status">불러오는 중…</p>
+    </main>
+
+    <!-- ══════════ COLOPHON ══════════ -->
+    <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
+    <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
+    <a class="lg" href="index.html">← 메인으로</a>
+  </footer>
+
+<script id="lecture-hash">
+// 학번·이름 → 명단 해시. Desk 앱 Shared/Lecture.swift RosterHash 와 같은 규칙(숫자만 | 공백 제거·NFC, sha256 hex)
+window.LectureHash = {
+  normSid: s => (s || '').replace(/[^0-9]/g, ''),
+  normName: s => (s || '').replace(/\s+/g, '').normalize('NFC'),
+  hashId: async function (sid, name) {
+    const bytes = new TextEncoder().encode(this.normSid(sid) + '|' + this.normName(name));
+    const d = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(d), b => b.toString(16).padStart(2, '0')).join('');
+  }
+};
+</script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getDatabase, ref, set, get, update, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
+    authDomain: "soc-c-qna.web.app",
+    databaseURL: "https://soc-c-qna-default-rtdb.firebaseio.com",
+    projectId: "soc-c-qna",
+    storageBucket: "soc-c-qna.firebasestorage.app",
+    messagingSenderId: "927605189358",
+    appId: "1:927605189358:web:9ea5171373ac4c9e8661ff"
+  };
+  const app = initializeApp(firebaseConfig), auth = getAuth(app), db = getDatabase(app);
+  const $ = id => document.getElementById(id);
+  const H = window.LectureHash;
+  const LS = 'lecture-id';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const saved = () => { try { return JSON.parse(localStorage.getItem(LS) || 'null'); } catch { return null; } };
+
+  let uid = null, videos = [], mine = {}, unsubVideos = null;
+  const show = (gate, list, status) => { $('gate').hidden = !gate; $('list').hidden = !list; $('status').hidden = !status; if (status) $('status').textContent = status; };
+
+  // ── 인증: members/{uid} 쓰기 성공 = 명단에 있음(보안 규칙이 roster 와 대조) ──
+  async function verify(sid, name) {
+    if (!auth.currentUser) await signInAnonymously(auth);
+    const u = auth.currentUser.uid, h = await H.hashId(sid, name);
+    await set(ref(db, `members/${u}`), { h, sid: H.normSid(sid), name: H.normName(name), at: serverTimestamp() });
+    try { localStorage.setItem(LS, JSON.stringify({ sid: H.normSid(sid), name: H.normName(name) })); } catch {}
+    return u;
+  }
+  function gateError(e) {
+    const code = ((e && e.code) || '') + ' ' + ((e && e.message) || '');
+    if (/permission_denied|permission denied/i.test(code)) return '명단에 없는 학번 또는 이름입니다. 다시 확인해 주세요.';
+    if (/operation-not-allowed/i.test(code)) return '관리자 설정이 아직 안 되었습니다. 선생님께 알려 주세요.';
+    if (/network/i.test(code)) return '네트워크 연결을 확인해 주세요.';
+    return '확인에 실패했습니다. ' + ((e && e.message) || '');
+  }
+  $('gateForm').addEventListener('submit', async ev => {
+    ev.preventDefault(); $('gateErr').textContent = ''; $('gateBtn').disabled = true;
+    try { uid = await verify($('sid').value, $('name').value); enter(); }
+    catch (e) { $('gateErr').textContent = gateError(e); }
+    finally { $('gateBtn').disabled = false; }
+  });
+  $('whoReset').addEventListener('click', async () => {
+    try { localStorage.removeItem(LS); } catch {}
+    stop(); try { await signOut(auth); } catch {} uid = null; $('sid').value = ''; $('name').value = ''; $('gateErr').textContent = ''; show(true, false, false);
+  });
+
+  // ── 목록 ──
+  function enter() {
+    const me = saved(); $('whoText').textContent = me ? `${me.name} · ${me.sid}` : '';
+    show(false, true, false);
+    unsubVideos = onValue(ref(db, 'videos'), snap => { videos = parseVideos(snap.val()); render(); },
+      err => { stop(); show(true, false, false); $('gateErr').textContent = gateError(err); });
+  }
+  function stop() { if (unsubVideos) unsubVideos(); unsubVideos = null; closePlayer(); }
+  function parseVideos(v) {
+    return Object.entries(v || {}).map(([id, d]) => ({ id, ...d, order: Number(d.order || 0) })).filter(d => d.yt)
+      .sort((a, b) => a.order !== b.order ? a.order - b.order : String(b.date || '').localeCompare(String(a.date || '')));
+  }
+  async function loadMine() {
+    const out = {};
+    await Promise.all(videos.map(async v => { try { const s = await get(ref(db, `views/${v.id}/${uid}`)); if (s.exists()) out[v.id] = s.val(); } catch {} }));
+    mine = out;
+  }
+  async function render() {
+    await loadMine();
+    const units = []; const by = {};
+    for (const v of videos) { const u = v.unit || '기타'; if (!by[u]) { by[u] = []; units.push(u); } by[u].push(v); }
+    $('listEmpty').hidden = videos.length > 0;
+    $('units').innerHTML = units.map(u => `
+      <section class="unit"><div class="st-eyebrow">${esc(u)}</div><div class="st-list">${by[u].map(v => {
+        const r = mine[v.id], pct = r && r.dur > 0 ? Math.min(100, Math.round(r.sec / r.dur * 100)) : 0;
+        const badge = r && r.done ? '<span class="st-badge st-badge--success">시청 완료</span>' : pct > 0 ? `<span class="st-footnote st-dim pct">${pct}%</span>` : '';
+        return `<div class="st-row vrow" data-id="${esc(v.id)}" role="button" tabindex="0">
+          <img class="thumb" src="https://i.ytimg.com/vi/${esc(v.yt)}/mqdefault.jpg" alt="" loading="lazy">
+          <div class="body"><div class="st-row__title">${esc(v.title || v.yt)}</div><div class="st-row__meta">${esc([v.date, v.note].filter(Boolean).join(' · '))}</div></div>${badge}</div>`; }).join('')}</div></section>`).join('');
+    $('units').querySelectorAll('.vrow').forEach(el => {
+      const open = () => play(videos.find(v => v.id === el.dataset.id));
+      el.addEventListener('click', open);
+      el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    });
+  }
+
+  // ── 재생·시청 기록 (YouTube IFrame API) ──
+  let player = null, current = null, timer = null, counted = false, maxSec = 0;   // counted: 이번 재생 세션의 n 증가 여부
+  const ytReady = new Promise(res => {
+    if (window.YT && window.YT.Player) return res();
+    window.onYouTubeIframeAPIReady = res;
+    const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(s);
+  });
+  async function play(v) {
+    if (!v) return; await ytReady; closePlayer();
+    current = v; counted = false; maxSec = (mine[v.id] && mine[v.id].sec) || 0;
+    $('playerTitle').textContent = v.title || v.yt; $('player').hidden = false; $('player').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const start = mine[v.id] && !mine[v.id].done ? Math.floor(mine[v.id].sec) : 0;
+    player = new YT.Player('yt', { host: 'https://www.youtube-nocookie.com', videoId: v.yt,
+      playerVars: { rel: 0, modestbranding: 1, playsinline: 1, start, autoplay: 1 },
+      events: { onStateChange: e => {
+        if (e.data === YT.PlayerState.PLAYING) { if (!timer) timer = setInterval(() => record(false), 15000); record(false); }
+        else { if (timer) { clearInterval(timer); timer = null; } if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.ENDED) record(e.data === YT.PlayerState.ENDED); }
+      } } });
+  }
+  function record(ended) {
+    if (!player || !current || !uid) return;
+    const dur = player.getDuration ? player.getDuration() : 0; const t = ended ? dur : (player.getCurrentTime ? player.getCurrentTime() : 0);
+    maxSec = Math.max(maxSec, t || 0);
+    const prev = mine[current.id] || {}; const n = (prev.n || 0) + (counted ? 0 : 1); counted = true;
+    const rec = { sec: Math.round(maxSec), dur: Math.round(dur || prev.dur || 0), n, at: Date.now(), done: dur > 0 && maxSec / dur >= 0.9 };
+    mine[current.id] = rec;
+    update(ref(db, `views/${current.id}/${uid}`), rec).catch(() => {});
+  }
+  function closePlayer() {
+    if (timer) { clearInterval(timer); timer = null; }
+    if (player) { record(false); try { player.destroy(); } catch {} player = null; }
+    current = null; $('player').hidden = true;
+    const d = document.createElement('div'); d.id = 'yt'; $('player').querySelector('.frame').replaceChildren(d);
+  }
+  $('playerClose').addEventListener('click', () => { closePlayer(); render(); });
+  window.addEventListener('pagehide', () => record(false));
+
+  // ── 진입: 로그인 상태 + 저장된 학번으로 조용히 재인증 ──
+  onAuthStateChanged(auth, async user => {
+    const me = saved();
+    if (user) {
+      try { const s = await get(ref(db, `members/${user.uid}`)); if (s.exists()) { uid = user.uid; return enter(); } } catch {}
+    }
+    if (me) {
+      try { uid = await verify(me.sid, me.name); return enter(); } catch {}
+      $('sid').value = me.sid; $('name').value = me.name;
+    }
+    show(true, false, false);
+  });
+</script>
+<div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
+  <div class="geo-menu__top">
+    <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
+      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+      <b>Geographia</b>
+    </a>
+    <button class="geo-close" id="geoClose" aria-label="메뉴 닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="geo-menu__links">
+    <a class="lg" href="library.html">자료실</a>
+    <a class="lg on" href="lecture.html">강의 영상</a>
+    <a class="lg" href="progress.html">진도표</a>
+    <a class="lg" href="qna.html">Q&amp;A</a>
+    <a class="lg" href="simulators.html">시뮬레이터</a>
+    <a class="lg" href="feedback.html">건의</a>
+  </div>
+  <div class="geo-group">
+    <h3>공간 시뮬레이터</h3>
+    <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
+    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
+    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+  </div>
+  <div class="geo-group">
+    <h3>수업 · 지원</h3>
+    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
+    <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
+  </div>
+  <div class="geo-menu__foot">
+    <a class="geo-menu__cta lg" href="index.html">홈으로 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+    <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
+      <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="design-system/stratum.js"></script>
+<script src="design-system/geo.js"></script>
+</body>
+</html>

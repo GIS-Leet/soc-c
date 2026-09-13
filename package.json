@@ -8,5 +8,8 @@
     "@astryxdesign/cli": "^0.1.4",
     "@astryxdesign/core": "^0.1.4",
     "@astryxdesign/theme-neutral": "^0.1.4"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
   }
 }
