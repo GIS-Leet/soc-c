@@ -1,0 +1,7 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {migrationStorageBucket} from '../scripts/migration-storage.mjs';
+test('Storage의 읽기·바이트 업로드·토큰 폐기 모두 CLI Authorization 헤더를 보낸다',async()=>{
+ const calls=[];const bucket=migrationStorageBucket({credential:{getAccessToken:async()=>({access_token:'fixture'})},bucket:'fixture-bucket',fetcher:async(url,options)=>{calls.push({url,options});return {ok:true,json:async()=>({contentType:'image/png'}),arrayBuffer:async()=>new Uint8Array([1,2]).buffer};}});
+ const file=bucket.file('한글/a.png');await file.getMetadata();assert.deepEqual((await file.download())[0],Buffer.from([1,2]));await file.save(Buffer.from([1,2]),{metadata:{contentType:'image/png',cacheControl:'private, no-store'}});await file.setMetadata({metadata:{firebaseStorageDownloadTokens:null}});
+ assert.equal(calls.length,5);for(const call of calls)assert.equal(call.options.headers.Authorization,'Bearer fixture');assert.equal(calls[2].options.method,'POST');assert.equal(calls[2].options.headers['Content-Type'],'image/png');assert.deepEqual(JSON.parse(calls[4].options.body),{metadata:{firebaseStorageDownloadTokens:null}});assert.ok(calls[0].url.includes(encodeURIComponent('한글/a.png')));
+});
+test('Storage 오류에 객체 경로나 원격 응답을 노출하지 않는다',async()=>{const bucket=migrationStorageBucket({credential:{getAccessToken:async()=>({access_token:'fixture'})},bucket:'fixture',fetcher:async()=>({ok:false,status:401})});await assert.rejects(bucket.file('private').getMetadata(),e=>e.code==='migration-storage-401'&&!e.message.includes('private'));});

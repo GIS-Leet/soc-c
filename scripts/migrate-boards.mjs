@@ -13,6 +13,7 @@ import {
 } from "../functions/board-security.mjs";
 import { requireMigrationRules } from "./migration-rules.mjs";
 import { migrationRestStore } from "./migration-rest-store.mjs";
+import { migrationStorageBucket } from "./migration-storage.mjs";
 import { createFirebaseStore } from "../functions/firebase-store.mjs";
 const require = createRequire(
   new URL("../functions/package.json", import.meta.url),
@@ -177,11 +178,7 @@ async function cliCredential() {
   };
   const toolsDir=process.env.FIREBASE_TOOLS_DIR || "/tmp/nyuheatgis-firebase-readiness-tools/node_modules/firebase-tools";
   const api=require(toolsDir+"/lib/api.js");
-  const {OAuth2Client}=require("google-auth-library"),{Storage}=require("@google-cloud/storage");
-  const authClient=new OAuth2Client(api.clientId(),api.clientSecret());
-  authClient.setCredentials({refresh_token:config.tokens.refresh_token,access_token:cached.access_token,expiry_date:cached.expires_at});
-  return {
-    storageBucket: new Storage({projectId:"soc-c-qna",authClient}).bucket(BUCKET),
+  const credential = {
     async getAccessToken() {
       if (cached.access_token && cached.expires_at > Date.now() + 60000)
         return {
@@ -215,6 +212,8 @@ async function cliCredential() {
       return { access_token: token.access_token, expires_in: token.expires_in };
     },
   };
+  credential.storageBucket=migrationStorageBucket({credential,bucket:BUCKET});
+  return credential;
 }
 async function main() {
   const args = new Set(process.argv.slice(2));
