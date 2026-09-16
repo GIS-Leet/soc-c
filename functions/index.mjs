@@ -4,12 +4,19 @@ import { getDatabase } from "firebase-admin/database";
 import { getStorage } from "firebase-admin/storage";
 import { getAuth } from "firebase-admin/auth";
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import { onValueCreated } from "firebase-functions/v2/database";
+import { defineSecret } from "firebase-functions/params";
 import { scheduledMaintenance } from "./board-schedule.mjs";
 import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
 import { createFirebaseStore, createBucketStorage } from "./firebase-store.mjs";
 import { createBoardService } from "./board-service.mjs";
 import { createMaintenance } from "./board-maintenance.mjs";
 import { BoardError, isTeacher, fields } from "./board-security.mjs";
+import {
+  createApnsSender,
+  createDatabaseEventHandler,
+  createDeskPushService,
+} from "./desk-push.mjs";
 const projectId = process.env.GCLOUD_PROJECT || "soc-c-qna";
 const databaseURL =
   process.env.BOARD_DATABASE_URL ||
@@ -37,6 +44,22 @@ const maintenance = createMaintenance({
   storage,
   containsAttachment: service.containsAttachment,
 });
+const deskApnsCredential = defineSecret("DESK_APNS_CREDENTIAL");
+function deskPushService() {
+  return createDeskPushService({
+    store,
+    send: createApnsSender({ credential: deskApnsCredential.value() }),
+  });
+}
+const deskPushOptions = {
+  ref: "/questions/{qid}",
+  instance: "soc-c-qna-default-rtdb",
+  region: "us-central1",
+  maxInstances: 5,
+  timeoutSeconds: 120,
+  retry: true,
+  secrets: [deskApnsCredential],
+};
 const options = {
   region: "us-central1",
   maxInstances: 5,
@@ -181,4 +204,39 @@ export const boardMaintenance = onCall(
 export const boardScheduledMaintenance = onSchedule(
   {region:'us-central1',schedule:'every 10 minutes',timeZone:'Asia/Seoul',timeoutSeconds:300,memory:'512MiB',maxInstances:1,retryCount:2},
   async()=>scheduledMaintenance({store,run:maintenance.run,send:await notificationSender()}),
+);
+
+// 새 질문은 Mac의 전원 상태와 무관하게 RTDB 생성 이벤트에서 즉시 APNs로 보낸다.
+export const deskQuestionPush = onValueCreated(deskPushOptions, (event) =>
+  createDatabaseEventHandler({
+    kind: "question",
+    service: deskPushService(),
+  })(event),
+);
+
+export const deskStudentFollowupPush = onValueCreated(
+  {
+    ...deskPushOptions,
+    ref: "/questions/{qid}/replies/{rid}/subReplies/{sid}",
+  },
+  (event) =>
+    createDatabaseEventHandler({
+      kind: "subreply",
+      service: deskPushService(),
+    })(event),
+);
+
+// APNs의 일시 오류는 1분마다 같은 기기별 사건을 다시 점유해 전송한다.
+export const deskPushRetry = onSchedule(
+  {
+    region: "us-central1",
+    schedule: "every 1 minutes",
+    timeZone: "Asia/Seoul",
+    timeoutSeconds: 120,
+    memory: "256MiB",
+    maxInstances: 1,
+    retryCount: 2,
+    secrets: [deskApnsCredential],
+  },
+  async () => deskPushService().retryPending(),
 );
