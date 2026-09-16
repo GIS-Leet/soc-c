@@ -61,7 +61,7 @@
 .crumbs .sep { color: var(--st-label-4); }
 
 /* ── 카드 격자 ── */
-.arch-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.arch-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); list-style: none; padding: 0; margin: 0; }
 .card {
   display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
   background: var(--st-surface); border: 1px solid var(--st-separator);
@@ -136,10 +136,6 @@
 /* 자료는 기존 브랜드 토큰을 사용하는 행 목록으로 비교함. */
 .material-tools { display:flex; flex-wrap:wrap; gap:var(--st-sp-4); margin-block-end:var(--st-sp-4); }
 .material-tools label { display:grid; gap:var(--st-sp-2); flex:auto; }
-.materials-list { list-style:none; padding:0; margin:0; }
-.material-row { display:flex; align-items:center; gap:var(--st-sp-3); padding-block:var(--st-sp-4); border-bottom:thin solid var(--st-separator); }
-.material-info { flex:1; min-width:0; }
-.material-name { font-weight:var(--st-fw-semibold); overflow-wrap:anywhere; }
 .material-meta { color:var(--st-label-2); font-size:var(--st-t-caption-size); margin-block:var(--st-sp-2); }
 </style>
 <!-- PWA — 홈 화면에 추가 시 앱처럼 동작 -->
@@ -186,7 +182,7 @@
     <!-- ══════════ HERO ══════════ -->
     <section class="wrap sheet-head">
         <div class="sheet-num reveal">수업 자료</div>
-        <h1 class="sheet-title reveal">자료실</h1>
+        <h1 class="sheet-title reveal">Archive</h1>
         <p class="sheet-meta reveal">수업에서 쓴 학습지와 슬라이드, 참고 자료를 모아 둡니다.<br>자료 이름으로 검색하거나 폴더를 열어 찾아보세요.</p>
     </section>
     <hr class="rule">
