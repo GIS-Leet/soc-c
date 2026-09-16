@@ -1,7 +1,7 @@
 /* Desk 앱 셸 오프라인 캐시.
    같은 출처의 셸 파일과 CDN 정적 자원만 다루고, 나머지(Firebase 등)는 건드리지 않는다. */
 const CACHE_PREFIX = 'desk-shell-';
-const CACHE = CACHE_PREFIX + 'v4';
+const CACHE = CACHE_PREFIX + 'v5';
 const SHELL = [
   'desk.html',
   'assets/preview.mjs',
