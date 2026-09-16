@@ -4,7 +4,7 @@ const source=readFileSync(new URL('../sw.js',import.meta.url),'utf8');
 function harness({fail=false,hit,put}={}){
  const handlers={},deleted=[];let skipped=false;
  const cache={add:async()=>{if(fail)throw Error('missing asset')},addAll:async()=>{if(fail)throw Error('missing asset')},match:async()=>hit,put:put||(async()=>{})};
- const context={self:{addEventListener:(k,v)=>handlers[k]=v,skipWaiting:()=>{skipped=true},clients:{claim:async()=>{}}},caches:{open:async()=>cache,keys:async()=>['another-app-v1','desk-shell-v2','desk-shell-v4'],delete:async k=>deleted.push(k)},location:{origin:'https://nyuheatgis.com'},URL,Response,fetch:async()=>new Response('fresh')};
+ const context={self:{addEventListener:(k,v)=>handlers[k]=v,skipWaiting:()=>{skipped=true},clients:{claim:async()=>{}}},caches:{open:async()=>cache,keys:async()=>['another-app-v1','desk-shell-v2','desk-shell-v5'],delete:async k=>deleted.push(k)},location:{origin:'https://nyuheatgis.com'},URL,Response,fetch:async()=>new Response('fresh')};
  vm.runInNewContext(source,context);return {handlers,deleted,skipped:()=>skipped};
 }
 test('필수 파일이 실패하면 새 워커를 활성화하지 않는다',async()=>{const h=harness({fail:true});let work;h.handlers.install({waitUntil:p=>work=p});await assert.rejects(work);assert.equal(h.skipped(),false)});
