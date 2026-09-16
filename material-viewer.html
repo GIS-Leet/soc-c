@@ -1,0 +1,9 @@
+<!doctype html>
+<!-- 비공개 문서를 불투명 출처 iframe 안에서 실행하는 새 탭 뷰어. -->
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>자료 미리보기 — Geographia</title><link rel="stylesheet" href="design-system/stratum.css"><style>html,body{height:100%;margin:0}iframe{display:block;width:100%;height:100%;border:0}p{padding:var(--st-sp-4)}</style></head>
+<body><p id="status">자료를 여는 중…</p><iframe id="document" title="격리된 자료 미리보기" sandbox="allow-scripts allow-downloads" referrerpolicy="no-referrer" hidden></iframe><script type="module">
+import {allowedBlobURL} from './assets/preview.mjs';
+const url=allowedBlobURL(location.hash,location.origin);
+if(url){const frame=document.getElementById('document');frame.src=url;frame.hidden=false;document.getElementById('status').hidden=true;}
+else document.getElementById('status').textContent='자료를 열 수 없습니다. Desk에서 다시 열어 주세요.';
+</script></body></html>

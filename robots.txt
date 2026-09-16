@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /desk.html
+Disallow: /study.html
+Disallow: /material-viewer.html
+Disallow: /lecture.html
+Disallow: /qna.html
+Disallow: /feedback.html
+Disallow: /support.html
+Sitemap: https://nyuheatgis.com/sitemap.xml

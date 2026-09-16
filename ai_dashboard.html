@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>
+// 외부 그래픽 실패를 숨기지 않고 대체 학습 경로를 알린다.
+window.showSimulationFallback = function () { window.simulationFailed = true; const notice = document.getElementById('simulationFallback'); if (notice) notice.hidden = false; };
+window.addEventListener('error', function (event) { if (event.error || (event.target?.tagName === 'SCRIPT' && /three|chart|lucide|leaflet/i.test(event.target.src))) window.showSimulationFallback(); }, true);
+window.addEventListener('unhandledrejection', window.showSimulationFallback);
+document.addEventListener('DOMContentLoaded', function () { if (window.simulationFailed) window.showSimulationFallback(); });
+</script>
+
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
@@ -16,8 +24,8 @@
     <title>AI 공간·인구 분석 대시보드 - 통합사회 C</title>
     
     
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@1.46.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -155,6 +163,13 @@
   --radius:var(--st-r-container);
 }
 </style>
+<meta name="description" content="공간·인구 모형 실험 — 다른 조건을 고정하고 출산율을 0.7명에서 1.3명으로 바꾸면 2050년 모형 결과는 어떻게 달라지나요? 이 결과는 가정에 따른 실험이며 실제 미래의 확정 예측이 아닙니다.">
+<link rel="canonical" href="https://nyuheatgis.com/ai_dashboard.html">
+<meta property="og:title" content="공간·인구 모형 실험 · Geographia">
+<meta property="og:description" content="공간·인구 모형 실험 — 다른 조건을 고정하고 출산율을 0.7명에서 1.3명으로 바꾸면 2050년 모형 결과는 어떻게 달라지나요? 이 결과는 가정에 따른 실험이며 실제 미래의 확정 예측이 아닙니다.">
+<meta property="og:url" content="https://nyuheatgis.com/ai_dashboard.html">
+<meta property="og:type" content="website">
+<style>.learning-route { margin: var(--st-sp-4) auto; padding: var(--st-sp-4); color: var(--st-label-2); border-block: 1px solid var(--st-separator); } .learning-route p { margin-block: var(--st-sp-2); } .learning-route a { color: var(--st-label); } details > summary { cursor: pointer; padding: var(--st-sp-4); }</style>
 </head>
 <body>
     <header class="st-glass st-bar">
@@ -181,6 +196,13 @@
       </button>
     </div>
   </header>
+<aside id="simulationFallback" class="learning-route" role="status" hidden><h2>시뮬레이션을 불러오지 못했습니다</h2><p>그래픽 기능이나 외부 라이브러리에 연결할 수 없습니다. 아래 관찰 질문의 조건을 비교하고 공개 자료실의 지도와 설명으로 원인을 정리해 보세요. 네트워크를 확인한 뒤 새로고침하면 다시 시도할 수 있습니다.</p><a href="library.html">공개 자료로 학습 계속하기</a></aside><noscript><p>이 실험에는 JavaScript가 필요합니다. <a href="library.html">공개 자료실에서 학습 계속하기</a></p></noscript>
+<aside class="learning-route" aria-label="관찰과 수업 연결">
+<p><strong>관찰 질문</strong> · 다른 조건을 고정하고 출산율을 0.7명에서 1.3명으로 바꾸면 2050년 모형 결과는 어떻게 달라지나요? 이 결과는 가정에 따른 실험이며 실제 미래의 확정 예측이 아닙니다.</p>
+<p>터치 화면에서는 슬라이더 손잡이를 끌어 값을 바꾸세요. 키보드에서는 Tab으로 선택한 뒤 방향키로 조절할 수 있습니다.</p>
+<nav aria-label="관련 학습"><a href="progress.html#class-progress">우리 반 진도</a> · <a href="library.html">공개 자료실</a> · <a href="qna.html?q=%EC%9D%B8%EA%B5%AC%20%EB%B3%80%ED%99%94">관련 질문 보기</a></nav>
+</aside>
+
 
     <div class="dashboard-container">
         <div class="controls-wrapper">
@@ -198,7 +220,7 @@
                     </div>
                     <div class="slider-row" style="margin-top: 10px;">
                         <span>관측 연도</span>
-                        <input type="range" id="yearSlider" min="2000" max="2050" value="2024">
+                        <label class="st-sr-only" for="yearSlider">관측 연도 (년)</label><input type="range" id="yearSlider" min="2000" max="2050" value="2024">
                         <span class="slider-val" id="yearVal">2024년</span>
                     </div>
                     <button class="btn-run" id="btnSpaceScan" onclick="runSpaceAnalysis()">
@@ -225,17 +247,17 @@
                     
                     <div class="slider-row">
                         <span>합계출산율</span>
-                        <input type="range" id="birthSlider" min="0.5" max="2.5" step="0.1" value="0.7">
+                        <label class="st-sr-only" for="birthSlider">합계 출산율 (명)</label><input type="range" id="birthSlider" min="0.5" max="2.5" step="0.1" value="0.7">
                         <span class="slider-val" id="birthVal" style="color:var(--neon-blue)!important;">0.7명</span>
                     </div>
                     <div class="slider-row">
                         <span>고령화 속도</span>
-                        <input type="range" id="agingSlider" min="1" max="5" step="0.5" value="3.0">
+                        <label class="st-sr-only" for="agingSlider">고령화 속도 (배)</label><input type="range" id="agingSlider" min="1" max="5" step="0.5" value="3.0">
                         <span class="slider-val" id="agingVal" style="color:var(--neon-red)!important;">x3.0</span>
                     </div>
                     <div class="slider-row">
                         <span>인구 유입률</span>
-                        <input type="range" id="migSlider" min="0" max="5" step="0.5" value="1.0">
+                        <label class="st-sr-only" for="migSlider">인구 유입률 (퍼센트)</label><input type="range" id="migSlider" min="0" max="5" step="0.5" value="1.0">
                         <span class="slider-val" id="migVal" style="color:var(--neon-green)!important;">1.0%</span>
                     </div>
 
@@ -578,5 +600,10 @@
 
 <script src="design-system/stratum.js"></script>
 <script src="design-system/geo.js"></script>
+<script>
+// 범위 입력의 현재 값을 보조 기술에도 단위와 함께 제공한다.
+const sliderUnits = {"yearSlider": "년", "birthSlider": "명", "agingSlider": "배", "migSlider": "퍼센트"};
+for (const [id, unit] of Object.entries(sliderUnits)) { const input = document.getElementById(id); const sync = () => input.setAttribute('aria-valuetext', `${input.value} ${unit}`); input.addEventListener('input', sync); input.addEventListener('change', sync); sync(); }
+</script>
 </body>
 </html>

@@ -1,0 +1,8 @@
+// 첨부는 서버 API를 통해 읽으며 기존 교사의 관리 접근만 유지한다.
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function teacher() { return request.auth != null && 'email' in request.auth.token && 'email_verified' in request.auth.token && request.auth.token.email == 'leetae712@gmail.com' && request.auth.token.email_verified == true; }
+    match /{allPaths=**} { allow read, write: if teacher(); }
+  }
+}

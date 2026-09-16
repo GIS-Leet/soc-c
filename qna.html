@@ -388,6 +388,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 .board-list:empty { border-top: 0; }
 .q-item { border-bottom: 1px solid var(--st-separator); }
 .q-row {
+  width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left;
   position: relative;
   display: grid; grid-template-columns: 92px minmax(0, 1fr) 16px;
   align-items: center; gap: 14px;
@@ -743,12 +744,15 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
       <span class="compose-bar__s">제목 · 비밀번호 · 내용</span>
     </button>
 
-    <div class="composer" id="composer"><div class="composer__in">
+    <div class="composer" id="composer" inert><div class="composer__in">
       <div class="ledger-panel">
+        <label class="st-sr-only" for="titleInput">질문 제목</label>
         <input type="text" id="titleInput" class="form-input write-title-input" placeholder="제목을 입력하세요" maxlength="50">
         <div class="write-header">
+          <label class="st-sr-only" for="authorInput">작성자 닉네임</label>
           <input type="text" id="authorInput" class="form-input" placeholder="작성자 닉네임 (선택)" maxlength="10">
           <div class="write-options">
+            <label class="st-sr-only" for="pwInput">수정 및 삭제 비밀번호</label>
             <input type="password" id="pwInput" class="form-input" placeholder="비밀번호 (수정/삭제용)" maxlength="20">
             <label class="secret-label">
               <input type="checkbox" id="secretInput">
@@ -756,6 +760,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             </label>
           </div>
         </div>
+        <label class="st-sr-only" for="questionInput">질문 내용</label>
         <textarea id="questionInput" class="form-input" placeholder="질문을 자유롭게 작성해 주세요."></textarea>
 
         <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleImageSelection(event)">
@@ -779,7 +784,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     <div class="q-tools">
       <div class="search-bar">
         <svg class="search-ico ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
-        <input type="search" id="searchInput" placeholder="질문 검색 — 제목 · 내용 · 작성자" autocomplete="off">
+        <input type="search" id="searchInput" aria-label="질문 검색" placeholder="질문 검색 — 제목 · 내용 · 작성자" autocomplete="off">
         <button class="search-clear" id="searchClearBtn" onclick="window.clearSearch()">지우기</button>
       </div>
       <div class="st-segmented q-filter" id="qFilter" role="tablist" aria-label="답변 상태로 거르기">
@@ -870,9 +875,10 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 <script src="design-system/geo.js"></script>
 
 <script type="module">
+    import {installBoardControls} from "./assets/board-controls.mjs";
+    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref as dbRef, push, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+    import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs";
 
     /* ========================================================================
        ★★★ 학기가 바뀌면 여기 맨 위에 한 줄만 추가하면 됩니다 ★★★
@@ -900,15 +906,11 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const storage = getStorage(app);
+
     const questionsRef = dbRef(db, 'questions');
 
-    // 관리자 암호는 SHA-256 해시로만 보관 (소스에 평문 노출 방지)
-    const ADMIN_PW_HASH = "26df012690d85cf35dbee2aaf099170724b635625f34b552d6a2933bca6c5480";
-    async function sha256Hex(str) {
-        const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-        return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+
+
     let isAdmin = false;
     let selectedImageFile = null;
 
@@ -920,8 +922,11 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
     function escapeHTML(str) {
         if (!str) return '';
-        return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
+        return String(str).replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
     }
+    function isSafeFirebaseKey(key) { return typeof key === 'string' && /^[A-Za-z0-9_-]+$/.test(key); }
+    async function commitWrite(write, apply) { await write(); apply(); }
+    async function deleteRecord(reference) { try { await remove(reference); } catch (error) { window.AppModal.show({type: 'alert', msg: '삭제하지 못했습니다. 다시 시도해 주세요.'}); } }
 
     // ==========================================
     // ★ 사진 미리보기 로직 ★
@@ -963,17 +968,6 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     document.getElementById('modalCancelBtn').onclick = () => window.AppModal.cancel();
     document.getElementById('modalInput').onkeypress = (e) => { if(e.key === 'Enter') window.AppModal.submit(); };
 
-    window.toggleAdminPanel = function() {
-        if (isAdmin) { isAdmin = false; document.getElementById('adminBtn').innerHTML = `관리자`; document.getElementById('adminBtn').classList.remove('active'); refreshAdminUI(); }
-        else { const box = document.getElementById('adminLoginBox'); box.style.display = box.style.display === 'block' ? 'none' : 'block'; if(box.style.display === 'block') document.getElementById('adminPwInput').focus(); }
-    };
-    window.loginAdmin = async function() {
-        const input = document.getElementById('adminPwInput');
-        if (await sha256Hex(input.value) === ADMIN_PW_HASH) { isAdmin = true; document.getElementById('adminBtn').innerHTML = `로그인됨`; document.getElementById('adminBtn').classList.add('active'); document.getElementById('adminLoginBox').style.display = 'none'; input.value = ''; refreshAdminUI(); }
-        else { const btn = document.getElementById('adminBtn'); btn.innerHTML = `불일치`; btn.style.color = "var(--terra)"; setTimeout(() => { btn.innerHTML = `관리자`; btn.style.color = ""; }, 1500); input.value = ''; }
-    };
-    window.handlePwKeyPress = (e) => { if (e.key === 'Enter') window.loginAdmin(); };
-
     function refreshAdminUI() {
         document.querySelectorAll('.reply-input-group').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
         document.querySelectorAll('.reply-actions').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
@@ -987,6 +981,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         const bar = document.getElementById('composeBar');
         const on = typeof force === 'boolean' ? force : !box.classList.contains('is-open');
         box.classList.toggle('is-open', on);
+        box.inert=!on;
         bar.setAttribute('aria-expanded', String(on));
         if (on) setTimeout(() => document.getElementById('titleInput').focus({ preventScroll: true }), 120);
     };
@@ -1002,19 +997,11 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         const submitBtn = document.getElementById('submitBtn'); submitBtn.innerHTML = `등록하는 중…`; submitBtn.disabled = true;
 
         try {
-            let imageUrl = null;
-            if (selectedImageFile) { const fileName = `images/${Date.now()}_${selectedImageFile.name}`; const imgRef = storageRef(storage, fileName); await uploadBytes(imgRef, selectedImageFile); imageUrl = await getDownloadURL(imgRef); }
+            let attachmentIds = [];
+            if (selectedImageFile) { const uploaded = await uploadAttachment(db, selectedImageFile, {board:'questions'}); attachmentIds = [uploaded.attachmentId]; }
 
-            await push(questionsRef, { title, author, password, text, isSecret, imageUrl: imageUrl || '', time: getCurrentTime(), timestamp: Date.now() });
+            await push(questionsRef, { title, author, password, text, isSecret, attachmentIds, time: getCurrentTime(), timestamp: Date.now() });
 
-            const part1 = "https://discord.com/api/webhooks/1505402918025695353";
-            const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb";
-            const webhookUrl = part1 + part2;
-
-            if (webhookUrl.includes("discord.com")) {
-                const message = { embeds: [{ title: `🔔 [새로운 질문] ${title}`, description: text.length > 100 ? text.substring(0, 100) + "..." : text, color: 2451163, fields: [ { name: "작성자", value: author, inline: true }, { name: "비밀글", value: isSecret ? "🔒 예" : "🔓 아니오", inline: true } ], timestamp: new Date().toISOString() }] };
-                fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(message) }).catch(err => console.error(err));
-            }
 
             document.getElementById('titleInput').value = ''; document.getElementById('questionInput').value = ''; document.getElementById('authorInput').value = ''; document.getElementById('pwInput').value = ''; document.getElementById('secretInput').checked = false; window.removeSelectedImage();
             window.toggleComposer(false);
@@ -1022,33 +1009,23 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         } catch (error) { window.AppModal.show({type: 'alert', msg: '네트워크 통신 오류가 발생했습니다.'}); } finally { submitBtn.innerHTML = `질문 등록`; submitBtn.disabled = false; }
     };
 
-    window.togglePost = (id) => {
-        const li = document.getElementById(`post-${id}`);
-        if (li.classList.contains('is-open')) { li.classList.remove('is-open'); return; }
-        const isSecret = li.dataset.secret === 'true'; const correctPw = li.dataset.pw;
-        if (isSecret && !isAdmin) {
-            window.AppModal.show({type: 'prompt', title: '비밀글', msg: '열람 암호를 입력하십시오.'}, (pw) => {
-                if (pw === correctPw) { li.dataset.unlocked = 'true'; li.classList.add('is-open'); }
-                else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호가 일치하지 않습니다.'});
-            });
-        } else li.classList.add('is-open');
-    };
-
-    window.handleEdit = function(id) { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (!isAdmin) { window.AppModal.show({type: 'prompt', title: '글 수정', msg: '수정 암호를 입력하십시오.'}, (pw) => { if (pw === correctPw) enableEditMode(id); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호가 일치하지 않습니다.'}); }); } else enableEditMode(id); };
-
     function enableEditMode(id) {
         const bodyDiv = document.getElementById(`post-body-${id}`); const currentText = bodyDiv.dataset.text; const currentTitle = bodyDiv.dataset.title;
         bodyDiv.innerHTML = `<input type="text" id="edit-title-${id}" class="edit-input-title" value="${escapeHTML(currentTitle)}"><textarea id="edit-textarea-${id}" class="edit-textarea-body">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"><button onclick="window.cancelEdit('${id}')" class="btn-sub">취소</button><button onclick="window.saveEdit('${id}')" class="btn-solid">저장</button></div>`;
     }
 
-    window.cancelEdit = (id) => { const bodyDiv = document.getElementById(`post-body-${id}`); const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(bodyDiv.dataset.text); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">작성 ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; };
+    window.cancelEdit = (id) => { const bodyDiv = document.getElementById(`post-body-${id}`); const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(bodyDiv.dataset.text); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">작성 ${escapeHTML(bodyDiv.dataset.time)}</div>`; bodyDiv.innerHTML = contentHtml; };
 
-    window.saveEdit = (id) => {
+    window.saveEdit = async (id) => {
         const newTitle = document.getElementById(`edit-title-${id}`).value.trim(); const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
-        if (newTitle && newText) { update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText }); const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">작성 ${bodyDiv.dataset.time}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; li.dataset.sTitle = newTitle; li.dataset.sBody = isSecret ? '' : newText; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(newTitle); scheduleRefresh(); } else { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); }
+        if (!newTitle || !newText) { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); return; }
+        try { await commitWrite(
+            () => update(dbRef(db, `questions/${id}`), { title: newTitle, text: newText }),
+            () => { const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">작성 ${escapeHTML(bodyDiv.dataset.time)}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; li.dataset.sTitle = newTitle; li.dataset.sBody = isSecret ? '' : newText; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(newTitle); scheduleRefresh(); }
+        ); } catch (error) { window.AppModal.show({type: 'alert', msg: '수정 내용을 저장하지 못했습니다. 입력한 내용은 유지됩니다.'}); }
     };
 
-    window.handleDelete = (id) => { const li = document.getElementById(`post-${id}`); const correctPw = li.dataset.pw; if (isAdmin) { window.AppModal.show({type: 'confirm', title:'글 삭제', msg: '이 질문을 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); } else { window.AppModal.show({type: 'prompt', title:'글 삭제', msg: '삭제 암호를 입력하십시오.'}, (pw) => { if (pw === correctPw) window.AppModal.show({type: 'confirm', msg: '이 질문을 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${id}`)); }); else if (pw !== null) window.AppModal.show({type: 'alert', msg: '암호가 일치하지 않습니다.'}); }); } };
+
 
     // ==========================================
     // ★ 학기 묶음 만들기 ★
@@ -1112,7 +1089,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     function paintAnswerState(qId, n) {
         const li = document.getElementById(`post-${qId}`);
         if (!li) return;
-        li.dataset.answers = n;
+        li.dataset.answers = li.dataset.locked === 'true' ? (+li.dataset.summaryAnswers || 0) : n;
         const empty = document.getElementById(`no-reply-${qId}`);
         if (empty) empty.hidden = n > 0;
         paintReadState(qId);
@@ -1125,6 +1102,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
        그래야 답변을 하나 더 달았을 때 '또 안 봤다'가 저절로 드러난다. */
     function readStateOf(li) {
         if (!li) return 'wait';
+        if(li.dataset.locked==='true') return (+li.dataset.summaryAnswers||0)>0 ? 'done' : 'wait';
         if ((+li.dataset.answers || 0) === 0) return 'wait';
         const readAt = +li.dataset.readAt || 0;
         if (!readAt) return 'done';
@@ -1166,24 +1144,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
     /* 확인 도장을 찍는다 — 비밀번호가 맞아야 남는다.
        비밀글을 이미 비밀번호로 열었다면 다시 묻지 않는다. */
-    window.markRead = function(qId) {
-        const li = document.getElementById(`post-${qId}`);
-        if (!li) return;
-        if (isAdmin) {
-            window.AppModal.show({ type: 'alert', title: '확인 표시', msg: '확인 표시는 질문을 쓴 학생만 남길 수 있습니다. 관리자로 로그인한 상태에서는 남기지 않습니다.' });
-            return;
-        }
-        const stamp = () => update(dbRef(db, `questions/${qId}`), { readAt: Date.now() });
-        if (li.dataset.unlocked === 'true') { stamp(); return; }
-        window.AppModal.show({
-            type: 'prompt', title: '답변 확인', confirmText: '확인 표시',
-            msg: '글을 쓸 때 정한 비밀번호를 입력하면 선생님께 확인 표시가 전달됩니다.'
-        }, (pw) => {
-            if (pw === null) return;
-            if (pw === li.dataset.pw) { li.dataset.unlocked = 'true'; stamp(); }
-            else window.AppModal.show({ type: 'alert', msg: '비밀번호가 일치하지 않습니다.' });
-        });
-    };
+
 
     // 목록에 함께 적는 답변 수(대댓글 포함)
     function updateReplyCount(qId, change) {
@@ -1198,11 +1159,18 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     // ==========================================
     // ★ 파이어베이스 리스너 감지기 ★
     // ==========================================
+    function handleBoardError() {
+        boardEmpty.hidden = false;
+        boardEmpty.textContent = '질문을 불러오지 못했습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.';
+    }
+
+
     onChildAdded(questionsRef, (snapshot) => {
-        const id = snapshot.key; renderPost(id, snapshot.val());
+        const id = snapshot.key; if (!isSafeFirebaseKey(id)) return; renderPost(id, snapshot.val()); applyPostSnapshot(id, snapshot.val());
         const repliesRef = dbRef(db, `questions/${id}/replies`);
 
         onChildAdded(repliesRef, (rep) => {
+            if (!isSafeFirebaseKey(rep.key)) return;
             renderComment(id, rep.key, rep.val());
             updateReplyCount(id, 1);
             noteAnswer(id, rep.key, true);
@@ -1210,9 +1178,11 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
             const subRepliesRef = dbRef(db, `questions/${id}/replies/${rep.key}/subReplies`);
             onChildAdded(subRepliesRef, (sub) => {
+                if (!isSafeFirebaseKey(sub.key)) return;
                 renderSubComment(id, rep.key, sub.key, sub.val());
                 updateReplyCount(id, 1);
             });
+            onChildChanged(subRepliesRef, (sub) => { const node=document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`); if(node) { node.remove(); renderSubComment(id,rep.key,sub.key,sub.val()); } });
             onChildRemoved(subRepliesRef, (sub) => {
                 document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`)?.remove();
                 updateReplyCount(id, -1);
@@ -1225,28 +1195,22 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             noteAnswerText(id, rep.key, null);
         });
         onChildChanged(repliesRef, (rep) => { const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`); if (textContainer && !textContainer.querySelector('textarea')) { textContainer.textContent = rep.val().text; document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text; } noteAnswerText(id, rep.key, rep.val()); scheduleRefresh(); });
-    });
+    }, handleBoardError);
 
     onChildRemoved(questionsRef, (snapshot) => { document.getElementById(`post-${snapshot.key}`)?.remove(); answerKeys.delete(snapshot.key); answerTexts.delete(snapshot.key); scheduleRefresh(); });
-    onChildChanged(questionsRef, (snapshot) => {
-        const id = snapshot.key; const data = snapshot.val(); const titleSpan = document.getElementById(`title-text-${id}`); const bodyDiv = document.getElementById(`post-body-${id}`);
-        if (titleSpan) titleSpan.innerHTML = (data.isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(data.title || data.text.substring(0, 20) + '...');
-        if (bodyDiv && !bodyDiv.querySelector('textarea')) { let contentHtml = escapeHTML(data.text); if(data.imageUrl) contentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">작성 ${data.time}</div>`; bodyDiv.innerHTML = contentHtml; bodyDiv.dataset.text = data.text; bodyDiv.dataset.title = data.title; }
-        const postLi = document.getElementById(`post-${id}`); if (postLi) { postLi.dataset.sTitle = data.title || ''; postLi.dataset.sBody = data.isSecret ? '' : (data.text || ''); postLi.dataset.readAt = data.readAt || 0; paintReadState(id); }
-        scheduleRefresh();
-    });
+    onChildChanged(questionsRef, (snapshot) => applyPostSnapshot(snapshot.key, snapshot.val()));
 
     // ==========================================
     // ★ 화면 그리기 함수 (메인) ★
     // ==========================================
     function renderPost(id, data) {
+        if (!isSafeFirebaseKey(id)) return;
         const semId = semesterOf(postTime(data));
         const list = document.getElementById(`sem-list-${semId}`);
         if (!list) return;
 
         const li = document.createElement('li');
         li.className = 'q-item'; li.id = `post-${id}`;
-        li.dataset.pw = data.password || '';
         li.dataset.secret = data.isSecret || false;
         li.dataset.answers = 0;
         li.dataset.ts = postTime(data);
@@ -1262,26 +1226,26 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         displayTitleHtml += escapeHTML(rawTitle);
         if (data.imageUrl) displayTitleHtml += ' ' + SVG_IMAGE;
 
-        const parts = (data.time || '').split(' ');
+        const parts = String(data.time || '').split(' ');
         const listTime = parts[0] ? parts[0].substring(5).replace('/', '.') : '';
 
         let bodyContentHtml = escapeHTML(data.text); if (data.imageUrl) bodyContentHtml += `<img src="${escapeHTML(data.imageUrl)}" class="post-image" loading="lazy" alt="첨부 이미지">`; bodyContentHtml += `<div class="post-meta-foot">작성 ${escapeHTML(data.time || '')}</div>`;
 
         li.innerHTML = `
-            <div class="q-row" onclick="window.togglePost('${id}')">
+            <button type="button" class="q-row" aria-expanded="false" aria-controls="content-${id}" onclick="window.togglePost('${id}', this)">
                 <span class="q-state q-state--wait">답변 전</span>
                 <div class="q-main">
                     <span class="q-title" id="title-text-${id}">${displayTitleHtml}</span>
                     <span class="q-meta">
                         <span class="q-author">${escapeHTML(author)}</span>
                         <span aria-hidden="true">·</span>
-                        <span class="q-date">${listTime}</span>
+                        <span class="q-date">${escapeHTML(listTime)}</span>
                         <span class="q-n" id="reply-count-${id}" data-count="0" hidden></span>
                     </span>
                 </div>
                 ${SVG_CHEV}
-            </div>
-            <div class="q-body" id="content-${id}"><div class="q-body__in"><div class="q-body__pad">
+            </button>
+            <div class="q-body" id="content-${id}" inert><div class="q-body__in"><div class="q-body__pad">
                 <div class="post-actions-inline"><button class="action-txt" onclick="window.handleEdit('${id}')">수정</button><button class="action-txt delete" onclick="window.handleDelete('${id}')">삭제</button></div>
                 <div id="post-body-${id}" class="post-body" data-text="${escapeHTML(data.text)}" data-title="${escapeHTML(rawTitle)}" data-image="${escapeHTML(data.imageUrl || '')}" data-time="${escapeHTML(data.time || '')}">${bodyContentHtml}</div>
 
@@ -1297,7 +1261,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
                     <div class="reply-input-group" id="reply-group-${id}">
                         <div style="display:flex; flex-direction:column; flex:1; gap:6px;">
-                            <textarea id="reply-input-${id}" placeholder="답변을 입력하세요"></textarea>
+                            <textarea aria-label="교사 답변" id="reply-input-${id}" placeholder="답변을 입력하세요"></textarea>
                             <div style="display:flex; gap:8px;">
                                 <button class="btn-sub" style="height:30px; padding:0 12px; font-size:12px;" onclick="document.getElementById('reply-image-${id}').click()">
                                     <svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> 사진
@@ -1325,13 +1289,15 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     // ==========================================
     // ★ 목록 정리 — 검색 · 상태 필터 · 학기 · 더 보기 ★
     // ==========================================
-    let currentQuery = '';
+    let boardLoadState='loading';
+    let currentQuery = new URLSearchParams(window.location.search).get('q') || '';
     let statusFilter = 'all';
     const searchInput = document.getElementById('searchInput');
     const searchStatus = document.getElementById('searchStatus');
     const searchClearBtn = document.getElementById('searchClearBtn');
     const noResultRow = document.getElementById('noResultRow');
     const boardEmpty = document.getElementById('boardEmpty');
+    searchInput.value = currentQuery;
 
     function highlightText(text, query) {
         const safe = escapeHTML(text);
@@ -1416,7 +1382,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         renderDash(rows, all, done);
         renderRecent();
 
-        boardEmpty.hidden = all > 0;
+        boardEmpty.hidden = boardLoadState === 'ready' && all > 0;
         noResultRow.style.display = (all > 0 && matchedTotal === 0) ? 'block' : 'none';
 
         if (currentQuery) {
@@ -1623,11 +1589,11 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         if (sec.hidden) return;
 
         document.getElementById('recentRail').innerHTML = top.map(r => {
-            const d = (r.time.split(' ')[0] || '').substring(5).replace('/', '.');
+            const d = (String(r.time || '').split(' ')[0] || '').substring(5).replace('/', '.');
             return `<button class="recent__card" type="button" onclick="window.jumpToPost('${r.qId}')">
                 <span class="recent__top">
                     <span class="q-state q-state--done">답변 완료</span>
-                    <span class="recent__date">${d}</span>
+                    <span class="recent__date">${escapeHTML(d)}</span>
                 </span>
                 <span class="recent__t">${escapeHTML(r.title)}</span>
                 <span class="recent__a">${escapeHTML(r.text)}</span>
@@ -1642,14 +1608,14 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     window.jumpToPost = (id) => {
         const li = document.getElementById(`post-${id}`);
         if (!li) return;
-        if (currentQuery) { searchInput.value = ''; currentQuery = ''; }
+        if (currentQuery) { clearTimeout(searchTimer); searchInput.value = ''; currentQuery = ''; syncSearchURL(); }
         if (statusFilter !== 'all') { statusFilter = 'all'; if (segCtl) segCtl.select(segCtl.items[0]); }
         const semId = li.closest('.sem').id.replace('sem-', '');
         openState[semId] = true;
         const idx = Array.prototype.indexOf.call(li.parentElement.children, li);
         if (idx >= limits[semId]) limits[semId] = Math.ceil((idx + 1) / PAGE_SIZE) * PAGE_SIZE;
         refreshBoard();
-        li.classList.add('is-open');
+        window.togglePost(id, li.querySelector('.q-row'), true);
         li.scrollIntoView({ behavior: (window.Stratum && Stratum.reduceMotion()) ? 'auto' : 'smooth', block: 'center' });
     };
 
@@ -1657,16 +1623,20 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     let refreshTimer = null;
     function scheduleRefresh() { clearTimeout(refreshTimer); refreshTimer = setTimeout(refreshBoard, 60); }
     refreshBoard();
-    // 정말 한 건도 없는 것과 아직 못 받아온 것은 다르다 — 잠깐 기다렸다 문구를 바꾼다
-    setTimeout(() => { if (!boardEmpty.hidden) boardEmpty.textContent = '아직 등록된 질문이 없습니다.'; }, 4000);
+    window.addEventListener('popstate', () => {
+        clearTimeout(searchTimer);
+        currentQuery = new URLSearchParams(window.location.search).get('q') || '';
+        searchInput.value = currentQuery;
+        refreshBoard();
+    });
 
     let searchTimer = null;
     searchInput.addEventListener('input', () => {
         clearTimeout(searchTimer);
-        searchTimer = setTimeout(() => { currentQuery = searchInput.value.trim(); refreshBoard(); }, 150);
+        searchTimer = setTimeout(() => { currentQuery = searchInput.value.trim(); syncSearchURL(); refreshBoard(); }, 150);
     });
     searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') window.clearSearch(); });
-    window.clearSearch = function() { searchInput.value = ''; currentQuery = ''; refreshBoard(); searchInput.focus(); };
+    window.clearSearch = function() { searchInput.value = ''; currentQuery = ''; syncSearchURL(); refreshBoard(); searchInput.focus(); };
 
     const segCtl = window.Stratum
         ? Stratum.segmented('#qFilter', (value) => { statusFilter = value; refreshBoard(); })
@@ -1686,15 +1656,10 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         if(btn) { btn.innerHTML = `등록하는 중…`; btn.disabled = true; }
 
         try {
-            let imageUrl = null;
-            if (file) {
-                const fileName = `images/${Date.now()}_${file.name}`;
-                const imgRef = storageRef(storage, fileName);
-                await uploadBytes(imgRef, file);
-                imageUrl = await getDownloadURL(imgRef);
-            }
+            let attachmentIds = [];
+            if (file) { const uploaded = await uploadAttachment(db, file, {board:'questions'}); attachmentIds = [uploaded.attachmentId]; }
 
-            await push(dbRef(db, `questions/${id}/replies`), { text: text, imageUrl: imageUrl || '', time: getCurrentTime(), isTeacher: true });
+            await push(dbRef(db, `questions/${id}/replies`), { text: text, attachmentIds, time: getCurrentTime(), isTeacher: true });
 
             input.value = '';
             if(fileInput) window.removeDynamicImage(`reply-image-${id}`, `reply-preview-img-${id}`, `reply-preview-container-${id}`);
@@ -1706,6 +1671,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     };
 
     function renderComment(qId, replyId, data) {
+        if (!isSafeFirebaseKey(qId) || !isSafeFirebaseKey(replyId)) return;
         const list = document.getElementById(`comment-list-${qId}`);
         if (!list) return;
         const li = document.createElement('li'); li.className = 'comment-item'; li.id = `reply-${qId}-${replyId}`; li.dataset.text = data.text;
@@ -1752,8 +1718,8 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
     window.editReply = (qId, replyId) => { if (!isAdmin) return; const li = document.getElementById(`reply-${qId}-${replyId}`); const textContainer = document.getElementById(`reply-text-${qId}-${replyId}`); const currentText = li.dataset.text; textContainer.innerHTML = `<textarea id="edit-reply-input-${qId}-${replyId}" class="edit-textarea-body" style="min-height:80px;">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:6px;"><button onclick="window.cancelEditReply('${qId}', '${replyId}')" class="btn-sub">취소</button><button onclick="window.saveEditReply('${qId}', '${replyId}')" class="btn-solid">저장</button></div>`; };
     window.cancelEditReply = (qId, replyId) => { const li = document.getElementById(`reply-${qId}-${replyId}`); document.getElementById(`reply-text-${qId}-${replyId}`).textContent = li.dataset.text; };
-    window.saveEditReply = (qId, replyId) => { const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim(); if (newText) { update(dbRef(db, `questions/${qId}/replies/${replyId}`), { text: newText }); const li = document.getElementById(`reply-${qId}-${replyId}`); li.dataset.text = newText; document.getElementById(`reply-text-${qId}-${replyId}`).textContent = newText; } else { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); } };
-    window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'답변 삭제', msg: '이 답변을 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}`)); }); };
+    window.saveEditReply = async (qId, replyId) => { const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim(); if (!newText) { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); return; } try { await commitWrite(() => update(dbRef(db, `questions/${qId}/replies/${replyId}`), { text: newText }), () => { const li = document.getElementById(`reply-${qId}-${replyId}`); li.dataset.text = newText; document.getElementById(`reply-text-${qId}-${replyId}`).textContent = newText; }); } catch (error) { window.AppModal.show({type: 'alert', msg: '답변 수정을 저장하지 못했습니다. 입력한 내용은 유지됩니다.'}); } };
+    window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'답변 삭제', msg: '이 답변을 삭제하시겠습니까?', confirmText: '삭제'}, async (res) => { if (!res) return; try { await remove(dbRef(db, `questions/${qId}/replies/${replyId}`)); } catch (error) { window.AppModal.show({type: 'alert', msg: '답변을 삭제하지 못했습니다. 다시 시도해 주세요.'}); } }); };
 
     // ==========================================
     // ★ 2차 댓글 (대댓글 + 사진) 로직 ★
@@ -1775,24 +1741,11 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         if(btn) { btn.innerHTML = `등록 중…`; btn.disabled = true; }
 
         try {
-            let imageUrl = null;
-            if (file) {
-                const fileName = `images/${Date.now()}_${file.name}`;
-                const imgRef = storageRef(storage, fileName);
-                await uploadBytes(imgRef, file);
-                imageUrl = await getDownloadURL(imgRef);
-            }
+            let attachmentIds = [];
+            if (file) { const uploaded = await uploadAttachment(db, file, {board:'questions'}); attachmentIds = [uploaded.attachmentId]; }
 
-            await push(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies`), { author: author, text: textInput, imageUrl: imageUrl || '', isTeacher: isTeacher, time: getCurrentTime() });
+            await push(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies`), { author: author, text: textInput, attachmentIds, isTeacher: isTeacher, time: getCurrentTime() });
 
-            // ⚠️ 대댓글 등록 시 디스코드 알람
-            const part1 = "https://discord.com/api/webhooks/1505402918025695353";
-            const part2 = "/icT-pNpwM_ipf4pkuOP-q2IhRPjPSzQvC7_N-uh-AGbt02OhUk-4fsksGwrU_MczDBCb";
-            const webhookUrl = part1 + part2;
-            if (webhookUrl.includes("discord.com")) {
-                const message = { embeds: [{ title: `💬 [새로운 대댓글]`, description: textInput.length > 100 ? textInput.substring(0, 100) + "..." : textInput, color: 10181046, fields: [ { name: "작성자", value: author, inline: true } ], timestamp: new Date().toISOString() }] };
-                fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(message) }).catch(err => console.error(err));
-            }
 
             document.getElementById(`sub-author-${qId}-${replyId}`).value = ''; document.getElementById(`sub-text-${qId}-${replyId}`).value = '';
             if(fileInput) window.removeDynamicImage(`sub-image-${qId}-${replyId}`, `sub-preview-img-${qId}-${replyId}`, `sub-preview-container-${qId}-${replyId}`);
@@ -1805,6 +1758,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     };
 
     function renderSubComment(qId, replyId, subId, data) {
+        if (!isSafeFirebaseKey(qId) || !isSafeFirebaseKey(replyId) || !isSafeFirebaseKey(subId)) return;
         const list = document.getElementById(`sub-list-${qId}-${replyId}`);
         if(!list) return;
         const li = document.createElement('li'); li.className = 'sub-comment-item'; li.id = `sub-reply-${qId}-${replyId}-${subId}`;
@@ -1831,10 +1785,23 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
     window.deleteSubReply = (qId, replyId, subId) => {
         if (!isAdmin) return;
-        window.AppModal.show({type: 'confirm', title: '삭제', msg: '이 댓글을 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) remove(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies/${subId}`)); });
+        window.AppModal.show({type: 'confirm', title: '삭제', msg: '이 댓글을 삭제하시겠습니까?', confirmText: '삭제'}, (res) => { if(res) deleteRecord(dbRef(db, `questions/${qId}/replies/${replyId}/subReplies/${subId}`)); });
     };
 
     function getCurrentTime() { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const date = String(now.getDate()).padStart(2, '0'); const ampm = now.getHours() >= 12 ? 'PM' : 'AM'; let hour = now.getHours() % 12; hour = hour ? hour : 12; const minutes = String(now.getMinutes()).padStart(2, '0'); return `${year}/${month}/${date} ${ampm} ${hour}:${minutes}`; }
+
+    const controls = installBoardControls({db,board:'questions',ref:dbRef,update,remove,
+      setAdmin: value => { isAdmin=value; refreshAdminUI(); },
+      enableEditMode, onPostChange: () => { for (const li of document.querySelectorAll('.q-item[data-locked="true"]')) paintAnswerState(li.id.replace('post-',''), +li.dataset.summaryAnswers||0); scheduleRefresh(); }
+    });
+    function applyPostSnapshot(id,data) { controls.applyPostSnapshot(id,data); }
+    onBoardState(questionsRef, state => {
+      boardLoadState=state.status;
+      if(state.status==='error') handleBoardError();
+      else if(state.status==='loading') { boardEmpty.hidden=false; boardEmpty.textContent='질문을 불러오는 중…'; }
+      else { boardEmpty.textContent='아직 등록된 질문이 없습니다.'; scheduleRefresh(); }
+    });
+    function syncSearchURL() { const url=new URL(location.href); if(currentQuery) url.searchParams.set('q',currentQuery); else url.searchParams.delete('q'); history.replaceState(null,'',url); }
 </script>
 
 <script>

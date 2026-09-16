@@ -5,23 +5,51 @@
 (function () {
   'use strict';
 
+  // 메뉴와 게시판 대화상자의 초점·배경 비활성화를 같은 규칙으로 처리함.
+  window.GeographiaDialog = function(root, initialFocus) {
+    let opened=false, previous=null, overflow='';
+    const backgrounds=new Map();
+    const focusables=()=>[...root.querySelectorAll('a[href],button,input,textarea,select,[tabindex="0"]')].filter(el=>!el.disabled&&el.getClientRects().length);
+    function closeDialog() {
+      if(!opened)return;opened=false;
+      for(const [el,inert]of backgrounds)el.inert=inert;backgrounds.clear();
+      document.body.style.overflow=overflow;root.inert=true;
+      if(previous?.isConnected)previous.focus({preventScroll:true});
+    }
+    document.addEventListener('keydown',event=>{
+      if(!opened||event.key!=='Tab')return;
+      const items=focusables(),first=items[0],last=items.at(-1);if(!first)return;
+      if(event.shiftKey&&(document.activeElement===first||!root.contains(document.activeElement))){event.preventDefault();last.focus();}
+      else if(!event.shiftKey&&(document.activeElement===last||!root.contains(document.activeElement))){event.preventDefault();first.focus();}
+    });
+    document.addEventListener('focusin',event=>{if(opened&&!root.contains(event.target))(initialFocus?.()||focusables()[0])?.focus();});
+    return {
+      open(returnFocus){
+        if(opened)return;opened=true;previous=returnFocus||document.activeElement;overflow=document.body.style.overflow;
+        root.inert=false;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
+        let branch=root;
+        while(branch.parentElement){for(const sibling of branch.parentElement.children)if(sibling!==branch&&!['SCRIPT','STYLE','LINK'].includes(sibling.tagName)){backgrounds.set(sibling,sibling.inert);sibling.inert=true;}if(branch.parentElement===document.body)break;branch=branch.parentElement;}
+        document.body.style.overflow='hidden';(initialFocus?.()||focusables()[0])?.focus({preventScroll:true});
+      },close:closeDialog
+    };
+  };
+
   /* ── 전체 메뉴 ─────────────────────────────────────────────────────── */
   const menu = document.getElementById('geoMenu');
   const burger = document.getElementById('geoBurger');
   const close = document.getElementById('geoClose');
   if (menu && burger && close) {
+    menu.inert=true;
+    const dialog=window.GeographiaDialog(menu,()=>close);
     const set = (on) => {
       menu.classList.toggle('open', on);
       burger.setAttribute('aria-expanded', String(on));
-      document.body.style.overflow = on ? 'hidden' : '';
-      (on ? close : burger).focus({ preventScroll: true });
+      on?dialog.open():dialog.close();
     };
     burger.addEventListener('click', () => set(true));
     close.addEventListener('click', () => set(false));
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && menu.classList.contains('open')) set(false);
-    });
-    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => set(false)));
+    document.addEventListener('keydown', event => { if(event.key==='Escape'&&menu.classList.contains('open')){event.preventDefault();set(false);} });
+    menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));
   }
 
   /* ── 상단바 드롭다운 ────────────────────────────────────────────────
@@ -36,7 +64,8 @@
           { label: '자료실 전체', href: 'library.html', desc: '수업에 쓴 모든 파일' },
           { label: '학습지',     href: 'library.html#학습지' },
           { label: 'PPT',        href: 'library.html#PPT' },
-          { label: '참고자료',   href: 'library.html#참고자료' }
+          { label: '참고자료',   href: 'library.html#참고자료' },
+          { label: '강의 영상', href: 'lecture.html', desc: '학번·이름 확인 후 시청' }
         ]},
         { title: '수행평가', items: [
           { label: '지역 탐구 프로젝트', href: 'project_guide.html', desc: '주제 선정부터 발표까지' },
@@ -52,9 +81,9 @@
     'progress.html': {
       cols: [
         { title: '수업 진도', items: [
-          { label: '반별 진도 현황', href: 'progress.html', desc: '우리 반은 어디까지' },
-          { label: '전체 수업 계획', href: 'progress.html', desc: '단원별 차시와 학습 목표' },
-          { label: '시험 범위',      href: 'progress.html', desc: '몇 차시부터 몇 차시까지' }
+          { label: '반별 진도 현황', href: 'progress.html#class-progress', desc: '우리 반은 어디까지' },
+          { label: '전체 수업 계획', href: 'progress.html#lesson-plan', desc: '단원별 차시와 학습 목표' },
+          { label: '시험 범위',      href: 'progress.html#exam-range', desc: '몇 차시부터 몇 차시까지' }
         ]},
         { title: '함께 보기', items: [
           { label: '자료실',      href: 'library.html', desc: '차시별 학습지 · PPT' },

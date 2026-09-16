@@ -161,6 +161,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 .done-ans { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--st-separator); font-size: 15px; line-height: 1.7; color: var(--st-label); word-break: keep-all; }
 .done-ans .geo-cap { margin-top: 12px; }
 </style>
+<meta name="robots" content="noindex,nofollow">
 </head>
 <body>
 <header class="st-glass st-bar study-bar">
@@ -265,6 +266,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 
 <script>document.write('<script src="study-quiz.js?v=' + Math.floor(Date.now() / 3600000) + '"><\/script>')</script>
 <script type="module">
+  import {completionPatch} from "./assets/study-completion.mjs";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, signInWithCredential }
     from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -386,7 +388,7 @@ function kanaToHangul(text, opt = {}) {
   if (APP) { $('signInBtn').style.display = 'none'; gate.querySelector('p').textContent = '앱에서 로그인 중…'; }
   if (DEMO) bootDemo();
   else onAuthStateChanged(auth, user => {
-    if (user && user.email === OWNER_EMAIL) { if (!booted) { booted = true; boot(); } }
+    if (user && user.email === OWNER_EMAIL && user.emailVerified) { gate.style.display='none';appEl.style.display='';if (!booted) { booted = true; boot(); } }
     else if (user) { showGate(); showWarn(`${user.email} 계정은 접근 권한이 없습니다.`); signOut(auth); }
     else { showGate(); if (APP) post({ needSignIn: true }); }
   });
@@ -532,7 +534,7 @@ function kanaToHangul(text, opt = {}) {
   let quizHandle = null;
   function runTest(key) {
     const qs = key === 'geo' ? StudyQuiz.geo(GEO_D, G.idx, { log: QUIZLOG }) : StudyQuiz.jp(JP_D, J.idx, { kanaToHangul, log: QUIZLOG });
-    if (!qs.length) { finishTest(key, 1, 1); return; }          // 문제를 못 만들 만큼 데이터가 적으면 통과 처리
+    if (!qs.length) { $(key+'Hint').textContent='문제를 만들 수 없습니다. 자료를 다시 불러온 뒤 시험해 주세요.';$(key+'Hint').className='hint bad';return; }
     result[key].attempts++;
     $(key + 'Body').hidden = true; $(key + 'Test').hidden = true; if (key === 'jp') $('jpSkip').hidden = true;
     $(key + 'Hint').textContent = '시험 중 — 1~4 키로도 답할 수 있습니다'; $(key + 'Hint').className = 'hint';
@@ -579,8 +581,11 @@ function kanaToHangul(text, opt = {}) {
   });
 
   // 완료 → desk 공부 기록 (체험판은 열쇠만 소모) (세션은 desk 타이머와 같은 형식이라 히트맵·연속일에 그대로 잡힘)
+  let completion=null,completionPending=false;const extraCompletionId=crypto.randomUUID();
   $('finish').addEventListener('click', async () => {
-    if (!(geoPass && jpPass)) return;
+    if (!(geoPass && jpPass)||completionPending) return;
+    completionPending=true;
+    try {
     $('finish').disabled = true; $('finish').textContent = '기록 중…';
     if (DEMO) {
       try { await set(ref(db, 'demo/keys/' + DEMO_KEY), false); }
@@ -590,22 +595,22 @@ function kanaToHangul(text, opt = {}) {
       $('geo').hidden = true; $('jp').hidden = true; $('en').hidden = true; renderDemoDone(); window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-    const end = Date.now(), st = new Date(openedAt), date = keyOf(st);
-    const min = Math.min(60, Math.max(1, Math.round((end - openedAt) / 60000)));
-    const rec = { finishedAt: new Date(end).toISOString(),
-      geo: { day: G.day, t: G.card.t, m: G.card.m || '', ...result.geo },
-      jp: { day: J.day, t: J.card.t, s: jpAnswer(J.card), ...result.jp } };
-    if (E && enDone) rec.en = { day: E.day, t: E.card.t, s: E.card.s, typed: $('enIn').value.trim() };
     const subject = APP ? '폰 공부' : '복습';
+    if(!completion){
+      const end=Date.now(),st=new Date(openedAt),date=keyOf(st);
+      const min=Math.min(60,Math.max(1,Math.round((end-openedAt)/60000)));
+      const rec={finishedAt:new Date(end).toISOString(),geo:{day:G.day,t:G.card.t,m:G.card.m||'',...result.geo},jp:{day:J.day,t:J.card.t,s:jpAnswer(J.card),...result.jp}};
+      if(E&&enDone)rec.en={day:E.day,t:E.card.t,s:E.card.s,typed:$('enIn').value.trim()};
+      if(APP)Object.assign(rec,{slot:SLOT,mode:MODE});
+      completion={date,app:APP,slot:SLOT,extraId:extraCompletionId,record:rec,session:{subject,note:(APP?`${SLOT||'추가'}회차 · `:'')+`지리 Day ${G.day} ${scoreOf(result.geo)} · 일본어 Day ${J.day} ${scoreOf(result.jp)}`,start:openedAt,end,min,date,morning:st.getHours()<MORNING_H,daily:!APP,phone:APP||null}};
+    }
+    const rec=completion.record;
     try {
-      await push(ref(db, 'desk/study/sessions'), { subject, note: (APP ? `${SLOT || '추가'}회차 · ` : '') + `지리 Day ${G.day} ${scoreOf(result.geo)} · 일본어 Day ${J.day} ${scoreOf(result.jp)}`,
-        start: openedAt, end, min, date, morning: st.getHours() < MORNING_H, daily: !APP, phone: APP || null });
-      if (APP) await set(ref(db, `desk/study/phone/${date}/${SLOT || 'x' + end}`), { ...rec, slot: SLOT, mode: MODE });
-      else await set(ref(db, 'desk/study/daily/' + date), rec);
-      const subs = (await get(ref(db, 'desk/study/subjects'))).val() || {};
-      if (!Object.values(subs).some(s => s && s.name === subject)) await push(ref(db, 'desk/study/subjects'), { name: subject, createdAt: Date.now() });
+      const subjects=(await get(ref(db,'desk/study/subjects'))).val()||{};
+      const patch=completionPatch({...completion,subjectExists:Object.values(subjects).some(s=>s?.name===subject)});
+      await update(ref(db,'desk/study'),patch);
     } catch (e) {
-      $('finish').textContent = '오늘 복습 완료'; $('finish').disabled = false;
+      $('finish').textContent = '완료 기록 다시 저장'; $('finish').disabled = false;
       $('footNote').innerHTML = `<span class="warn">기록하지 못했습니다: ${escapeHTML(e.message || String(e))}</span>`;
       return;
     }
@@ -613,6 +618,7 @@ function kanaToHangul(text, opt = {}) {
     renderDone(rec);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     if (APP) { $('doneP').textContent = '앱 잠금이 풀립니다.'; post({ done: true, slot: SLOT }); }
+    } finally { completionPending=false; }
   });
 </script>
 </body>

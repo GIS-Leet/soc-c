@@ -499,3 +499,6 @@ select.form-input { cursor: pointer; }
   .geo-drop__panel.is-on .geo-drop__cap,
   .geo-drop__panel.is-on .geo-drop__link { animation: none; }
 }
+
+/* hidden 속성은 각 컴포넌트의 display 선언보다 우선함. */
+[hidden] { display: none !important; }

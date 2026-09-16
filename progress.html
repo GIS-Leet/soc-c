@@ -12,8 +12,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 <title>진도표 — 통합사회 C</title>
-<meta name="description" content="경기여자고등학교 통합사회 C · 반별 수업 진도와 계획, 시험 범위">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -286,6 +284,13 @@ body.is-admin .admin-tools { display: block; }
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Geographia">
 <meta name="theme-color" content="#f2f2f7">
+<meta name="description" content="수업 진도와 계획 — 반별 수업 진도, 다음 수업과 등록된 시험 범위를 확인하세요.">
+<link rel="canonical" href="https://nyuheatgis.com/progress.html">
+<meta property="og:title" content="수업 진도와 계획 · Geographia">
+<meta property="og:description" content="수업 진도와 계획 — 반별 수업 진도, 다음 수업과 등록된 시험 범위를 확인하세요.">
+<meta property="og:url" content="https://nyuheatgis.com/progress.html">
+<meta property="og:type" content="website">
+<style>details > summary { cursor: pointer; padding: var(--st-sp-4); } #exam-range { margin-block: var(--st-sp-6); padding: var(--st-sp-4); border: 1px solid var(--st-separator); } .dash { grid-template-columns: 1fr 2fr; } @media(max-width: 760px) { .dash { grid-template-columns: 1fr; } } #class-progress, #lesson-plan, #exam-range { scroll-margin-top: var(--st-sp-20); }</style>
 </head>
 <body>
 
@@ -335,6 +340,19 @@ body.is-admin .admin-tools { display: block; }
       </div>
     </div>
 
+    <!-- 반 고르기 -->
+    <section class="picker" id="class-progress" aria-label="반 선택">
+      <span class="picker__l">반 선택</span>
+      <div class="picker__scroll">
+        <div class="st-segmented" id="classPicker" role="tablist" aria-label="반 고르기"></div>
+      </div>
+    </section>
+    <p><label><input type="checkbox" id="rememberClass"> 이 기기에 반 기억</label> <button type="button" class="btn-outline" id="clearClass">기억한 반 지우기</button></p>
+
+    <div class="nextup" id="nextup" hidden></div>
+
+    <details>
+      <summary>전체 반 진도 펼치기</summary>
     <!-- 현황 -->
     <section class="panel st-reveal" id="dashPanel" aria-labelledby="dashCap">
       <div class="panel__head">
@@ -371,7 +389,11 @@ body.is-admin .admin-tools { display: block; }
           </div>
         </div>
 
-        <div class="dash__exam">
+      </div>
+    </section>
+
+    </details>
+        <section class="dash__exam" id="exam-range" aria-label="시험 범위">
           <div class="dash__title">다음 시험</div>
           <div class="exam" id="exam" hidden>
             <div class="exam__d"><span id="examD">—</span><small id="examLabel"></small></div>
@@ -379,21 +401,9 @@ body.is-admin .admin-tools { display: block; }
             <div class="exam__range" id="examRange"></div>
           </div>
           <div class="exam__none" id="examNone">아직 등록된 시험 일정이 없습니다.</div>
-        </div>
-      </div>
-    </section>
+        </section>
 
-    <!-- 반 고르기 -->
-    <div class="picker">
-      <span class="picker__l">반 선택</span>
-      <div class="picker__scroll">
-        <div class="st-segmented" id="classPicker" role="tablist" aria-label="반 고르기"></div>
-      </div>
-    </div>
-
-    <div class="nextup" id="nextup" hidden></div>
-
-    <div id="units"></div>
+    <section id="lesson-plan" aria-label="전체 수업 계획"><div id="units"></div></section>
 
     <div class="empty" id="empty">
       <b>아직 등록된 수업 계획이 없습니다</b>
@@ -661,12 +671,19 @@ body.is-admin .admin-tools { display: block; }
     let exam = null;    // { label, date, from, to }
     let offdays = new Set();   // 'YYYY-MM-DD' — 수업이 없는 날
     let picked = 'all'; // 'all' | classId
+    try { picked = localStorage.getItem('geo-class') || 'all'; } catch {}
+    const rememberClass = document.getElementById('rememberClass');
+    rememberClass.checked = picked !== 'all';
+    const saveClass = () => { try { if (rememberClass.checked && picked !== 'all') localStorage.setItem('geo-class', picked); else localStorage.removeItem('geo-class'); } catch {} };
+    rememberClass.onchange = saveClass;
+    document.getElementById('clearClass').onclick = () => { rememberClass.checked = false; picked = 'all'; saveClass(); document.getElementById('classPicker').dataset.sig = ''; renderPicker(); renderUnits(lessons.length); syncAdminInputs(); };
     let openUnits = {};
     let segCtl = null, firstPaint = true;
+    let loaded = false;
     let loadError = null;   // 'denied' | 'network'
 
     onValue(rootRef, (snap) => {
-        loadError = null;
+        loaded = true;loadError = null;
         const v = snap.val() || {};
         lessons = Object.entries(v.lessons || {})
             .map(([id, l]) => ({ id, ...l }))
@@ -728,8 +745,8 @@ body.is-admin .admin-tools { display: block; }
     function render() {
         const total = lessons.length;
         const empty = document.getElementById('empty');
-        empty.hidden = total > 0;
-        document.getElementById('seedBtn').hidden = !(isAdmin && total === 0 && !loadError);
+        empty.hidden = loaded && !loadError && total > 0;
+        document.getElementById('seedBtn').hidden = !(isAdmin && loaded && total === 0 && !loadError);
 
         if (loadError === 'denied') {
             empty.querySelector('b').textContent = '진도표가 아직 열리지 않았습니다';
@@ -741,7 +758,10 @@ body.is-admin .admin-tools { display: block; }
                 : '수업 진도표를 준비하고 있습니다. 곧 열립니다.';
         } else if (loadError === 'network') {
             empty.querySelector('b').textContent = '진도표를 불러오지 못했습니다';
-            document.getElementById('emptyMsg').textContent = '네트워크를 확인하고 새로고침해 주세요.';
+            document.getElementById('emptyMsg').textContent = '네트워크를 확인하고 새로고침해 주세요. 아래 내용이 있다면 마지막으로 받은 진도입니다.';
+        } else if (!loaded) {
+            empty.querySelector('b').textContent = '진도표를 불러오는 중…';
+            document.getElementById('emptyMsg').textContent = '잠시만 기다려 주세요.';
         } else if (total === 0) {
             empty.querySelector('b').textContent = '아직 등록된 수업 계획이 없습니다';
             document.getElementById('emptyMsg').textContent = isAdmin
@@ -850,6 +870,7 @@ body.is-admin .admin-tools { display: block; }
                     aria-selected="${picked === c.id}" data-value="${esc(c.id)}">${esc(c.name)}</button>`).join('');
             if (window.Stratum) segCtl = Stratum.segmented(el, (v) => {
                 picked = v;
+                saveClass();
                 renderUnits(lessons.length);
                 syncAdminInputs();   // 고른 반의 시간표가 편집칸에 따라 들어와야 한다
             });
@@ -858,7 +879,7 @@ body.is-admin .admin-tools { display: block; }
 
     function renderUnits(total) {
         const wrap = document.getElementById('units');
-        if (!total) { wrap.innerHTML = ''; return; }
+        if (!total) { wrap.innerHTML = ''; document.getElementById('nextup').hidden = true; return; }
 
         // 단원별로 묶되 차시 순서는 유지한다
         const groups = [];
@@ -932,7 +953,7 @@ body.is-admin .admin-tools { display: block; }
         const l = lessons[n - 1];
         const d = lessonDate(cls, n);
         box.className = 'nextup';
-        box.innerHTML = `<span class="nextup__cap">${esc(cls.name)} 다음 수업</span>` +
+        box.innerHTML = `<span class="nextup__cap">${esc(cls.name)} · 완료 ${mine}차시 / 전체 ${total}차시</span><span>다음 수업</span>` +
             (d ? `<b class="nextup__d">${fmtDate(d)}</b>` : '<b class="nextup__d">날짜 미정</b>') +
             (cls.day ? `<span class="nextup__p">${fmtSlot(cls)} · ${PERIOD_TIME[cls.period] || ''}</span>` : '') +
             `<span class="nextup__t">${n}차시 · ${esc(l ? l.title : '')}</span>`;

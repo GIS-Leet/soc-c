@@ -1,0 +1,126 @@
+{
+  "rules": {
+    "questions": {
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+      "$id": {
+        "password": {
+          ".validate": false
+        }
+      }
+    },
+    "support": {
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+      "$id": {
+        "password": {
+          ".validate": false
+        }
+      }
+    },
+    "feedback": {
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+      "$id": {
+        "password": {
+          ".validate": false
+        }
+      }
+    },
+    "progress": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+    },
+    "vault": {
+      "calendar": {
+        ".read": true,
+        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+      },
+      "planner": {
+        ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+      },
+      "settings": {
+        ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+      }
+    },
+    "desk": {
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+      "timetable": {
+        ".read": true
+      }
+    },
+    "notices": {
+      ".read": true,
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+    },
+    "demo": {
+      "keys": {
+        "$key": {
+          ".read": true,
+          ".write": "(auth != null && auth.token.email === 'leetae712@gmail.com') || (data.val() === true && newData.val() === false)"
+        }
+      }
+    },
+    "roster": {
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+    },
+    "members": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'leetae712@gmail.com')",
+        ".write": "auth != null && auth.uid === $uid && newData.child('h').isString() && root.child('roster').child(newData.child('h').val()).exists()",
+        ".validate": "newData.hasChildren(['h']) && newData.child('h').val().matches(/^[0-9a-f]{64}$/)"
+      },
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
+    },
+    "videos": {
+      ".read": "auth != null && (auth.token.email === 'leetae712@gmail.com' || (root.child('members').child(auth.uid).child('h').isString() && root.child('roster').child(root.child('members').child(auth.uid).child('h').val()).exists()))",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+    },
+    "views": {
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+      "$vid": {
+        "$uid": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".write": "auth != null && auth.uid === $uid && root.child('members').child(auth.uid).child('h').isString() && root.child('roster').child(root.child('members').child(auth.uid).child('h').val()).exists()",
+          ".validate": "newData.child('sec').isNumber() && newData.child('dur').isNumber() && newData.child('n').isNumber() && newData.child('at').isNumber() && newData.child('done').isBoolean()"
+        }
+      }
+    },
+    "boardCredentials": {
+      ".read": false,
+      ".write": false
+    },
+    "boardGrants": {
+      ".read": false,
+      ".write": false
+    },
+    "boardRequests": {
+      ".read": false,
+      ".write": false
+    },
+    "boardRate": {
+      ".read": false,
+      ".write": false
+    },
+    "boardAttachments": {
+      ".read": false,
+      ".write": false
+    },
+    "boardOutbox": {
+      ".read": false,
+      ".write": false
+    },
+    "boardCleanup": {
+      ".read": false,
+      ".write": false
+    },
+    "boardTombstones": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}

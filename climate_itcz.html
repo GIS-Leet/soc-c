@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>
+// 외부 그래픽 실패를 숨기지 않고 대체 학습 경로를 알린다.
+window.showSimulationFallback = function () { window.simulationFailed = true; const notice = document.getElementById('simulationFallback'); if (notice) notice.hidden = false; };
+window.addEventListener('error', function (event) { if (event.error || (event.target?.tagName === 'SCRIPT' && (event.target.type === 'module' || /three|chart|lucide|leaflet/i.test(event.target.src)))) window.showSimulationFallback(); }, true);
+window.addEventListener('unhandledrejection', window.showSimulationFallback);
+document.addEventListener('DOMContentLoaded', function () { if (window.simulationFailed) window.showSimulationFallback(); });
+</script>
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -161,6 +169,13 @@
 }
 </style>
     <script src="design-system/canvas2d.js"></script>
+<meta name="description" content="열대 수렴대와 강수 — 1월과 7월에 강수대가 위치한 위도를 비교하고 이동 원인을 설명해 보세요.">
+<link rel="canonical" href="https://nyuheatgis.com/climate_itcz.html">
+<meta property="og:title" content="열대 수렴대와 강수 · Geographia">
+<meta property="og:description" content="열대 수렴대와 강수 — 1월과 7월에 강수대가 위치한 위도를 비교하고 이동 원인을 설명해 보세요.">
+<meta property="og:url" content="https://nyuheatgis.com/climate_itcz.html">
+<meta property="og:type" content="website">
+<style>.learning-route { margin: var(--st-sp-4) auto; padding: var(--st-sp-4); color: var(--st-label-2); border-block: 1px solid var(--st-separator); } .learning-route p { margin-block: var(--st-sp-2); } .learning-route a { color: var(--st-label); } details > summary { cursor: pointer; padding: var(--st-sp-4); }</style>
 </head>
 <body>
     <header class="st-glass st-bar">
@@ -187,6 +202,13 @@
       </button>
     </div>
   </header>
+<aside id="simulationFallback" class="learning-route" role="status" hidden><h2>시뮬레이션을 불러오지 못했습니다</h2><p>그래픽 기능이나 외부 라이브러리에 연결할 수 없습니다. 아래 관찰 질문의 조건을 비교하고 공개 자료실의 지도와 설명으로 원인을 정리해 보세요. 네트워크를 확인한 뒤 새로고침하면 다시 시도할 수 있습니다.</p><a href="library.html">공개 자료로 학습 계속하기</a></aside><noscript><p>이 실험에는 JavaScript가 필요합니다. <a href="library.html">공개 자료실에서 학습 계속하기</a></p></noscript>
+<aside class="learning-route" aria-label="관찰과 수업 연결">
+<p><strong>관찰 질문</strong> · 1월과 7월에 강수대가 위치한 위도를 비교하고 이동 원인을 설명해 보세요.</p>
+<p>터치 화면에서는 슬라이더 손잡이를 끌어 값을 바꾸세요. 키보드에서는 Tab으로 선택한 뒤 방향키로 조절할 수 있습니다.</p>
+<nav aria-label="관련 학습"><a href="progress.html#class-progress">우리 반 진도</a> · <a href="library.html">공개 자료실</a> · <a href="qna.html?q=%EC%97%B4%EB%8C%80%20%EC%88%98%EB%A0%B4%EB%8C%80">관련 질문 보기</a></nav>
+</aside>
+
 
     <div class="dashboard-container">
         
@@ -213,10 +235,10 @@
                 <div class="month-display" id="monthLabel">Month 6</div>
                 <div class="slider-wrap">
                     <span>Jan</span>
-                    <input type="range" id="monthSlider" min="1" max="12.99" step="0.05" value="6">
+                    <label class="st-sr-only" for="monthSlider">월 (월)</label><input type="range" id="monthSlider" min="1" max="12.99" step="0.05" value="6">
                     <span>Dec</span>
                 </div>
-                <button class="play-btn" id="playBtn">
+                <button class="play-btn" id="playBtn" aria-pressed="false">
                     <span id="playIconSpan">
                         <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     </span>
@@ -234,7 +256,10 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import {createElapsedClock, advancePhase} from "./assets/simulation-time.mjs";
+        const clock = createElapsedClock();
+        let orbitMonth = 6;
         const canvas = document.getElementById('simCanvas'); 
         const ctx = canvas.getContext('2d');
         const slider = document.getElementById('monthSlider'); 
@@ -253,6 +278,7 @@
         // 자동 재생 토글 로직
         playBtn.addEventListener('click', () => {
             isPlaying = !isPlaying;
+            playBtn.setAttribute("aria-pressed", String(isPlaying));
             playBtn.classList.toggle('playing');
             if (isPlaying) {
                 playText.innerText = 'PAUSE';
@@ -264,13 +290,12 @@
         });
 
         // 애니메이션 루프
-        function animate() {
+        function animate(timestamp) {
             requestAnimationFrame(animate);
-            if (isPlaying) {
-                let currentMonth = parseFloat(slider.value);
-                currentMonth += 0.02; // 재생 속도
-                if (currentMonth >= 13) currentMonth = 1; 
-                slider.value = currentMonth; 
+            const dt = clock.tick(timestamp, isPlaying && !document.hidden);
+            if (dt) {
+                orbitMonth = advancePhase(orbitMonth, 1.2, dt, 1, 13);
+                slider.value = orbitMonth; slider.setAttribute("aria-valuetext", `${Number(slider.value).toFixed(2)} 월`);
                 drawSimulation();
             }
         }
@@ -361,7 +386,7 @@
             infoText.innerHTML = text;
         }
 
-        slider.addEventListener('input', drawSimulation); 
+        slider.addEventListener('input', () => { orbitMonth = Number(slider.value); drawSimulation(); });
         // 폰트 로드 대비 지연 렌더링
         setTimeout(drawSimulation, 100);
         // 캔버스를 컨테이너 크기와 화면 배율에 맞춘다(선명도 · 반응형).
@@ -436,5 +461,10 @@
 
 <script src="design-system/stratum.js"></script>
 <script src="design-system/geo.js"></script>
+<script>
+// 범위 입력의 현재 값을 보조 기술에도 단위와 함께 제공한다.
+const sliderUnits = {"monthSlider": "월"};
+for (const [id, unit] of Object.entries(sliderUnits)) { const input = document.getElementById(id); const sync = () => input.setAttribute('aria-valuetext', `${input.value} ${unit}`); input.addEventListener('input', sync); input.addEventListener('change', sync); sync(); }
+</script>
 </body>
 </html>

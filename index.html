@@ -11,7 +11,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>통합사회 C — Leet's Geographia</title>
-<meta name="description" content="경기여자고등학교 통합사회 C · 수업 자료와 공간 시뮬레이터">
 <script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -287,6 +286,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   .globe canvas { transform: translate(-50%, -50%) !important; }
   .menu { transition-duration: 1ms; }
 }
+.learning-links { display:flex; flex-wrap:wrap; gap:var(--st-sp-5); margin-block:var(--st-sp-4); color:var(--st-label-2); }
 </style>
 <!-- PWA — 홈 화면에 추가 시 앱처럼 동작 -->
 <link rel="manifest" href="manifest.json">
@@ -295,6 +295,12 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Geographia">
 <meta name="theme-color" content="#f2f2f7">
+<meta name="description" content="공개 수업 자료, 우리 반 진도, 질문과 지리 시뮬레이터를 한곳에서 확인하세요.">
+<link rel="canonical" href="https://nyuheatgis.com/">
+<meta property="og:title" content="Geographia · 경기여고 통합사회">
+<meta property="og:description" content="공개 수업 자료, 우리 반 진도, 질문과 지리 시뮬레이터를 한곳에서 확인하세요.">
+<meta property="og:url" content="https://nyuheatgis.com/">
+<meta property="og:type" content="website">
 </head>
 <body>
 
@@ -360,12 +366,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   <section class="bottom">
     <div class="row-a">
       <p class="tagline fu" style="--i:5">공간을 통해<br>세상을</p>
-      <a class="cta fu lg lg--blur" style="--i:6" href="qna.html">
-        Q&amp;A
+      <a class="cta fu lg lg--blur" style="--i:6" href="library.html">
+        자료 찾기
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
       </a>
     </div>
 
+    <nav class="learning-links" aria-label="수업 바로가기"><a href="progress.html">우리 반 진도 →</a><a href="qna.html">질문 찾기 · 질문하기 →</a></nav>
     <div class="row-b">
       <p class="desc fu" style="--i:7">KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</p>
       <h1 class="headline">
@@ -460,11 +467,16 @@ const DDAY = { label: '중간고사', date: '2026-10-01' };
   let rows = [];
   try {
     const res = await fetch('https://soc-c-qna-default-rtdb.firebaseio.com/notices.json');
-    if (res.ok) {
+    if (!res.ok) throw new Error('notice unavailable');
+    {
       const d = await res.json();
       if (d && typeof d === 'object') rows = Object.values(d).sort((a, b) => (b.createdAt||0) - (a.createdAt||0));
     }
-  } catch (e) { /* 네트워크 실패 시 공지 영역을 그냥 숨긴다 */ }
+  } catch (e) {
+    document.getElementById('heroNoticeList').textContent = '공지사항을 불러오지 못했습니다. 연결 후 새로고침해 주세요.';
+    document.getElementById('heroNotice').hidden = false;
+    return;
+  }
   if (!rows.length) return;
   rows = rows.slice(0, 3);
   // 메뉴 안 (날짜 → 내용)
@@ -486,39 +498,13 @@ const DDAY = { label: '중간고사', date: '2026-10-01' };
     document.getElementById(id).hidden = false;
   };
 
-  /* 1. 누적 질문 수 — Q&A 게시판(Firebase)에서 키만 얕게 읽어 센다 */
-  (async function questions(){
-    const CACHE = 'geo-q-count';
-    let n = null;
-    try {
-      const res = await fetch('https://soc-c-qna-default-rtdb.firebaseio.com/questions.json?shallow=true');
-      if (res.ok) { const d = await res.json(); if (d && typeof d === 'object') n = Object.keys(d).length; }
-    } catch (e) {}
-    if (n !== null) { try { sessionStorage.setItem(CACHE, String(n)); } catch (e) {} }
-    else { try { const c = sessionStorage.getItem(CACHE); if (c !== null) n = +c; } catch (e) {} }
-    if (n !== null) show('stat-q', String(n));
-  })();
-
-  /* 2. 공개 수업 자료 수 — GitHub API는 시간당 60회 제한이라,
-        세 폴더가 모두 성공했을 때만 합계를 신뢰한다 */
+  /* 2. 배포된 공개 자료 색인을 홈과 자료실이 함께 사용함. */
   (async function materials(){
-    const ID = "GIS-Leet", REPO = "kgghs-soc-c", folders = ["학습지", "PPT", "참고자료"];
-    const CACHE = 'geo-material-count';
-    const counts = await Promise.all(folders.map(async (path) => {
-      try {
-        const res = await fetch(`https://api.github.com/repos/${ID}/${REPO}/contents/${path}`);
-        if (!res.ok) return null;
-        return (await res.json()).filter(f => /\.(pdf|pptx?|hwp|html)$/i.test(f.name)).length;
-      } catch (e) { return null; }
-    }));
-    let total = null;
-    if (counts.every(c => c !== null)) {
-      total = counts.reduce((a, b) => a + b, 0);
-      try { sessionStorage.setItem(CACHE, String(total)); } catch (e) {}
-    } else {
-      try { const c = sessionStorage.getItem(CACHE); if (c !== null) total = +c; } catch (e) {}
-    }
-    if (total !== null) show('stat-m', String(total).padStart(2, '0'));
+    try {
+      const {loadIndex}=await import('./assets/materials.mjs');
+      const {index}=await loadIndex();
+      show('stat-m',String(index.items.filter(item=>item.type==='file').length).padStart(2,'0'));
+    } catch { /* 확인되지 않은 자료 수는 표시하지 않음. */ }
   })();
 
   /* 3. D-Day — 자정 기준으로 남은 날짜를 센다 */

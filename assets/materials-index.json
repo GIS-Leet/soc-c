@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "source": "GIS-Leet/kgghs-soc-c",
+  "sourceSha": "a30efde9a725d9a3fc002e1e7b257a7c8875e1ec",
+  "generatedAt": "2026-09-16T05:13:50.411Z",
+  "items": [
+    {
+      "name": "PPT",
+      "path": "PPT",
+      "type": "dir"
+    },
+    {
+      "name": "자연재해_자연관_환경_수업자료.pdf",
+      "path": "PPT/자연재해_자연관_환경_수업자료.pdf",
+      "type": "file",
+      "size": 1393789
+    },
+    {
+      "name": "지형_수업자료.pdf",
+      "path": "PPT/지형_수업자료.pdf",
+      "type": "file",
+      "size": 11322737
+    },
+    {
+      "name": "통사 C 1강.pdf",
+      "path": "PPT/통사 C 1강.pdf",
+      "type": "file",
+      "size": 4449308
+    },
+    {
+      "name": "통사 C 기후 수업자료2.pdf",
+      "path": "PPT/통사 C 기후 수업자료2.pdf",
+      "type": "file",
+      "size": 1626363
+    },
+    {
+      "name": "통사2C_1-2강.pdf",
+      "path": "PPT/통사2C_1-2강.pdf",
+      "type": "file",
+      "size": 1081143
+    },
+    {
+      "name": "통사2C_3강.pdf",
+      "path": "PPT/통사2C_3강.pdf",
+      "type": "file",
+      "size": 256617
+    },
+    {
+      "name": "참고자료",
+      "path": "참고자료",
+      "type": "dir"
+    },
+    {
+      "name": "고1 모고 지리 파트 정리본.pdf",
+      "path": "참고자료/고1 모고 지리 파트 정리본.pdf",
+      "type": "file",
+      "size": 6563686
+    },
+    {
+      "name": "모의고사_기후_심화학습자료.html",
+      "path": "참고자료/모의고사_기후_심화학습자료.html",
+      "type": "file",
+      "size": 54136
+    },
+    {
+      "name": "모의고사_지형_심화학습자료.html",
+      "path": "참고자료/모의고사_지형_심화학습자료.html",
+      "type": "file",
+      "size": 63028
+    },
+    {
+      "name": "학습지",
+      "path": "학습지",
+      "type": "dir"
+    },
+    {
+      "name": "지구 내적 작용 추가.pdf",
+      "path": "학습지/지구 내적 작용 추가.pdf",
+      "type": "file",
+      "size": 1034423
+    },
+    {
+      "name": "지역 탐구 프로젝트 활동지.pdf",
+      "path": "학습지/지역 탐구 프로젝트 활동지.pdf",
+      "type": "file",
+      "size": 202025
+    },
+    {
+      "name": "지역탐구프로젝트 진행 가이드.pdf",
+      "path": "학습지/지역탐구프로젝트 진행 가이드.pdf",
+      "type": "file",
+      "size": 346126
+    },
+    {
+      "name": "통사 C 지형 학습지.pdf",
+      "path": "학습지/통사 C 지형 학습지.pdf",
+      "type": "file",
+      "size": 1990621
+    },
+    {
+      "name": "통사 C 학습지 - 바람 보충.pdf",
+      "path": "학습지/통사 C 학습지 - 바람 보충.pdf",
+      "type": "file",
+      "size": 1652738
+    },
+    {
+      "name": "통사 C 학습지 1.pdf",
+      "path": "학습지/통사 C 학습지 1.pdf",
+      "type": "file",
+      "size": 1520036
+    },
+    {
+      "name": "통사 C 학습지 2.pdf",
+      "path": "학습지/통사 C 학습지 2.pdf",
+      "type": "file",
+      "size": 1520503
+    },
+    {
+      "name": "통사 C 학습지 3.pdf",
+      "path": "학습지/통사 C 학습지 3.pdf",
+      "type": "file",
+      "size": 454329
+    },
+    {
+      "name": "통사 C 학습지 자연관.pdf",
+      "path": "학습지/통사 C 학습지 자연관.pdf",
+      "type": "file",
+      "size": 120705
+    },
+    {
+      "name": "통사2C_세계화_학습지1.pdf",
+      "path": "학습지/통사2C_세계화_학습지1.pdf",
+      "type": "file",
+      "size": 1314374
+    },
+    {
+      "name": "통사C_특수지형.pdf",
+      "path": "학습지/통사C_특수지형.pdf",
+      "type": "file",
+      "size": 856852
+    }
+  ]
+}

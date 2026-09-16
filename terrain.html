@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>
+// 외부 그래픽 실패를 숨기지 않고 대체 학습 경로를 알린다.
+window.showSimulationFallback = function () { window.simulationFailed = true; const notice = document.getElementById('simulationFallback'); if (notice) notice.hidden = false; };
+window.addEventListener('error', function (event) { if (event.error || (event.target?.tagName === 'SCRIPT' && (event.target.type === 'module' || /three|chart|lucide|leaflet/i.test(event.target.src)))) window.showSimulationFallback(); }, true);
+window.addEventListener('unhandledrejection', window.showSimulationFallback);
+document.addEventListener('DOMContentLoaded', function () { if (window.simulationFailed) window.showSimulationFallback(); });
+</script>
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -29,7 +37,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Sky.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Water.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 
     <style>
         /* ============================================================
@@ -188,6 +196,13 @@
   --radius:var(--st-r-container);
 }
 </style>
+<meta name="description" content="지형 실험실 — 해수면을 −15m와 25m로 바꾸면 해안선과 육지 면적은 어떻게 달라질까요?">
+<link rel="canonical" href="https://nyuheatgis.com/terrain.html">
+<meta property="og:title" content="지형 실험실 · Geographia">
+<meta property="og:description" content="지형 실험실 — 해수면을 −15m와 25m로 바꾸면 해안선과 육지 면적은 어떻게 달라질까요?">
+<meta property="og:url" content="https://nyuheatgis.com/terrain.html">
+<meta property="og:type" content="website">
+<style>.learning-route { margin: var(--st-sp-4) auto; padding: var(--st-sp-4); color: var(--st-label-2); border-block: 1px solid var(--st-separator); } .learning-route p { margin-block: var(--st-sp-2); } .learning-route a { color: var(--st-label); } details > summary { cursor: pointer; padding: var(--st-sp-4); }</style>
 </head>
 <body>
     <header class="st-glass st-bar">
@@ -214,12 +229,19 @@
       </button>
     </div>
   </header>
+<aside id="simulationFallback" class="learning-route" role="status" hidden><h2>시뮬레이션을 불러오지 못했습니다</h2><p>그래픽 기능이나 외부 라이브러리에 연결할 수 없습니다. 아래 관찰 질문의 조건을 비교하고 공개 자료실의 지도와 설명으로 원인을 정리해 보세요. 네트워크를 확인한 뒤 새로고침하면 다시 시도할 수 있습니다.</p><a href="library.html">공개 자료로 학습 계속하기</a></aside><noscript><p>이 실험에는 JavaScript가 필요합니다. <a href="library.html">공개 자료실에서 학습 계속하기</a></p></noscript>
+<aside class="learning-route" aria-label="관찰과 수업 연결">
+<p><strong>관찰 질문</strong> · 해수면을 −15m와 25m로 바꾸면 해안선과 육지 면적은 어떻게 달라질까요?</p>
+<p>터치 화면에서는 슬라이더 손잡이를 끌어 값을 바꾸세요. 키보드에서는 Tab으로 선택한 뒤 방향키로 조절할 수 있습니다.</p>
+<nav aria-label="관련 학습"><a href="progress.html#class-progress">우리 반 진도</a> · <a href="library.html">공개 자료실</a> · <a href="qna.html?q=%ED%95%B4%EC%95%88%20%EC%A7%80%ED%98%95">관련 질문 보기</a></nav>
+</aside>
+
 
     <div class="dashboard-container">
         <div class="canvas-wrapper">
             <div class="guide-badge" id="guideBadge">
                 <svg class="ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
-                <span>좌클릭: 지형 조작 / 우클릭: 시점 회전</span>
+                <span>드래그: 지형 조작 · 마우스 오른쪽 버튼: 시점 회전</span>
             </div>
             <div class="crosshair"></div>
             <div id="webgl-container"></div>
@@ -270,10 +292,10 @@
                     <button class="tool-btn" data-tool="flatten" style="grid-column: span 2;"><svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg> 평탄화 (퇴적)</button>
                 </div>
                 <div class="slider-row" style="margin-top: 5px;">
-                    <span class="slider-label">Radius</span><input type="range" id="brushSize" min="5" max="50" value="20"><span class="slider-value" id="sizeVal">20</span>
+                    <span class="slider-label">Radius</span><label class="st-sr-only" for="brushSize">붓 반경 (단위)</label><input type="range" id="brushSize" min="5" max="50" value="20"><span class="slider-value" id="sizeVal">20</span>
                 </div>
                 <div class="slider-row">
-                    <span class="slider-label">Force</span><input type="range" id="brushPower" min="1" max="10" value="3"><span class="slider-value" id="powerVal">3</span>
+                    <span class="slider-label">Force</span><label class="st-sr-only" for="brushPower">지형 변화 강도 (단계)</label><input type="range" id="brushPower" min="1" max="10" value="3"><span class="slider-value" id="powerVal">3</span>
                 </div>
             </div>
 
@@ -283,15 +305,16 @@
                     기후 및 해수면 환경
                 </h3>
                 <div class="scenario-grid">
+                    <button class="scenario-btn" id="motionPause" type="button">움직임 일시 정지</button>
                     <button class="scenario-btn" id="btnIceAge">빙하기</button>
                     <button class="scenario-btn" id="btnPresent" style="color:var(--ink); border-color:var(--ink);">현재</button>
                     <button class="scenario-btn" id="btnWarming">온난화</button>
                 </div>
                 <div class="slider-row" style="margin-top: 5px;">
-                    <span class="slider-label">Sea Level</span><input type="range" id="seaLevel" min="-20" max="50" value="5"><span class="slider-value" id="seaVal">5m</span>
+                    <span class="slider-label">Sea Level</span><label class="st-sr-only" for="seaLevel">해수면 (미터)</label><input type="range" id="seaLevel" min="-20" max="50" value="5"><span class="slider-value" id="seaVal">5m</span>
                 </div>
                 <div class="slider-row">
-                    <span class="slider-label">Sun Elev.</span><input type="range" id="sunElevation" min="0" max="90" value="30"><span class="slider-value" id="sunVal">30°</span>
+                    <span class="slider-label">Sun Elev.</span><label class="st-sr-only" for="sunElevation">태양 고도 (도)</label><input type="range" id="sunElevation" min="0" max="90" value="30"><span class="slider-value" id="sunVal">30°</span>
                 </div>
             </div>
 
@@ -308,7 +331,14 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import {createElapsedClock, approach} from "./assets/simulation-time.mjs";
+        const clock = createElapsedClock();
+        let motionPaused = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const motionButton = document.getElementById('motionPause');
+        const renderMotionButton = () => { motionButton.textContent = motionPaused ? '움직임 재생' : '움직임 일시 정지'; motionButton.setAttribute('aria-pressed', String(motionPaused)); };
+        motionButton.onclick = () => { motionPaused = !motionPaused; renderMotionButton(); };
+        renderMotionButton();
         // ----------------------------------------------------
         // 단면도 차트 (Chart.js) 초기화 - 붉은 잉크 테마(Terra)로 색상 변경
         // ----------------------------------------------------
@@ -347,7 +377,7 @@
 
         sizeInput.oninput = () => sizeVal.innerText = sizeInput.value;
         powerInput.oninput = () => powerVal.innerText = powerInput.value;
-        seaInput.oninput = () => { targetSeaLevel = parseFloat(seaInput.value); };
+        seaInput.oninput = () => { targetSeaLevel = parseFloat(seaInput.value); if (motionPaused) { water.position.y = targetSeaLevel; seaVal.innerText = Math.round(targetSeaLevel)+'m'; } };
         sunInput.oninput = () => { sunVal.innerText = sunInput.value + '°'; updateSun(); };
 
         // 기후 시나리오 버튼 
@@ -356,9 +386,9 @@
         const btnWrm = document.getElementById('btnWarming');
         function clearScenario() { btnIce.classList.remove('active-ice'); btnPre.style.color=''; btnPre.style.borderColor=''; btnWrm.classList.remove('active-warm'); }
 
-        btnIce.onclick = () => { clearScenario(); btnIce.classList.add('active-ice'); targetSeaLevel = -15; seaInput.value = -15; };
-        btnPre.onclick = () => { clearScenario(); btnPre.style.color = 'var(--ink)'; btnPre.style.borderColor = 'var(--ink)'; targetSeaLevel = 5; seaInput.value = 5; };
-        btnWrm.onclick = () => { clearScenario(); btnWrm.classList.add('active-warm'); targetSeaLevel = 25; seaInput.value = 25; };
+        btnIce.onclick = () => { clearScenario(); btnIce.classList.add('active-ice'); targetSeaLevel = -15; seaInput.value = -15; seaInput.dispatchEvent(new Event("input")); };
+        btnPre.onclick = () => { clearScenario(); btnPre.style.color = 'var(--ink)'; btnPre.style.borderColor = 'var(--ink)'; targetSeaLevel = 5; seaInput.value = 5; seaInput.dispatchEvent(new Event("input")); };
+        btnWrm.onclick = () => { clearScenario(); btnWrm.classList.add('active-warm'); targetSeaLevel = 25; seaInput.value = 25; seaInput.dispatchEvent(new Event("input")); };
 
         let currentTool = 'raise';
         const guideBadge = document.getElementById('guideBadge');
@@ -376,7 +406,7 @@
                 if(currentTool === 'section') {
                     guideBadge.innerHTML = `${svgScissors} <span style="color:var(--terra);">지도 위에 선을 그어 단면도를 추출하세요</span>`;
                 } else {
-                    guideBadge.innerHTML = `${svgPointer} <span>좌클릭: 지형 조작 / 우클릭: 시점 회전</span>`;
+                    guideBadge.innerHTML = `${svgPointer} <span>드래그: 지형 조작 · 마우스 오른쪽 버튼: 시점 회전</span>`;
                 }
             };
         });
@@ -607,12 +637,13 @@
         // ----------------------------------------------------
         // ★ 메인 렌더링 루프 ★
         // ----------------------------------------------------
-        function animate() {
+        function animate(timestamp) {
             requestAnimationFrame(animate);
-            water.material.uniforms['time'].value += 1.0 / 60.0; 
+            const dt = clock.tick(timestamp, !motionPaused && !document.hidden);
+            water.material.uniforms['time'].value += dt;
             
             if (Math.abs(water.position.y - targetSeaLevel) > 0.05) {
-                water.position.y += (targetSeaLevel - water.position.y) * 0.05;
+                water.position.y = approach(water.position.y, targetSeaLevel, .05, dt);
                 seaVal.innerText = Math.round(water.position.y) + 'm';
             }
 
@@ -683,5 +714,10 @@
 
 <script src="design-system/stratum.js"></script>
 <script src="design-system/geo.js"></script>
+<script>
+// 범위 입력의 현재 값을 보조 기술에도 단위와 함께 제공한다.
+const sliderUnits = {"brushSize": "단위", "brushPower": "단계", "seaLevel": "미터", "sunElevation": "도"};
+for (const [id, unit] of Object.entries(sliderUnits)) { const input = document.getElementById(id); const sync = () => input.setAttribute('aria-valuetext', `${input.value} ${unit}`); input.addEventListener('input', sync); input.addEventListener('change', sync); sync(); }
+</script>
 </body>
 </html>
