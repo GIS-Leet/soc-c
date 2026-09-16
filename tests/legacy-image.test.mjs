@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {legacyImageBytes} from '../scripts/legacy-image.mjs';import {imageBytes} from '../functions/board-security.mjs';
+const jpeg=Buffer.from('ffd8ffe00000ffd9','hex');
+function samsung(){const footer=Buffer.alloc(8);footer.writeUInt32LE(24);footer.write('SEFT',4);return Buffer.concat([jpeg,Buffer.alloc(8),Buffer.from('SEFH'),Buffer.alloc(20),footer]);}
+test('구형 삼성 JPEG는 원본을 유지하며 EOI까지의 동일 바이트로 전용 사본을 만든다',()=>{const input=samsung(),original=Buffer.from(input);assert.throws(()=>imageBytes(input.toString('base64'),'image/jpeg'));assert.deepEqual(legacyImageBytes(input,'image/jpeg'),jpeg);assert.deepEqual(input,original);assert.deepEqual(legacyImageBytes(jpeg,'image/jpeg'),jpeg);});
+test('임의 꼬리·잘못된 SEF 위치·누락된 JPEG 끝표시는 여전히 거부한다',()=>{assert.throws(()=>legacyImageBytes(Buffer.concat([jpeg,Buffer.from('junk')]),'image/jpeg'));const bad=samsung();bad.writeUInt32LE(999999,bad.length-8);assert.throws(()=>legacyImageBytes(bad,'image/jpeg'));assert.throws(()=>legacyImageBytes(samsung().subarray(8),'image/jpeg'));});

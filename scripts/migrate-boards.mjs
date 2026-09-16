@@ -14,6 +14,7 @@ import {
 import { requireMigrationRules } from "./migration-rules.mjs";
 import { migrationRestStore } from "./migration-rest-store.mjs";
 import { migrationStorageBucket } from "./migration-storage.mjs";
+import { legacyImageBytes } from "./legacy-image.mjs";
 import { createFirebaseStore } from "../functions/firebase-store.mjs";
 const require = createRequire(
   new URL("../functions/package.json", import.meta.url),
@@ -111,8 +112,8 @@ export async function migrateRecord({
       [metadata] = await oldFile.getMetadata();
     if (Number(metadata.size) > 5 * 1024 * 1024)
       throw new BoardError("failed-precondition", "Legacy image exceeds limit");
-    const [bytes] = await oldFile.download();
-    imageBytes(bytes.toString("base64"), metadata.contentType);
+    const [originalBytes] = await oldFile.download();
+    const bytes = legacyImageBytes(originalBytes, metadata.contentType);
     const attachmentId =
         "legacy_" + digest(`${board}/${id}/${path}`).slice(0, 40),
       storagePath = `board-private/${board}/legacy/${attachmentId}`;
@@ -279,6 +280,7 @@ async function main() {
       unsupportedAttachments: 0,
       failures: 0,
     };
+    const failureCategories = {};
     for (const board of BOARDS) {
       let after = "";
       while (true) {
@@ -296,8 +298,10 @@ async function main() {
               bucket,
             });
             for (const [k, v] of Object.entries(result)) totals[k] += v;
-          } catch {
+          } catch (error) {
             totals.failures++;
+            const category = typeof error.code === "string" && /^[a-z0-9-]+$/.test(error.code) ? error.code : "migration-error";
+            failureCategories[category] = (failureCategories[category] || 0) + 1;
           }
         }
         after = page.at(-1)[0];
@@ -307,6 +311,7 @@ async function main() {
       JSON.stringify({
         mode: args.has("--apply") ? "apply" : "dry-run",
         ...totals,
+        failureCategories,
       }),
     );
     if (totals.failures) process.exitCode = 1;
