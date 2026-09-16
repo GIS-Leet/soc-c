@@ -16,7 +16,7 @@ export function getDatabase(app){
   for(const callback of handle.sessions)callback({isTeacher:teacher(user),user});
   if(user)for(const store of handle.stores.values())store.refresh().catch(()=>{});
  });
- handle.timer=setInterval(()=>{if(document.visibilityState==='visible')for(const store of handle.stores.values())store.refresh().catch(()=>{})},15000);
+ handle.timer=setInterval(()=>{if(document.visibilityState==='visible')for(const store of handle.stores.values())store.refresh().catch(()=>{})},60000);   // 보고 있을 때 1분마다(전체 목록을 다시 받으므로 잦으면 부담)
  return handle;
 }
 async function userFor(handle){await handle.auth.authStateReady();return handle.auth.currentUser||(await signInAnonymously(handle.auth)).user;}
@@ -28,6 +28,18 @@ async function request(handle,payload){
  if(epoch!==handle.epoch)throw Error('로그인 상태가 변경되었습니다. 다시 시도해 주세요.');
  if(!response.ok||body.error){const error=Error(body.error?.message||'요청을 처리하지 못했습니다.');error.code=body.error?.status||response.status;throw error;}
  return body.result ?? body.data;
+}
+function allowedImage(value){
+ let url;try{url=new URL(value)}catch{return false;}
+ const img=new URL(IMAGE);
+ return (url.origin===img.origin&&url.pathname===img.pathname)||(url.protocol==='https:'&&url.hostname==='firebasestorage.googleapis.com'&&url.pathname.startsWith('/v0/b/soc-c-qna.firebasestorage.app/o/'));
+}
+/// 목록용: 받지 않고 주소만 검증. 열람 권한이 없는 비밀글의 이미지는 표시하지 않는다(토큰 없이 요청하면 거부되어 깨진 그림이 된다)
+function sanitizeImages(record,secret=record?.isSecret&&!record?._access?.read){
+ if(!record||typeof record!=='object')return;
+ if(record.imageUrl&&(secret||!allowedImage(record.imageUrl)))record.imageUrl='';
+ for(const reply of Object.values(record.replies||{}))sanitizeImages(reply,secret);
+ for(const reply of Object.values(record.subReplies||{}))sanitizeImages(reply,secret);
 }
 async function hydrateImages(handle,item){
  const epoch=handle.epoch;
@@ -43,7 +55,7 @@ async function hydrateImages(handle,item){
      if(!response.ok)throw Error('image denied');
      const blob=await response.blob();if(epoch!==handle.epoch)return;
      if(cached)URL.revokeObjectURL(cached.url);
-     const blobURL=URL.createObjectURL(blob);handle.images.set(original,{url:blobURL,until:Date.now()+60000,board:url.searchParams.get('board'),postId:item.id});record.imageUrl=blobURL;
+     const blobURL=URL.createObjectURL(blob);handle.images.set(original,{url:blobURL,until:Date.now()+30*60000,board:url.searchParams.get('board'),postId:item.id});record.imageUrl=blobURL;
     }catch{record.imageUrl='';record._imageUnavailable=true;}
    }else if(url&&!(url.protocol==='https:'&&url.hostname==='firebasestorage.googleapis.com'&&url.pathname.startsWith('/v0/b/soc-c-qna.firebasestorage.app/o/')))record.imageUrl='';
   }
@@ -56,7 +68,9 @@ function storeFor(handle,board){
  if(!handle.stores.has(board)){
   const store=new BoardStore(async options=>{
    const page=await request(handle,{action:'list',board,...options});
-   page.items=await Promise.all(page.items.map(item=>hydrateImages(handle,item)));for(const item of page.items)expireGrant(handle,board,item);return page;
+   // 목록 단계에서는 이미지를 받지 않는다. 공개 이미지는 <img loading="lazy"> 가 화면에 보일 때 직접 받고(서버가 익명 읽기 허용),
+   // 비공개 글의 이미지는 열람(read/unlock) 때 토큰으로 받는다(adopt → hydrateImages). 주소만 검증해 허용 밖이면 지운다.
+   for(const item of page.items){sanitizeImages(item);expireGrant(handle,board,item);}return page;
   });
   handle.stores.set(board,store);queueMicrotask(()=>store.refresh().catch(()=>{}));
  }

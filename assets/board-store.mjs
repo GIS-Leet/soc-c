@@ -44,6 +44,9 @@ export class BoardStore {
           const page=await this.fetchPage({cursor,limit:50});if(epoch!==this.epoch)return;
           if(!Array.isArray(page.items))throw Error('목록 응답을 확인할 수 없습니다.');
           for(const item of page.items){if(!/^[A-Za-z0-9_-]+$/.test(item.id))throw Error('목록 식별자 오류');next[item.id]=item;}
+          // 첫 페이지부터 바로 그린다 — 전체(수백 건)를 다 받을 때까지 빈 화면을 두지 않는다.
+          // 다시 받는 중에는 기존 데이터에 덧씌워 아직 안 온 글이 '삭제'로 보이지 않게 한다. complete 는 마지막 페이지에서만 true.
+          if(page.hasMore){this.data={...this.data,...next};this.ready=true;this.publishState({status:'ready',complete:false});this.schedule();}
           if(!page.hasMore)break;
           if(!page.cursor||visited.has(page.cursor)||visited.size>=10000)throw Error('목록 페이지를 완료할 수 없습니다.');
           cursor=page.cursor;visited.add(cursor);
