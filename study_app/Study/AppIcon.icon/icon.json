@@ -1,0 +1,63 @@
+{
+  "fill": {
+    "solid": "srgb:0.07,0.12,0.24,1.0"
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "image-name": "desk.png",
+          "name": "desk"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.3
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.25
+      },
+      "specular": true
+    },
+    {
+      "layers": [
+        {
+          "image-name": "letter.png",
+          "name": "letter"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.4
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.35
+      },
+      "specular": true
+    },
+    {
+      "layers": [
+        {
+          "image-name": "background.png",
+          "name": "background"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.0
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0.0
+      }
+    }
+  ],
+  "supported-platforms": {
+    "circles": [
+      "watchOS"
+    ],
+    "squares": "shared"
+  }
+}

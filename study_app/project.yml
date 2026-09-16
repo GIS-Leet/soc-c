@@ -1,0 +1,271 @@
+# XcodeGen 프로젝트 정의 — Desk(앱) + Screen Time 확장 3개 + 위젯 + 공유 확장. `./setup.sh` 로 Desk.xcodeproj 생성 (소스 폴더 이름은 Study 그대로)
+name: Desk
+options:
+  bundleIdPrefix: nyuheatgis
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "26.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: "JUD3Y3XYZ7"   # Xcode → Signing에서 팀 선택 시 자동 기록
+    MARKETING_VERSION: "1.1"
+    CURRENT_PROJECT_VERSION: "264"
+    TARGETED_DEVICE_FAMILY: "1,2"
+packages:
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: "8.0.0"
+targets:
+  Desk:
+    type: application
+    platform: iOS
+    supportedDestinations: [iOS, macCatalyst]   # Mac 은 Catalyst(같은 코드). Screen Time·Live Activity·공유 확장은 iOS 전용
+    sources:
+      - path: Study
+        excludes: ["GoogleService-Info.plist.example", "Resources/fixtures/**", "AppIcon.icon/**"]
+      - path: Study/AppIcon.icon
+        type: file        # Icon Composer 패키지(iOS 26 Liquid Glass 아이콘) — 구형 OS 는 Assets.xcassets 의 AppIcon 사용
+      - path: Study/Resources/fixtures
+        type: folder      # 폴더 참조 → 번들 안 fixtures/ 로 (화면 테스트 데이터)
+      - path: Shared
+    dependencies:
+      - package: GoogleSignIn
+        product: GoogleSignIn
+      - target: StudyMonitor
+        embed: true
+        platformFilter: iOS
+      - target: StudyShield
+        embed: true
+        platformFilter: iOS
+      - target: StudyShieldAction
+        embed: true
+        platformFilter: iOS
+      - target: DeskWidget
+        embed: true
+      - target: DeskShare
+        embed: true
+        platformFilter: iOS
+    entitlements:
+      path: Study/Study.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups: [group.nyuheatgis]
+        aps-environment: development
+    info:
+      path: Study/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDisplayName: Desk
+        CFBundleName: Desk   # 로그인 시트 등 시스템 문구에 쓰이는 이름
+        UILaunchScreen: { UIImageName: LaunchIcon, UIColorName: LaunchBackground }
+        UIFileSharingEnabled: true               # Documents/Backups 를 Files 앱·Finder 에서 볼 수 있게
+        LSSupportsOpeningDocumentsInPlace: true
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        NSUserNotificationsUsageDescription: 공부 시각·수업 알림에 씁니다.
+        NSSpeechRecognitionUsageDescription: 관찰 기록·상담 메모를 말로 받아 적을 때 씁니다(기기 안에서 처리).
+        NSMicrophoneUsageDescription: 말로 기록하기와 수업 녹음에 씁니다.
+        NSUserActivityTypes: [nyuheatgis.note]
+        NSFaceIDUsageDescription: 앱을 열 때 본인 확인에 씁니다.
+        NSCalendarsFullAccessUsageDescription: 캘린더 일정을 오늘 화면에 보여주고 desk 일정을 Desk 캘린더에 넣습니다.
+        NSCalendarsUsageDescription: 캘린더 일정을 오늘 화면에 보여주고 desk 일정을 Desk 캘린더에 넣습니다.
+        NSSupportsLiveActivities: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleExternalDisplayNonInteractive:
+              - UISceneConfigurationName: External
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).ExternalSceneDelegate
+            UIWindowSceneSessionRoleExternalDisplay:
+              - UISceneConfigurationName: ExternalLegacy
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).ExternalSceneDelegate
+        BGTaskSchedulerPermittedIdentifiers: [nyuheatgis.refresh]
+        UIBackgroundModes: [fetch]
+        NSSupportsLiveActivitiesFrequentUpdates: false
+        CFBundleURLTypes:
+          - CFBundleURLSchemes: [study, com.googleusercontent.apps.927605189358-8qc3bom2hemibfugut3qpdmvqeob7or1]   # GoogleService-Info.plist의 REVERSED_CLIENT_ID 는 setup.sh 가 추가
+        LSApplicationQueriesSchemes: []
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nyuheatgis
+        TARGETED_DEVICE_FAMILY: "1,2,6"                      # 6 = Mac(Catalyst, Mac 최적화 인터페이스)
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: NO
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Study/Desk-mac.entitlements
+        INFOPLIST_KEY_UIUserInterfaceStyle: Automatic
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  StudyMonitor:
+    type: app-extension
+    platform: iOS
+    sources: [StudyMonitor, Shared]
+    entitlements:
+      path: StudyMonitor/StudyMonitor.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups: [group.nyuheatgis]
+    info:
+      path: StudyMonitor/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDisplayName: StudyMonitor
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.deviceactivity.monitor-extension
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).MonitorExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nyuheatgis.monitor
+  StudyShield:
+    type: app-extension
+    platform: iOS
+    sources: [StudyShield, Shared]
+    entitlements:
+      path: StudyShield/StudyShield.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups: [group.nyuheatgis]
+    info:
+      path: StudyShield/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDisplayName: StudyShield
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.ManagedSettingsUI.shield-configuration-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShieldConfigurationExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nyuheatgis.shield
+  StudyShieldAction:
+    type: app-extension
+    platform: iOS
+    sources: [StudyShieldAction, Shared]
+    entitlements:
+      path: StudyShieldAction/StudyShieldAction.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups: [group.nyuheatgis]
+    info:
+      path: StudyShieldAction/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDisplayName: StudyShieldAction
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.ManagedSettings.shield-action-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShieldActionExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nyuheatgis.shieldaction
+  DeskWidget:
+    type: app-extension
+    platform: iOS
+    supportedDestinations: [iOS, macCatalyst]
+    sources:
+      - DeskWidget
+      - Shared/Timetable.swift
+      - Shared/TimetableStore.swift
+      - Shared/ClassActivity.swift
+      - Shared/WidgetTodo.swift
+      - Shared/WidgetEvent.swift
+      - Shared/DeskColors.swift
+      - Shared/DeskColors.xcassets
+      - Shared/TestRuntime.swift
+      - Study/Data/Keychain.swift
+      - Study/Data/FirebaseSession.swift
+      - Study/Data/RTDB.swift
+    entitlements:
+      path: DeskWidget/DeskWidget.entitlements
+      properties:
+        com.apple.security.application-groups: [group.nyuheatgis]
+    info:
+      path: DeskWidget/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDisplayName: Desk
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nyuheatgis.widget
+        TARGETED_DEVICE_FAMILY: "1,2,6"
+        DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: NO
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": DeskWidget/DeskWidget-mac.entitlements
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  DeskShare:
+    type: app-extension
+    platform: iOS
+    sources:
+      - DeskShare
+      - Shared/Lecture.swift
+      - Shared/DeskColors.swift
+      - Shared/DeskColors.xcassets
+      - Shared/Timetable.swift
+      - Shared/TimetableStore.swift
+      - Shared/WidgetEvent.swift
+      - Shared/WidgetTodo.swift
+      - Shared/TestRuntime.swift
+      - Study/Data/Keychain.swift
+      - Study/Data/FirebaseSession.swift
+      - Study/Data/RTDB.swift
+      - Study/Data/GitHubFiles.swift
+    entitlements:
+      path: DeskShare/DeskShare.entitlements
+      properties:
+        com.apple.security.application-groups: [group.nyuheatgis]
+    info:
+      path: DeskShare/Info.plist
+      properties:
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleDisplayName: Desk
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.share-services
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController
+          NSExtensionAttributes:
+            NSExtensionActivationRule:
+              NSExtensionActivationSupportsWebURLWithMaxCount: 1
+              NSExtensionActivationSupportsWebPageWithMaxCount: 1
+              NSExtensionActivationSupportsText: true
+              NSExtensionActivationSupportsImageWithMaxCount: 10
+              NSExtensionActivationSupportsFileWithMaxCount: 10
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nyuheatgis.share
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  DeskTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [StudyTests, Shared, DeskWidget/WidgetViews.swift, DeskWidget/CalendarWidget.swift, DeskShare/ShareView.swift, DeskShare/ShareItems.swift]
+    dependencies:
+      - target: Desk
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nyuheatgis.tests
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) STUDY_TESTS"
+        GENERATE_INFOPLIST_FILE: YES
+  DeskUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [StudyUITests]
+    dependencies:
+      - target: Desk
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: nyuheatgis.uitests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Desk:
+    build:
+      targets: { Desk: all, DeskTests: [test], DeskUITests: [test] }
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets: [DeskTests, DeskUITests]

@@ -1,0 +1,22 @@
+# GitHub Actions 용 — soc-c 저장소 .github/workflows/qna-push.yml 로 추가(웹에서 파일 추가).
+# Secrets: APNS_KEY(.p8 내용 전체), APNS_KEY_ID, APNS_TEAM_ID, FIREBASE_SA(서비스 계정 JSON 내용 전체)
+name: QnA push
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { repository: GIS-Leet/soc-c, sparse-checkout: tools/qna_push.py, sparse-checkout-cone-mode: false }
+      - run: pip install -q google-auth cryptography
+      - run: python3 tools/qna_push.py
+        env:
+          APNS_KEY: ${{ secrets.APNS_KEY }}
+          APNS_KEY_ID: ${{ secrets.APNS_KEY_ID }}
+          APNS_TEAM_ID: ${{ secrets.APNS_TEAM_ID }}
+          APNS_TOPIC: nyuheatgis
+          APNS_ENV: sandbox
+          FIREBASE_SA: ${{ secrets.FIREBASE_SA }}

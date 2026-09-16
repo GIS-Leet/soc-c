@@ -1,0 +1,9 @@
+{
+  "APNS_KEY_PATH": "/Users/leet/project/qna_push/AuthKey_XXXXXXXXXX.p8",
+  "APNS_KEY_ID": "XXXXXXXXXX",
+  "APNS_TEAM_ID": "JUD3Y3XYZ7",
+  "APNS_TOPIC": "nyuheatgis",
+  "APNS_ENV": "sandbox",
+  "FIREBASE_SA": "/Users/leet/project/daily_study/firebase-key.json",
+  "DATABASE_URL": "https://soc-c-qna-default-rtdb.firebaseio.com"
+}
