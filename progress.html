@@ -627,7 +627,7 @@ body.is-admin .admin-tools { display: block; }
     const adminBtn = document.getElementById('adminBtn');
 
     window.toggleAdminPanel = function() {
-        if (auth.currentUser) { signOut(auth); return; }
+        if (auth.currentUser && !auth.currentUser.isAnonymous) { signOut(auth); return; }
         adminBtn.textContent = '여는 중…';
         adminBtn.disabled = true;
         signInWithPopup(auth, provider).catch((err) => {
@@ -644,8 +644,10 @@ body.is-admin .admin-tools { display: block; }
     }
 
     onAuthStateChanged(auth, (user) => {
+        // 게시판(Q&A·건의·문의)이 만든 익명 세션은 같은 사이트에 이어진다 — 방문자일 뿐이니 그대로 둔다
+        if (user && user.isAnonymous) { isAdmin = false; document.body.classList.remove('is-admin'); syncAdminBtn(); render(); return; }
         if (user && user.email !== ADMIN_EMAIL) {
-            // 다른 계정으로 들어온 경우 — 조용히 되돌린다
+            // 다른 구글 계정으로 들어온 경우 — 조용히 되돌린다
             signOut(auth);
             AppModal.show({ type: 'alert', title: '접근 권한 없음', msg: '이 페이지를 편집할 수 있는 계정이 아닙니다.' });
             return;
