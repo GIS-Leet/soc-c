@@ -134,8 +134,18 @@
 
 
 /* 자료는 기존 브랜드 토큰을 사용하는 행 목록으로 비교함. */
-.material-tools { display:flex; flex-wrap:wrap; gap:var(--st-sp-4); margin-block-end:var(--st-sp-4); }
-.material-tools label { display:grid; gap:var(--st-sp-2); flex:auto; }
+/* ── 도구 줄: 검색칸 · 종류 세그먼트 · 강의 영상 — 한 줄, 좁으면 줄바꿈 ── */
+.tools { display: flex; align-items: center; flex-wrap: wrap; gap: var(--st-sp-3); margin-block: var(--st-sp-2) var(--st-sp-3); }
+.tools__search { position: relative; display: block; flex: 1 1 260px; min-width: 220px; }
+.tools__ico { position: absolute; left: 13px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--st-label-3); pointer-events: none; }
+.tools__search .st-field { height: 40px; padding-left: 38px; border-radius: var(--st-r-full); font-size: 14px; letter-spacing: var(--track-ko); }
+.tools__search .st-field::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.tools__types { display: flex; align-items: center; gap: var(--st-sp-2); }
+.tools__l { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--st-label-3); }
+.tools .st-segmented__item { letter-spacing: var(--track-ko); }
+.tools__lecture { margin-left: auto; height: 34px; }
+.tools__note { margin: 0 0 var(--st-sp-4); font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+@media (max-width: 640px) { .tools__lecture { margin-left: 0; } .tools__search { flex-basis: 100%; } }
 .material-meta { color:var(--st-label-2); font-size:var(--st-t-caption-size); margin-block:var(--st-sp-2); }
 </style>
 <!-- PWA — 홈 화면에 추가 시 앱처럼 동작 -->
@@ -189,12 +199,20 @@
 
     <!-- ══════════ ARCHIVE ══════════ -->
     <main class="wrap archive">
-        <form class="material-tools" role="search" onsubmit="return false">
-          <label for="materialSearch">자료 이름 검색<input class="st-input" id="materialSearch" type="search" placeholder="예: 기후, 세계화, 지형" autocomplete="off"></label>
-          <label for="materialCategory">자료 종류<select class="st-input" id="materialCategory"><option value="">전체</option><option>학습지</option><option>PPT</option><option>참고자료</option></select></label>
+        <form class="tools" role="search" onsubmit="return false">
+          <label class="tools__search">
+            <svg class="tools__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="st-sr-only">자료 이름 검색</span>
+            <input class="st-field" id="materialSearch" type="search" placeholder="자료 이름으로 찾기 · 기후, 세계화, 지형" autocomplete="off">
+          </label>
+          <div class="tools__types">
+            <span class="tools__l">종류</span>
+            <div class="st-segmented" id="materialTypes" role="tablist" aria-label="자료 종류"></div>
+            <select class="st-sr-only" id="materialCategory" tabindex="-1" aria-hidden="true"><option value="">전체</option><option>학습지</option><option>PPT</option><option>참고자료</option></select>
+          </div>
+          <a class="btn btn-ghost tools__lecture" href="lecture.html">강의 영상 →</a>
         </form>
-        <p class="material-meta">자료는 모든 반의 해당 수업이 끝난 뒤 공개합니다. 파일 열람 후 브라우저의 저장 기능을 이용할 수 있습니다.</p>
-        <p><a class="btn btn-ghost" href="lecture.html">강의 영상 →</a></p>
+        <p class="tools__note">자료는 모든 반의 해당 수업이 끝난 뒤 공개합니다. 파일을 연 뒤 브라우저의 저장 기능을 쓸 수 있습니다.</p>
         <nav class="crumbs" id="crumbs" aria-label="경로"></nav>
         <p id="materialStatus" role="status" class="material-meta"></p>
         <section id="listing" aria-label="공개 자료 목록"></section>

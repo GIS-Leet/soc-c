@@ -5,6 +5,24 @@ const crumbs=document.getElementById('crumbs');
 const search=document.getElementById('materialSearch');
 const category=document.getElementById('materialCategory');
 const status=document.getElementById('materialStatus');
+const types=document.getElementById('materialTypes');
+let syncingTypes=false;
+// 종류 세그먼트 — 숨긴 select 를 그대로 진실로 두고, 칩은 그 값을 비추기만 한다
+function buildTypes(){
+  if(!types)return;
+  types.replaceChildren(...[...category.options].map(o=>{
+    const b=node('button',o.textContent,'st-segmented__item'+(o.value===category.value?' is-on':''));
+    b.type='button';b.setAttribute('role','tab');b.dataset.value=o.value;b.setAttribute('aria-selected',String(o.value===category.value));return b;
+  }));
+  const pick=v=>{if(syncingTypes)return;category.value=v;category.dispatchEvent(new Event('change'));};
+  if(window.Stratum)Stratum.segmented(types,pick);
+  else types.addEventListener('click',e=>{const b=e.target.closest('.st-segmented__item');if(!b)return;for(const i of types.querySelectorAll('.st-segmented__item')){i.classList.toggle('is-on',i===b);i.setAttribute('aria-selected',String(i===b));}pick(b.dataset.value);});
+}
+// 코드가 select 값을 바꿨을 때(폴더 이동 등) 칩을 따라오게 한다
+function syncTypes(){
+  if(!types)return;const on=types.querySelector(`.st-segmented__item[data-value="${CSS.escape(category.value)}"]`);
+  if(on&&!on.classList.contains('is-on')){syncingTypes=true;on.click();syncingTypes=false;}
+}
 let snapshot;
 function node(tag,text,cls) { const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el; }
 function link(text,href,cls) {const el=node('a',text,cls);el.href=href;return el;}
@@ -45,6 +63,7 @@ function card(item) {
 function render() {
   const path=parsePath(location.hash);crumbsFor(path);
   if(!snapshot)return;
+  syncTypes();
   const items=selectItems(snapshot.index,path,search.value,category.value);
   listing.replaceChildren();
   const list=node('ul',undefined,'arch-grid');
@@ -74,4 +93,4 @@ window.addEventListener('hashchange',()=>{
   if(folder && category.value && folder !== category.value) category.value='';
   render();
 });
-crumbsFor(parsePath(location.hash));refresh();
+buildTypes();crumbsFor(parsePath(location.hash));refresh();
