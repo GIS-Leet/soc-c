@@ -124,7 +124,7 @@ body { display: flex; flex-direction: column; }
 .en-tools .btn-sub { height: 36px; padding: 0 14px; font-size: 13.5px; }
 #en .q { filter: blur(6px); user-select: none; -webkit-user-select: none; transition: filter 260ms var(--ease); }
 #en.pass .q, #en.show .q { filter: none; user-select: auto; -webkit-user-select: auto; }
-.jp-foot [hidden], .en-tools [hidden] { display: none !important; }   /* .btn-sub 의 display 가 hidden 속성을 이기지 않도록 */
+.jp-foot [hidden], .en-tools [hidden], .rd[hidden] { display: none !important; }   /* .btn-sub 의 display 가 hidden 속성을 이기지 않도록 */
 /* 답 가리기 — desk .p-daily.quiz .q 와 같은 블러. 통과하면 걷힘 */
 .q { filter: blur(6px); user-select: none; -webkit-user-select: none; transition: filter 260ms var(--ease); }
 .panel.pass .q { filter: none; user-select: auto; -webkit-user-select: auto; }
@@ -136,6 +136,12 @@ body { display: flex; flex-direction: column; }
 textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 1.6; font-family: inherit; }
 .lock-in[readonly] { background: transparent; border-color: var(--st-separator); box-shadow: none; }
 .jp-foot { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+/* 폰 잠금 공부 「끝까지 읽기」 — 조각마다 남은 초가 찬 뒤에야 다음 */
+.rd { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--st-separator); }
+.rd-n { font-size: 13px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
+.rd .btn-solid { margin-left: auto; height: 40px; min-width: 112px; }
+.rd .btn-solid:disabled { opacity: .5; cursor: default; }
+.read-on .rd-hide { display: none !important; }
 .jp-foot .hint { font-size: 13px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
 .jp-foot .hint.bad { color: var(--st-danger-ink); font-weight: 600; }
 .jp-foot .hint.good { color: var(--st-success-ink); font-weight: 600; }
@@ -214,6 +220,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
       <details class="geo-d" id="geoD" hidden><summary>자세히 보기</summary><div class="geo-d-body" id="geoDBody"></div></details>
       <div class="geo-terms"><span class="geo-cap">핵심 용어</span><div id="geoK"></div></div>
       <div class="geo-r" id="geoR"></div>
+      <div class="rd" id="geoRead" hidden><span class="rd-n"></span><button class="btn-solid" type="button">다음</button></div>
     </div>
     <div class="sq" id="geoQuiz" hidden></div>
     <div class="jp-foot"><span class="hint" id="geoHint">다 읽고 시험을 보세요 · 1일차부터 5문제, 4문제 이상 통과</span><button class="btn-solid" id="geoTest">다 읽었음 — 시험 보기</button></div>
@@ -229,6 +236,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
       <div class="jp-e" id="jpE"></div>
       <div class="jp-e2" id="jpE2"></div>
       <div class="jp-vocab"><span class="geo-cap">오늘의 단어</span><div id="jpV"></div></div>
+      <div class="rd" id="jpRead" hidden><span class="rd-n"></span><button class="btn-solid" type="button">다음</button></div>
     </div>
     <div class="sq" id="jpQuiz" hidden></div>
     <div class="jp-foot"><span class="hint" id="jpHint">다 읽고 시험을 보세요 · 1일차부터 5문제, 4문제 이상 통과</span><button class="btn-sub" id="jpSkip" hidden>시험 건너뛰기</button><button class="btn-solid" id="jpTest">다 읽었음 — 시험 보기</button></div>
@@ -266,7 +274,8 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 
 <script>document.write('<script src="study-quiz.js?v=' + Math.floor(Date.now() / 3600000) + '"><\/script>')</script>
 <script type="module">
-  import {completionPatch} from "./assets/study-completion.mjs";
+  import {completionPatch} from "./assets/study-completion.mjs?v=2a9c0853";
+  import {planSteps, createReader} from "./assets/study-reader.mjs?v=be90cd97";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, signInWithCredential }
     from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -410,8 +419,9 @@ function kanaToHangul(text, opt = {}) {
       $('jpSkip').hidden = false;
     }
     if (APP) {
-      $('meta').innerHTML = `<b>${today}</b> (${WEEKDAYS[now.getDay()]})` + (SLOT ? ` · ${SLOT}회차` : ' · 추가') + (MODE === 'test' ? ' · 시험' : '');
-      $('footNote').textContent = MODE === 'test' ? '시험만 봅니다 — 두 과목 모두 통과하면 앱 잠금이 풀립니다.' : '카드를 읽고 두 과목 시험을 통과하면 앱 잠금이 풀립니다.';
+      $('meta').innerHTML = `<b>${today}</b> (${WEEKDAYS[now.getDay()]})` + (SLOT ? ` · ${SLOT}회차` : ' · 추가') + (MODE === 'test' ? ' · 빠른 읽기' : '');
+      $('footNote').textContent = (MODE === 'test' ? '오늘 두 번째부터는 읽기 시간이 절반입니다. ' : '') + '카드를 끝까지 읽고 두 과목 시험을 통과하면 앱 잠금이 풀립니다.';
+      for (const k of ['geo', 'jp']) $(k + 'Hint').textContent = '끝까지 읽으면 시험 버튼이 나옵니다 · 5문제, 4문제 이상 통과';
     }
     let doneRec = null;
     if (!opt.preview && !opt.demo && !APP) {
@@ -429,8 +439,40 @@ function kanaToHangul(text, opt = {}) {
     if (!opt.preview && !opt.demo) { try { QUIZLOG = (await get(ref(db, 'desk/study/quizlog'))).val() || {}; } catch { QUIZLOG = {}; } }
     renderGeo(); renderJp(); if (E) renderEn();
     $('geo').hidden = false; $('jp').hidden = false; $('footRow').hidden = false;
-    $('en').hidden = !E || (APP && MODE === 'test');   // 앱 시험 모드는 두 과목 시험만
-    if (APP && MODE === 'test') runTest('geo');   // 2회차부터: 읽기 없이 바로 시험 (지리 통과 → 일본어 자동)
+    $('en').hidden = !E || (APP && MODE === 'test');   // 앱 두 번째 회차부터는 두 과목만
+    if (READ) { readStart('geo'); readPeek('jp'); }   // 폰 잠금: 조각으로 끝까지 읽어야 시험 버튼이 나옴(2회차부터는 시간 절반). 일본어는 지리 통과 뒤 시작
+  }
+
+  // ── 끝까지 읽기(폰 잠금 공부) — 카드를 조각으로 나눠 조각마다 최소 시간이 지나야 「다음」, 마지막이 끝나야 시험 버튼 ──
+  const READ = APP;
+  const STEPS = { geo: [['geoCat', 'geoQ', 'geoEn'], ['geoM', 'geoA'], ['geoX'], ['geoDBody'], ['geoK', 'geoR']],
+                  jp: [['jpS', 'jpP', 'jpM'], ['jpG'], ['jpE', 'jpE2'], ['jpV']] };
+  const stepBox = id => { const el = $(id); return el.closest('.geo-terms, .jp-vocab, details') || el; };
+  const readers = {};
+  function readShow(key, upto) {   // upto 번째 조각까지 보이고 나머지는 감춤(upto = Infinity → 전부)
+    const steps = readers[key]?.steps || [];
+    steps.forEach((s, i) => s.ids.forEach(id => { const b = stepBox(id); b.classList.toggle('rd-hide', i > upto); if (b.tagName === 'DETAILS' && i <= upto) b.open = true; }));
+  }
+  function readPeek(key) {   // 아직 차례가 아닌 과목: 첫 조각만 보이고 시험 버튼은 감춤(시간은 readStart 에서 잼)
+    readers[key] = createReader(planSteps(STEPS[key], id => $(id).textContent), { fast: MODE === 'test' });
+    $(key).classList.add('read-on'); $(key + 'Test').hidden = true; readShow(key, 0);
+  }
+  function readStart(key, testLabel = '시험 보기') {
+    if (readers[key]?.timer) clearInterval(readers[key].timer);
+    const r = createReader(planSteps(STEPS[key], id => $(id).textContent), { fast: MODE === 'test' });
+    readers[key] = r;
+    const box = $(key + 'Read'), btn = box.querySelector('button'), n = box.querySelector('.rd-n'), test = $(key + 'Test');
+    $(key).classList.add('read-on'); test.hidden = true; box.hidden = false;
+    const paint = () => {
+      const st = r.state();
+      if (st.done) { clearInterval(r.timer); r.timer = null; box.hidden = true; $(key).classList.remove('read-on'); test.hidden = false; test.textContent = testLabel; test.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
+      n.textContent = `${st.index + 1} / ${st.total}`;
+      btn.disabled = st.remaining > 0;
+      btn.textContent = (st.last ? '다 읽었음' : '다음') + (st.remaining > 0 ? ` · ${st.remaining}초` : '');
+    };
+    btn.onclick = () => { if (r.next()) { readShow(key, r.state().index); const first = stepBox(r.steps[r.state().index]?.ids[0]); if (first && !r.state().done) first.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); paint(); } };
+    readShow(key, 0); paint();
+    r.timer = setInterval(paint, 250);
   }
 
   function renderGeo() {
@@ -555,10 +597,11 @@ function kanaToHangul(text, opt = {}) {
     if (StudyQuiz.pass(score, total)) {
       if (key === 'geo') geoPass = true; else jpPass = true;
       panel.classList.add('pass'); panel.querySelector('.dash-h .ok').textContent = `통과 · ${score}/${total}`;
+      if (READ) readShow(key, Infinity);
       hint.textContent = `통과 — ${score}/${total}`; hint.className = 'hint good';
       if (key === 'geo') {
         $('jp').classList.remove('locked'); $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (APP && MODE === 'test') setTimeout(() => runTest('jp'), 600);
+        if (READ) readStart('jp');
       } else {
         $('finish').disabled = !(geoPass && jpPass); $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
         if (APP) setTimeout(() => $('finish').click(), 600);   // 앱에서는 통과 즉시 기록·해제
@@ -566,6 +609,7 @@ function kanaToHangul(text, opt = {}) {
     } else {
       hint.textContent = `${score}/${total} — 다시 읽고 재시험 (4문제 이상)`; hint.className = 'hint bad';
       const btn = $(key + 'Test'); btn.hidden = false; btn.textContent = '재시험';
+      if (READ) readStart(key, '재시험');   // 틀렸으면 처음부터 다시 읽고 나서 재시험
       if (key === 'jp' && DEMO) $('jpSkip').hidden = false;
       panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

@@ -30,7 +30,9 @@ for(const rel of htmlFiles){
   if(SKIP_HTML.has(rel))continue;
   const path=join(ROOT,rel);const src=readFileSync(path,'utf8');
   const base=rel.includes('/')?'../':'';
-  const out=src.replace(/((?:src|href)=")((?:\.\.\/)?(?:assets|design-system)\/[^"?#]+\.(?:mjs|js|css))(?:\?v=[0-9a-f]{8})?(")/g,(m,a,p,z)=>{const h=fileHash(p.replace(/^\.\.\//,''));return h?`${a}${p}?v=${h}${z}`:m;});
+  const out=src.replace(/((?:src|href)=")((?:\.\.\/)?(?:assets|design-system)\/[^"?#]+\.(?:mjs|js|css))(?:\?v=[0-9a-f]{8})?(")/g,(m,a,p,z)=>{const h=fileHash(p.replace(/^\.\.\//,''));return h?`${a}${p}?v=${h}${z}`:m;})
+    // 인라인 <script type="module"> 의 import "./assets/x.mjs" 도 같은 스탬프
+    .replace(/(from\s*['"])((?:\.\.?\/)?assets\/[^'"?#]+\.mjs)(?:\?v=[0-9a-f]{8})?(['"])/g,(m,a,p,z)=>{const h=fileHash(p.replace(/^\.\.?\//,''));return h?`${a}${p}?v=${h}${z}`:m;});
   if(out!==src)planned.push([path,out]);
 }
 if(check){

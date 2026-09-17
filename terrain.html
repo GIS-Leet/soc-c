@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () { if (window.simulatio
     </div>
 
     <script type="module">
-        import {createElapsedClock, approach} from "./assets/simulation-time.mjs";
+        import {createElapsedClock, approach} from "./assets/simulation-time.mjs?v=422c4a21";
         const clock = createElapsedClock();
         let motionPaused = matchMedia('(prefers-reduced-motion: reduce)').matches;
         const motionButton = document.getElementById('motionPause');
