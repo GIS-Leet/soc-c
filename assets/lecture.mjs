@@ -1,5 +1,5 @@
 // 강의 본인 확인·재생·시청 기록을 세션 단위로 관리함.
-import {WatchProgress,LatestWrites} from './watch-progress.mjs';
+import {WatchProgress,LatestWrites} from './watch-progress.mjs?v=d2d8c0b8';
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";

@@ -1,6 +1,6 @@
 // 학생 게시판은 인증된 서버 API만 사용함. 공개 DB로 우회하지 않음.
 import {getAuth,onAuthStateChanged,signInAnonymously,GoogleAuthProvider,signInWithPopup,signOut} from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
-import {BoardStore} from './board-store.mjs';
+import {BoardStore} from './board-store.mjs?v=4ed9928a';
 const API='https://us-central1-soc-c-qna.cloudfunctions.net/boardApi';
 const IMAGE='https://us-central1-soc-c-qna.cloudfunctions.net/boardAttachment';
 const BOARDS=new Set(['questions','feedback','support']);
