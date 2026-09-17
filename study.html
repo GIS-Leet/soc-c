@@ -142,6 +142,14 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 .rd .btn-solid { margin-left: auto; height: 40px; min-width: 112px; }
 .rd .btn-solid:disabled { opacity: .5; cursor: default; }
 .read-on .rd-hide { display: none !important; }
+/* 틀린 문제 복습 — 문제·정답 한 줄 + 그 카드의 개념 */
+.rv { margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--st-separator); display: grid; gap: 10px; }
+.rv[hidden] { display: none !important; }
+.rv-cap { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--st-danger-ink); }
+.rv-item { padding: 10px 12px; background: var(--st-fill-2); border-radius: var(--st-r-element); display: grid; gap: 6px; }
+.rv-q { font-size: 13px; color: var(--st-label-3); } .rv-q b { color: var(--st-label); font-weight: 600; }
+.rv-l { font-size: 15px; line-height: 1.6; color: var(--st-label-2); word-break: keep-all; white-space: pre-line; }
+.rv-l:first-of-type { font-weight: 600; color: var(--st-label); }
 .jp-foot .hint { font-size: 13px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
 .jp-foot .hint.bad { color: var(--st-danger-ink); font-weight: 600; }
 .jp-foot .hint.good { color: var(--st-success-ink); font-weight: 600; }
@@ -220,6 +228,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
       <details class="geo-d" id="geoD" hidden><summary>자세히 보기</summary><div class="geo-d-body" id="geoDBody"></div></details>
       <div class="geo-terms"><span class="geo-cap">핵심 용어</span><div id="geoK"></div></div>
       <div class="geo-r" id="geoR"></div>
+      <div class="rv" id="geoReview" hidden></div>
       <div class="rd" id="geoRead" hidden><span class="rd-n"></span><button class="btn-solid" type="button">다음</button></div>
     </div>
     <div class="sq" id="geoQuiz" hidden></div>
@@ -236,6 +245,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
       <div class="jp-e" id="jpE"></div>
       <div class="jp-e2" id="jpE2"></div>
       <div class="jp-vocab"><span class="geo-cap">오늘의 단어</span><div id="jpV"></div></div>
+      <div class="rv" id="jpReview" hidden></div>
       <div class="rd" id="jpRead" hidden><span class="rd-n"></span><button class="btn-solid" type="button">다음</button></div>
     </div>
     <div class="sq" id="jpQuiz" hidden></div>
@@ -275,7 +285,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 <script>document.write('<script src="study-quiz.js?v=' + Math.floor(Date.now() / 3600000) + '"><\/script>')</script>
 <script type="module">
   import {completionPatch} from "./assets/study-completion.mjs?v=2a9c0853";
-  import {planSteps, createReader} from "./assets/study-reader.mjs?v=be90cd97";
+  import {planSteps, createReader, reviewOf} from "./assets/study-reader.mjs?v=d048144a";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, signInWithCredential }
     from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -453,22 +463,34 @@ function kanaToHangul(text, opt = {}) {
     const steps = readers[key]?.steps || [];
     steps.forEach((s, i) => s.ids.forEach(id => { const b = stepBox(id); b.classList.toggle('rd-hide', i > upto); if (b.tagName === 'DETAILS' && i <= upto) b.open = true; }));
   }
+  /// 틀린 문제 복습 블록 — 문제·정답과 그 카드의 개념. 돌려주는 값 = 읽을 조각들(문제 하나가 한 조각), 없으면 []
+  function renderReview(key, wrong) {
+    const box = $(key + 'Review'); box.innerHTML = ''; box.hidden = true;
+    const items = (wrong || []).map(q => reviewOf(q, { geo: GEO_D, jp: JP_D })).filter(r => r.lines.length);
+    if (!items.length) return [];
+    box.innerHTML = `<div class="rv-cap">틀린 문제 ${items.length} — 개념 다시 읽기</div>` + items.map((r, i) =>
+      `<div class="rv-item" id="${key}Rv${i}"><div class="rv-q">${r.day ? `Day ${r.day} · ` : ''}${escapeHTML(String(r.prompt || ''))} → <b>${escapeHTML(String(r.answer || ''))}</b></div>` +
+      r.lines.map(l => `<div class="rv-l" lang="${key === 'jp' ? 'ja' : 'ko'}">${escapeHTML(l)}</div>`).join('') + `</div>`).join('');
+    box.hidden = false; return items.map((_, i) => [key + 'Rv' + i]);
+  }
   function readPeek(key) {   // 아직 차례가 아닌 과목: 첫 조각만 보이고 시험 버튼은 감춤(시간은 readStart 에서 잼)
     readers[key] = createReader(planSteps(STEPS[key], id => $(id).textContent), { fast: MODE === 'test' });
     $(key).classList.add('read-on'); $(key + 'Test').hidden = true; readShow(key, 0);
   }
-  function readStart(key, testLabel = '시험 보기') {
+  // testLabel: 다 읽은 뒤 나올 버튼 글. groups: 읽을 조각(기본 = 카드 전체). onDone: 버튼 대신 바로 이어갈 일(통과 뒤 복습)
+  function readStart(key, testLabel = '시험 보기', groups = STEPS[key], onDone = null) {
     if (readers[key]?.timer) clearInterval(readers[key].timer);
-    const r = createReader(planSteps(STEPS[key], id => $(id).textContent), { fast: MODE === 'test' });
+    const r = createReader(planSteps(groups, id => $(id).textContent), { fast: MODE === 'test' });
     readers[key] = r;
     const box = $(key + 'Read'), btn = box.querySelector('button'), n = box.querySelector('.rd-n'), test = $(key + 'Test');
     $(key).classList.add('read-on'); test.hidden = true; box.hidden = false;
+    if (r.state().done) { box.hidden = true; $(key).classList.remove('read-on'); if (onDone) onDone(); else { test.hidden = false; test.textContent = testLabel; } return; }
     const paint = () => {
       const st = r.state();
-      if (st.done) { clearInterval(r.timer); r.timer = null; box.hidden = true; $(key).classList.remove('read-on'); test.hidden = false; test.textContent = testLabel; test.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
+      if (st.done) { clearInterval(r.timer); r.timer = null; box.hidden = true; $(key).classList.remove('read-on'); if (onDone) { onDone(); return; } test.hidden = false; test.textContent = testLabel; test.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); return; }
       n.textContent = `${st.index + 1} / ${st.total}`;
       btn.disabled = st.remaining > 0;
-      btn.textContent = (st.last ? '다 읽었음' : '다음') + (st.remaining > 0 ? ` · ${st.remaining}초` : '');
+      btn.textContent = (st.last ? (onDone ? testLabel : '다 읽었음') : '다음') + (st.remaining > 0 ? ` · ${st.remaining}초` : '');
     };
     btn.onclick = () => { if (r.next()) { readShow(key, r.state().index); const first = stepBox(r.steps[r.state().index]?.ids[0]); if (first && !r.state().done) first.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); paint(); } };
     readShow(key, 0); paint();
@@ -578,11 +600,11 @@ function kanaToHangul(text, opt = {}) {
     const qs = key === 'geo' ? StudyQuiz.geo(GEO_D, G.idx, { log: QUIZLOG }) : StudyQuiz.jp(JP_D, J.idx, { kanaToHangul, log: QUIZLOG });
     if (!qs.length) { $(key+'Hint').textContent='문제를 만들 수 없습니다. 자료를 다시 불러온 뒤 시험해 주세요.';$(key+'Hint').className='hint bad';return; }
     result[key].attempts++;
-    $(key + 'Body').hidden = true; $(key + 'Test').hidden = true; if (key === 'jp') $('jpSkip').hidden = true;
+    $(key + 'Body').hidden = true; $(key + 'Test').hidden = true; $(key + 'Review').hidden = true; if (key === 'jp') $('jpSkip').hidden = true;
     $(key + 'Hint').textContent = '시험 중 — 1~4 키로도 답할 수 있습니다'; $(key + 'Hint').className = 'hint';
     const box = $(key + 'Quiz'); box.hidden = false;
     if (quizHandle) quizHandle.destroy();
-    quizHandle = StudyQuiz.mount(box, qs, { onFinish: (score, total, wrong, answered) => { saveLog(answered); finishTest(key, score, total); } });
+    quizHandle = StudyQuiz.mount(box, qs, { onFinish: (score, total, wrong, answered) => { saveLog(answered); finishTest(key, score, total, wrong); } });
     $(key).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   async function saveLog(answered) {   // 출제 이력 저장 — 실패해도 시험 진행엔 영향 없음
@@ -590,26 +612,33 @@ function kanaToHangul(text, opt = {}) {
     if (DEMO || !Object.keys(patch).length) return;
     try { await update(ref(db, 'desk/study/quizlog'), Object.fromEntries(Object.entries(patch).map(([k, v]) => [StudyQuiz.keyOK(k), v]))); } catch {}
   }
-  function finishTest(key, score, total) {
+  function finishTest(key, score, total, wrong = []) {
     $(key + 'Quiz').hidden = true; $(key + 'Body').hidden = false;
     const panel = $(key), hint = $(key + 'Hint');
     result[key].score = score; result[key].total = total;
+    const review = renderReview(key, wrong), hasReview = review.length > 0;
     if (StudyQuiz.pass(score, total)) {
       if (key === 'geo') geoPass = true; else jpPass = true;
       panel.classList.add('pass'); panel.querySelector('.dash-h .ok').textContent = `통과 · ${score}/${total}`;
       if (READ) readShow(key, Infinity);
       hint.textContent = `통과 — ${score}/${total}`; hint.className = 'hint good';
-      if (key === 'geo') {
-        $('jp').classList.remove('locked'); $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (READ) readStart('jp');
-      } else {
-        $('finish').disabled = !(geoPass && jpPass); $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
-        if (APP) setTimeout(() => $('finish').click(), 600);   // 앱에서는 통과 즉시 기록·해제
-      }
+      const proceed = () => {
+        if (key === 'geo') {
+          $('jp').classList.remove('locked'); $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (READ) readStart('jp');
+        } else {
+          $('finish').disabled = !(geoPass && jpPass); $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
+          if (APP) setTimeout(() => $('finish').click(), 600);   // 앱에서는 통과 즉시 기록·해제
+        }
+      };
+      // 통과했어도 틀린 문제가 있으면 그 개념을 읽고 나서 다음으로(폰 잠금 공부). 웹은 블록만 보여 줌
+      if (READ && hasReview) { $(key + 'Review').scrollIntoView({ behavior: 'smooth', block: 'start' }); readStart(key, key === 'geo' ? '읽었음 — 일본어로' : '읽었음 — 완료', review, proceed); }
+      else proceed();
     } else {
-      hint.textContent = `${score}/${total} — 다시 읽고 재시험 (4문제 이상)`; hint.className = 'hint bad';
+      hint.textContent = `${score}/${total} — ${MODE === 'test' && hasReview ? '틀린 개념을 읽고' : '다시 읽고'} 재시험 (4문제 이상)`; hint.className = 'hint bad';
       const btn = $(key + 'Test'); btn.hidden = false; btn.textContent = '재시험';
-      if (READ) readStart(key, '재시험');   // 틀렸으면 처음부터 다시 읽고 나서 재시험
+      // 첫 회차는 카드 전체 + 틀린 개념, 두 번째 회차부터는 틀린 개념만 읽고 재시험
+      if (READ) { const g = MODE === 'test' && hasReview ? review : STEPS[key].concat(review); if (MODE === 'test' && hasReview) $(key + 'Review').scrollIntoView({ behavior: 'smooth', block: 'start' }); readStart(key, '재시험', g); }
       if (key === 'jp' && DEMO) $('jpSkip').hidden = false;
       panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }

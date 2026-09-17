@@ -31,3 +31,28 @@ export function createReader(steps, { now = () => Date.now(), fast = false } = {
     },
   };
 }
+
+/** 틀린 문제 → 읽을 개념. q = 시험 문제({id, day, prompt, answer}), D = {geo, jp}(카드 묶음). 화면은 lines 를 줄줄이 보여 줌 */
+export function reviewOf(q, D) {
+  const [kind, a, b] = String(q.id).split(':');
+  const out = { day: q.day, prompt: q.prompt, answer: q.answer, lines: [] };
+  if (kind === 'geo') {
+    const c = D.geo?.days?.[Number(a)]; if (!c) return out;
+    const m = /^m?term(\d+)$/.exec(b);
+    if (m && c.k?.[Number(m[1])]) { const [k, d] = c.k[Number(m[1])]; out.lines.push(`${k} — ${d}`); }
+    out.lines.push(c.t + (c.en ? ` (${c.en})` : ''));
+    if (c.m) out.lines.push(c.m);
+    if (c.a) out.lines.push(c.a);
+  } else if (kind === 'jp') {
+    const c = D.jp?.days?.[Number(a)]; if (!c) return out;
+    const words = [...(c.v || []).map(([w, , k]) => [w, k]), ...(c.w || [])];
+    const m = /^(?:k2w|w2k|mk2w)(\d+)$/.exec(b);
+    if (m && words[Number(m[1])]) { const [w, k] = words[Number(m[1])]; out.lines.push(`${w} — ${k}`); }
+    if (c.s) out.lines.push(`${c.s} — ${c.m || ''}`.trim());
+    if (c.g) out.lines.push(c.g);
+  } else if (kind === 'kana') {
+    const c = (D.jp?.days || []).find(x => x.type === 'kana' && (x.rows || []).some(r => r.includes(a)));
+    if (c) { const row = (c.rows || []).find(r => r.includes(a)); if (row) out.lines.push(row.split('').join(' ')); if (c.m) out.lines.push(c.m); }
+  }
+  return out;
+}

@@ -41,3 +41,17 @@ test('createReader: 빠른 모드는 조각당 시간이 절반', () => {
   const r = createReader([{ ids: ['a'], chars: 100 }], { now: () => now, fast: true });
   assert.equal(r.state().remaining, 10);
 });
+
+import { reviewOf } from '../assets/study-reader.mjs';
+test('reviewOf: 틀린 문제의 카드에서 읽을 개념을 뽑는다', () => {
+  const D = { geo: { days: [{ t: '공간 자기상관', en: "Moran's I", m: '가까운 것이 닮는다.', a: '핵심 정리.', k: [['모란 지수', '전역 자기상관 지표']] }] },
+              jp: { days: [{ type: 'kana', rows: ['あいうえお'], m: '모음' }, { t: '명사문', s: 'わたしは せんせいです。', m: '저는 선생님입니다.', v: [['がくせいです', '', '학생입니다']], w: [['ほん', '책']], g: '설명입니다.' }] } };
+  assert.deepEqual(reviewOf({ id: 'geo:0:mterm0', day: 1, prompt: 'p', answer: '모란 지수' }, D).lines,
+    ['모란 지수 — 전역 자기상관 지표', "공간 자기상관 (Moran's I)", '가까운 것이 닮는다.', '핵심 정리.']);
+  assert.deepEqual(reviewOf({ id: 'geo:0:def2name', day: 1, prompt: 'p', answer: 'x' }, D).lines.length, 3);
+  assert.deepEqual(reviewOf({ id: 'jp:1:k2w1', day: 2, prompt: '책', answer: 'ほん' }, D).lines,
+    ['ほん — 책', 'わたしは せんせいです。 — 저는 선생님입니다.', '설명입니다.']);
+  assert.deepEqual(reviewOf({ id: 'jp:1:s', day: 2, prompt: 's', answer: 's' }, D).lines.length, 2);
+  assert.deepEqual(reviewOf({ id: 'kana:う:t', prompt: 'う', answer: '우' }, D).lines, ['あ い う え お', '모음']);
+  assert.deepEqual(reviewOf({ id: 'geo:9:mdef', day: 10 }, D).lines, []);   // 카드가 없어도 죽지 않음
+});
