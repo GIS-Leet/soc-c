@@ -9,6 +9,7 @@ export function dayKey(now = new Date()) {
 }
 /** 한 번 기록. 실패해도 자료 열기를 막지 않도록 조용히 끝남 */
 export function recordDownload(path, kind = 'download', {fetcher = fetch, now = new Date()} = {}) {
-  const body = JSON.stringify({[statKey(path)]: {[kind]: {'.sv': {increment: 1}}}});
-  return fetcher(`${DB}/stats/downloads/${dayKey(now)}.json`, {method:'PATCH', body, keepalive:true, headers:{'Content-Type':'application/json'}}).catch(() => {});
+  // 파일 경로에 PATCH — 규칙의 쓰기 허용이 view/download 칸에 있어, 날짜 경로에 쓰면 거부된다(2026-09-18 확인)
+  const body = JSON.stringify({[kind]: {'.sv': {increment: 1}}});
+  return fetcher(`${DB}/stats/downloads/${dayKey(now)}/${encodeURIComponent(statKey(path))}.json`, {method:'PATCH', body, keepalive:true, headers:{'Content-Type':'application/json'}}).catch(() => {});
 }
