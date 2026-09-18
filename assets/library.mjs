@@ -1,5 +1,6 @@
 // 자료실 폴더·검색·필터 화면 — 카드 격자. 외부 데이터(이름·경로)는 textContent 로만 넣고, 아이콘은 고정 문자열만 쓴다.
 import {loadIndex,refreshIndex,parsePath,selectItems,fileURL} from './materials.mjs?v=17f40dea';
+import {recordDownload} from './download-stats.mjs?v=cebbea17';
 const listing=document.getElementById('listing');
 const crumbs=document.getElementById('crumbs');
 const search=document.getElementById('materialSearch');
@@ -55,8 +56,8 @@ function card(item) {
   if(folder){const open=link('열기','#'+encodeURIComponent(item.path),'btn');open.setAttribute('aria-label',`${name} 폴더 열기`);act.append(open);}
   else{
     const url=fileURL(item.path);const viewable=isPDF||isImg||isOffice;
-    if(viewable){const view=link('열람',isOffice?`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`:url,'btn');view.target='_blank';view.rel='noopener noreferrer';view.setAttribute('aria-label',`${name} 열람`);act.append(view);}
-    const down=link('내려받기',url,viewable?'btn btn-ghost':'btn');down.setAttribute('download','');down.setAttribute('aria-label',`${name} 내려받기`);act.append(down);
+    if(viewable){const view=link('열람',isOffice?`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`:url,'btn');view.target='_blank';view.rel='noopener noreferrer';view.setAttribute('aria-label',`${name} 열람`);view.addEventListener('click',()=>recordDownload(item.path,'view'));act.append(view);}
+    const down=link('내려받기',url,viewable?'btn btn-ghost':'btn');down.setAttribute('download','');down.setAttribute('aria-label',`${name} 내려받기`);down.addEventListener('click',()=>recordDownload(item.path,'download'));act.append(down);
   }
   li.append(act);return li;
 }
