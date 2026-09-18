@@ -1,0 +1,47 @@
+# 공개 자료 저장소의 색인을 갱신하고 변경이 있을 때만 커밋함.
+name: Refresh public materials index
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [materials-published]
+  schedule:
+    - cron: '*/10 * * * *'   # 10분마다 — 자료 저장소가 바뀌었을 때만 커밋·재배포
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: materials-index
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/materials-index.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: node --test tests/materials.test.mjs
+      - name: Commit changed public index
+        run: |
+          node --input-type=module <<'JS'
+          import {execFileSync} from 'node:child_process';
+          import {readFileSync,writeFileSync} from 'node:fs';
+          const file='assets/materials-index.json';
+          const old=JSON.parse(execFileSync('git',['show',`HEAD:${file}`],{encoding:'utf8'}));
+          const next=JSON.parse(readFileSync(file,'utf8'));
+          if(old.sourceSha===next.sourceSha) writeFileSync(file,JSON.stringify(old,null,2)+'\n');
+          JS
+          if ! git diff --quiet -- assets/materials-index.json; then
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/materials-index.json
+          git commit -m 'data: refresh public materials index'
+          git push
+          fi
+          # 이전 실행에서 배포 요청만 실패했어도 다음 실행에 복구함.
+          gh api --method POST repos/${GITHUB_REPOSITORY}/pages/builds
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
