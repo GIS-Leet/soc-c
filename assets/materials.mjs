@@ -28,7 +28,7 @@ export async function refreshIndex(index, {fetcher = fetch, storage, now = Date.
   try {
     const head = await fetcher(`${API}/commits/HEAD`, {headers:{Accept:'application/vnd.github+json'}});
     if (!head.ok) return index;
-    const sha = (await head.json())?.commit?.tree?.sha;
+    const sha = (await head.json())?.sha;   // trees/{커밋} 응답의 sha 는 트리가 아니라 그 커밋 sha 로 돌아온다(확인함) — 색인의 sourceSha 도 같은 값
     if (!/^[0-9a-f]{40}$/.test(sha) || sha === index.sourceSha) { remember({index:null}); return index; }
     const tree = await fetcher(`${API}/git/trees/${sha}?recursive=1`, {headers:{Accept:'application/vnd.github+json'}});
     if (!tree.ok) return index;

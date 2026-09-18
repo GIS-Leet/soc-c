@@ -36,13 +36,13 @@ test('저장소가 색인보다 앞서면 그 자리에서 목록을 다시 만�
   const index = buildIndex(tree, '2026-09-16T00:00:00Z');
   const newTree = {...tree, sha:'b'.repeat(40), tree:[...tree.tree, {path:'참고자료/새자료.pdf', type:'blob', mode:'100644', size:10}]};
   const calls = []; const store = new Map(); const storage = {getItem:k=>store.get(k) ?? null, setItem:(k,v)=>store.set(k,v)};
-  const fetcher = async url => { calls.push(url); if (url.endsWith('/commits/HEAD')) return {ok:true, json:async()=>({commit:{tree:{sha:newTree.sha}}})}; if (url.includes('/git/trees/')) return {ok:true, json:async()=>newTree}; return {ok:false}; };
+  const fetcher = async url => { calls.push(url); if (url.endsWith('/commits/HEAD')) return {ok:true, json:async()=>({sha:newTree.sha})}; if (url.includes('/git/trees/')) return {ok:true, json:async()=>newTree}; return {ok:false}; };
   const live = await refreshIndex(index, {fetcher, storage, now:1000});
   assert.equal(live.sourceSha, newTree.sha); assert.ok(live.items.some(i => i.path === '참고자료/새자료.pdf'));
   assert.equal(calls.length, 2);
   const again = await refreshIndex(index, {fetcher, storage, now:2000});          // ttl 안 → API 안 부르고 저장한 목록
   assert.equal(again.sourceSha, newTree.sha); assert.equal(calls.length, 2);
-  const same = await refreshIndex(live, {fetcher:async url => ({ok:true, json:async()=>({commit:{tree:{sha:newTree.sha}}})}), storage:new Map() && {getItem:()=>null,setItem(){}}, now:1});
+  const same = await refreshIndex(live, {fetcher:async url => ({ok:true, json:async()=>({sha:newTree.sha})}), storage:new Map() && {getItem:()=>null,setItem(){}}, now:1});
   assert.equal(same, live);
   const limited = await refreshIndex(index, {fetcher:async()=>({ok:false, status:403}), storage:{getItem:()=>null,setItem(){}}, now:1});
   assert.equal(limited, index);

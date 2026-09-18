@@ -1,5 +1,5 @@
 // 자료실 폴더·검색·필터 화면 — 카드 격자. 외부 데이터(이름·경로)는 textContent 로만 넣고, 아이콘은 고정 문자열만 쓴다.
-import {loadIndex,refreshIndex,parsePath,selectItems,fileURL} from './materials.mjs?v=4f4bee87';
+import {loadIndex,refreshIndex,parsePath,selectItems,fileURL} from './materials.mjs?v=17f40dea';
 const listing=document.getElementById('listing');
 const crumbs=document.getElementById('crumbs');
 const search=document.getElementById('materialSearch');
