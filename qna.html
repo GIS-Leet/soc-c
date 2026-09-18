@@ -221,6 +221,8 @@
 .guide > summary:focus-visible { outline: none; box-shadow: var(--st-ring); border-radius: var(--st-r-inner); }
 .guide__chev { color: var(--st-label-3); transition: transform var(--st-dur-fast) var(--st-ease); }
 .guide[open] .guide__chev { transform: rotate(90deg); }
+.sheet-link { margin: 14px 0 0; }
+.sheet-link .st-btn { text-decoration: none; }
 .guide__hint { margin-left: auto; font-size: 11px; font-weight: 500; color: var(--st-label-3); }
 .guide ol { margin: 0; padding: 0 0 0 1.5em; }
 .guide li { font-size: 12.5px; line-height: 1.7; color: var(--st-label-2);
@@ -650,6 +652,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
       <span class="sheet-num"><i class="st-dot st-dot--live"></i>질문과 답변</span>
       <h1 class="sheet-title">Q&amp;A</h1>
       <p class="sheet-meta">수업 중 궁금했던 것을 자유롭게 질문하세요.<br>지난 질문과 답변도 검색으로 찾을 수 있습니다.</p>
+      <p class="sheet-link"><a class="st-btn st-btn--outline" href="https://script.google.com/macros/s/AKfycbxpNgFbRkbq81Kv5IcIrQP1VAFLZjqhq6vbJHIv-1Tmrw5UYFvdznNOLzOtWcKsrHLjbg/exec" target="_blank" rel="noopener">질문 아카이브 수행평가 바로가기 <span aria-hidden="true">↗</span></a></p>
 
       <div class="admin-header-row">
         <button id="adminBtn" class="btn-outline" onclick="window.toggleAdminPanel()">관리자</button>
