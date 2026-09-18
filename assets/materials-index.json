@@ -1,8 +1,8 @@
 {
   "version": 1,
   "source": "GIS-Leet/kgghs-soc-c",
-  "sourceSha": "4be86d95696134f75181d81b38ce7a8be556a806",
-  "generatedAt": "2026-09-18T00:02:55.625Z",
+  "sourceSha": "f72ece795201709edef0a1398872e7e8d64f3062",
+  "generatedAt": "2026-09-18T04:36:07.116Z",
   "items": [
     {
       "name": "PPT",
@@ -75,6 +75,12 @@
       "size": 1141689
     },
     {
+      "name": "통사2C_연습문제_정답.png",
+      "path": "참고자료/통사2C_연습문제_정답.png",
+      "type": "file",
+      "size": 110873
+    },
+    {
       "name": "학습지",
       "path": "학습지",
       "type": "dir"
@@ -96,6 +102,12 @@
       "path": "학습지/지역탐구프로젝트 진행 가이드.pdf",
       "type": "file",
       "size": 346126
+    },
+    {
+      "name": "통사2C_세계화_학습지2.pdf",
+      "path": "학습지/통사2C_세계화_학습지2.pdf",
+      "type": "file",
+      "size": 820567
     },
     {
       "name": "통사 C 지형 학습지.pdf",
@@ -138,6 +150,12 @@
       "path": "학습지/통사2C_세계화_학습지1.pdf",
       "type": "file",
       "size": 1314374
+    },
+    {
+      "name": "통사2C_세계화_학습지3.pdf",
+      "path": "학습지/통사2C_세계화_학습지3.pdf",
+      "type": "file",
+      "size": 1326374
     },
     {
       "name": "통사C_특수지형.pdf",
