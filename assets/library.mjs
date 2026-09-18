@@ -1,5 +1,5 @@
 // 자료실 폴더·검색·필터 화면 — 카드 격자. 외부 데이터(이름·경로)는 textContent 로만 넣고, 아이콘은 고정 문자열만 쓴다.
-import {loadIndex,parsePath,selectItems,fileURL} from './materials.mjs?v=9fe985a0';
+import {loadIndex,refreshIndex,parsePath,selectItems,fileURL} from './materials.mjs?v=4f4bee87';
 const listing=document.getElementById('listing');
 const crumbs=document.getElementById('crumbs');
 const search=document.getElementById('materialSearch');
@@ -75,7 +75,12 @@ function render() {
 }
 async function refresh() {
   status.textContent='자료 목록을 불러오는 중…';
-  try {snapshot=await loadIndex();render();}
+  try {
+    snapshot=await loadIndex();render();
+    // 배포된 색인보다 저장소가 앞서 있으면(방금 올린 자료) 그 자리에서 목록을 다시 만들어 보여 줌
+    const live=await refreshIndex(snapshot.index);
+    if(live!==snapshot.index){snapshot={index:live,stale:false};render();}
+  }
   catch {
     status.textContent='자료 목록을 불러오지 못했습니다. 연결 상태를 확인하고 다시 시도해 주세요.';
     listing.replaceChildren();

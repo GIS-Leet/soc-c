@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildIndex } from '../scripts/materials-index.mjs';
-import { parsePath, selectItems, loadIndex, fileURL } from '../assets/materials.mjs';
+import { parsePath, selectItems, loadIndex, fileURL, refreshIndex } from '../assets/materials.mjs';
 const tree = {sha:'a'.repeat(40), tree:[{path:'학습지',type:'tree'}, {path:'학습지/지구.pdf',type:'blob',size:12}, {path:'.env',type:'blob'}, {path:'README.md',type:'blob'}, {path:'secret/answer.pdf',type:'blob'}]};
 test('색인은 공개 자료 폴더만 포함하고 원래 URL 인코딩을 보존한다',()=>{
  const index=buildIndex(tree,'2026-09-16T00:00:00Z');
@@ -30,4 +30,22 @@ test('네트워크 실패시 검증된 이전 색인으로 복구하고 손상�
  const index=buildIndex(tree);const fetcher=async()=>{throw Error('offline')};
  assert.equal((await loadIndex({fetcher,storage:{getItem:()=>JSON.stringify(index)}})).stale,true);
  await assert.rejects(loadIndex({fetcher,storage:{getItem:()=>'{"items":[]}'}}));
+});
+
+test('저장소가 색인보다 앞서면 그 자리에서 목록을 다시 만들고, 같으면 그대로, 오류·한도 초과면 조용히 기존 색인', async () => {
+  const index = buildIndex(tree, '2026-09-16T00:00:00Z');
+  const newTree = {...tree, sha:'b'.repeat(40), tree:[...tree.tree, {path:'참고자료/새자료.pdf', type:'blob', mode:'100644', size:10}]};
+  const calls = []; const store = new Map(); const storage = {getItem:k=>store.get(k) ?? null, setItem:(k,v)=>store.set(k,v)};
+  const fetcher = async url => { calls.push(url); if (url.endsWith('/commits/HEAD')) return {ok:true, json:async()=>({commit:{tree:{sha:newTree.sha}}})}; if (url.includes('/git/trees/')) return {ok:true, json:async()=>newTree}; return {ok:false}; };
+  const live = await refreshIndex(index, {fetcher, storage, now:1000});
+  assert.equal(live.sourceSha, newTree.sha); assert.ok(live.items.some(i => i.path === '참고자료/새자료.pdf'));
+  assert.equal(calls.length, 2);
+  const again = await refreshIndex(index, {fetcher, storage, now:2000});          // ttl 안 → API 안 부르고 저장한 목록
+  assert.equal(again.sourceSha, newTree.sha); assert.equal(calls.length, 2);
+  const same = await refreshIndex(live, {fetcher:async url => ({ok:true, json:async()=>({commit:{tree:{sha:newTree.sha}}})}), storage:new Map() && {getItem:()=>null,setItem(){}}, now:1});
+  assert.equal(same, live);
+  const limited = await refreshIndex(index, {fetcher:async()=>({ok:false, status:403}), storage:{getItem:()=>null,setItem(){}}, now:1});
+  assert.equal(limited, index);
+  const broken = await refreshIndex(index, {fetcher:async()=>{ throw new Error('offline'); }, storage:{getItem:()=>null,setItem(){}}, now:1});
+  assert.equal(broken, index);
 });

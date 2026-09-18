@@ -1,8 +1,8 @@
 {
   "version": 1,
   "source": "GIS-Leet/kgghs-soc-c",
-  "sourceSha": "a30efde9a725d9a3fc002e1e7b257a7c8875e1ec",
-  "generatedAt": "2026-09-16T05:13:50.411Z",
+  "sourceSha": "4be86d95696134f75181d81b38ce7a8be556a806",
+  "generatedAt": "2026-09-18T00:02:55.625Z",
   "items": [
     {
       "name": "PPT",
@@ -67,6 +67,12 @@
       "path": "참고자료/모의고사_지형_심화학습자료.html",
       "type": "file",
       "size": 63028
+    },
+    {
+      "name": "통사2C_세계화_연습문제.pdf",
+      "path": "참고자료/통사2C_세계화_연습문제.pdf",
+      "type": "file",
+      "size": 1141689
     },
     {
       "name": "학습지",
