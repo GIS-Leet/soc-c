@@ -70,21 +70,22 @@
     return null;
   }
 
-  // ── 지리 ──
+  // ── 통합사회(옛 지리) — 카드 형식이 같아 이름은 geo 그대로 ──
   function geoCandidates(D, todayIdx) {
     const all = D.days, out = [];
+    const tag = D.key ? ':' + D.key : '';   // 덱을 통째로 바꾸면(data의 key) 옛 출제 이력과 섞이지 않게 id 끝에 꼬리표. reviewOf 는 앞의 세 토막만 본다
     const names = all.map(c => c.t), defs = all.map(c => c.m).filter(Boolean), terms = all.flatMap(c => (c.k || []).map(([k]) => k));
     for (const i of poolIdx(D, todayIdx)) {
       const c = all[i], same = all.filter(x => x !== c && x.c === c.c);
       const sameNames = same.map(x => x.t), sameDefs = same.map(x => x.m).filter(Boolean), sameTerms = same.flatMap(x => (x.k || []).map(([k]) => k));
       const en = c.en ? [c.en.replace(/\(.*$/, '').trim()] : [];
-      if (c.m) out.push(typed(`geo:${i}:def2name`, '이 정의에 해당하는 개념을 쓰세요', c.m, c.t, { alt: en, day: i + 1 }));
-      (c.k || []).forEach(([k, d], j) => out.push(typed(`geo:${i}:term${j}`, '이 설명에 해당하는 용어를 쓰세요', d, k, { day: i + 1 })));
-      const cz = cloze(c); if (cz) out.push(typed(`geo:${i}:cloze`, '빈칸에 들어갈 말을 쓰세요', cz.prompt, cz.answer, { day: i + 1 }));
-      if (c.m) out.push(mcq(`geo:${i}:mdef`, '이 정의에 해당하는 개념은?', c.m, c.t, sameNames, names, { day: i + 1 }));
-      if (c.en) out.push(mcq(`geo:${i}:men`, '이 영문 표기에 해당하는 개념은?', c.en, c.t, sameNames, names, { day: i + 1, lang: 'en' }));
-      if (c.m) out.push(mcq(`geo:${i}:mname`, '이 개념의 정의는?', c.t, c.m, sameDefs, defs, { day: i + 1 }));
-      (c.k || []).forEach(([k, d], j) => out.push(mcq(`geo:${i}:mterm${j}`, '이 설명에 해당하는 용어는?', d, k, sameTerms, terms, { day: i + 1 })));
+      if (c.m) out.push(typed(`geo:${i}:def2name${tag}`, '이 정의에 해당하는 개념을 쓰세요', c.m, c.t, { alt: en, day: i + 1 }));
+      (c.k || []).forEach(([k, d], j) => out.push(typed(`geo:${i}:term${j}${tag}`, '이 설명에 해당하는 용어를 쓰세요', d, k, { day: i + 1 })));
+      const cz = cloze(c); if (cz) out.push(typed(`geo:${i}:cloze${tag}`, '빈칸에 들어갈 말을 쓰세요', cz.prompt, cz.answer, { day: i + 1 }));
+      if (c.m) out.push(mcq(`geo:${i}:mdef${tag}`, '이 정의에 해당하는 개념은?', c.m, c.t, sameNames, names, { day: i + 1 }));
+      if (c.en) out.push(mcq(`geo:${i}:men${tag}`, '이 영문 표기에 해당하는 개념은?', c.en, c.t, sameNames, names, { day: i + 1, lang: 'en' }));
+      if (c.m) out.push(mcq(`geo:${i}:mname${tag}`, '이 개념의 정의는?', c.t, c.m, sameDefs, defs, { day: i + 1 }));
+      (c.k || []).forEach(([k, d], j) => out.push(mcq(`geo:${i}:mterm${j}${tag}`, '이 설명에 해당하는 용어는?', d, k, sameTerms, terms, { day: i + 1 })));
     }
     return out.filter(Boolean);
   }

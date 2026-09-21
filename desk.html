@@ -1291,9 +1291,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
         </div>
       </div>
 
-      <!-- 지리 교사의 한 걸음 — data/geography-daily.json 을 날짜순으로 한 장씩 -->
+      <!-- 통합사회 — data/geography-daily.json(파일명은 Mac 창·앱 호환을 위해 그대로) 을 날짜순으로 한 장씩. 2022 개정 통합사회1·2 전 영역, 옛 지리학 덱은 data/archive/ -->
       <div class="panel p-daily p-geo" id="geoPanel">
-        <div class="dash-h">지리학 <b id="geoCap">불러오는 중…</b></div>
+        <div class="dash-h">통합사회 <b id="geoCap">불러오는 중…</b></div>
         <div class="geo-wrap">
           <div class="geo-main">
             <div class="geo-cat" id="geoCat"></div>
@@ -1317,7 +1317,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
             <button id="geoNext" aria-label="내일 것">›</button>
           </span>
           <button class="btn-sub" id="geoQuiz" data-label="정리 가리기" title="핵심 정리·용어 설명·더 깊이를 가리고, 개념명만 보며 떠올린 뒤 눌러서 확인">정리 가리기</button>
-          <button class="btn-solid" id="geoStart" data-subject="지리">지리로 타이머 시작</button>
+          <button class="btn-solid" id="geoStart" data-subject="통합사회">통합사회로 타이머 시작</button>
           <span class="jp-left" id="geoLeft"></span>
         </div>
       </div>
@@ -3428,9 +3428,9 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     }
     $('rToggle').addEventListener('click', () => { try { localStorage.setItem(HIDE_R_LS, hideROn() ? '0' : '1'); } catch {} applyHideR($('jpPanel').classList.contains('kana')); });
     $('jpPanel').addEventListener('click', e => { const el = e.target.closest('.jp-p, .r'); if (el && $('jpPanel').classList.contains('hide-r')) el.classList.toggle('reveal'); });
-    // 지리학 — { c 분야, t 개념, en 영문, m 한 줄 정의, a 핵심 정리, k [[용어,설명]×3], x 더 깊이, r 문헌 }
+    // 통합사회 — { c 단원, t 개념, en 영문, s 성취기준, m 한 줄 정의(교과서), a 핵심 정리(교과서), k [[용어,설명]×3], x 더 깊이(대학 수준), r 문헌, d 자세한 설명 }
     makeDaily('geo', 'data/geography-daily.json', d => {
-      $('geoCat').textContent = d.c;
+      $('geoCat').textContent = d.c + (d.s ? ' · ' + d.s : '');
       $('geoQ').textContent = d.t; $('geoEn').textContent = d.en || ''; $('geoM').textContent = d.m || '';
       $('geoA').textContent = d.a; $('geoX').textContent = d.x;
       $('geoK').innerHTML = d.k.map(([k, v]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span class="q">${escapeHTML(v)}</span></div>`).join('');

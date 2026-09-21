@@ -499,8 +499,8 @@ function kanaToHangul(text, opt = {}) {
 
   function renderGeo() {
     const c = G.card;
-    $('geoTitle').textContent = '지리학'; $('geoCap').textContent = cap(G);
-    $('geoCat').textContent = c.c; $('geoQ').textContent = c.t; $('geoEn').textContent = c.en || ''; $('geoM').textContent = c.m || '';
+    $('geoTitle').textContent = G.title || '통합사회'; $('geoCap').textContent = cap(G);
+    $('geoCat').textContent = c.c + (c.s ? ' · ' + c.s : ''); $('geoQ').textContent = c.t; $('geoEn').textContent = c.en || ''; $('geoM').textContent = c.m || '';
     $('geoA').textContent = c.a; $('geoX').textContent = c.x; $('geoR').textContent = c.r || '';
     $('geoD').hidden = !c.d; $('geoD').open = false; $('geoDBody').textContent = c.d || '';
     $('geoK').innerHTML = (c.k || []).map(([k, d]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span>${escapeHTML(d)}</span></div>`).join('');
@@ -549,10 +549,10 @@ function kanaToHangul(text, opt = {}) {
   const scoreOf = x => !x ? '–' : x.skipped ? '건너뜀' : x.total ? `${x.score}/${x.total}` + (x.attempts > 1 ? ` (${x.attempts}회째 통과)` : '') : '–';
   function renderDone(rec) {
     $('done').hidden = false; $('footRow').hidden = true;
-    $('doneCap').textContent = `지리 Day ${rec.geo?.day ?? '–'} · 일본어 Day ${rec.jp?.day ?? '–'}` + (rec.en ? ` · 영어 Day ${rec.en.day}` : '');
+    $('doneCap').textContent = `통사 Day ${rec.geo?.day ?? '–'} · 일본어 Day ${rec.jp?.day ?? '–'}` + (rec.en ? ` · 영어 Day ${rec.en.day}` : '');
     const t = rec.finishedAt ? new Date(rec.finishedAt) : null;
     $('doneP').textContent = t ? `${pad(t.getHours())}:${pad(t.getMinutes())}에 마쳤습니다. desk 공부 기록에 「복습」으로 남았습니다.` : 'desk 공부 기록에 「복습」으로 남았습니다.';
-    $('doneAns').innerHTML = rec.geo ? `<span class="geo-cap">${escapeHTML(rec.geo.t || '')}</span>${escapeHTML(rec.geo.m || rec.geo.q || '')}<span class="geo-cap">시험</span>지리 ${scoreOf(rec.geo)} · 일본어 ${scoreOf(rec.jp)}` : '';
+    $('doneAns').innerHTML = rec.geo ? `<span class="geo-cap">${escapeHTML(rec.geo.t || '')}</span>${escapeHTML(rec.geo.m || rec.geo.q || '')}<span class="geo-cap">시험</span>통사 ${scoreOf(rec.geo)} · 일본어 ${scoreOf(rec.jp)}` : '';
   }
 
   // ── 체험판: 열쇠 확인 → 부팅. 열쇠는 demo/keys/{열쇠} 가 true 일 때만 유효 ──
@@ -573,10 +573,10 @@ function kanaToHangul(text, opt = {}) {
   }
   function renderDemoDone() {
     $('done').hidden = false; $('footRow').hidden = true;
-    $('doneCap').textContent = `지리 Day ${G.day} · 일본어 Day ${J.day}`;
+    $('doneCap').textContent = `통사 Day ${G.day} · 일본어 Day ${J.day}`;
     $('done').querySelector('.done-h').textContent = '체험을 마쳤습니다';
     $('doneP').textContent = '이 링크는 이제 만료되었습니다. 기록은 어디에도 남지 않았습니다.';
-    $('doneAns').innerHTML = `<span class="geo-cap">${escapeHTML(G.card.t)}</span>${escapeHTML(G.card.m || '')}<span class="geo-cap">시험</span>지리 ${scoreOf(result.geo)} · 일본어 ${scoreOf(result.jp)}`;
+    $('doneAns').innerHTML = `<span class="geo-cap">${escapeHTML(G.card.t)}</span>${escapeHTML(G.card.m || '')}<span class="geo-cap">시험</span>통사 ${scoreOf(result.geo)} · 일본어 ${scoreOf(result.jp)}`;
   }
   // ── 관리자: 1회용 체험 링크 만들기 ──
   $('demoMake').addEventListener('click', async () => {
@@ -675,7 +675,7 @@ function kanaToHangul(text, opt = {}) {
       const rec={finishedAt:new Date(end).toISOString(),geo:{day:G.day,t:G.card.t,m:G.card.m||'',...result.geo},jp:{day:J.day,t:J.card.t,s:jpAnswer(J.card),...result.jp}};
       if(E&&enDone)rec.en={day:E.day,t:E.card.t,s:E.card.s,typed:$('enIn').value.trim()};
       if(APP)Object.assign(rec,{slot:SLOT,mode:MODE});
-      completion={date,app:APP,slot:SLOT,extraId:extraCompletionId,record:rec,session:{subject,note:(APP?`${SLOT||'추가'}회차 · `:'')+`지리 Day ${G.day} ${scoreOf(result.geo)} · 일본어 Day ${J.day} ${scoreOf(result.jp)}`,start:openedAt,end,min,date,morning:st.getHours()<MORNING_H,daily:!APP,phone:APP||null}};
+      completion={date,app:APP,slot:SLOT,extraId:extraCompletionId,record:rec,session:{subject,note:(APP?`${SLOT||'추가'}회차 · `:'')+`통사 Day ${G.day} ${scoreOf(result.geo)} · 일본어 Day ${J.day} ${scoreOf(result.jp)}`,start:openedAt,end,min,date,morning:st.getHours()<MORNING_H,daily:!APP,phone:APP||null}};
     }
     const rec=completion.record;
     try {
