@@ -100,9 +100,9 @@
   const kanaRead = (k, k2h) => k === 'っ' || k === 'ッ' ? 'ㅅ 받침' : k === 'ー' ? '길게' : k === 'ん' || k === 'ン' ? 'ㄴ 받침' : k2h(k, { noInitial: true });
   const wordsOf = c => [...(c.v || []).map(([w, r, k]) => [w, k, r]), ...(c.w || []).map(([w, k]) => [w, k, ''])];
 
-  function jp(D, todayIdx, opt = {}, count = 5) {
-    const all = D.days, t = todayIdx % all.length, today = all[t], now = opt.now || Date.now(), log = opt.log || {};
-    if (today.type === 'kana') return kana(D, todayIdx, opt, count);
+  /// 낼 수 있는 일본어 문제 전부 — 시험에서 고르기 전의 후보. 「틀린 것만 다시 읽기」가 이 목록을 쓴다
+  function jpCandidates(D, todayIdx) {
+    const all = D.days;
     const allWords = all.filter(c => c.type !== 'kana').flatMap(wordsOf), allW = allWords.map(x => x[0]), allK = allWords.map(x => x[1]);
     const cands = [];
     for (const i of poolIdx(D, todayIdx).filter(i => all[i].type !== 'kana')) {
@@ -113,7 +113,13 @@
         cands.push(mcq(`jp:${i}:mk2w${j}`, '이 뜻에 해당하는 단어는?', k, w, nearW, allW, { day: i + 1, optLang: 'ja' }));
       });
     }
-    const qs = select(cands.filter(Boolean), count - 1, TYPED_PER_TEST - 1, q => q.day === t + 1, log, now);
+    return cands.filter(Boolean);
+  }
+
+  function jp(D, todayIdx, opt = {}, count = 5) {
+    const all = D.days, t = todayIdx % all.length, today = all[t], now = opt.now || Date.now(), log = opt.log || {};
+    if (today.type === 'kana') return kana(D, todayIdx, opt, count);
+    const qs = select(jpCandidates(D, todayIdx), count - 1, TYPED_PER_TEST - 1, q => q.day === t + 1, log, now);
     if (today.s) qs.push(typed(`jp:${t}:s`, '오늘 문장을 일본어로 그대로 입력', today.s, today.s, { hint: opt.kanaToHangul ? opt.kanaToHangul(today.s) : '', day: t + 1, lang: 'ja' }));
     return qs;
   }
@@ -214,5 +220,5 @@
     return { destroy() { el.removeEventListener('click', onClick); document.removeEventListener('keydown', onKey); el.innerHTML = ''; } };
   }
   const pass = (score, total) => total > 0 && score >= Math.ceil(total * 0.8);
-  root.StudyQuiz = { geo, jp, mount, pass, grade, norm, applyLog, keyOK, splitKana, geoCandidates, priority, intervalDays, TYPED_PER_TEST, AVOID_DAYS, INTERVALS };
+  root.StudyQuiz = { geo, jp, mount, pass, grade, norm, applyLog, keyOK, splitKana, geoCandidates, jpCandidates, priority, intervalDays, TYPED_PER_TEST, AVOID_DAYS, INTERVALS };
 })(typeof window !== 'undefined' ? window : globalThis);

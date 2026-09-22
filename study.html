@@ -266,6 +266,8 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
     <div class="jp-g en-p q" id="enP"></div>
     <div class="en-x q" id="enX"></div>
     <div class="jp-vocab"><span class="geo-cap">오늘의 대화</span><div id="enD"></div></div>
+    <div class="rd" id="enRead" hidden><span class="rd-n"></span><button class="btn-solid" type="button">다음</button></div>
+    <button class="btn-solid" id="enTest" hidden></button>
     <div class="jp-vocab"><span class="geo-cap">오늘의 표현</span><div id="enV"></div></div>
   </section>
 
@@ -312,7 +314,10 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   const DEMO_USED_LS = 'study-demo-used';
   // ── iPhone 앱(Study.app) 모드: ?app=1&slot=N&mode=full|test. 앱이 네이티브 Google 토큰을 window.nativeSignIn 으로 넘기고, 완료는 messageHandlers.study 로 받는다 ──
   const Q = new URLSearchParams(location.search);
-  const APP = Q.get('app') === '1', SLOT = Number(Q.get('slot') || 0), MODE = Q.get('mode') === 'test' ? 'test' : 'full';
+  const APP = Q.get('app') === '1', SLOT = Number(Q.get('slot') || 0);
+  // full = 랜덤 잠금 첫 회차, test = 두 번째부터(읽기 시간 절반), read = 고정 시각(6·12·16시) 카드 읽기 — 시험 없음
+  const MODE = ['test', 'read'].includes(Q.get('mode')) ? Q.get('mode') : 'full';
+  const READONLY = MODE === 'read';
   const post = m => { try { window.webkit.messageHandlers.study.postMessage(m); } catch {} };
   window.nativeSignIn = async (idToken, accessToken) => {
     try { await signInWithCredential(auth, GoogleAuthProvider.credential(idToken, accessToken)); }
@@ -429,8 +434,9 @@ function kanaToHangul(text, opt = {}) {
       $('jpSkip').hidden = false;
     }
     if (APP) {
-      $('meta').innerHTML = `<b>${today}</b> (${WEEKDAYS[now.getDay()]})` + (SLOT ? ` · ${SLOT}회차` : ' · 추가') + (MODE === 'test' ? ' · 빠른 읽기' : '');
-      $('footNote').textContent = (MODE === 'test' ? '오늘 두 번째부터는 읽기 시간이 절반입니다. ' : '') + '카드를 끝까지 읽고 두 과목 시험을 통과하면 앱 잠금이 풀립니다.';
+      $('meta').innerHTML = `<b>${today}</b> (${WEEKDAYS[now.getDay()]})` + (READONLY ? ` · 카드 읽기 ${SLOT}회차` : SLOT ? ` · ${SLOT}회차` : ' · 추가') + (MODE === 'test' ? ' · 빠른 읽기' : '');
+      $('footNote').textContent = READONLY ? '시험 없이 오늘 카드를 끝까지 읽습니다. 다 읽으면 앱 잠금이 풀립니다.'
+        : (MODE === 'test' ? '오늘 두 번째부터는 읽기 시간이 절반입니다. ' : '') + '카드를 끝까지 읽고 두 과목 시험을 통과하면 앱 잠금이 풀립니다.';
       for (const k of ['geo', 'jp']) $(k + 'Hint').textContent = '끝까지 읽으면 시험 버튼이 나옵니다 · 5문제, 4문제 이상 통과';
     }
     let doneRec = null;
@@ -449,14 +455,15 @@ function kanaToHangul(text, opt = {}) {
     if (!opt.preview && !opt.demo) { try { QUIZLOG = (await get(ref(db, 'desk/study/quizlog'))).val() || {}; } catch { QUIZLOG = {}; } }
     renderGeo(); renderJp(); if (E) renderEn();
     $('geo').hidden = false; $('jp').hidden = false; $('footRow').hidden = false;
-    $('en').hidden = !E || (APP && MODE === 'test');   // 앱 두 번째 회차부터는 두 과목만
-    if (READ) { readStart('geo'); readPeek('jp'); }   // 폰 잠금: 조각으로 끝까지 읽어야 시험 버튼이 나옴(2회차부터는 시간 절반). 일본어는 지리 통과 뒤 시작
+    $('en').hidden = !E || (APP && MODE === 'test');   // 앱 두 번째 회차부터는 두 과목만(읽기 회차는 영어까지 읽는다)
+    if (READ) startSession();
   }
 
   // ── 끝까지 읽기(폰 잠금 공부) — 카드를 조각으로 나눠 조각마다 최소 시간이 지나야 「다음」, 마지막이 끝나야 시험 버튼 ──
   const READ = APP;
   const STEPS = { geo: [['geoCat', 'geoQ', 'geoEn'], ['geoM', 'geoA'], ['geoX'], ['geoDBody'], ['geoK', 'geoR']],
-                  jp: [['jpS', 'jpP', 'jpM'], ['jpG'], ['jpE', 'jpE2'], ['jpV']] };
+                  jp: [['jpS', 'jpP', 'jpM'], ['jpG'], ['jpE', 'jpE2'], ['jpV']],
+                  en: [['enT', 'enM'], ['enS', 'enP'], ['enX'], ['enD']] };
   const stepBox = id => { const el = $(id); return el.closest('.geo-terms, .jp-vocab, details') || el; };
   const readers = {};
   function readShow(key, upto) {   // upto 번째 조각까지 보이고 나머지는 감춤(upto = Infinity → 전부)
@@ -473,6 +480,71 @@ function kanaToHangul(text, opt = {}) {
       r.lines.map(l => `<div class="rv-l" lang="${key === 'jp' ? 'ja' : 'ko'}">${escapeHTML(l)}</div>`).join('') + `</div>`).join('');
     box.hidden = false; return items.map((_, i) => [key + 'Rv' + i]);
   }
+  /// 아직 두 번 연속 맞히지 못한 문제들 — 이 개념만 읽는다(랜덤 잠금 회차)
+  /// 후보를 못 구하면 null — 이 경우 카드 전체를 읽는 예전 방식으로 돌아간다.
+  /// study-quiz.js 는 시간 단위로 캐시가 갱신돼서, 배포 직후에는 옛 파일이 올 수 있다
+  function openWrong(key) {
+    const fn = key === 'geo' ? StudyQuiz.geoCandidates : StudyQuiz.jpCandidates;
+    if (typeof fn !== 'function') return null;
+    const src = key === 'geo' ? StudyQuiz.geoCandidates(GEO_D, G.idx) : StudyQuiz.jpCandidates(JP_D, J.idx);
+    // 이력의 키는 Firebase 에 쓸 수 있게 다듬은 것이라 같은 방식으로 찾는다
+    const seen = new Set();
+    return (src || []).filter(q => {
+      const e = QUIZLOG[StudyQuiz.keyOK(q.id)];
+      if (!e || !(e.wrong > 0) || (e.streak || 0) >= 2) return false;
+      // 같은 낱말·용어를 묻는 여러 물음(k2w0·w2k0·mk2w0, term2·mterm2)은 한 번만 읽는다
+      const [kind, day, tail = ''] = q.id.split(':');
+      const g = `${kind}:${day}:${(tail.match(/\d+$/) || [''])[0]}`;
+      if (seen.has(g)) return false;
+      seen.add(g); return true;
+    }).slice(0, 12);
+  }
+
+  /// 이 회차에서 무엇을 할지 정한다.
+  /// - 읽기 회차(read): 지리 → 일본어 → 영어를 차례로 읽고 끝. 시험 없음
+  /// - 잠금 회차: 틀린 문제의 개념만 읽고 시험. 틀린 것이 없으면 읽기를 건너뛰고 바로 시험
+  function startSession() {
+    if (READONLY) { readStart('geo', '', STEPS.geo, () => readNextSubject('geo')); readPeek('jp'); return; }
+    const wrong = openWrong('geo');
+    if (wrong === null) { readStart('geo'); readPeek('jp'); return; }   // 후보를 못 구함 → 예전처럼 전체 읽기
+    const groups = renderReview('geo', wrong);
+    if (groups.length) { $('geoReview').scrollIntoView({ behavior: 'smooth', block: 'start' }); readStart('geo', '시험 보기', groups); }
+    else { readSkip('geo'); }   // 틀린 것이 없으면 읽지 않고 바로 시험
+    readPeek('jp');
+  }
+
+  /// 읽기를 건너뛰고 바로 시험 버튼을 낸다
+  function readSkip(key) {
+    if (readers[key]?.timer) { clearInterval(readers[key].timer); readers[key].timer = null; }
+    $(key + 'Read').hidden = true; $(key).classList.remove('read-on');
+    readShow(key, Infinity);
+    const test = $(key + 'Test'); test.hidden = false; test.textContent = '시험 보기';
+    $(key + 'Hint').textContent = '틀린 문제가 없어 바로 시험입니다'; $(key + 'Hint').className = 'hint';
+  }
+
+  /// 읽기 회차 — 과목을 차례로 넘긴다. 마지막까지 읽으면 완료 버튼이 열린다
+  function readNextSubject(from) {
+    if (from === 'geo') {
+      $('geo').classList.add('pass'); $('jp').classList.remove('locked');
+      $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      readStart('jp', '', STEPS.jp, () => readNextSubject('jp'));
+      return;
+    }
+    if (from === 'jp') {
+      $('jp').classList.add('pass');
+      if (E && !$('en').hidden) {
+        $('en').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        readStart('en', '', STEPS.en, () => readNextSubject('en'));
+        return;
+      }
+    }
+    if (from === 'en') $('en').classList.add('pass');
+    geoPass = jpPass = true;                       // 읽기 회차는 읽는 것으로 끝낸다
+    $('finish').disabled = false; $('finish').textContent = '다 읽었음 — 완료';
+    $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
+    if (APP) setTimeout(() => $('finish').click(), 800);
+  }
+
   function readPeek(key) {   // 아직 차례가 아닌 과목: 첫 조각만 보이고 시험 버튼은 감춤(시간은 readStart 에서 잼)
     readers[key] = createReader(planSteps(STEPS[key], id => $(id).textContent), { fast: MODE === 'test' });
     $(key).classList.add('read-on'); $(key + 'Test').hidden = true; readShow(key, 0);
@@ -576,7 +648,7 @@ function kanaToHangul(text, opt = {}) {
     $('doneCap').textContent = `통사 Day ${G.day} · 일본어 Day ${J.day}`;
     $('done').querySelector('.done-h').textContent = '체험을 마쳤습니다';
     $('doneP').textContent = '이 링크는 이제 만료되었습니다. 기록은 어디에도 남지 않았습니다.';
-    $('doneAns').innerHTML = `<span class="geo-cap">${escapeHTML(G.card.t)}</span>${escapeHTML(G.card.m || '')}<span class="geo-cap">시험</span>통사 ${scoreOf(result.geo)} · 일본어 ${scoreOf(result.jp)}`;
+    $('doneAns').innerHTML = `<span class="geo-cap">${escapeHTML(G.card.t)}</span>${escapeHTML(G.card.m || '')}` + (READONLY ? `<span class="geo-cap">카드 읽기</span>끝까지 읽었습니다` : `<span class="geo-cap">시험</span>통사 ${scoreOf(result.geo)} · 일본어 ${scoreOf(result.jp)}`);
   }
   // ── 관리자: 1회용 체험 링크 만들기 ──
   $('demoMake').addEventListener('click', async () => {
@@ -625,7 +697,8 @@ function kanaToHangul(text, opt = {}) {
       const proceed = () => {
         if (key === 'geo') {
           $('jp').classList.remove('locked'); $('jp').scrollIntoView({ behavior: 'smooth', block: 'start' });
-          if (READ) readStart('jp');
+          // 일본어도 지리와 같게 — 틀린 낱말만 읽고, 틀린 것이 없으면 바로 시험
+          if (READ) { const w = openWrong('jp'); if (w === null) readStart('jp'); else { const g = renderReview('jp', w); if (g.length) readStart('jp', '시험 보기', g); else readSkip('jp'); } }
         } else {
           $('finish').disabled = !(geoPass && jpPass); $('footRow').scrollIntoView({ behavior: 'smooth', block: 'end' });
           if (APP) setTimeout(() => $('finish').click(), 600);   // 앱에서는 통과 즉시 기록·해제
@@ -675,7 +748,7 @@ function kanaToHangul(text, opt = {}) {
       const rec={finishedAt:new Date(end).toISOString(),geo:{day:G.day,t:G.card.t,m:G.card.m||'',...result.geo},jp:{day:J.day,t:J.card.t,s:jpAnswer(J.card),...result.jp}};
       if(E&&enDone)rec.en={day:E.day,t:E.card.t,s:E.card.s,typed:$('enIn').value.trim()};
       if(APP)Object.assign(rec,{slot:SLOT,mode:MODE});
-      completion={date,app:APP,slot:SLOT,extraId:extraCompletionId,record:rec,session:{subject,note:(APP?`${SLOT||'추가'}회차 · `:'')+`통사 Day ${G.day} ${scoreOf(result.geo)} · 일본어 Day ${J.day} ${scoreOf(result.jp)}`,start:openedAt,end,min,date,morning:st.getHours()<MORNING_H,daily:!APP,phone:APP||null}};
+      completion={date,app:APP,slot:SLOT,extraId:extraCompletionId,record:rec,session:{subject,note:READONLY?`카드 읽기 ${SLOT}회차 · 통사 Day ${G.day} · 일본어 Day ${J.day}`+(E?` · 영어 Day ${E.day}`:''):(APP?`${SLOT||'추가'}회차 · `:'')+`통사 Day ${G.day} ${scoreOf(result.geo)} · 일본어 Day ${J.day} ${scoreOf(result.jp)}`,start:openedAt,end,min,date,morning:st.getHours()<MORNING_H,daily:!APP,phone:APP||null}};
     }
     const rec=completion.record;
     try {
