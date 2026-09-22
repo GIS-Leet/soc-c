@@ -381,7 +381,8 @@ function kanaToHangul(text, opt = {}) {
   // ── 카드 선택 (desk makeDaily와 동일) ──
   function pick(D, today) {
     const n = D.days.length, i = Math.max(0, Math.floor((dayStart(today) - new Date(D.start + 'T00:00:00')) / 86400000));
-    return { card: D.days[i % n], day: i % n + 1, round: Math.floor(i / n) + 1, title: D.title, idx: i };
+    const j = StudyQuiz.cardIdx(D, i);   // 덱의 first 번 카드부터 돈다
+    return { card: D.days[j], day: j + 1, round: Math.floor(i / n) + 1, title: D.title, idx: i };
   }
   const cap = x => `Day ${x.day} · ${x.card.t}` + (x.round > 1 ? ` · ${x.round}회차` : '');
   // 가나 집중 기간(type:'kana')에는 문장이 없다 — 따라 쓸 답은 그날 글자 전부

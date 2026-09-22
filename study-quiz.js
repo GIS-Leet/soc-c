@@ -58,7 +58,16 @@
     return Object.assign({ id, type: 'mcq', label, prompt, answer, options: shuffle([answer, ...wrong]) }, extra);
   }
   const typed = (id, label, prompt, answer, extra = {}) => Object.assign({ id, type: 'typed', label, prompt, answer }, extra);
-  const poolIdx = (D, todayIdx) => { const n = D.days.length; return (todayIdx >= n ? D.days : D.days.slice(0, todayIdx + 1)).map((_, i) => i); };
+  // 덱은 first 번 카드부터 돌 수 있다(예: 수업 범위가 59번부터). 없으면 1번부터
+  const deckOffset = D => Math.max(0, (Number(D.first) || 1) - 1);
+  /// 며칠째(todayIdx) 에 볼 카드의 자리 번호
+  const cardIdx = (D, todayIdx) => (deckOffset(D) + todayIdx) % D.days.length;
+  /// 지금까지 본 카드들의 자리 번호 — 한 바퀴를 돌았으면 전부
+  const poolIdx = (D, todayIdx) => {
+    const n = D.days.length, off = deckOffset(D);
+    if (todayIdx >= n - 1) return D.days.map((_, i) => i);
+    return Array.from({ length: todayIdx + 1 }, (_, i) => (off + i) % n);
+  };
   // 핵심 정리(a)에서 개념명/용어가 들어간 문장 하나를 골라 그 말을 빈칸으로
   function cloze(c) {
     const words = [c.t, ...(c.k || []).map(([k]) => k)].filter(w => w && w.length >= 2);
@@ -90,7 +99,7 @@
     return out.filter(Boolean);
   }
   function geo(D, todayIdx, opt = {}, count = 5) {
-    const t = todayIdx % D.days.length, now = opt.now || Date.now();
+    const t = cardIdx(D, todayIdx), now = opt.now || Date.now();
     return select(geoCandidates(D, todayIdx), count, TYPED_PER_TEST, q => q.day === t + 1, opt.log || {}, now);
   }
 
@@ -117,14 +126,14 @@
   }
 
   function jp(D, todayIdx, opt = {}, count = 5) {
-    const all = D.days, t = todayIdx % all.length, today = all[t], now = opt.now || Date.now(), log = opt.log || {};
+    const all = D.days, t = cardIdx(D, todayIdx), today = all[t], now = opt.now || Date.now(), log = opt.log || {};
     if (today.type === 'kana') return kana(D, todayIdx, opt, count);
     const qs = select(jpCandidates(D, todayIdx), count - 1, TYPED_PER_TEST - 1, q => q.day === t + 1, log, now);
     if (today.s) qs.push(typed(`jp:${t}:s`, '오늘 문장을 일본어로 그대로 입력', today.s, today.s, { hint: opt.kanaToHangul ? opt.kanaToHangul(today.s) : '', day: t + 1, lang: 'ja' }));
     return qs;
   }
   function kana(D, todayIdx, opt, count) {
-    const all = D.days, t = todayIdx % all.length, read = k => kanaRead(k, opt.kanaToHangul), now = opt.now || Date.now(), log = opt.log || {};
+    const all = D.days, t = cardIdx(D, todayIdx), read = k => kanaRead(k, opt.kanaToHangul), now = opt.now || Date.now(), log = opt.log || {};
     const readable = k => !/[぀-ヿ]/.test(read(k));
     const todayK = uniq(all[t].rows.flatMap(splitKana)).filter(readable);
     const poolK = uniq(poolIdx(D, todayIdx).filter(i => all[i].type === 'kana').flatMap(i => all[i].rows.flatMap(splitKana))).filter(readable);
@@ -220,5 +229,5 @@
     return { destroy() { el.removeEventListener('click', onClick); document.removeEventListener('keydown', onKey); el.innerHTML = ''; } };
   }
   const pass = (score, total) => total > 0 && score >= Math.ceil(total * 0.8);
-  root.StudyQuiz = { geo, jp, mount, pass, grade, norm, applyLog, keyOK, splitKana, geoCandidates, jpCandidates, priority, intervalDays, TYPED_PER_TEST, AVOID_DAYS, INTERVALS };
+  root.StudyQuiz = { geo, jp, cardIdx, poolIdx, mount, pass, grade, norm, applyLog, keyOK, splitKana, geoCandidates, jpCandidates, priority, intervalDays, TYPED_PER_TEST, AVOID_DAYS, INTERVALS };
 })(typeof window !== 'undefined' ? window : globalThis);
