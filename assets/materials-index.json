@@ -1,8 +1,8 @@
 {
   "version": 1,
   "source": "GIS-Leet/kgghs-soc-c",
-  "sourceSha": "5d8f70f9f9b9ef853728da6d02d87d57e7f851cd",
-  "generatedAt": "2026-09-20T11:45:19.952Z",
+  "sourceSha": "3c2c05959d155e43cd9ceadcd51008a0696f8162",
+  "generatedAt": "2026-09-23T04:57:27.314Z",
   "items": [
     {
       "name": "PPT",
@@ -55,6 +55,12 @@
       "name": "참고자료",
       "path": "참고자료",
       "type": "dir"
+    },
+    {
+      "name": "통사2C_연습문제_풀이.pdf",
+      "path": "참고자료/통사2C_연습문제_풀이.pdf",
+      "type": "file",
+      "size": 1916693
     },
     {
       "name": "고1 모고 지리 파트 정리본.pdf",
