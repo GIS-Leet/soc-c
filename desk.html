@@ -635,11 +635,39 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); }
 .study .panel { padding: 20px 22px; }
 .study .dash-h { font-size: 12px; }
-.p-timer { grid-column: 1 / 3; grid-row: 4; display: flex; flex-direction: column; }
-.p-goal  { grid-column: 3; grid-row: 4; }
-.p-heat  { grid-column: 1 / 4; grid-row: 5; }
-.p-week  { grid-column: 1; grid-row: 6; }
-.p-log   { grid-column: 2 / 4; grid-row: 6; }
+.p-timer { grid-column: 1 / 3; grid-row: 5; display: flex; flex-direction: column; }
+.p-goal  { grid-column: 3; grid-row: 5; }
+.p-heat  { grid-column: 1 / 4; grid-row: 6; }
+.p-week  { grid-column: 1; grid-row: 7; }
+.p-log   { grid-column: 2 / 4; grid-row: 7; }
+
+/* ── 아침 루틴 — 잠 깨기 + 얼굴 붓기 빼기 (약 9분) ── */
+.p-routine { grid-column: 1 / 4; grid-row: 1; }
+.rt-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; }
+.rt-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: var(--st-r-element); cursor: pointer; transition: background 150ms; }
+.rt-row:hover { background: var(--st-fill-2); }
+.rt-row input { margin: 3px 0 0; accent-color: var(--st-accent-ink); flex-shrink: 0; }
+.rt-row .nm { font-size: 14.5px; font-weight: 650; color: var(--st-label); }
+.rt-row .mn { font-size: 12px; font-weight: 600; color: var(--st-label-3); margin-left: 6px; font-feature-settings: 'tnum' 1; }
+.rt-row .hw { display: block; font-size: 12.5px; line-height: 1.55; color: var(--st-label-2); margin-top: 2px; word-break: keep-all; }
+.rt-row.done .nm { color: var(--st-label-3); text-decoration: line-through; }
+.rt-row.done .hw { display: none; }
+.rt-foot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.rt-sum { font-size: 13px; font-weight: 600; color: var(--st-label-3); }
+.rt-sum b { color: var(--st-accent-ink); }
+.rt-tip { margin-top: 12px; font-size: 12.5px; line-height: 1.6; color: var(--st-label-2); padding: 9px 12px; border-radius: var(--st-r-element); background: var(--st-fill-2); word-break: keep-all; }
+.rt-run { text-align: center; padding: 6px 0 4px; }
+.rt-run[hidden], .rt-list[hidden], .rt-tip[hidden] { display: none; }
+.rt-step { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); }
+.rt-name { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-top: 6px; color: var(--st-label); }
+.rt-how { max-width: 620px; margin: 10px auto 0; font-size: 14.5px; line-height: 1.7; color: var(--st-label-2); word-break: keep-all; white-space: pre-line; text-align: left; }
+.rt-run .clock { margin: 16px 0 14px; font-size: clamp(44px, 6vw, 64px); }
+.rt-run.paused .clock { color: var(--st-label-2); animation: clockBlink 1.6s ease-in-out infinite; }
+.rt-bar { height: 4px; border-radius: 999px; background: var(--st-fill-2); overflow: hidden; margin: 0 auto 16px; max-width: 420px; }
+.rt-bar i { display: block; height: 100%; width: 0; background: var(--st-accent-ink); transition: width 250ms linear; }
+.p-routine.fold .rt-list, .p-routine.fold .rt-tip { display: none; }
+.p-routine.fold .rt-foot { margin-top: 0; }
+@media (prefers-reduced-motion: reduce) { .rt-bar i { transition: none; } .rt-run.paused .clock { animation: none; } }
 .p-week  { align-self: start; }
 #sessList { max-height: 380px; overflow-y: auto; scrollbar-width: thin; }
 .study.boot .panel { animation: panelIn 460ms var(--ease-o) both; }
@@ -652,7 +680,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .study.boot .panel:nth-child(n+7) { animation-delay: 240ms; }
 /* ── 오늘의 일본어 배너 ── */
 [lang="ja"] { font-family: 'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', 'Pretendard Variable', sans-serif; }
-.p-jp { grid-column: 1 / 4; grid-row: 1; }
+.p-jp { grid-column: 1 / 4; grid-row: 2; }
 .jp-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 12px 32px; align-items: start; }
 .jp-s { font-size: clamp(26px, 3vw, 36px); font-weight: 700; line-height: 1.45; letter-spacing: 0.01em; color: var(--st-label); word-break: keep-all; }
 .jp-p { font-size: 15.5px; color: var(--st-label-2); margin-top: 6px; letter-spacing: 0.01em; }
@@ -677,7 +705,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .jp-left { margin-left: auto; font-size: 13px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
 .jp-left.warn { color: var(--st-warning-ink); font-weight: 700; }
 /* ── 지리 교사의 한 걸음 배너 ── */
-.p-geo { grid-column: 1 / 4; grid-row: 2; }
+.p-geo { grid-column: 1 / 4; grid-row: 3; }
 .geo-wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
 .geo-cap { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
 .geo-cat { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
@@ -706,7 +734,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 .hide-r .jp-p, .hide-r .r { filter: blur(6px); cursor: pointer; user-select: none; transition: filter .15s; }
 .hide-r .jp-p.reveal, .hide-r .r.reveal { filter: none; }
 /* ── 오늘의 영어 회화 배너 ── */
-.p-en { grid-column: 1 / 4; grid-row: 3; }
+.p-en { grid-column: 1 / 4; grid-row: 4; }
 .en-wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
 .en-s { letter-spacing: -0.01em; font-size: clamp(24px, 2.6vw, 32px); line-height: 1.4; }
 .en-p::before { content: '표현'; }
@@ -931,7 +959,8 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, rgba(48,209,15
 
 @media (max-width: 860px) {
   .study { grid-template-columns: minmax(0, 1fr); overflow: visible; }
-  .p-timer, .p-goal, .p-heat, .p-week, .p-log { grid-column: 1; grid-row: auto; }
+  .p-timer, .p-goal, .p-heat, .p-week, .p-log, .p-routine { grid-column: 1; grid-row: auto; }
+  .rt-list { grid-template-columns: minmax(0, 1fr); }
   .heat-wrap { flex-direction: column; gap: 14px; }
   .heat-stats { grid-template-columns: repeat(3, 1fr); width: 100%; }
   .heat-main { --hc: 11px; --hg: 2px; }
@@ -1247,6 +1276,30 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
     <!-- ── 공부 뷰 — 미라클모닝 기록실 ── -->
     <section class="study" id="studyView" style="display:none;">
+
+      <!-- 아침 루틴 — 잠 깨기 + 얼굴 붓기 빼기. 오늘 체크 상태만 desk/study/routine/{날짜} 에 -->
+      <div class="panel p-routine" id="rtPanel">
+        <div class="dash-h">아침 루틴 <b id="rtCap"></b><button class="r-toggle" id="rtFold" type="button">접기</button></div>
+        <div class="rt-run" id="rtRun" hidden>
+          <div class="rt-step" id="rtStep"></div>
+          <div class="rt-name" id="rtName"></div>
+          <div class="rt-how" id="rtHow"></div>
+          <div class="clock" id="rtClock">0:00</div>
+          <div class="rt-bar"><i id="rtBar"></i></div>
+          <div class="clock-ops">
+            <button class="btn-sub" id="rtPrev">이전</button>
+            <button class="btn-sub" id="rtPause">일시정지</button>
+            <button class="btn-solid" id="rtNext">다음</button>
+            <button class="btn-sub stop" id="rtQuit">그만</button>
+          </div>
+        </div>
+        <ol class="rt-list" id="rtList"></ol>
+        <div class="rt-foot">
+          <button class="btn-solid" id="rtStart">루틴 시작</button>
+          <span class="rt-sum" id="rtSum"></span>
+        </div>
+        <div class="rt-tip" id="rtTip"></div>
+      </div>
 
       <!-- 오늘의 일본어 — data/japanese-daily.json 을 날짜순으로 한 장씩 -->
       <div class="panel p-daily p-jp" id="jpPanel">
@@ -3183,15 +3236,154 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     });
     function renderStudy() {
       const byDay = minByDay();
-      renderSubjects(); renderGoal(byDay); renderHeat(byDay); renderWeek(byDay); renderSessions(byDay); renderClock();
+      renderSubjects(); renderGoal(byDay); renderHeat(byDay); renderWeek(byDay); renderSessions(byDay); renderClock(); renderRoutine();
       const t = byDay[keyOf(new Date())] || 0;
       $('stStudy').textContent = t ? fmtMin(t) : '0분';
     }
     let lastDayKey = keyOf(new Date());
     function studyMinute() {   // 자정을 넘기면 전부 다시, 아니면 오늘 링만
       const k = keyOf(new Date());
-      if (k !== lastDayKey) { lastDayKey = k; renderStudy(); } else { renderGoal(minByDay()); if (!studyRun) renderClock(); }
+      if (k !== lastDayKey) { lastDayKey = k; renderStudy(); } else { renderGoal(minByDay()); if (!studyRun) renderClock(); if (!rtRun) renderRoutine(); }
     }
+    // ════════════════ 아침 루틴 — 잠 깨기 + 얼굴 붓기 빼기 ════════════════
+    // 기록은 날짜별 체크 표시뿐: desk/study/routine/{YYYY-MM-DD} = { s: {단계id: true}, doneAt } — 소유자 전용 경로
+    const ROUTINE = [
+      { id: 'water', name: '미지근한 물 한 잔', sec: 30, short: '일어나자마자 200~300ml',
+        how: '일어나자마자 미지근한 물 한 컵(200~300ml)을 천천히 마셔요.\n밤새 빠져나간 수분을 채우면 몸이 깨어나고 순환이 시작돼요.' },
+      { id: 'light', name: '창문 열고 빛 쬐기', sec: 60, short: '커튼을 걷고 밝은 쪽 바라보기',
+        how: '커튼과 창문을 열고 밝은 바깥을 바라보며 서 있어요. (해를 직접 보지는 말기)\n아침 빛이 몸의 시계를 \'낮\'으로 맞춰 졸음을 빨리 걷어내요. 흐린 날엔 방 불을 모두 켜요.' },
+      { id: 'breath', name: '기지개 + 깊은 호흡', sec: 60, short: '코로 4초 들이쉬고, 입으로 6초 내쉬기',
+        how: '두 팔을 머리 위로 쭉 뻗어 온몸을 늘려요.\n코로 4초 들이마시고 → 입으로 6초 길게 내쉬기, 6번 반복.' },
+      { id: 'neck', name: '목·어깨 풀기', sec: 60, short: '어깨 돌리기, 목 좌우 기울이기',
+        how: '① 어깨를 뒤로 크게 10번 돌려요.\n② 목을 오른쪽·왼쪽으로 천천히 기울여 각 10초씩 늘려요.\n얼굴의 수분이 빠져나가는 길(목·쇄골)을 먼저 열어두는 단계예요.' },
+      { id: 'massage', name: '얼굴 림프 마사지', sec: 120, short: '안쪽→바깥, 위→아래(목 쪽)로 약하게',
+        how: '로션이나 크림을 조금 바르고, 피부만 살짝 밀릴 정도로 아주 약하게 해요.\n① 쇄골 위 오목한 곳을 손가락으로 10번 가볍게 누르기\n② 귀 밑 → 목 옆 → 쇄골로 5번 쓸어내리기\n③ 턱 끝 → 귀 밑으로 턱선 따라 5번\n④ 코 옆 → 광대 아래 → 귀 앞으로 5번\n⑤ 눈 밑은 약지로 안쪽 → 바깥쪽 톡톡\n마지막에 다시 ②를 해서 모인 수분을 목 아래로 보내요.' },
+      { id: 'cold', name: '찬물 세안·냉찜질', sec: 60, short: '찬물 세수, 차가운 숟가락을 눈가에',
+        how: '찬물로 세수하거나, 냉장고에 둔 숟가락·차가운 수건을 눈두덩과 볼에 10초씩 대요.\n차가우면 혈관이 수축해 붓기가 빨리 가라앉고 정신도 번쩍 들어요.' },
+      { id: 'move', name: '제자리 걷기 + 스쿼트', sec: 120, short: '무릎 높이 걷기 1분, 스쿼트 15회',
+        how: '제자리에서 무릎을 높이 올리며 1분 걷고, 이어서 천천히 스쿼트 15회.\n다리 근육이 펌프처럼 순환을 돕고, 심박이 올라 잠이 확 깨요. 층간 소음이 걱정되면 발뒤꿈치를 들고 가볍게.' },
+      { id: 'face', name: '얼굴 스트레칭', sec: 30, short: '"아에이오우" 크게, 혀로 잇몸 굴리기',
+        how: '"아-에-이-오-우"를 입을 크게 벌려 5번.\n입을 다물고 혀로 잇몸을 따라 크게 원 그리기, 좌우 5번씩.\n턱과 볼 근육이 풀리면서 얼굴선이 한결 가벼워져요.' },
+    ];
+    const RT_TIPS = [
+      '전날 밤의 짠 음식·라면·야식·술이 아침 붓기의 가장 큰 원인이에요.',
+      '베개를 조금 높이면 밤사이 얼굴에 수분이 덜 고여요.',
+      '자기 직전에 물을 몰아 마시기보다 낮에 나눠 마시는 게 붓기에 좋아요.',
+      '엎드려 자면 얼굴이 눌려 붓기 쉬워요. 바로 누워 자 보세요.',
+      '바나나·토마토·감자처럼 칼륨이 많은 음식은 나트륨 배출을 도와요.',
+      '잠이 부족하면 붓기도 오래가요. 기상 시각을 매일 같게 맞추는 게 제일 좋은 루틴이에요.',
+      '붓기가 며칠씩 이어지거나 한쪽만 붓는다면 루틴보다 진료가 먼저예요.',
+    ];
+    let rtRun = null, rtTick = null, rtOpen = null, rtAudio = null;
+    const rtDay = () => (study.routine || {})[keyOf(new Date())] || {};
+    const rtDone = () => rtDay().s || {};
+    const fmtSec = s => s < 60 ? `${s}초` : `${s / 60}분`;
+    function rtStreak() {
+      const log = study.routine || {}, d = new Date();
+      if (!log[keyOf(d)]?.doneAt) d.setDate(d.getDate() - 1);   // 오늘 아직이면 어제부터 센다
+      let n = 0;
+      while (log[keyOf(d)]?.doneAt) { n++; d.setDate(d.getDate() - 1); }
+      return n;
+    }
+    function renderRoutine() {
+      const done = rtDone(), n = ROUTINE.filter(r => done[r.id]).length, all = n === ROUTINE.length;
+      $('rtCap').textContent = all ? '오늘 완료 ✓' : `약 ${Math.round(ROUTINE.reduce((a, r) => a + r.sec, 0) / 60)}분`;
+      $('rtList').innerHTML = ROUTINE.map(r =>
+        `<li><label class="rt-row${done[r.id] ? ' done' : ''}"><input type="checkbox" data-rt="${r.id}"${done[r.id] ? ' checked' : ''}>` +
+        `<span><span class="nm">${escapeHTML(r.name)}</span><span class="mn">${fmtSec(r.sec)}</span><span class="hw">${escapeHTML(r.short)}</span></span></label></li>`).join('');
+      const k = rtStreak();
+      $('rtSum').innerHTML = `${n} / ${ROUTINE.length}` + (k ? ` · <b>${k}일</b> 연속` : '');
+      $('rtStart').textContent = all ? '한 번 더' : n ? '이어서 하기' : '루틴 시작';
+      const d = new Date();
+      $('rtTip').textContent = '💡 ' + RT_TIPS[Math.floor(d / 864e5) % RT_TIPS.length];
+      // 오전이고 아직 안 끝났으면 펼침, 아니면 접힘 — 접기 버튼으로 언제든 뒤집는다
+      const open = !!rtRun || (rtOpen ?? (!all && d.getHours() < 12));
+      $('rtPanel').classList.toggle('fold', !open);
+      $('rtFold').textContent = open ? '접기' : '펼치기';
+      $('rtFold').hidden = !!rtRun;
+    }
+    async function rtMark(id, on) {
+      const s = { ...rtDone(), [id]: on || null };
+      const all = ROUTINE.every(r => s[r.id]);
+      await update(ref(db, `desk/study/routine/${keyOf(new Date())}`), {
+        [`s/${id}`]: on || null, doneAt: all ? (rtDay().doneAt || Date.now()) : null
+      });
+      return all;
+    }
+    $('rtList').addEventListener('change', async e => {
+      const cb = e.target.closest('input[data-rt]'); if (!cb) return;
+      try { if (await rtMark(cb.dataset.rt, cb.checked) && cb.checked) showUndo('🌅 아침 루틴 완료', null); }
+      catch { showUndo('저장 실패 — 연결을 확인하세요', null); }
+    });
+    $('rtFold').addEventListener('click', () => { rtOpen = $('rtPanel').classList.contains('fold'); renderRoutine(); });
+
+    // ── 안내 모드: 단계마다 타이머, 끝나면 알림음 + 자동 체크 + 다음 단계 ──
+    function rtBeep() {
+      try {
+        const c = rtAudio, o = c.createOscillator(), g = c.createGain();
+        o.frequency.value = 880;
+        g.gain.setValueAtTime(0.0001, c.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.25, c.currentTime + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.35);
+        o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + 0.4);
+      } catch {}
+      try { navigator.vibrate?.(200); } catch {}
+    }
+    const rtLeft = () => rtRun.paused ? rtRun.left : Math.max(0, rtRun.endAt - Date.now());
+    function rtPaint() {
+      const r = ROUTINE[rtRun.i], left = rtLeft();
+      $('rtClock').textContent = fmtClock(Math.ceil(left / 1000) * 1000);
+      $('rtBar').style.width = (100 - left / (r.sec * 10)) + '%';
+      $('rtRun').classList.toggle('paused', !!rtRun.paused);
+      $('rtPause').textContent = rtRun.paused ? '계속' : '일시정지';
+      $('rtPrev').disabled = rtRun.i === 0;
+      $('rtNext').textContent = rtRun.i === ROUTINE.length - 1 ? '끝내기' : '다음';
+    }
+    function rtGo(i) {
+      if (i >= ROUTINE.length) { rtStop(); showUndo('🌅 아침 루틴 완료 — 좋은 하루 보내요', null); return; }
+      const r = ROUTINE[i];
+      rtRun = { i, paused: false, endAt: Date.now() + r.sec * 1000 };
+      $('rtStep').textContent = `${i + 1} / ${ROUTINE.length}`;
+      $('rtName').textContent = r.name;
+      $('rtHow').textContent = r.how;
+      rtPaint();
+    }
+    function rtNextStep() {   // 현재 단계를 체크하고 다음으로
+      rtMark(ROUTINE[rtRun.i].id, true).catch(() => {});
+      rtGo(rtRun.i + 1);
+    }
+    function rtStop() {
+      clearInterval(rtTick); rtTick = null; rtRun = null;
+      $('rtRun').hidden = true; $('rtList').hidden = false; $('rtTip').hidden = false; $('rtStart').hidden = false;
+      if (!studyRun?.since) keepAwake(false);
+      renderRoutine();
+    }
+    $('rtStart').addEventListener('click', () => {
+      // iOS는 사용자 탭 안에서 만든 오디오만 소리를 낸다
+      try { rtAudio = rtAudio || new (window.AudioContext || window.webkitAudioContext)(); rtAudio.resume?.(); } catch {}
+      const done = rtDone(), first = ROUTINE.findIndex(r => !done[r.id]);
+      $('rtRun').hidden = false; $('rtList').hidden = true; $('rtTip').hidden = true; $('rtStart').hidden = true;
+      rtGo(first < 0 ? 0 : first);
+      renderRoutine();
+      clearInterval(rtTick);
+      rtTick = setInterval(sessionScope.guard(() => {
+        if (!rtRun || rtRun.paused) return;
+        if (rtLeft() > 0) { rtPaint(); return; }
+        rtBeep(); rtNextStep();
+      }), 250);
+      keepAwake(true);
+    });
+    $('rtNext').addEventListener('click', () => rtRun && rtNextStep());
+    $('rtPrev').addEventListener('click', () => rtRun && rtRun.i > 0 && rtGo(rtRun.i - 1));
+    $('rtQuit').addEventListener('click', rtStop);
+    $('rtPause').addEventListener('click', () => {
+      if (!rtRun) return;
+      if (rtRun.paused) { rtRun.endAt = Date.now() + rtRun.left; rtRun.paused = false; }
+      else { rtRun.left = rtLeft(); rtRun.paused = true; }
+      rtPaint();
+    });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && rtRun) keepAwake(true); });
+
     window.addEventListener('hashchange', () => { if (location.hash === '#study') gotoView('study'); });
     // 패널 폭이 바뀌면 히트맵 열 수도 바뀐다 — 창 크기뿐 아니라 뷰가 나타날 때도 잡히도록 ResizeObserver
     let heatW = 0, heatResize = null;
@@ -3584,7 +3776,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
     let attached = false;
     onAuthStateChanged(auth, user => {
-      if (user && user.email === OWNER_EMAIL) {
+      if (user && user.email === OWNER_EMAIL && user.emailVerified) {
         sessionUid = user.uid;
         try { $('offlineCopy').checked = localStorage.getItem('desk-offline:' + user.uid) === 'true'; } catch {}
         gate.style.display = 'none';
@@ -3647,7 +3839,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       attached = false; classAttached = false; dataArrived = false;
       clearTimeout(snapshotTimer); clearTimeout(saveTimer); clearTimeout(stuSaveTimer); clearTimeout(undoTimer);
       saveTimer = null; stuSaveTimer = null;
-      clearInterval(minuteTimer); clearInterval(runTick); keepAwake(false);
+      clearInterval(minuteTimer); clearInterval(runTick); if (rtRun) rtStop(); rtOpen = null; keepAwake(false);
       try {
         localStorage.removeItem('desk-snapshot');
         if (snapshotKey()) localStorage.removeItem(snapshotKey());

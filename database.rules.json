@@ -37,19 +37,37 @@
         ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
       },
       "planner": {
-        ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
-        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+        ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
       },
       "settings": {
-        ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
-        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+        ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
       }
     },
     "desk": {
-      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
-      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
       "timetable": {
         ".read": true
+      },
+      "study": {
+        "routine": {
+          "$date": {
+            ".validate": "$date.matches(/^20[0-9]{2}-[01][0-9]-[0-3][0-9]$/) && newData.hasChildren(['s'])",
+            "s": {
+              "$step": {
+                ".validate": "$step.matches(/^[a-z]{2,12}$/) && newData.val() === true"
+              }
+            },
+            "doneAt": {
+              ".validate": "newData.isNumber() && newData.val() <= now + 60000"
+            },
+            "$other": {
+              ".validate": false
+            }
+          }
+        }
       }
     },
     "notices": {
