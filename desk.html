@@ -3245,34 +3245,66 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       const k = keyOf(new Date());
       if (k !== lastDayKey) { lastDayKey = k; renderStudy(); } else { renderGoal(minByDay()); if (!studyRun) renderClock(); if (!rtRun) renderRoutine(); }
     }
-    // ════════════════ 아침 루틴 — 잠 깨기 + 얼굴 붓기 빼기 ════════════════
-    // 기록은 날짜별 체크 표시뿐: desk/study/routine/{YYYY-MM-DD} = { s: {단계id: true}, doneAt } — 소유자 전용 경로
-    const ROUTINE = [
-      { id: 'water', name: '미지근한 물 한 잔', sec: 30, short: '일어나자마자 200~300ml',
-        how: '일어나자마자 미지근한 물 한 컵(200~300ml)을 천천히 마셔요.\n밤새 빠져나간 수분을 채우면 몸이 깨어나고 순환이 시작돼요.' },
-      { id: 'light', name: '창문 열고 빛 쬐기', sec: 60, short: '커튼을 걷고 밝은 쪽 바라보기',
-        how: '커튼과 창문을 열고 밝은 바깥을 바라보며 서 있어요. (해를 직접 보지는 말기)\n아침 빛이 몸의 시계를 \'낮\'으로 맞춰 졸음을 빨리 걷어내요. 흐린 날엔 방 불을 모두 켜요.' },
-      { id: 'breath', name: '기지개 + 깊은 호흡', sec: 60, short: '코로 4초 들이쉬고, 입으로 6초 내쉬기',
-        how: '두 팔을 머리 위로 쭉 뻗어 온몸을 늘려요.\n코로 4초 들이마시고 → 입으로 6초 길게 내쉬기, 6번 반복.' },
-      { id: 'neck', name: '목·어깨 풀기', sec: 60, short: '어깨 돌리기, 목 좌우 기울이기',
-        how: '① 어깨를 뒤로 크게 10번 돌려요.\n② 목을 오른쪽·왼쪽으로 천천히 기울여 각 10초씩 늘려요.\n얼굴의 수분이 빠져나가는 길(목·쇄골)을 먼저 열어두는 단계예요.' },
-      { id: 'massage', name: '얼굴 림프 마사지', sec: 120, short: '안쪽→바깥, 위→아래(목 쪽)로 약하게',
-        how: '로션이나 크림을 조금 바르고, 피부만 살짝 밀릴 정도로 아주 약하게 해요.\n① 쇄골 위 오목한 곳을 손가락으로 10번 가볍게 누르기\n② 귀 밑 → 목 옆 → 쇄골로 5번 쓸어내리기\n③ 턱 끝 → 귀 밑으로 턱선 따라 5번\n④ 코 옆 → 광대 아래 → 귀 앞으로 5번\n⑤ 눈 밑은 약지로 안쪽 → 바깥쪽 톡톡\n마지막에 다시 ②를 해서 모인 수분을 목 아래로 보내요.' },
-      { id: 'cold', name: '찬물 세안·냉찜질', sec: 60, short: '찬물 세수, 차가운 숟가락을 눈가에',
-        how: '찬물로 세수하거나, 냉장고에 둔 숟가락·차가운 수건을 눈두덩과 볼에 10초씩 대요.\n차가우면 혈관이 수축해 붓기가 빨리 가라앉고 정신도 번쩍 들어요.' },
-      { id: 'move', name: '제자리 걷기 + 스쿼트', sec: 120, short: '무릎 높이 걷기 1분, 스쿼트 15회',
-        how: '제자리에서 무릎을 높이 올리며 1분 걷고, 이어서 천천히 스쿼트 15회.\n다리 근육이 펌프처럼 순환을 돕고, 심박이 올라 잠이 확 깨요. 층간 소음이 걱정되면 발뒤꿈치를 들고 가볍게.' },
-      { id: 'face', name: '얼굴 스트레칭', sec: 30, short: '"아에이오우" 크게, 혀로 잇몸 굴리기',
-        how: '"아-에-이-오-우"를 입을 크게 벌려 5번.\n입을 다물고 혀로 잇몸을 따라 크게 원 그리기, 좌우 5번씩.\n턱과 볼 근육이 풀리면서 얼굴선이 한결 가벼워져요.' },
+    // ════════════════ 아침 루틴 — 잠 깨기 + 무소음 운동 + 붓기 빼기 (30분) ════════════════
+    // 5시·층간소음 없음(뛰기·쿵 착지 없음)·의자·벽·매트만. 블록(체크 단위) 안에 동작·쉬기 칸(타이머 단위)
+    // 기록은 날짜별 체크 표시뿐: desk/study/routine/{YYYY-MM-DD} = { s: {블록id: true}, doneAt } — 소유자 전용 경로
+    // 블록 id·문구는 Desk 앱 Study/Desk/MorningRoutine.swift 와 같게 유지
+    const rtCircuit = (moves, work, rest, after) => moves.flatMap(([name, how], i) => [
+      { name, sec: work, how },
+      { name: '쉬기', sec: rest, how: '숨 고르기.\n다음: ' + (i + 1 < moves.length ? moves[i + 1][0] : after), rest: true }]);
+    const RT_STRENGTH = [
+      ['의자 스쿼트', '의자 앞에 발을 어깨너비로 서요. 엉덩이를 뒤로 빼며 3초 동안 천천히 앉다가, 의자에 살짝 닿으면 일어서요.\n무릎은 발끝 방향으로. 힘들면 완전히 앉았다 일어서도 돼요.'],
+      ['벽 팔굽혀펴기', '벽에서 한 걸음 떨어져 어깨높이에 손을 짚어요. 머리부터 발끝까지 일자로 두고 가슴을 벽 쪽으로.\n쉬워지면 책상이나 싱크대를 짚어 각도를 낮춰요. 개수보다 천천히가 먼저예요.'],
+      ['엉덩이 들기', '매트에 누워 무릎을 세우고 발은 엉덩이 가까이. 엉덩이를 조이며 들어 올려 1초 멈추고, 천천히 내려요.\n허리가 아니라 엉덩이 힘으로. 오래 앉아 있는 사람에게 가장 먼저 필요한 근육이에요.'],
+      ['의자 잡고 뒤로 런지', '의자 등받이를 한 손으로 잡고, 한 발을 뒤로 조용히 빼서(발끝부터 닿게) 양 무릎을 굽혔다 돌아와요. 좌우 번갈아.\n깊이는 편한 만큼만. 무릎이 아프면 의자 스쿼트로 바꿔요.'],
+      ['버드독', '매트에 네발 자세. 오른팔과 왼다리를 바닥과 나란히 뻗어 2초 버티고, 돌아와 반대쪽.\n허리가 흔들리지 않게 배에 힘을 줘요.'],
+      ['무릎 대고 플랭크', '팔꿈치와 무릎을 바닥에 대고 머리부터 무릎까지 일자로 버텨요. 배꼽을 등 쪽으로 당기기.\n20초씩 나눠 버텨도 괜찮아요. 익숙해지면 무릎을 떼요.'],
     ];
+    const ROUTINE = [
+      { id: 'wake', name: '잠 깨기', short: '물 한 잔 · 불 켜기 · 호흡 · 목 풀기', parts: [
+        { name: '미지근한 물 한 잔', sec: 30, how: '일어나자마자 미지근한 물 한 컵(200~300ml)을 천천히 마셔요.\n밤새 빠져나간 수분을 채우면 몸이 깨어나요.' },
+        { name: '불 모두 켜기', sec: 30, how: '5시엔 아직 어두워요. 방 불을 모두 켜고 가장 밝은 쪽을 바라봐요.\n매트를 깔고, 양말은 벗거나 미끄럼 방지 양말로 갈아 신어요.' },
+        { name: '기지개 + 깊은 호흡', sec: 60, how: '두 팔을 머리 위로 쭉 뻗어 온몸을 늘려요.\n코로 4초 들이마시고 → 입으로 6초 길게 내쉬기, 6번 반복.' },
+        { name: '목·어깨 풀기', sec: 60, how: '① 어깨를 뒤로 크게 10번 돌려요.\n② 목을 오른쪽·왼쪽으로 천천히 기울여 각 10초씩 늘려요.' },
+      ] },
+      { id: 'warmup', name: '몸 데우기', short: '조용히 걷기 · 관절 돌리기 · 고양이 자세', parts: [
+        { name: '조용히 제자리 걷기', sec: 90, how: '발을 발목 높이만 살짝 들고, 발바닥 전체로 사뿐히 내려놓아요. 팔은 앞뒤로 크게.\n쿵 소리가 나면 발을 더 낮게 — 이 루틴엔 뛰는 동작이 하나도 없어요.' },
+        { name: '팔·골반 돌리기', sec: 60, how: '팔을 앞으로 10번, 뒤로 10번 크게 돌려요.\n손을 허리에 얹고 골반을 오른쪽·왼쪽으로 10번씩 원 그리기.' },
+        { name: '고양이-소 자세', sec: 45, how: '매트에 네발 자세. 숨을 내쉬며 등을 둥글게 말고, 들이쉬며 가슴을 내밀어 등을 오목하게.\n천천히 8번. 새벽에 굳은 허리를 풀어요.' },
+        { name: '벽 짚고 다리 흔들기', sec: 45, how: '벽이나 의자를 한 손으로 짚고 한쪽 다리를 앞뒤로 편하게 흔들어요. 20초 뒤 반대쪽.\n고관절이 풀려서 스쿼트가 한결 편해져요.' },
+      ] },
+      { id: 'setone', name: '근력 1세트', short: '스쿼트 · 팔굽혀펴기 · 엉덩이 · 런지 · 코어 (40초씩)', parts: rtCircuit(RT_STRENGTH, 40, 20, '근력 2세트 — 물 한 모금') },
+      { id: 'settwo', name: '근력 2세트', short: '같은 6동작 한 번 더', parts: rtCircuit(RT_STRENGTH, 40, 20, '무소음 유산소') },
+      { id: 'cardio', name: '무소음 유산소', short: '뛰지 않고 심박 올리기 (40초씩)', parts: rtCircuit([
+        ['무릎-팔꿈치 터치', '손을 머리 뒤에 두고, 오른 무릎을 들어 왼 팔꿈치 쪽으로 비틀어 당겨요. 좌우 번갈아 빠르게.\n발은 사뿐히 내려놓기.'],
+        ['섀도 복싱', '발은 어깨너비로 고정하고 무릎을 살짝 굽혀요. 주먹을 앞으로 번갈아 빠르게 뻗기.\n발을 구르지 않아도 금방 숨이 차요.'],
+        ['스텝 터치', '옆으로 한 발 옮기고 다른 발을 붙이기, 좌우 반복. 팔은 크게 흔들어요.\n발을 끌듯이 옮기면 아랫집에 소리가 안 가요.'],
+        ['빠르게 걷기 + 팔 위로', '제자리 걷기를 조금 빠르게, 팔은 번갈아 머리 위로 쭉.\n숨이 차되 말은 할 수 있을 정도로.'],
+      ], 40, 20, '정리 스트레칭') },
+      { id: 'stretch', name: '정리 스트레칭', short: '허벅지 뒤 · 고관절 · 가슴 · 호흡', parts: [
+        { name: '허벅지 뒤 늘이기', sec: 60, how: '의자에 걸터앉아 한쪽 다리를 앞으로 뻗고 발끝을 몸 쪽으로. 허리를 편 채 상체를 숙여요.\n30초 뒤 반대쪽.' },
+        { name: '고관절 앞 늘이기', sec: 60, how: '매트에 한쪽 무릎을 대고 반대 발은 앞에. 엉덩이를 앞으로 밀어 앞허벅지 위쪽이 당기게.\n30초씩. 오래 앉아 굳은 곳이에요.' },
+        { name: '가슴·어깨 열기', sec: 45, how: '문틀이나 벽 모서리에 팔을 L자로 대고 몸을 반대쪽으로 살짝 돌려 가슴을 열어요.\n20초씩 좌우.' },
+        { name: '무릎 끌어안고 호흡', sec: 75, how: '매트에 누워 두 무릎을 가슴으로 끌어안고 좌우로 살살 흔들어요.\n코로 4초 들이쉬고 입으로 6초 내쉬기. 심박이 가라앉을 때까지.' },
+      ] },
+      { id: 'face', name: '붓기 빼기', short: '얼굴 림프 마사지 · 찬물 세안', parts: [
+        { name: '얼굴 림프 마사지', sec: 120, how: '로션을 조금 바르고, 피부만 살짝 밀릴 정도로 아주 약하게.\n① 쇄골 위 오목한 곳 10번 가볍게 누르기\n② 귀 밑 → 목 옆 → 쇄골로 5번 쓸어내리기\n③ 턱 끝 → 귀 밑으로 턱선 따라 5번\n④ 코 옆 → 광대 아래 → 귀 앞으로 5번\n⑤ 눈 밑은 약지로 안쪽 → 바깥쪽 톡톡\n마지막에 ②를 한 번 더.' },
+        { name: '찬물 세안·냉찜질', sec: 60, how: '찬물로 세수하거나 차가운 숟가락·수건을 눈두덩과 볼에 10초씩 대요.\n운동으로 오른 열을 식히고 붓기를 가라앉혀요.' },
+      ] },
+    ];
+    ROUTINE.forEach(r => { r.sec = r.parts.reduce((a, p) => a + p.sec, 0); });
+    const RT_FLOW = ROUTINE.flatMap((r, i) => r.parts.map(p => ({ i, p })));   // 안내 모드 순서 — (블록 번호, 칸)
     const RT_TIPS = [
+      '5시의 몸은 굳어 있어요. 몸 데우기는 건너뛰지 마세요.',
+      '처음 2주는 \'다 못 해도 매일\'이 목표예요. 동작이 쉬워지면 쉬운 버전에서 한 칸씩 올려요.',
+      '다음 날 근육이 뻐근한 건 정상이에요. 관절이 아프면 그 동작은 쉬어요.',
+      '근육은 단백질이 있어야 붙어요. 아침에 달걀·두부·우유 중 하나를 챙겨요.',
+      '가슴 통증·어지럼·비정상적인 숨 가쁨이 오면 바로 멈추고 쉬어요.',
+      '체중은 운동보다 저녁 식사와 잠이 더 크게 움직여요. 루틴은 매일 같은 시각에.',
       '전날 밤의 짠 음식·라면·야식·술이 아침 붓기의 가장 큰 원인이에요.',
       '베개를 조금 높이면 밤사이 얼굴에 수분이 덜 고여요.',
-      '자기 직전에 물을 몰아 마시기보다 낮에 나눠 마시는 게 붓기에 좋아요.',
-      '엎드려 자면 얼굴이 눌려 붓기 쉬워요. 바로 누워 자 보세요.',
       '바나나·토마토·감자처럼 칼륨이 많은 음식은 나트륨 배출을 도와요.',
-      '잠이 부족하면 붓기도 오래가요. 기상 시각을 매일 같게 맞추는 게 제일 좋은 루틴이에요.',
-      '붓기가 며칠씩 이어지거나 한쪽만 붓는다면 루틴보다 진료가 먼저예요.',
+      '일찍 일어나려면 일찍 자야 해요. 5시 기상이면 밤 10시~10시 반 취침.',
     ];
     let rtRun = null, rtTick = null, rtOpen = null, rtAudio = null;
     const rtDay = () => (study.routine || {})[keyOf(new Date())] || {};
@@ -3287,7 +3319,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     }
     function renderRoutine() {
       const done = rtDone(), n = ROUTINE.filter(r => done[r.id]).length, all = n === ROUTINE.length;
-      $('rtCap').textContent = all ? '오늘 완료 ✓' : `약 ${Math.round(ROUTINE.reduce((a, r) => a + r.sec, 0) / 60)}분`;
+      $('rtCap').textContent = all ? '오늘 완료 ✓' : `기상 + 무소음 운동 · ${Math.round(ROUTINE.reduce((a, r) => a + r.sec, 0) / 60)}분`;
       $('rtList').innerHTML = ROUTINE.map(r =>
         `<li><label class="rt-row${done[r.id] ? ' done' : ''}"><input type="checkbox" data-rt="${r.id}"${done[r.id] ? ' checked' : ''}>` +
         `<span><span class="nm">${escapeHTML(r.name)}</span><span class="mn">${fmtSec(r.sec)}</span><span class="hw">${escapeHTML(r.short)}</span></span></label></li>`).join('');
@@ -3331,25 +3363,26 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
     }
     const rtLeft = () => rtRun.paused ? rtRun.left : Math.max(0, rtRun.endAt - Date.now());
     function rtPaint() {
-      const r = ROUTINE[rtRun.i], left = rtLeft();
+      const f = RT_FLOW[rtRun.i], left = rtLeft();
       $('rtClock').textContent = fmtClock(Math.ceil(left / 1000) * 1000);
-      $('rtBar').style.width = (100 - left / (r.sec * 10)) + '%';
+      $('rtBar').style.width = (100 - left / (f.p.sec * 10)) + '%';
       $('rtRun').classList.toggle('paused', !!rtRun.paused);
       $('rtPause').textContent = rtRun.paused ? '계속' : '일시정지';
       $('rtPrev').disabled = rtRun.i === 0;
-      $('rtNext').textContent = rtRun.i === ROUTINE.length - 1 ? '끝내기' : '다음';
+      $('rtNext').textContent = rtRun.i === RT_FLOW.length - 1 ? '끝내기' : f.p.rest ? '바로 시작' : '다음';
     }
     function rtGo(i) {
-      if (i >= ROUTINE.length) { rtStop(); showUndo('🌅 아침 루틴 완료 — 좋은 하루 보내요', null); return; }
-      const r = ROUTINE[i];
-      rtRun = { i, paused: false, endAt: Date.now() + r.sec * 1000 };
-      $('rtStep').textContent = `${i + 1} / ${ROUTINE.length}`;
-      $('rtName').textContent = r.name;
-      $('rtHow').textContent = r.how;
+      if (i >= RT_FLOW.length) { rtStop(); showUndo('🌅 아침 루틴 완료 — 좋은 하루 보내요', null); return; }
+      const f = RT_FLOW[i];
+      rtRun = { i, paused: false, endAt: Date.now() + f.p.sec * 1000 };
+      $('rtStep').textContent = `${f.i + 1} / ${ROUTINE.length} · ${ROUTINE[f.i].name}`;
+      $('rtName').textContent = f.p.name;
+      $('rtHow').textContent = f.p.how;
       rtPaint();
     }
-    function rtNextStep() {   // 현재 단계를 체크하고 다음으로
-      rtMark(ROUTINE[rtRun.i].id, true).catch(() => {});
+    function rtNextStep() {   // 다음 칸으로 — 블록의 마지막 칸을 넘기면 그 블록을 체크
+      const f = RT_FLOW[rtRun.i], nx = RT_FLOW[rtRun.i + 1];
+      if ((!nx || nx.i !== f.i) && !rtDone()[ROUTINE[f.i].id]) rtMark(ROUTINE[f.i].id, true).catch(() => {});
       rtGo(rtRun.i + 1);
     }
     function rtStop() {
@@ -3363,7 +3396,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
       try { rtAudio = rtAudio || new (window.AudioContext || window.webkitAudioContext)(); rtAudio.resume?.(); } catch {}
       const done = rtDone(), first = ROUTINE.findIndex(r => !done[r.id]);
       $('rtRun').hidden = false; $('rtList').hidden = true; $('rtTip').hidden = true; $('rtStart').hidden = true;
-      rtGo(first < 0 ? 0 : first);
+      rtGo(Math.max(0, RT_FLOW.findIndex(f => f.i === (first < 0 ? 0 : first))));
       renderRoutine();
       clearInterval(rtTick);
       rtTick = setInterval(sessionScope.guard(() => {
