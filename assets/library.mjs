@@ -1,5 +1,5 @@
 // 자료실 폴더·검색·필터 화면 — 카드 격자. 외부 데이터(이름·경로)는 textContent 로만 넣고, 아이콘은 고정 문자열만 쓴다.
-import {loadIndex,refreshIndex,parsePath,selectItems,fileURL} from './materials.mjs?v=17f40dea';
+import {loadIndex,refreshIndex,parsePath,selectItems,fileURL,typeOf,placeOf,countFiles,isSemester,TYPE_FOLDERS} from './materials.mjs?v=039eee79';
 import {recordDownload} from './download-stats.mjs?v=b5ce8ce6';
 const listing=document.getElementById('listing');
 const crumbs=document.getElementById('crumbs');
@@ -22,7 +22,11 @@ function buildTypes(){
 // 코드가 select 값을 바꿨을 때(폴더 이동 등) 칩을 따라오게 한다
 function syncTypes(){
   if(!types)return;const on=types.querySelector(`.st-segmented__item[data-value="${CSS.escape(category.value)}"]`);
-  if(on&&!on.classList.contains('is-on')){syncingTypes=true;on.click();syncingTypes=false;}
+  if(on&&!on.classList.contains('is-on')){
+    syncingTypes=true;on.click();syncingTypes=false;
+    // Stratum 은 첫 프레임에 표시를 처음 칸으로 옮기므로, 그보다 먼저 맞춘 경우를 위해 다음 프레임에 위치를 다시 잰다(resize 가 켜진 칸으로 옮김)
+    requestAnimationFrame(()=>requestAnimationFrame(()=>window.dispatchEvent(new Event('resize'))));
+  }
 }
 let snapshot;
 function node(tag,text,cls) { const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el; }
@@ -41,7 +45,7 @@ const IMAGE=['png','jpg','jpeg','gif','webp','svg','avif','bmp'],OFFICE=['doc','
 // 아이콘은 위 고정 문자열만 쓴다(외부 데이터 아님)
 function icon(kind,cls){const box=document.createElement('div');box.innerHTML=`<svg class="card-ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[kind]}</svg>`;return box.firstElementChild;}
 const fmtSize=b=>b==null?'':b<1024?`${b} B`:b<1048576?`${Math.round(b/1024)} KB`:`${(b/1048576).toFixed(1)} MB`;
-function card(item) {
+function card(item,here) {
   const li=node('li',undefined,'card');
   const folder=item.type==='dir';const name=item.name.normalize('NFC');
   const e=folder?'':(name.toLowerCase().match(/\.([a-z0-9]+)$/)||[])[1]||'';
@@ -50,8 +54,13 @@ function card(item) {
   top.append(icon(folder?'dir':isImg?'img':(isPDF||isOffice)?'doc':'file',folder?'dir':'file'));
   const head=node('div',undefined,'card-head');head.append(node('div',name,'card-name'));
   const meta=node('div',undefined,'card-meta');meta.append(node('span',folder?'폴더':(e||'file').toUpperCase(),folder?'tag dir':'tag'));
-  if(!folder&&item.size!=null)meta.append(node('span',fmtSize(item.size),'size'));
-  head.append(meta);top.append(head);li.append(top);
+  if(folder){const n=countFiles(snapshot.index,item.path);meta.append(node('span',`자료 ${n}개`,'size'));}
+  else if(item.size!=null)meta.append(node('span',fmtSize(item.size),'size'));
+  head.append(meta);
+  // 검색·종류 모아 보기처럼 다른 폴더의 파일이 섞일 때는 어느 학기·종류인지 적어 준다
+  const parent=item.path.split('/').slice(0,-1).join('/');
+  if(!folder&&parent.normalize('NFC')!==here.normalize('NFC'))head.append(node('div',placeOf(item.path),'card-loc'));
+  top.append(head);li.append(top);
   const act=node('div',undefined,'card-act');
   if(folder){const open=link('열기','#'+encodeURIComponent(item.path),'btn');open.setAttribute('aria-label',`${name} 폴더 열기`);act.append(open);}
   else{
@@ -62,13 +71,18 @@ function card(item) {
   li.append(act);return li;
 }
 function render() {
-  const path=parsePath(location.hash);crumbsFor(path);
+  const path=parsePath(location.hash);
+  // 예전 주소(메뉴의 library.html#학습지 등): 그런 폴더가 없으면 그 종류 버튼을 누른 화면으로 바꾼다
+  if(snapshot&&TYPE_FOLDERS.includes(path.normalize('NFC'))&&!snapshot.index.items.some(i=>i.type==='dir'&&i.path.normalize('NFC')===path.normalize('NFC'))){
+    category.value=path.normalize('NFC');history.replaceState(null,'',location.pathname+location.search);return render();
+  }
+  crumbsFor(path);
   if(!snapshot)return;
   syncTypes();
   const items=selectItems(snapshot.index,path,search.value,category.value);
   listing.replaceChildren();
   const list=node('ul',undefined,'arch-grid');
-  items.forEach(item=>list.append(card(item)));
+  items.forEach(item=>list.append(card(item,path)));
   listing.append(list);
   if(!items.length) listing.append(node('p',search.value || category.value ? '일치하는 자료가 없습니다. 검색어나 종류를 바꿔 보세요.' : '아직 공개된 자료가 없습니다.','state'));
   const updated=new Date(snapshot.index.generatedAt);
@@ -90,13 +104,14 @@ async function refresh() {
 }
 search.addEventListener('input',render);
 category.addEventListener('change',()=>{
-  // 자료 종류를 바꾸면 이전 폴더에 검색 범위를 가두지 않음.
-  if(category.value && parsePath(location.hash).split('/')[0] !== category.value) location.hash='';
+  // 종류를 바꾸면: 학기 폴더 안이면 그 학기에 머물고(그 학기의 해당 종류를 모아 봄), 다른 종류 폴더 안이면 한 단계 위로.
+  const path=parsePath(location.hash),top=path.split('/')[0];
+  if(category.value && path && typeOf(path+'/x')!==category.value) location.hash=isSemester(top)?'#'+encodeURIComponent(top):'';
   render();
 });
 window.addEventListener('hashchange',()=>{
-  const folder=parsePath(location.hash).split('/')[0];
-  if(folder && category.value && folder !== category.value) category.value='';
+  const type=typeOf(parsePath(location.hash)+'/x');
+  if(type && category.value && type !== category.value) category.value='';
   render();
 });
 buildTypes();crumbsFor(parsePath(location.hash));refresh();

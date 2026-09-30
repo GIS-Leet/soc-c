@@ -49,3 +49,36 @@ test('저장소가 색인보다 앞서면 그 자리에서 목록을 다시 만�
   const broken = await refreshIndex(index, {fetcher:async()=>{ throw new Error('offline'); }, storage:{getItem:()=>null,setItem(){}}, now:1});
   assert.equal(broken, index);
 });
+
+test('학기 폴더(2026-1학기 통사C/학습지/…)를 공개하고, 최근 학기를 위에, 종류를 고르면 그 학기 안에서 모아 보여 준다', async () => {
+  const { typeOf, placeOf, countFiles, isSemester, validIndex } = await import('../assets/materials.mjs');
+  const s1 = '2026-1학기 통사C', s2 = '2026-2학기 통사2C';
+  const semTree = {sha:'c'.repeat(40), tree:[
+    {path:s1,type:'tree'}, {path:`${s1}/학습지`,type:'tree'}, {path:`${s1}/PPT`,type:'tree'},
+    {path:`${s1}/학습지/지형.pdf`,type:'blob',size:1}, {path:`${s1}/PPT/기후.pdf`,type:'blob',size:1},
+    {path:s2,type:'tree'}, {path:`${s2}/참고자료`,type:'tree'}, {path:`${s2}/학습지`,type:'tree'},
+    {path:`${s2}/학습지/세계화.pdf`,type:'blob',size:1}, {path:`${s2}/참고자료/연습문제.pdf`,type:'blob',size:1},
+    {path:'학습지',type:'tree'}, {path:'학습지/예전자료.pdf',type:'blob',size:1},
+    {path:'2026-3학기',type:'tree'}, {path:'2026-3학기/x.pdf',type:'blob',size:1}, {path:'비공개/답.pdf',type:'blob',size:1},
+  ]};
+  const index = buildIndex(semTree);
+  assert.ok(validIndex(index));
+  assert.ok(!index.items.some(i => i.path.startsWith('2026-3학기') || i.path.startsWith('비공개')));
+  assert.ok(isSemester(s1) && isSemester('2027-1학기') && !isSemester('2026-3학기') && !isSemester('학습지'));
+  // NFD(맥·GitHub 웹 업로드) 이름도 같은 학기로 인식
+  assert.ok(isSemester(s2.normalize('NFD')));
+  assert.equal(typeOf(`${s2}/학습지/세계화.pdf`), '학습지'); assert.equal(typeOf('학습지/예전자료.pdf'), '학습지'); assert.equal(typeOf(s2), '');
+  assert.equal(placeOf(`${s2}/학습지/세계화.pdf`), `${s2} · 학습지`);
+  // 첫 화면: 최근 학기 → 이전 학기 → 예전 종류 폴더
+  assert.deepEqual(selectItems(index, '').map(i => i.path), [s2, s1, '학습지']);
+  // 학기 안: 학습지 · PPT · 참고자료 순
+  assert.deepEqual(selectItems(index, s2).map(i => i.name), ['학습지', '참고자료']);
+  assert.deepEqual(selectItems(index, s1).map(i => i.name), ['학습지', 'PPT']);
+  // 학기 안에서 종류를 고르면 그 학기 것만
+  assert.deepEqual(selectItems(index, s2, '', '학습지').map(i => i.name), ['세계화.pdf']);
+  // 자료실 첫 화면에서 종류를 고르면 모든 학기의 그 종류 — 최근 학기 먼저
+  assert.deepEqual(selectItems(index, '', '', '학습지').map(i => i.path), [`${s2}/학습지/세계화.pdf`, `${s1}/학습지/지형.pdf`, '학습지/예전자료.pdf']);
+  // 검색은 전체에서
+  assert.deepEqual(selectItems(index, s2, '지형').map(i => i.name), ['지형.pdf']);
+  assert.equal(countFiles(index, s1), 2); assert.equal(countFiles(index, s2), 2);
+});
