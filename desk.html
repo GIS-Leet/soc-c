@@ -1166,6 +1166,19 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 .gc-pendn { font-size: 12px; font-weight: 600; color: var(--st-orange-ink); white-space: nowrap; }
 .gc-cell > em { font-style: normal; font-size: 11.5px; color: var(--st-label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 15px; }
 .gc-th { height: 150px; overflow: hidden; background: #fff; border: 1px solid var(--st-separator); border-radius: var(--st-r-inner); }
+/* 시험 폴더 — 학년도 › 시행 › 시험 */
+.gc-fold > summary { display: flex; align-items: center; gap: 12px; padding: 11px 4px; cursor: pointer; list-style: none; border-bottom: 1px solid var(--st-separator); }
+.gc-fold > summary::-webkit-details-marker { display: none; }
+.gc-fold > summary::before { content: '›'; width: 14px; flex-shrink: 0; font-size: 16px; font-weight: 700; color: var(--st-label-3); transition: transform .15s; }
+.gc-fold[open] > summary::before { transform: rotate(90deg); }
+.gc-fold > summary > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.gc-fold > summary b { font-size: 15px; } .gc-fold > summary span { font-size: 12px; color: var(--st-label-3); }
+.gc-fold > summary em { font-style: normal; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--st-label-3); }
+.gc-fold > summary em.ok { color: var(--st-green-ink); }
+.gc-fold > summary .btn-sub { height: 28px; padding: 0 10px; }
+.gc-fold.sub { margin-left: 22px; } .gc-fold.exam { margin-left: 22px; }
+.gc-fold.exam > summary b { font-size: 14px; }
+.gc-fold.exam > .gc-grid { padding: 12px 0 16px 22px; }
 /* 검색 */
 .gc-search { flex: 1; min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; }
 .gc-filter { min-height: 0; display: flex; flex-direction: column; gap: 10px; }

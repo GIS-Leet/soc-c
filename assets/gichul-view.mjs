@@ -1,6 +1,6 @@
 // Desk 「기출」 뷰 — 진도·이어서 분류·PDF 추가(선택·끌어다 놓기)·분류(문항 + 3축 태그)·시험·검색(인쇄)·통계. 데이터는 앱과 같은 desk/gichul · GitHub 기출/
-import * as G from './gichul.mjs?v=74847bc4';
-import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=bb8c9b74';
+import * as G from './gichul.mjs?v=1c013acc';
+import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=0504bf5f';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -218,17 +218,31 @@ export function mountGichul(root, fb) {
   });
 
   // ── 시험 ──
+  /** 폴더를 펼친 상태 — 브라우저에 기억. 건드린 적 없는 폴더는 가장 최근 학년도만 펼침 */
+  const foldState = () => { try { return JSON.parse(localStorage.getItem('gc-folders') || '{}'); } catch { return {}; } };
   function renderExams() {
-    const body = $('#gcBody');
-    body.innerHTML = `<div class="gc-scroll">` + S.data.exams.map(e => {
+    const body = $('#gcBody'), st = foldState();
+    const count = exams => { const ids = new Set(exams.map(e => e.id)), its = S.data.items.filter(i => ids.has(i.examId)), done = its.filter(G.verified).length;
+      return { n: its.length, html: `<em class="${done === its.length && done ? 'ok' : ''}">${done}/${its.length}</em>` }; };
+    const fold = (key, title, exams, inner, fallback, sub) => { const c = count(exams);
+      return `<details class="gc-fold ${sub ? 'sub' : ''}" data-k="${esc(key)}" ${(st[key] ?? fallback) ? 'open' : ''}><summary><div><b>${esc(title)}</b><span>시험 ${exams.length}개 · ${c.n}문항</span></div>${c.html}</summary>${inner}</details>`; };
+    const examBlock = e => {
       const its = G.itemsOf(S.data, e.id), done = its.filter(G.verified).length;
-      return `<section class="gc-exam"><div class="gc-exam-h"><div><b>${esc(e.title)}</b><span>${esc(e.meta.subject)} · ${its.length}문항 · ${e.pages}쪽</span></div><em class="${done === its.length && done ? 'ok' : ''}">${done}/${its.length}</em><button class="btn-sub" data-del="${esc(e.id)}">삭제</button></div>
-        <div class="gc-grid">${its.map(it => `<button class="gc-cell ${G.verified(it) ? 'on' : G.pending(it) ? 'pend' : ''}" data-go="${esc(it.id)}"><span>${it.number}</span>${thumb(it)}<em>${esc((it.tags.c || []).map(G.leafOf)[0] || '')}</em></button>`).join('')}</div></section>`;
-    }).join('') + `</div>`;
-    body.onclick = e => {
-      const g = e.target.closest('[data-go]'); if (g) return go('tag', g.dataset.go);
-      const d = e.target.closest('[data-del]'); if (d) delExam(d.dataset.del);
+      const short = [e.meta.exam.endsWith('학평') ? e.meta.grade : '', e.meta.subject].filter(Boolean).join(' ');   // 폴더 안에서는 학년·과목만
+      return `<details class="gc-fold exam" data-k="${esc('e:' + e.id)}" ${st['e:' + e.id] ? 'open' : ''}><summary><div><b>${esc(short)}</b><span>${its.length}문항 · ${e.pages}쪽</span></div><em class="${done === its.length && done ? 'ok' : ''}">${done}/${its.length}</em><button class="btn-sub" data-del="${esc(e.id)}">삭제</button></summary>
+        <div class="gc-grid">${its.map(it => `<button class="gc-cell ${G.verified(it) ? 'on' : G.pending(it) ? 'pend' : ''}" data-go="${esc(it.id)}"><span>${it.number}</span>${thumb(it)}<em>${esc((it.tags.c || []).map(G.leafOf)[0] || '')}</em></button>`).join('')}</div></details>`;
     };
+    // 학년도 폴더 › 시행 폴더(3월 학평 … 수능) › 시험
+    body.innerHTML = `<div class="gc-scroll">` + G.folders(S.data).map((y, yi) =>
+      fold(String(y.year), `${y.year}학년도`, y.sessions.flatMap(ss => ss.exams), y.sessions.map(ss => fold(`${y.year}/${ss.name}`, ss.name, ss.exams, ss.exams.map(examBlock).join(''), false, true)).join(''), yi === 0, false)).join('') + `</div>`;
+    body.onclick = e => {
+      const d = e.target.closest('[data-del]'); if (d) { e.preventDefault(); return delExam(d.dataset.del); }
+      const g = e.target.closest('[data-go]'); if (g) return go('tag', g.dataset.go);
+    };
+    body.querySelectorAll('details.gc-fold').forEach(el => el.addEventListener('toggle', () => {
+      const cur = foldState(); cur[el.dataset.k] = el.open; try { localStorage.setItem('gc-folders', JSON.stringify(cur)); } catch {}
+      if (el.open) observeThumbs();
+    }));
     observeThumbs();
   }
   async function delExam(id) {
