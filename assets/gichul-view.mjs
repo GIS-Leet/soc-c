@@ -1,6 +1,6 @@
 // Desk 「기출」 뷰 — 진도·이어서 분류·PDF 추가(선택·끌어다 놓기)·분류(문항 + 3축 태그)·시험·검색(인쇄)·통계. 데이터는 앱과 같은 desk/gichul · GitHub 기출/
-import * as G from './gichul.mjs?v=a80c560c';
-import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=c409d3a8';
+import * as G from './gichul.mjs?v=74847bc4';
+import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=bb8c9b74';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -19,6 +19,7 @@ export function mountGichul(root, fb) {
           <div class="gc-stat"><span>오늘</span><b id="gcToday">0</b><em>/ ${G.DAILY}</em></div>
           <div class="gc-stat"><span>누적</span><b id="gcTotal">0</b><em>/ ${G.GOAL.toLocaleString()}</em></div>
           <div class="gc-bar" aria-hidden="true"><i id="gcBar"></i></div>
+          <span class="gc-pendn" id="gcPend" hidden></span>
         </div>
         <nav class="desk-views gc-tabs" id="gcTabs" style="display:flex;">
           <button class="on" data-sub="tag">분류</button><button data-sub="exams">시험</button><button data-sub="search">검색</button><button data-sub="stats">통계</button>
@@ -42,6 +43,7 @@ export function mountGichul(root, fb) {
     $('#gcToday').textContent = t; $('#gcTotal').textContent = n;
     $('#gcToday').classList.toggle('done', t >= G.DAILY);
     $('#gcBar').style.width = Math.min(100, n / G.GOAL * 100) + '%';
+    const pn = G.pendingCount(S.data); $('#gcPend').hidden = !pn; $('#gcPend').textContent = `검증 전 ${pn}`;
     const nx = G.nextUntagged(S.data); $('#gcNext').disabled = !nx;
   }
 
@@ -123,6 +125,7 @@ export function mountGichul(root, fb) {
         <div class="gc-q"><div class="gc-zoom"><button class="btn-sub" data-z="-1" title="작게">−</button><button class="btn-sub" data-z="1" title="크게">+</button></div><div class="gc-img" id="gcImg"><div class="gc-ph big"></div></div></div>
         <div class="gc-side">
           <div class="gc-head"><b>${it.number}번</b>${it.pts != null ? `<span>${it.pts}점</span>` : ''}<em>${esc(exam?.title || '')}</em></div>
+          ${G.pending(it) ? '<p class="gc-pending">1차 분류 · 검증 전 — 확인하고 저장하면 검증됨</p>' : ''}
           <div class="gc-chips" id="gcChips"></div>
           <nav class="desk-views gc-axis" id="gcAxis" style="display:flex;">${G.AXES.map(([a, l]) => `<button data-a="${a}" class="${S.axis === a ? 'on' : ''}">${a === 'x' ? '정보' : l}<em></em></button>`).join('')}</nav>
           <div class="gc-pane" id="gcPane"></div>
@@ -143,7 +146,7 @@ export function mountGichul(root, fb) {
   }
   function chips() {
     const w = S.work, el = $('#gcChips'); if (!el) return;
-    const all = G.AXES.flatMap(([a]) => (w.tags[a] || []).map(t => [a, t]));
+    const all = G.AXES.flatMap(([a]) => (w.tags[a] || []).filter(t => t !== G.PENDING).map(t => [a, t]));
     el.innerHTML = all.length ? all.map(([a, t]) => `<button class="gc-chip ax-${a}" data-a="${a}" data-t="${esc(t)}" title="떼기">${esc(a === 'c' ? G.leafOf(t) : t)} ×</button>`).join('') : '<span class="gc-hint">아래에서 개념·자료·오답을 골라 붙입니다.</span>';
     el.onclick = e => { const b = e.target.closest('.gc-chip'); if (b) toggle(b.dataset.a, b.dataset.t); };
     root.querySelectorAll('#gcAxis button').forEach(b => { const n = (w.tags[b.dataset.a] || []).length; b.querySelector('em').textContent = n && b.dataset.a !== 'x' ? ' ' + n : ''; });
@@ -162,7 +165,7 @@ export function mountGichul(root, fb) {
       el.innerHTML = `
         <label class="gc-f"><span>정답</span><select id="gcAns"><option value="">모름</option>${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${w.ans === n ? 'selected' : ''}>${'①②③④⑤'[n - 1]}</option>`).join('')}</select></label>
         <label class="gc-f"><span>배점</span><select id="gcPts"><option value="">모름</option>${[1.5, 2, 2.5, 3].map(n => `<option value="${n}" ${w.pts === n ? 'selected' : ''}>${n}점</option>`).join('')}</select></label>
-        <label class="gc-f"><span>기타 태그</span><input id="gcX" placeholder="쉼표로 구분 — 예: 킬러, 수업 예시" value="${esc((w.tags.x || []).join(', '))}"></label>
+        <label class="gc-f"><span>기타 태그</span><input id="gcX" placeholder="쉼표로 구분 — 예: 킬러, 수업 예시" value="${esc((w.tags.x || []).filter(t => t !== G.PENDING).join(', '))}"></label>
         <label class="gc-f"><span>메모</span><textarea id="gcMemo" rows="5" placeholder="풀이 요점·수업에서 쓸 곳">${esc(w.memo)}</textarea></label>`;
       $('#gcAns').onchange = e => { S.work.ans = e.target.value ? Number(e.target.value) : null; };
       $('#gcPts').onchange = e => { S.work.pts = e.target.value ? Number(e.target.value) : null; };
@@ -203,7 +206,7 @@ export function mountGichul(root, fb) {
     if (!S.work) return;
     save(S.work);
     const id = S.work.id, i = S.data.items.findIndex(x => x.id === id);
-    const next = S.data.items.slice(i + 1).find(x => !G.tagged(x)) ?? S.data.items.find(x => !G.tagged(x) && x.id !== id) ?? S.data.items[(i + 1) % S.data.items.length];
+    const next = S.data.items.slice(i + 1).find(x => !G.verified(x)) ?? S.data.items.find(x => !G.verified(x) && x.id !== id) ?? S.data.items[(i + 1) % S.data.items.length];
     S.cur = next.id; S.work = null; status('저장했습니다 · ' + id.split('/').pop() + '번'); setTimeout(() => status(''), 1500);
     renderTag();
   }
@@ -218,9 +221,9 @@ export function mountGichul(root, fb) {
   function renderExams() {
     const body = $('#gcBody');
     body.innerHTML = `<div class="gc-scroll">` + S.data.exams.map(e => {
-      const its = G.itemsOf(S.data, e.id), done = its.filter(G.tagged).length;
+      const its = G.itemsOf(S.data, e.id), done = its.filter(G.verified).length;
       return `<section class="gc-exam"><div class="gc-exam-h"><div><b>${esc(e.title)}</b><span>${esc(e.meta.subject)} · ${its.length}문항 · ${e.pages}쪽</span></div><em class="${done === its.length && done ? 'ok' : ''}">${done}/${its.length}</em><button class="btn-sub" data-del="${esc(e.id)}">삭제</button></div>
-        <div class="gc-grid">${its.map(it => `<button class="gc-cell ${G.tagged(it) ? 'on' : ''}" data-go="${esc(it.id)}"><span>${it.number}</span>${thumb(it)}<em>${esc((it.tags.c || []).map(G.leafOf)[0] || '')}</em></button>`).join('')}</div></section>`;
+        <div class="gc-grid">${its.map(it => `<button class="gc-cell ${G.verified(it) ? 'on' : G.pending(it) ? 'pend' : ''}" data-go="${esc(it.id)}"><span>${it.number}</span>${thumb(it)}<em>${esc((it.tags.c || []).map(G.leafOf)[0] || '')}</em></button>`).join('')}</div></section>`;
     }).join('') + `</div>`;
     body.onclick = e => {
       const g = e.target.closest('[data-go]'); if (g) return go('tag', g.dataset.go);
@@ -290,7 +293,7 @@ export function mountGichul(root, fb) {
       return `<section class="gc-stat-sec"><h3>${label}</h3>${f.length ? f.slice(0, 12).map(r => `<div class="gc-sbar"><span>${esc(r.tag)}</span><b>${r.n}</b><i class="ax-${axis}" style="width:${r.n / m * 100}%"></i></div>`).join('') : '<div class="ev-empty">아직 없음</div>'}</section>`; };
     const c = G.cross(d), units = Object.keys(c).sort(), types = S.tax.data.filter(t => units.some(u => c[u][t]));
     body.innerHTML = `<div class="gc-scroll gc-stats">
-      <div class="p-stats gc-kpi"><div class="stat-i"><b>${G.taggedCount(d)}</b><span>분류</span></div><div class="stat-i"><b>${d.items.length}</b><span>전체 문항</span></div><div class="stat-i"><b>${d.exams.length}</b><span>시험</span></div></div>
+      <div class="p-stats gc-kpi"><div class="stat-i"><b>${G.taggedCount(d)}</b><span>검증</span></div><div class="stat-i"><b>${d.items.length}</b><span>전체 문항</span></div><div class="stat-i"><b>${d.exams.length}</b><span>시험</span></div></div>
       <div class="gc-stat-cols">${bars('c', '개념 (단원별)')}${bars('d', '자료 유형')}${bars('o', '오답 유형')}</div>
       ${units.length && types.length ? `<section class="gc-stat-sec"><h3>단원 × 자료 유형</h3><div class="gc-cross"><table><tr><th></th>${types.map(t => `<th>${esc(t)}</th>`).join('')}</tr>${units.map(u => `<tr><th>${esc(u)}</th>${types.map(t => `<td class="${c[u][t] ? 'on' : ''}">${c[u][t] || '·'}</td>`).join('')}</tr>`).join('')}</table></div><p class="gc-hint">어느 단원이 어떤 자료로 자주 나오는지 — 수업 예시와 자체 문항 만들 때 참고.</p></section>` : ''}
     </div>`;

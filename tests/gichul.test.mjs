@@ -101,6 +101,19 @@ test('기록 왕복·처음 태그 시각·다시 넣어도 태그 유지', () =
   assert.deepEqual(out['01'].parts, found[0].parts);
 });
 
+test('검증 전 문항 — 누적·오늘에서 빼고, 이어서 분류 대상, 저장하면 검증', () => {
+  const d = G.parseData(root);
+  const before = G.taggedCount(d);
+  const d2 = { ...d, items: d.items.map(i => i.id === 'A/02' ? { ...i, tags: { c: ['한지 Ⅲ 기후'], x: [G.PENDING] } } : i) };
+  const it = d2.items.find(i => i.id === 'A/02');
+  assert.ok(G.tagged(it) && G.pending(it) && !G.verified(it));
+  assert.equal(G.taggedCount(d2), before); assert.equal(G.pendingCount(d2), 1);
+  assert.equal(G.nextUntagged(d2)?.id, 'A/02');
+  const ok = G.stamp(it, 777);
+  assert.ok(G.verified(ok)); assert.equal(ok.at, 777); assert.equal(ok.tags.x, undefined);
+  assert.deepEqual(G.stamp({ ...it, tags: { x: ['통합사회 범위 밖', G.PENDING] } }, 1).tags.x, ['통합사회 범위 밖']);
+});
+
 test('분류표 — 앱과 같은 JSON', async () => {
   const { readFileSync } = await import('node:fs');
   const tax = G.parseTaxonomy(JSON.parse(readFileSync(new URL('../data/gichul-taxonomy.json', import.meta.url))));

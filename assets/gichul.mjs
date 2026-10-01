@@ -174,6 +174,10 @@ export function parseData(root) {
   return { exams, items };
 }
 export const tagged = it => Object.values(it.tags).some(t => t.length);
+/** 1차 분류(일괄 넣기)만 된 문항 표시 — 사용자가 확인해 저장하면 떼어짐. 앱의 GichulItem.pendingTag 와 같은 문자열 */
+export const PENDING = '검증 전';
+export const pending = it => (it.tags.x || []).includes(PENDING);
+export const verified = it => tagged(it) && !pending(it);
 export const allTags = it => AXES.flatMap(([a]) => it.tags[a] || []);
 export function itemRecord(it) {
   const r = { parts: it.parts };
@@ -185,9 +189,11 @@ export function itemRecord(it) {
   return r;
 }
 export const examRecord = e => ({ title: e.title, year: e.meta.year, exam: e.meta.exam, grade: e.meta.grade, subject: e.meta.subject, pdf: e.pdf, pages: e.pages, count: e.count, createdAt: e.createdAt });
-/** 처음 태그가 붙는 순간 시각(오늘 N/10), 태그를 다 떼면 시각도 지움 */
+/** 저장할 때 — 검증 전 표시를 떼고, 처음 확인한 시각을 남김(오늘 N/10). 태그를 다 떼면 시각도 지움 */
 export function stamp(it, now = Date.now()) {
   const x = { ...it, tags: { ...it.tags } };
+  const rest = (x.tags.x || []).filter(t => t !== PENDING);   // 저장 = 확인 완료
+  if (rest.length) x.tags.x = rest; else delete x.tags.x;
   if (tagged(x) && x.at == null) x.at = now;
   if (!tagged(x)) x.at = null;
   return x;
@@ -205,14 +211,15 @@ export function mergeFound(examId, meta, found, old = []) {
 
 export const exam = (d, id) => d.exams.find(e => e.id === id);
 export const itemsOf = (d, id) => d.items.filter(i => i.examId === id);
-export const taggedCount = d => d.items.filter(tagged).length;
+export const taggedCount = d => d.items.filter(verified).length;   // 누적 = 검증까지 끝난 문항
+export const pendingCount = d => d.items.filter(pending).length;
 export function todayCount(d, now = new Date()) {
   const same = ms => { const x = new Date(ms); return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth() && x.getDate() === now.getDate(); };
-  return d.items.filter(i => tagged(i) && i.at != null && same(i.at)).length;
+  return d.items.filter(i => verified(i) && i.at != null && same(i.at)).length;
 }
 export function nextUntagged(d, after = null) {
   const i = after ? d.items.findIndex(x => x.id === after) + 1 : 0;
-  return [...d.items.slice(i), ...d.items.slice(0, i)].find(x => !tagged(x) && x.id !== after) ?? null;
+  return [...d.items.slice(i), ...d.items.slice(0, i)].find(x => !verified(x) && x.id !== after) ?? null;
 }
 export function search(d, { subject = null, tags = [] } = {}) {
   const subj = subject ? new Set(d.exams.filter(e => e.meta.subject === subject).map(e => e.id)) : null;
