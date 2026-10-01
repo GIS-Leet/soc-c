@@ -4,6 +4,16 @@ import { connect as http2Connect } from "node:http2";
 
 const PERMANENT = new Set(["410:Unregistered", "400:BadDeviceToken"]);
 const emptyCounts = () => ({ accepted: 0, retry: 0, invalid: 0 });
+// 끝난 사건은 같은 질문의 중복 발송을 막을 만큼만 두고 지운다. 계속 실패하는 사건은 한 주 뒤 포기한다.
+const KEEP_FINISHED_MS = 24 * 3600_000;
+const GIVE_UP_MS = 7 * 24 * 3600_000;
+const finished = (delivery) =>
+  ["accepted", "invalid"].includes(delivery?.state);
+// 방금 읽은 값만으로 판단한다 — 보낼 차례가 아닌 기기는 DB 를 다시 건드리지 않는다.
+const due = (delivery, nowSeconds) =>
+  !finished(delivery) &&
+  (delivery?.leaseUntil || 0) <= nowSeconds &&
+  (delivery?.retryAt || 0) <= nowSeconds;
 
 function base64url(value) {
   return Buffer.from(value).toString("base64url");
@@ -204,6 +214,7 @@ export function createDeskPushService({
     for (const [token, delivery] of Object.entries(event?.devices || {})) {
       const path = `desk/push/events/${id}/devices/${token}`;
       const seconds = Math.floor(now() / 1000);
+      if (!due(delivery, seconds)) continue;
       const acquired = await store.transaction(path, (current) =>
         claim(current, worker, seconds),
       );
@@ -262,6 +273,13 @@ export function createDeskPushService({
     const events = (await store.get("desk/push/events")) || {};
     const totals = emptyCounts();
     for (const [id, event] of Object.entries(events)) {
+      const age = now() - (event?.createdAt || 0);
+      const done = Object.values(event?.devices || {}).every(finished);
+      if (age > GIVE_UP_MS || (done && age > KEEP_FINISHED_MS)) {
+        await store.set(`desk/push/events/${id}`, null);
+        continue;
+      }
+      if (done) continue;
       const counts = await deliver(id, event);
       for (const key of Object.keys(totals)) totals[key] += counts[key];
     }
