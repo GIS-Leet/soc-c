@@ -1,5 +1,5 @@
 // 기출 PDF 브라우저 처리 — pdf.js 로 글자 위치·흑백 비트맵을 뽑아 분할(gichul.mjs)에 넘기고, 문항 조각을 캔버스에 그림
-import { detectMeta, split, groupLines } from './gichul.mjs?v=a80c560c';
+import { detectMeta, split, groupLines } from './gichul.mjs?v=1c013acc';
 
 const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38';
 let lib = null;

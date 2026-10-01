@@ -17,6 +17,12 @@ test('표지 인식 — 수능·학평·모평·파일 이름·가운뎃점', ()
   assert.equal(G.metaId({ year: 2026, exam: '수능', grade: '고3', subject: '사회·문화' }), '2026학년도_수능_고3_사회_문화');
 });
 
+test('3월 학평 표지에는 통합사회가 없음 — 고1(2026학년도부터 고2도) 사회 탐구는 통합사회', () => {
+  assert.equal(G.metaTitle(G.detectMeta('2026학년도 3월 고1 전국연합학력평가 문제지\n1\n사회탐구 영역\n제4 교시\n1. 다음을 주장한 사상가의 관점에서 시장 경제 체제', 't14.pdf')), '2026학년도 3월 고1 학평 통합사회');
+  assert.equal(G.detectMeta('2025학년도 3월 고1 전국연합학력평가 문제지\n탐구영역(사회)\n제4 교시\n성명 수험번호 1\n1. 다음을 주장한', 't11.pdf').subject, '통합사회');
+  assert.equal(G.detectMeta('2025학년도 3월 고2 전국연합학력평가 문제지 사회탐구 영역 1. 다음', 'x.pdf').subject, '');
+});
+
 test('pdf.js 처럼 글자마다 띄어 쓴 표지도 읽음', () => {
   const m = G.detectMeta('2 0 2 6 학 년 도  대 학 수 학 능 력 시 험  문 제 지\n사 회 탐 구 영 역 ( 세 계 지 리 )', 'c.pdf');
   assert.equal(G.metaTitle(m), '2026학년도 수능 세계지리');
@@ -44,6 +50,38 @@ test('합성 문제지 분할 — 번호·조각·배점·쪽 넘김·가짜 번
   assert.equal(q[0].points, 2); assert.equal(q[1].points, 3);
   assert.ok(q[6].parts[0].y + q[6].parts[0].h < 760, '확인 사항 줄 위에서 끝남');
   assert.ok(q[0].parts[0].x < 60 && q[2].parts[0].x > 290, '왼쪽·오른쪽 단');
+});
+
+test('묶음 자료 [2~3] 은 2번·3번 앞에 붙고, 단의 마지막 문항은 구분선 끝까지 포함', () => {
+  const p = page([...Q(1, 40, 100), ['[2~3] 다음 자료를 읽고 물음에 답하시오.', 40, 300], ['자료 본문 한 줄', 50, 320], ...Q(2, 40, 420), ...Q(3, 305, 100), ['⑤ 마지막 선지', 315, 788]]);
+  const q = G.split([p]);
+  assert.deepEqual(q.map(x => x.number), [1, 2, 3]);
+  assert.equal(q[0].parts.length, 1, '앞 문항에는 붙지 않음');
+  assert.equal(q[1].parts.length, 2); assert.equal(q[2].parts.length, 2);
+  assert.deepEqual(q[1].parts[0], q[2].parts[0], '같은 자료 조각');
+  assert.ok(Math.abs(q[1].parts[0].y - 296) < 1 && q[0].parts[0].y + q[0].parts[0].h <= 300);
+  const lastPart = q[2].parts[1];
+  assert.ok(lastPart.y + lastPart.h >= 798, '구분선 끝(800) 근처의 마지막 줄까지 포함');
+});
+
+test('구분선이 끊겨 표 테두리를 고른 쪽은 시험지 전체의 구분선 위치로 바로잡음', () => {
+  const p1 = page([...Q(1, 40, 100), ...Q(2, 305, 100)]);
+  const p2 = page([...Q(3, 40, 100), ...Q(4, 305, 100), ...Q(5, 305, 300)], { sep: false });
+  const w = p2.raster.w, ink = (x, y0, y1) => { for (let y = y0; y < y1; y++) p2.raster.px[y * w + x] = 0; };
+  ink(297, 80, 240); ink(297, 260, 800);          // 구분선이 중간에 끊김
+  ink(330, 90, 760);                              // 더 길게 이어진 표 테두리
+  assert.deepEqual(G.split([p1, p2]).map(x => x.number), [1, 2, 3, 4, 5]);
+});
+
+test('폴더 — 학년도 › 시행 › 시험 순서', () => {
+  const ex = (year, exam, grade, subject) => ({ title: 't', year, exam, grade, subject, pdf: '기출/x.pdf', pages: 1, count: 1, createdAt: 1 });
+  const d = G.parseData({ exams: { a: ex(2026, '수능', '고3', '한국지리'), b: ex(2026, '9월 학평', '고2', '통합사회'), c: ex(2026, '3월 학평', '고1', '통합사회'),
+    d: ex(2025, '10월 학평', '고1', '통합사회'), e: ex(2026, '9월 학평', '고1', '통합사회'), f: ex(2026, '수능', '고3', '경제') } });
+  const f = G.folders(d);
+  assert.deepEqual(f.map(y => y.year), [2026, 2025]);
+  assert.deepEqual(f[0].sessions.map(s => s.name), ['3월 학평', '9월 학평', '수능']);
+  assert.deepEqual(f[0].sessions[1].exams.map(e => e.id), ['e', 'b']);
+  assert.deepEqual(f[0].sessions[2].exams.map(e => e.meta.subject), ['경제', '한국지리']);
 });
 
 test('구분선이 없으면 반으로 나눔', () => {
@@ -99,6 +137,19 @@ test('기록 왕복·처음 태그 시각·다시 넣어도 태그 유지', () =
   assert.deepEqual(out['01'].c, ['한지 Ⅱ 지형 > 하천 지형']);
   assert.equal(out['01'].ans, 3); assert.equal(out['01'].pts, 2, '수능은 표시 없는 문항 = 2점');
   assert.deepEqual(out['01'].parts, found[0].parts);
+});
+
+test('검증 전 문항 — 누적·오늘에서 빼고, 이어서 분류 대상, 저장하면 검증', () => {
+  const d = G.parseData(root);
+  const before = G.taggedCount(d);
+  const d2 = { ...d, items: d.items.map(i => i.id === 'A/02' ? { ...i, tags: { c: ['한지 Ⅲ 기후'], x: [G.PENDING] } } : i) };
+  const it = d2.items.find(i => i.id === 'A/02');
+  assert.ok(G.tagged(it) && G.pending(it) && !G.verified(it));
+  assert.equal(G.taggedCount(d2), before); assert.equal(G.pendingCount(d2), 1);
+  assert.equal(G.nextUntagged(d2)?.id, 'A/02');
+  const ok = G.stamp(it, 777);
+  assert.ok(G.verified(ok)); assert.equal(ok.at, 777); assert.equal(ok.tags.x, undefined);
+  assert.deepEqual(G.stamp({ ...it, tags: { x: ['통합사회 범위 밖', G.PENDING] } }, 1).tags.x, ['통합사회 범위 밖']);
 });
 
 test('분류표 — 앱과 같은 JSON', async () => {
