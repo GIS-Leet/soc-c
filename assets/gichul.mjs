@@ -282,6 +282,27 @@ export function search(d, { subject = null, tags = [] } = {}) {
   const subj = subject ? new Set(d.exams.filter(e => e.meta.subject === subject).map(e => e.id)) : null;
   return d.items.filter(i => (!subj || subj.has(i.examId)) && tags.every(t => allTags(i).some(x => x === t || x.startsWith(t + ' > '))));
 }
+/** 단원(파트)별 묶음 — 분류표 순서 그대로 과목 › 단원 › 세부와 문항 수. 문항이 없는 과목은 뺌. 앱의 GichulData.parts 와 같은 규칙 */
+export const OUT_OF_SCOPE = '통합사회 범위 밖';
+export function parts(d, tax) {
+  const n = new Map();   // 한 문항은 단원에 한 번만
+  for (const i of d.items) for (const t of new Set((i.tags.c || []).flatMap(x => [x, x.split(' > ')[0]]))) n.set(t, (n.get(t) || 0) + 1);
+  return tax.concepts.map(s => ({ name: s.name, short: s.short, units: s.units.map(u => ({ tag: u.tag, count: n.get(u.tag) || 0, subs: u.subs.map(x => ({ tag: x, count: n.get(x) || 0 })) })) }))
+    .filter(g => g.units.some(u => u.count));
+}
+/** 한 파트의 문항 — 최근 학년도 → 시행 순 → 시험 → 번호 */
+export function itemsInPart(d, tag) {
+  const by = new Map(d.exams.map(e => [e.id, e]));
+  const rank = e => { const i = SESSION_ORDER.indexOf(e?.meta.exam); return i < 0 ? SESSION_ORDER.length : i; };
+  return search(d, { tags: [tag] }).sort((a, b) => { const x = by.get(a.examId), y = by.get(b.examId);
+    return (y?.meta.year ?? 0) - (x?.meta.year ?? 0) || rank(x) - rank(y) || (a.examId < b.examId ? -1 : a.examId > b.examId ? 1 : 0) || a.number - b.number; });
+}
+/** 풀이 요점 메모(「핵심: … → … / 함정: …」)를 줄 단위로 */
+export function memoLines(it) {
+  return (it.memo || '').split(' / 함정:').map((s, i) => { const t = s.trim(); if (!t) return null;
+    if (i > 0) return { label: '함정', text: t };
+    return t.startsWith('핵심:') ? { label: '핵심', text: t.slice(3).trim() } : { label: '메모', text: t }; }).filter(Boolean);
+}
 export const unitOf = t => t.split(' > ')[0];
 export const leafOf = t => t.split(' > ').pop();
 export function frequency(d, axis) {

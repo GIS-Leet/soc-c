@@ -1,6 +1,6 @@
-// Desk 「기출」 뷰 — 진도·이어서 분류·PDF 추가(선택·끌어다 놓기)·분류(문항 + 3축 태그)·시험·검색(인쇄)·통계. 데이터는 앱과 같은 desk/gichul · GitHub 기출/
-import * as G from './gichul.mjs?v=1c013acc';
-import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=0504bf5f';
+// Desk 「기출」 뷰 — 진도·이어서 분류·PDF 추가(선택·끌어다 놓기)·분류(문항 + 3축 태그)·단원별 보기(풀이 화면)·시험·검색(인쇄)·통계. 데이터는 앱과 같은 desk/gichul · GitHub 기출/
+import * as G from './gichul.mjs?v=79235d16';
+import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=c8039730';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -8,7 +8,7 @@ const AX = Object.fromEntries(G.AXES);
 export function mountGichul(root, fb) {
   const { db, ref, get, set, remove, onValue, escapeHTML: esc } = fb;
   const S = { data: { exams: [], items: [] }, tax: null, gh: null, sub: 'tag', cur: null, work: null, axis: 'c', q: '',
-    sTags: [], sSubject: '', sAxis: 'c', sQ: '', started: false, queue: [], drafts: 0 };
+    sTags: [], sSubject: '', sAxis: 'c', sQ: '', started: false, queue: [], drafts: 0, part: null, pType: '', solve: null, first: true };
   const docs = new Map();
   const $ = sel => root.querySelector(sel);
 
@@ -22,7 +22,7 @@ export function mountGichul(root, fb) {
           <span class="gc-pendn" id="gcPend" hidden></span>
         </div>
         <nav class="desk-views gc-tabs" id="gcTabs" style="display:flex;">
-          <button class="on" data-sub="tag">분류</button><button data-sub="exams">시험</button><button data-sub="search">검색</button><button data-sub="stats">통계</button>
+          <button class="on" data-sub="tag">분류</button><button data-sub="units">단원</button><button data-sub="exams">시험</button><button data-sub="search">검색</button><button data-sub="stats">통계</button>
         </nav>
         <div class="mat-actions">
           <button class="btn-sub" id="gcNext" title="다음 미분류 문항">이어서 분류</button>
@@ -34,6 +34,7 @@ export function mountGichul(root, fb) {
       <div class="gc-body" id="gcBody"><div class="ev-empty">불러오는 중…</div></div>
     </div>
     <div class="gc-modal" id="gcModal" hidden></div>
+    <div class="gc-solve" id="gcSolve" hidden></div>
     <div class="gc-drop" id="gcDrop" hidden><span>PDF 를 놓으면 문항을 찾습니다</span></div>`;
 
   // ── 상태 표시 ──
@@ -58,6 +59,8 @@ export function mountGichul(root, fb) {
       if (S.cur && !S.data.items.some(i => i.id === S.cur)) S.cur = null;
       if (!S.cur) S.cur = G.nextUntagged(S.data)?.id ?? S.data.items[0]?.id ?? null;
       if (S.work && S.work.id !== S.cur) S.work = null;
+      // 분류할 것이 남아 있지 않으면 단원별 보기부터
+      if (S.first && S.data.items.length) { S.first = false; if (!G.nextUntagged(S.data) && S.sub === 'tag') { S.sub = 'units'; root.querySelectorAll('#gcTabs button').forEach(b => b.classList.toggle('on', b.dataset.sub === 'units')); } }
       header(); if (!(S.sub === 'tag' && S.work)) render();
     }, e => status('기출 데이터를 읽지 못했습니다: ' + e.message, true));
   }
@@ -110,7 +113,7 @@ export function mountGichul(root, fb) {
       body.innerHTML = `<div class="gc-empty"><b>기출 PDF 를 넣으면 시작합니다</b><p>평가원·교육청 문제지 PDF 를 고르거나 이 화면에 끌어다 놓으면 학년도·시행·과목을 읽고 문항을 잘라 목록에 올립니다. iPad·Mac 의 Desk 앱과 같은 목록입니다.</p><button class="btn-solid">+ PDF 추가</button></div>`;
       body.querySelector('button').onclick = () => $('#gcFile').click(); return;
     }
-    ({ tag: renderTag, exams: renderExams, search: renderSearch, stats: renderStats })[S.sub]();
+    ({ tag: renderTag, units: renderUnits, exams: renderExams, search: renderSearch, stats: renderStats })[S.sub]();
   }
 
   // ── 분류 ──
@@ -211,10 +214,76 @@ export function mountGichul(root, fb) {
     renderTag();
   }
   document.addEventListener('keydown', e => {
-    if (root.style.display === 'none' || S.sub !== 'tag' || !(e.ctrlKey || e.metaKey) || !$('#gcModal').hidden) return;
+    if (root.style.display === 'none' || S.sub !== 'tag' || !(e.ctrlKey || e.metaKey) || !$('#gcModal').hidden || S.solve) return;
     if (e.key === 'Enter') { e.preventDefault(); saveNext(); }
     else if (e.key === '[') { e.preventDefault(); step(-1); }
     else if (e.key === ']') { e.preventDefault(); step(1); }
+  });
+
+  // ── 단원별 보기 — 과목 › 단원 › 세부로 모은 문항, 누르면 풀이 화면 ──
+  function renderUnits() {
+    const body = $('#gcBody'), groups = G.parts(S.data, S.tax), out = G.itemsInPart(S.data, G.OUT_OF_SCOPE).length;
+    if (!groups.length) { body.innerHTML = '<div class="ev-empty">개념 태그가 붙은 문항이 아직 없습니다.</div>'; return; }
+    const tags = groups.flatMap(g => g.units.flatMap(u => [u, ...u.subs])).filter(p => p.count).map(p => p.tag);
+    if (!S.part || !(tags.includes(S.part) || (S.part === G.OUT_OF_SCOPE && out))) { S.part = tags[0]; S.pType = ''; }
+    const all = G.itemsInPart(S.data, S.part), types = S.tax.data.filter(t => all.some(i => (i.tags.d || []).includes(t)));
+    if (!types.includes(S.pType)) S.pType = '';
+    const items = S.pType ? all.filter(i => (i.tags.d || []).includes(S.pType)) : all;
+    const row = (p, label, cls) => `<button class="gc-opt gc-part ${cls} ${p.tag === S.part ? 'on' : ''}" data-part="${esc(p.tag)}" ${p.count ? '' : 'disabled'}><span>${esc(label)}</span><em>${p.count || '·'}</em></button>`;
+    body.innerHTML = `
+      <div class="gc-search">
+        <div class="gc-filter"><div class="gc-list" id="gcUList">${groups.map(g => `<div class="gc-grp">${esc(g.name)}</div>` + g.units.map(u => row(u, u.tag.slice(g.short.length + 1), 'unit') + u.subs.filter(x => x.count).map(x => row(x, G.leafOf(x.tag), 'sub')).join('')).join('')).join('')}
+          ${out ? `<div class="gc-grp">그 밖</div>` + row({ tag: G.OUT_OF_SCOPE, count: out }, G.OUT_OF_SCOPE, '') : ''}</div></div>
+        <div class="gc-results">
+          <div class="gc-res-h"><b>${esc(G.leafOf(S.part))} · ${items.length}문항</b><div class="gc-res-a">
+            <select id="gcPType" class="gc-sel"><option value="">모든 자료</option>${types.map(t => `<option ${t === S.pType ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
+            <button class="btn-solid" id="gcSolveGo" ${items.length ? '' : 'disabled'}>풀이 화면</button></div></div>
+          <div class="gc-scroll">${items.map((it, i) => { const e = G.exam(S.data, it.examId); return `<div class="gc-row" data-solve="${i}" role="button" tabindex="0">${thumb(it)}<div><b>${esc(e?.title || '')} ${it.number}번${it.pts != null ? ` <i class="gc-pts ${it.pts >= 3 ? 'hi' : ''}">${it.pts}점</i>` : ''}</b><span>${esc([...(it.tags.c || []).map(G.leafOf), ...(it.tags.d || [])].join(' · '))}</span></div><button class="btn-sub gc-edit" data-go="${esc(it.id)}">분류 고치기</button></div>`; }).join('')}
+            <p class="gc-hint">정답과 풀이 요점은 풀이 화면에서 「정답 보기」를 눌러야 나옵니다.</p></div>
+        </div>
+      </div>`;
+    const top = S.uTop || 0; $('#gcUList').scrollTop = top;
+    $('#gcPType').onchange = e => { S.pType = e.target.value; renderUnits(); };
+    body.onclick = e => {
+      const p = e.target.closest('[data-part]'); if (p) { S.uTop = $('#gcUList').scrollTop; S.part = p.dataset.part; S.pType = ''; return renderUnits(); }
+      const g = e.target.closest('[data-go]'); if (g) return go('tag', g.dataset.go);
+      if (e.target.closest('#gcSolveGo')) return openSolve(items, 0);
+      const r = e.target.closest('[data-solve]'); if (r) openSolve(items, Number(r.dataset.solve));
+    };
+    observeThumbs();
+  }
+  /** 풀이 화면 — 문항을 크게, 정답·풀이 요점은 가렸다가 엶. ← → 로 넘기고 스페이스로 정답, F 전체 화면, Esc 닫기 */
+  function openSolve(items, i) { S.solve = { items, i, shown: false, title: G.leafOf(S.part) }; $('#gcSolve').hidden = false; drawSolve(); }
+  function closeSolve() { S.solve = null; $('#gcSolve').hidden = true; $('#gcSolve').innerHTML = ''; if (document.fullscreenElement) document.exitFullscreen?.(); }
+  function drawSolve() {
+    const v = S.solve, el = $('#gcSolve'), it = v.items[v.i], e = G.exam(S.data, it.examId);
+    el.innerHTML = `
+      <div class="gc-sv-h"><button class="btn-sub" data-sv="close" title="닫기 (Esc)">×</button>
+        <div><span>${esc(v.title)}</span><b>${esc(e?.title || '')} ${it.number}번${it.pts != null ? ` · ${it.pts}점` : ''}</b></div>
+        <em>${v.i + 1} / ${v.items.length}</em><button class="btn-sub" data-sv="full" title="전체 화면 (F)">전체 화면</button></div>
+      <div class="gc-sv-q"><div class="gc-sv-img" id="gcSvImg"><div class="gc-ph big"></div></div></div>
+      <div class="gc-sv-a" id="gcSvA" ${v.shown ? '' : 'hidden'}>
+        <div class="gc-sv-n"><span>정답</span><b>${it.ans ? '①②③④⑤'[it.ans - 1] : '–'}</b></div>
+        <div class="gc-sv-m">${G.memoLines(it).map(l => `<p><i class="${l.label === '함정' ? 'trap' : ''}">${l.label}</i>${esc(l.text)}</p>`).join('')}
+          <span>${esc([...(it.tags.c || []).map(G.leafOf), ...(it.tags.d || []), ...(it.tags.o || [])].join(' · '))}</span></div></div>
+      <div class="gc-sv-f"><button class="btn-sub" data-sv="prev" ${v.i ? '' : 'disabled'} title="이전 (←)">‹</button>
+        <button class="btn-solid" data-sv="ans" title="스페이스">${v.shown ? '정답 가리기' : '정답 보기'}</button>
+        <button class="btn-sub" data-sv="next" ${v.i < v.items.length - 1 ? '' : 'disabled'} title="다음 (→)">›</button></div>`;
+    draw($('#gcSvImg'), it, 2.6);
+  }
+  function solveDo(a) {
+    const v = S.solve; if (!v) return;
+    if (a === 'close') return closeSolve();
+    if (a === 'full') { const el = $('#gcSolve'); return document.fullscreenElement ? document.exitFullscreen?.() : el.requestFullscreen?.(); }
+    if (a === 'ans') { v.shown = !v.shown; $('#gcSvA').hidden = !v.shown; $('#gcSolve').querySelector('[data-sv="ans"]').textContent = v.shown ? '정답 가리기' : '정답 보기'; return; }
+    const n = v.i + (a === 'next' ? 1 : -1); if (n < 0 || n >= v.items.length) return;
+    v.i = n; v.shown = false; drawSolve();
+  }
+  $('#gcSolve').addEventListener('click', e => { const b = e.target.closest('[data-sv]'); if (b) solveDo(b.dataset.sv); });
+  document.addEventListener('keydown', e => {
+    if (!S.solve || root.style.display === 'none' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const a = { ArrowLeft: 'prev', ArrowRight: 'next', ' ': 'ans', Escape: 'close', f: 'full', F: 'full' }[e.key];
+    if (a) { e.preventDefault(); solveDo(a); }
   });
 
   // ── 시험 ──
@@ -386,6 +455,6 @@ export function mountGichul(root, fb) {
   }
 
   /** 로그아웃 — 토큰·PDF·데이터를 메모리에서 비움(스트림은 desk 의 세션 범위가 끊음) */
-  function reset() { S.gh = null; S.started = false; S.data = { exams: [], items: [] }; S.cur = null; S.work = null; S.queue = []; docs.clear(); $('#gcModal').hidden = true; status(''); $('#gcBody').innerHTML = '<div class="ev-empty">불러오는 중…</div>'; }
+  function reset() { S.gh = null; S.started = false; S.data = { exams: [], items: [] }; S.cur = null; S.work = null; S.queue = []; S.first = true; S.solve = null; $('#gcSolve').hidden = true; $('#gcSolve').innerHTML = ''; docs.clear(); $('#gcModal').hidden = true; status(''); $('#gcBody').innerHTML = '<div class="ev-empty">불러오는 중…</div>'; }
   return { open: start, reset };
 }

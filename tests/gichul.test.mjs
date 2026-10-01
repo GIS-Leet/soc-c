@@ -126,6 +126,20 @@ test('검색·통계', () => {
   assert.equal(G.cross(d)['한지 Ⅱ 지형']['지도(위치)'], 2);
 });
 
+test('단원별 묶음 — 분류표 순서·문항 수·최근 시험 먼저·메모 줄', () => {
+  const tax = { concepts: [{ name: '세계지리', short: '세지', units: [{ tag: '세지 Ⅰ', subs: [] }] }, { name: '한국지리', short: '한지', units: [{ tag: '한지 Ⅱ 지형', subs: ['한지 Ⅱ 지형 > 하천 지형', '한지 Ⅱ 지형 > 해안 지형'] }] }], data: [], errors: [] };
+  const d = G.parseData(root), g = G.parts(d, tax);
+  assert.deepEqual(g.map(x => x.short), ['한지'], '문항 없는 과목은 뺌');
+  assert.equal(g[0].units[0].count, 2); assert.deepEqual(g[0].units[0].subs.map(x => x.count), [1, 1]);
+  const ex = (year, exam) => ({ title: 't', year, exam, grade: '고1', subject: '통합사회', pdf: 'x', pages: 1, count: 1, createdAt: 1 });
+  const it = { parts: [{ p: 0, x: 0, y: 0, w: 1, h: 1 }], c: ['통사1 Ⅳ > 문화 변동'] };
+  const m = G.parseData({ exams: { a: ex(2025, '10월 학평'), b: ex(2026, '9월 학평'), c: ex(2026, '3월 학평') }, items: { a: { '02': it }, b: { '05': it, '01': it }, c: { '09': it } } });
+  assert.deepEqual(G.itemsInPart(m, '통사1 Ⅳ').map(i => i.id), ['c/09', 'b/01', 'b/05', 'a/02']);
+  assert.deepEqual(G.memoLines({ memo: '핵심: 가 → 나 / 함정: 다' }), [{ label: '핵심', text: '가 → 나' }, { label: '함정', text: '다' }]);
+  assert.deepEqual(G.memoLines({ memo: '수업 예시' }), [{ label: '메모', text: '수업 예시' }]);
+  assert.deepEqual(G.memoLines({ memo: '' }), []);
+});
+
 test('기록 왕복·처음 태그 시각·다시 넣어도 태그 유지', () => {
   const d = G.parseData(root), it = d.items[2];
   assert.deepEqual(G.itemRecord(it), root.items.A['03']);
@@ -156,7 +170,7 @@ test('분류표 — 앱과 같은 JSON', async () => {
   const { readFileSync } = await import('node:fs');
   const tax = G.parseTaxonomy(JSON.parse(readFileSync(new URL('../data/gichul-taxonomy.json', import.meta.url))));
   assert.deepEqual(tax.concepts.map(c => c.short), ['통사1', '통사2', '한지', '세지']);
-  assert.equal(tax.data.length, 10); assert.equal(tax.errors.length, 6);
+  assert.equal(tax.data.length, 14); assert.equal(tax.errors.length, 6);
   assert.equal(G.conceptOrder(tax, '한국지리')[0].short, '한지');
   assert.ok(tax.concepts[0].units[0].subs[0].startsWith('통사1 Ⅰ 통합적 관점 > '));
 });
