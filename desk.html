@@ -1864,6 +1864,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {previewLocation} from './assets/preview.mjs';
     import {createSessionScope} from './assets/session-scope.mjs';
     import {mountGichul} from './assets/gichul-view.mjs';
+    import {renderGrammar} from './assets/grammar-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut, signInWithCredential }
       from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -3783,7 +3784,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     makeDaily('jp', 'data/japanese-daily.json', d => {
       const kana = d.type === 'kana';
       $('jpPanel').classList.toggle('kana', kana);
-      $('jpM').textContent = d.m; $('jpG').textContent = d.g;
+      $('jpM').textContent = d.m; renderGrammar($('jpG'), d.g, { reading: kanaToHangul });
       if (kana) {
         $('jpS').textContent = d.rows.map(r => splitKana(r)[0]).join(' ');
         $('jpP').textContent = ''; $('jpE').innerHTML = ''; $('jpE2').innerHTML = '';
