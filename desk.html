@@ -1296,6 +1296,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     <button data-view="qa">Q&amp;A<em class="tab-badge" id="qaBadge" hidden></em></button>
     <button data-view="mat">자료</button>
     <button data-view="gichul">기출</button>
+    <button data-view="lec">영상</button>
     <button data-view="notes">노트</button>
     <button data-view="class">상담</button>
   </nav>
@@ -1752,6 +1753,9 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     <!-- ── 기출 뷰 (assets/gichul-view.mjs 가 채움 — Desk 앱 「수업 → 기출 분류」와 같은 데이터) ── -->
     <section class="gc-wrap" id="gichulView" style="display:none;"></section>
 
+    <!-- ── 강의 영상 뷰 (assets/desk-lectures.mjs 가 채움 — Desk 앱 「강의 영상」과 같은 데이터) ── -->
+    <section id="lecView" style="display:none;"></section>
+
     <!-- ── 학급 뷰 ── -->
     <section class="class-wrap" id="classView" style="display:none;">
 
@@ -1865,6 +1869,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {previewLocation} from './assets/preview.mjs';
     import {createSessionScope} from './assets/session-scope.mjs';
     import {mountGichul} from './assets/gichul-view.mjs';
+    import {mountLectures} from './assets/desk-lectures.mjs';
     import {renderGrammar} from './assets/grammar-format.mjs';
     import {renderConcept} from './assets/concept-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1898,6 +1903,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     const $ = id => document.getElementById(id);
     const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const gichul = mountGichul($('gichulView'), { db, ref, get, set, remove, onValue, escapeHTML: s => escapeHTML(String(s ?? '')) });   // 기출 뷰
+    const lectures = mountLectures($('lecView'), { db, ref, set, update, remove, push, onValue, escapeHTML: s => escapeHTML(String(s ?? '')), showUndo: (m, fn) => showUndo(m, fn) });   // 강의 영상 뷰
     // ── iPhone 앱(Desk.app) 모드: ?app=1 — 앱이 네이티브 Google 토큰을 window.nativeSignIn 으로 넘긴다 (study.html과 동일) ──
     const APP = new URLSearchParams(location.search).get('app') === '1';
     const postApp = m => { try { window.webkit.messageHandlers.study.postMessage(m); } catch {} };
@@ -1911,7 +1917,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
 
     // ════════════════ 뷰 전환 ════════════════
     const deskViews = $('deskViews');
-    const VIEW_EL = { dash: 'dashView', study: 'studyView', qa: 'qaView', mat: 'matView', gichul: 'gichulView', notes: 'notesView', class: 'classView' };
+    const VIEW_EL = { dash: 'dashView', study: 'studyView', qa: 'qaView', mat: 'matView', gichul: 'gichulView', lec: 'lecView', notes: 'notesView', class: 'classView' };
     function moveInd() {
       const btn = deskViews.querySelector('button.on');
       if (!btn || deskViews.style.display === 'none') return;
@@ -1934,6 +1940,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       if (btn.dataset.view === 'class') initClassView();
       if (btn.dataset.view === 'mat') initMatView();
       if (btn.dataset.view === 'gichul') gichul.open();
+      if (btn.dataset.view === 'lec') lectures.open();
       if (btn.dataset.view === 'study') renderHeat(minByDay());   // 숨겨져 있던 동안은 폭을 몰라 그리지 못했다
     });
 
@@ -4062,6 +4069,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       lockClass();   // 로그아웃 시 학급 키도 파기
       ghToken = null; matInited = false;   // 업로드 토큰도 메모리에서 제거
       gichul.reset();
+      lectures.reset();
     }
   </script>
 </body>
