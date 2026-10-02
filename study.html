@@ -225,6 +225,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
       <div class="geo-m" id="geoM"></div>
       <div class="geo-a" id="geoA"></div>
       <div class="geo-x" id="geoX"></div>
+      <div class="geo-p" id="geoP" hidden></div>
       <details class="geo-d" id="geoD" hidden><summary>자세히 보기</summary><div class="geo-d-body" id="geoDBody"></div></details>
       <div class="geo-terms"><span class="geo-cap">핵심 용어</span><div id="geoK"></div></div>
       <div class="geo-r" id="geoR"></div>
@@ -287,6 +288,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 <script>document.write('<script src="study-quiz.js?v=' + Math.floor(Date.now() / 3600000) + '"><\/script>')</script>
 <script type="module">
   import {completionPatch} from "./assets/study-completion.mjs?v=2a9c0853";
+  import {renderConcept} from "./assets/concept-format.mjs?v=32649b30";
   import {renderGrammar} from "./assets/grammar-format.mjs?v=504ac67a";
   import {planSteps, createReader, reviewOf} from "./assets/study-reader.mjs?v=d048144a";
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -463,7 +465,7 @@ function kanaToHangul(text, opt = {}) {
 
   // ── 끝까지 읽기(폰 잠금 공부) — 카드를 조각으로 나눠 조각마다 최소 시간이 지나야 「다음」, 마지막이 끝나야 시험 버튼 ──
   const READ = APP;
-  const STEPS = { geo: [['geoCat', 'geoQ', 'geoEn'], ['geoM', 'geoA'], ['geoX'], ['geoDBody'], ['geoK', 'geoR']],
+  const STEPS = { geo: [['geoCat', 'geoQ', 'geoEn'], ['geoM', 'geoA'], ['geoX', 'geoP'], ['geoDBody'], ['geoK', 'geoR']],
                   jp: [['jpS', 'jpP', 'jpM'], ['jpG'], ['jpE', 'jpE2'], ['jpV']],
                   en: [['enT', 'enM'], ['enS', 'enP'], ['enX'], ['enD']] };
   const stepBox = id => { const el = $(id); return el.closest('.geo-terms, .jp-vocab, details') || el; };
@@ -575,8 +577,9 @@ function kanaToHangul(text, opt = {}) {
     const c = G.card;
     $('geoTitle').textContent = G.title || '통합사회'; $('geoCap').textContent = cap(G);
     $('geoCat').textContent = c.c + (c.s ? ' · ' + c.s : ''); $('geoQ').textContent = c.t; $('geoEn').textContent = c.en || ''; $('geoM').textContent = c.m || '';
-    $('geoA').textContent = c.a; $('geoX').textContent = c.x; $('geoR').textContent = c.r || '';
-    $('geoD').hidden = !c.d; $('geoD').open = false; $('geoDBody').textContent = c.d || '';
+    $('geoR').textContent = c.r || '';
+    $('geoD').hidden = !c.d; $('geoD').open = false;
+    renderConcept({ a: $('geoA'), x: $('geoX'), dBody: $('geoDBody'), p: $('geoP') }, c);   // 문장별 줄 · 용어 형광펜 · 포인트 상자
     $('geoK').innerHTML = (c.k || []).map(([k, d]) => `<div class="geo-term"><b>${escapeHTML(k)}</b><span>${escapeHTML(d)}</span></div>`).join('');
   }
   function renderJp() {
