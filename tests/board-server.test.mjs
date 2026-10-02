@@ -653,3 +653,64 @@ test("oversized legacy thread errors explicitly and new reply cannot exceed thre
     "resource-exhausted",
   );
 });
+
+// ── 가벼운 폴링: 바뀐 것이 없으면 목록을 다시 읽지 않는다 ──
+test("list returns a stamp and answers notModified without paging when nothing changed", async () => {
+  const { api, store } = setup({
+    questions: { q1: { title: "T", text: "B", time: "", timestamp: 1, isSecret: false } },
+    boardVersion: { questions: 41 },
+  });
+  const first = await api.call(req("list", { limit: 50 }), alice);
+  assert.equal(first.stamp, "41");
+  assert.equal(first.items.length, 1);
+  let pages = 0;
+  const page = store.page.bind(store);
+  store.page = async (...args) => (pages++, page(...args));
+  const again = await api.call(req("list", { limit: 50, stamp: first.stamp }), alice);
+  assert.deepEqual(again, { notModified: true, stamp: "41" });
+  assert.equal(pages, 0, "바뀐 것이 없으면 목록을 읽지 않는다");
+});
+test("list with a stale or missing stamp returns the full page", async () => {
+  const { api, store } = setup({
+    questions: { q1: { title: "T", text: "B", time: "", timestamp: 1, isSecret: false } },
+  });
+  const first = await api.call(req("list", { limit: 50 }), alice);
+  assert.equal(first.stamp, "0", "아직 판 번호가 없으면 0");
+  await store.set("boardVersion/questions", 77);
+  const next = await api.call(req("list", { limit: 50, stamp: first.stamp }), alice);
+  assert.equal(next.notModified, undefined);
+  assert.equal(next.items.length, 1);
+  assert.equal(next.stamp, "77");
+});
+test("stamp is ignored while paging and must be a short digit string", async () => {
+  const { api } = setup({
+    questions: { a: { title: "A", text: "", time: "", timestamp: 1, isSecret: false }, b: { title: "B", text: "", time: "", timestamp: 2, isSecret: false } },
+    boardVersion: { questions: 5 },
+  });
+  const paged = await api.call(req("list", { limit: 1, cursor: "a", stamp: "5" }), alice);
+  assert.equal(paged.items[0].id, "b", "이어 받기는 항상 실제 목록");
+  await rejected(api.call(req("list", { stamp: "../x" }), alice), "invalid-argument");
+  await rejected(api.call(req("list", { stamp: 5 }), alice), "invalid-argument");
+});
+test("every successful mutation bumps the board version", async () => {
+  const { api, store, tick } = setup();
+  assert.equal(await store.get("boardVersion/questions"), null);
+  const created = await api.call(draft("request-bump1"), alice);
+  const v1 = await store.get("boardVersion/questions");
+  assert.ok(v1 > 0);
+  tick(1000);
+  await api.call(req("update", { requestId: "request-bump2", id: created.item.id, title: "새 제목", text: "새 본문" }), alice);
+  assert.ok((await store.get("boardVersion/questions")) > v1);
+  assert.equal(await store.get("boardVersion/feedback"), null, "다른 게시판은 그대로");
+});
+test("attachment of a public post is browser-cacheable, of a secret post is not", async () => {
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", "base64").toString("base64");
+  for (const [isSecret, cacheable] of [[false, true], [true, false]]) {
+    const { api } = setup();
+    const up = await api.call(req("attachment.upload", { requestId: "request-up-" + isSecret, mime: "image/png", base64: png }), alice);
+    const post = await api.call(draft("request-post-" + isSecret, { isSecret, attachmentIds: [up.attachmentId] }), alice);
+    const file = await api.attachment({ board: "questions", id: post.item.id, attachmentId: up.attachmentId }, alice);
+    assert.equal(file.cacheable, cacheable);
+    assert.ok(file.bytes);
+  }
+});

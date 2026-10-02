@@ -1,6 +1,6 @@
 // 학생 게시판은 인증된 서버 API만 사용함. 공개 DB로 우회하지 않음.
 import {getAuth,onAuthStateChanged,signInAnonymously,GoogleAuthProvider,signInWithPopup,signOut} from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
-import {BoardStore} from './board-store.mjs?v=4ed9928a';
+import {BoardStore} from './board-store.mjs?v=77c7de8d';
 const API='https://us-central1-soc-c-qna.cloudfunctions.net/boardApi';
 const IMAGE='https://us-central1-soc-c-qna.cloudfunctions.net/boardAttachment';
 const BOARDS=new Set(['questions','feedback','support']);
@@ -16,7 +16,7 @@ export function getDatabase(app){
   for(const callback of handle.sessions)callback({isTeacher:teacher(user),user});
   if(user)for(const store of handle.stores.values())store.refresh().catch(()=>{});
  });
- handle.timer=setInterval(()=>{if(document.visibilityState==='visible')for(const store of handle.stores.values())store.refresh().catch(()=>{})},60000);   // 보고 있을 때 1분마다(전체 목록을 다시 받으므로 잦으면 부담)
+ handle.timer=setInterval(()=>{if(document.visibilityState==='visible')for(const store of handle.stores.values())store.refresh({light:true}).catch(()=>{})},60000);   // 보고 있을 때 1분마다 — 바뀐 게 없으면 서버가 짧은 답만 준다(board-store.mjs refresh light)
  return handle;
 }
 async function userFor(handle){await handle.auth.authStateReady();return handle.auth.currentUser||(await signInAnonymously(handle.auth)).user;}

@@ -37,3 +37,17 @@ test("클라우드 재시도는 Mac이 잠든 동안에도 매분 실행된다",
     { key: "DESK_APNS_CREDENTIAL" },
   ]);
 });
+
+test("게시판 세 곳의 모든 쓰기(Desk 의 직접 쓰기 포함)가 판 번호를 올리는 트리거에 걸려 있다", () => {
+  for (const [name, ref] of [
+    ["boardVersionQuestions", "questions/{id}"],
+    ["boardVersionFeedback", "feedback/{id}"],
+    ["boardVersionSupport", "support/{id}"],
+  ]) {
+    const endpoint = functions[name]?.__endpoint;
+    assert.equal(endpoint?.platform, "gcfv2", name);
+    assert.equal(endpoint?.eventTrigger?.eventType, "google.firebase.database.ref.v1.written");
+    assert.equal(endpoint?.eventTrigger?.eventFilters?.instance, "soc-c-qna-default-rtdb");
+    assert.equal(endpoint?.eventTrigger?.eventFilterPathPatterns?.ref, ref);
+  }
+});

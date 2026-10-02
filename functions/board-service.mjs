@@ -30,7 +30,7 @@ function boundedThread(value) {
   return value;
 }
 const SAFE = Object.freeze({
-  list: ["cursor", "limit"],
+  list: ["cursor", "limit", "stamp"],
   read: ["id"],
   unlock: ["id", "password"],
   create: [
@@ -62,6 +62,14 @@ const SAFE = Object.freeze({
 const obj = (x) => (x && typeof x === "object" && !Array.isArray(x) ? x : {});
 const string = (x) => (typeof x === "string" ? x : "");
 const number = (x) => (Number.isFinite(x) ? x : 0);
+// 게시판 판 번호 — 글이 바뀔 때마다 커진다. 화면은 이 번호가 그대로면 목록을 다시 받지 않는다.
+// 서버를 거치지 않는 쓰기(Desk 의 답변·삭제)는 RTDB 쓰기 트리거(index.mjs)가 올린다.
+export const boardVersionPath = (board) => `boardVersion/${board}`;
+export async function bumpBoardVersion(store, board, now = Date.now) {
+  await store.transaction(boardVersionPath(board), (old) =>
+    Math.max(now(), number(old) + 1),
+  );
+}
 export function createBoardService({
   store,
   storage,
@@ -321,6 +329,8 @@ export function createBoardService({
     receipt = tx.value;
     try {
       const result = await work(receipt);
+      if (data.action !== "attachment.upload")
+        await bumpBoardVersion(store, data.board, now);
       const saved = { ...result };
       delete saved.item;
       await store.transaction(path, (current) =>
@@ -628,6 +638,14 @@ export function createBoardService({
       if (!Number.isInteger(limit) || limit < 1 || limit > 50)
         fail("invalid-argument", "Invalid limit");
       const after = data.cursor === undefined ? "" : key(data.cursor, "cursor");
+      // 판 번호는 목록보다 먼저 읽는다 — 읽는 사이 글이 바뀌면 다음 폴링이 어긋난 번호로 전체를 다시 받는다
+      const stamp = String(number(await store.get(boardVersionPath(data.board))));
+      if (data.stamp !== undefined) {
+        if (typeof data.stamp !== "string" || !/^[0-9]{1,20}$/.test(data.stamp))
+          fail("invalid-argument", "Invalid stamp");
+        if (data.cursor === undefined && data.stamp === stamp)
+          return { notModified: true, stamp };
+      }
       const rows = await store.page(data.board, { after, limit: limit + 1 });
       const selected = rows.slice(0, limit),
         items = [];
@@ -646,7 +664,7 @@ export function createBoardService({
         lastConsumed = id;
       }
       const hasMore = rows.length > limit || consumed < selected.length;
-      return { items, cursor: hasMore ? lastConsumed : null, hasMore };
+      return { items, cursor: hasMore ? lastConsumed : null, hasMore, stamp };
     }
     if (data.action === "read") {
       const p = await existing(data.board, data.id);
@@ -690,7 +708,8 @@ export function createBoardService({
       fail("not-found");
     const object = await storage.get(a.storagePath);
     if (!object) fail("not-found");
-    return object;
+    // 공개 글의 첨부는 내용이 바뀌지 않으므로 브라우저가 다시 받지 않게 한다. 비밀글은 남기지 않는다.
+    return { ...object, cacheable: p.isSecret !== true };
   }
   return { call, attachment, serialize, containsAttachment, migrateCredential };
 }

@@ -31,3 +31,22 @@ test('삭제 후 같은 답변 ID가 돌아와도 대댓글 구독이 중복되�
 test('서버 목록 상한 50개 이내로 요청한다',async()=>{
  const store=new BoardStore(async({limit})=>{assert.ok(limit<=50);return {items:[],hasMore:false}});await store.refresh();
 });
+// ── 가벼운 폴링 ──
+test('가벼운 새로 고침은 판 번호를 보내고, 바뀐 게 없으면 목록과 이벤트를 그대로 둔다',async()=>{
+ const calls=[];let version='7';
+ const store=new BoardStore(async options=>{calls.push(options);if(options.stamp&&options.stamp===version)return{notModified:true,stamp:version};return{items:[{id:'a',text:version}],hasMore:false,stamp:version}});
+ const seen=[];store.listen('a','value',s=>seen.push(s.val().text));
+ await store.refresh();await settle();assert.equal(calls[0].stamp,undefined,'처음은 전체');
+ await store.refresh({light:true});await settle();assert.equal(calls[1].stamp,'7');assert.deepEqual(seen,['7']);assert.equal(store.state.complete,true);
+ version='8';await store.refresh({light:true});await settle();assert.deepEqual(seen,['7','8'],'판이 바뀌면 같은 요청으로 전체를 받는다');assert.equal(calls.length,3);
+});
+test('가벼운 새로 고침도 10번에 한 번은 전체를 받는다',async()=>{
+ const calls=[];const store=new BoardStore(async options=>{calls.push(options);return options.stamp?{notModified:true,stamp:'1'}:{items:[{id:'a'}],hasMore:false,stamp:'1'}});
+ await store.refresh();for(let i=0;i<10;i++)await store.refresh({light:true});
+ assert.equal(calls.filter(c=>!c.stamp).length,2,'처음 + 10번째');
+});
+test('로그인 변경 뒤와 판 번호 없는 서버에는 판 번호를 보내지 않는다',async()=>{
+ const calls=[];let stamp='3';const store=new BoardStore(async options=>{calls.push(options);return{items:[{id:'a'}],hasMore:false,...(stamp?{stamp}:{})}});
+ await store.refresh();store.reset();await store.refresh({light:true});assert.equal(calls[1].stamp,undefined);
+ stamp=null;await store.refresh();await store.refresh({light:true});assert.equal(calls[3].stamp,undefined);
+});

@@ -3,7 +3,7 @@ const clone=value=>value == null ? null : structuredClone(value);
 const at=(tree,path)=>path.split('/').filter(Boolean).reduce((value,key)=>value?.[key],tree) ?? null;
 const snapshot=(key,value)=>({key,val:()=>clone(value),exists:()=>value!=null});
 export class BoardStore {
-  constructor(fetchPage){this.fetchPage=fetchPage;this.data={};this.listeners=new Set();this.states=new Set();this.epoch=0;this.ready=false;this.pending=null;this.state={status:'loading',complete:false};}
+  constructor(fetchPage){this.fetchPage=fetchPage;this.data={};this.listeners=new Set();this.states=new Set();this.epoch=0;this.ready=false;this.pending=null;this.stamp=null;this.lightRuns=0;this.state={status:'loading',complete:false};}
   publishState(value){this.state=value;for(const callback of this.states)callback(value);if(value.status==='error')for(const listener of this.listeners)listener.error?.(value.error);}
   onState(callback){this.states.add(callback);callback(this.state);return()=>this.states.delete(callback);}
   listen(path,event,callback,error,options={}) {
@@ -34,14 +34,20 @@ export class BoardStore {
       }
     });
   }
-  async refresh(){
+  // light: 주기 폴링용. 서버가 준 판 번호(stamp)를 보내 바뀐 게 없으면 짧은 답만 받는다.
+  // 판 번호가 어긋나면 같은 요청이 첫 페이지를 돌려주므로 그대로 전체 새로 고침으로 이어진다.
+  // 판 번호를 올리는 쪽이 고장 나도 화면이 멈추지 않게 10번에 한 번은 번호 없이 전체를 받는다.
+  async refresh({light=false}={}){
     if(this.pending)return this.pending;
     const epoch=this.epoch;
+    const stamp=light&&this.stamp&&this.state.complete&&this.lightRuns<9?this.stamp:undefined;
     const work=(async()=>{
-      const next={};let cursor;const visited=new Set();
+      const next={};let cursor;const visited=new Set();let first=true,fresh=null;
       try {
         do {
-          const page=await this.fetchPage({cursor,limit:50});if(epoch!==this.epoch)return;
+          const page=await this.fetchPage({cursor,limit:50,...(first&&stamp?{stamp}:{})});if(epoch!==this.epoch)return;
+          if(first&&stamp&&page.notModified){this.lightRuns++;return;}
+          if(first){fresh=typeof page.stamp==='string'?page.stamp:null;first=false;}
           if(!Array.isArray(page.items))throw Error('목록 응답을 확인할 수 없습니다.');
           for(const item of page.items){if(!/^[A-Za-z0-9_-]+$/.test(item.id))throw Error('목록 식별자 오류');next[item.id]=item;}
           // 첫 페이지부터 바로 그린다 — 전체(수백 건)를 다 받을 때까지 빈 화면을 두지 않는다.
@@ -52,7 +58,7 @@ export class BoardStore {
           cursor=page.cursor;visited.add(cursor);
         } while(true);
         if(epoch!==this.epoch)return;
-        this.data=next;this.ready=true;this.publishState({status:'ready',complete:true});this.schedule();
+        this.data=next;this.ready=true;this.stamp=fresh;this.lightRuns=0;this.publishState({status:'ready',complete:true});this.schedule();
       } catch(error){if(epoch===this.epoch)this.publishState({status:'error',complete:false,error});throw error;}
     })();
     this.pending=work;
@@ -60,5 +66,5 @@ export class BoardStore {
   }
   setItem(item){this.data={...this.data,[item.id]:clone(item)};this.ready=true;this.schedule();}
   removeItem(id){const next={...this.data};delete next[id];this.data=next;this.ready=true;this.schedule();}
-  reset(){this.epoch++;this.pending=null;this.scheduled=false;this.data={};this.ready=true;this.schedule();this.publishState({status:'loading',complete:false});}
+  reset(){this.epoch++;this.pending=null;this.stamp=null;this.lightRuns=0;this.scheduled=false;this.data={};this.ready=true;this.schedule();this.publishState({status:'loading',complete:false});}
 }

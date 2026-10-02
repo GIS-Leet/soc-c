@@ -4,12 +4,12 @@ import { getDatabase } from "firebase-admin/database";
 import { getStorage } from "firebase-admin/storage";
 import { getAuth } from "firebase-admin/auth";
 import { onSchedule } from "firebase-functions/v2/scheduler";
-import { onValueCreated } from "firebase-functions/v2/database";
+import { onValueCreated, onValueWritten } from "firebase-functions/v2/database";
 import { defineSecret } from "firebase-functions/params";
 import { scheduledMaintenance } from "./board-schedule.mjs";
 import { onCall, onRequest, HttpsError } from "firebase-functions/v2/https";
 import { createFirebaseStore, createBucketStorage } from "./firebase-store.mjs";
-import { createBoardService } from "./board-service.mjs";
+import { createBoardService, bumpBoardVersion } from "./board-service.mjs";
 import { createMaintenance } from "./board-maintenance.mjs";
 import { BoardError, isTeacher, fields } from "./board-security.mjs";
 import {
@@ -114,6 +114,8 @@ export const boardAttachment = onRequest(
         },
         auth,
       );
+      if (result.cacheable)
+        res.set("Cache-Control", "private, max-age=604800, immutable");
       res.type(result.mime).send(result.bytes);
     } catch (error) {
       const code = error?.code;
@@ -240,3 +242,20 @@ export const deskPushRetry = onSchedule(
   },
   async () => deskPushService().retryPending(),
 );
+
+// 게시판 글이 어떤 경로로든 바뀌면(서버 API·Desk 의 직접 쓰기·정리 작업) 판 번호를 올린다.
+// 학생 화면의 1분 폴링은 이 번호가 그대로면 목록을 다시 받지 않는다.
+const boardVersionOptions = {
+  instance: "soc-c-qna-default-rtdb",
+  region: "us-central1",
+  maxInstances: 5,
+  timeoutSeconds: 60,
+  retry: false, // 놓쳐도 화면이 10번에 한 번 전체를 받으므로 재시도로 비용을 만들지 않는다
+};
+const boardVersionTrigger = (board) =>
+  onValueWritten({ ...boardVersionOptions, ref: `/${board}/{id}` }, () =>
+    bumpBoardVersion(store, board),
+  );
+export const boardVersionQuestions = boardVersionTrigger("questions");
+export const boardVersionFeedback = boardVersionTrigger("feedback");
+export const boardVersionSupport = boardVersionTrigger("support");
