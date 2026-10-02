@@ -117,7 +117,8 @@ body { display: flex; flex-direction: column; overflow: hidden; }
 .p-today  { grid-column: 1; grid-row: 3; }
 .p-todo   { grid-column: 2; grid-row: 3; }
 .p-dday   { grid-column: 3; grid-row: 3; }
-.p-notice { grid-column: 1; grid-row: 4; }
+.p-prep   { grid-column: 1; grid-row: 4; }
+.p-notice { grid-column: 1; grid-row: 6; }
 .p-table  { grid-column: 2 / 4; grid-row: 4; }
 .p-prog   { grid-column: 1; grid-row: 5; }
 .p-cal    { grid-column: 2 / 4; grid-row: 5; }
@@ -1037,8 +1038,8 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 .next-class[hidden] { display: none; }
 
 /* 빠른 메모 · 최근 노트 */
-.p-quick  { grid-column: 1; grid-row: 6; }
-.p-recent { grid-column: 2 / 4; grid-row: 6; }
+.p-quick  { grid-column: 1; grid-row: 7; }
+.p-recent { grid-column: 2 / 4; grid-row: 6 / 8; }
 
 /* rail 푸터 — 버튼 나란히 */
 .rail-foot-lock { display: flex; gap: 8px; }
@@ -1080,7 +1081,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
   /* 좁은 화면에서 입력줄이 패널을 밀어내지 못하게 */
   .dash input[type=text], .dash input[type=search] { min-width: 0; }
   .dday-add .dt-in, .log-add input[type=date] { width: 112px; }
-  .p-stats, .p-links, .p-today, .p-todo, .p-dday, .p-table, .p-prog, .p-notice, .p-cal, .p-quick, .p-recent { grid-column: 1; grid-row: auto; }
+  .p-stats, .p-links, .p-today, .p-todo, .p-dday, .p-prep, .p-table, .p-prog, .p-notice, .p-cal, .p-quick, .p-recent { grid-column: 1; grid-row: auto; }
   .p-stats { flex-wrap: wrap; }
   .stat-i { flex-basis: 50%; padding: 8px; }
   .stat-i:nth-child(3) { border-left: 0; }
@@ -1379,6 +1380,12 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
           <input type="date" class="dt-in" id="ddayDate">
           <button class="btn-sub" id="ddayAddBtn">추가</button>
         </div>
+      </div>
+
+      <!-- 수업 준비 (assets/desk-prep.mjs) — 지금/다음 수업 → 반의 다음 차시 → 맞는 자료 -->
+      <div class="panel p-prep" id="prepPanel">
+        <div class="dash-h">수업 준비 <b>시간표 · 진도 · 자료함</b></div>
+        <div class="pp-body"></div>
       </div>
 
       <!-- 주간 시간표 -->
@@ -1872,6 +1879,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {mountGichul} from './assets/gichul-view.mjs';
     import {mountLectures} from './assets/desk-lectures.mjs';
     import {mountDownloadStats} from './assets/desk-dlstats.mjs';
+    import {mountPrep} from './assets/desk-prep.mjs';
     import {renderGrammar} from './assets/grammar-format.mjs';
     import {renderConcept} from './assets/concept-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1908,6 +1916,15 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     const lectures = mountLectures($('lecView'), { db, ref, set, update, remove, push, onValue, escapeHTML: s => escapeHTML(String(s ?? '')), showUndo: (m, fn) => showUndo(m, fn) });   // 강의 영상 뷰
     const dlStats = mountDownloadStats({ db, ref, get, escapeHTML: s => escapeHTML(String(s ?? '')) });   // 자료 통계 시트
     $('dlStatsBtn').addEventListener('click', () => dlStats.open());
+    // 대시보드 「수업 준비」 — 시간표·진도·자료함 상태는 아래에서 선언되므로 함수로 넘긴다
+    const prep = mountPrep($('prepPanel'), {
+      escapeHTML: s => escapeHTML(String(s ?? '')), previewLocation,
+      table: () => ttable, start: () => P_START, len: () => P_LEN, lessons: () => progLessons, classes: () => progClasses,
+      active: () => !!sessionUid,
+      github: async () => { await loadGhSettings(); return ghToken ? { token: ghToken, repo: matRepo } : null; },
+      hasGithub: () => matInited ? !!ghToken : undefined,
+      completeLesson: (id, cur) => update(ref(db, `progress/classes/${id}`), { done: Math.min(progLessons.length, cur + 1) })
+    });
     // ── iPhone 앱(Desk.app) 모드: ?app=1 — 앱이 네이티브 Google 토큰을 window.nativeSignIn 으로 넘긴다 (study.html과 동일) ──
     const APP = new URLSearchParams(location.search).get('app') === '1';
     const postApp = m => { try { window.webkit.messageHandlers.study.postMessage(m); } catch {} };
@@ -2147,6 +2164,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       }
       $('ttable').innerHTML = head + rows;
       renderNextClass();
+      prep.render();
     }
     // 오늘 패널 — 지금/다음 수업
     function renderNextClass() {
@@ -2652,6 +2670,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
           `<span class="cnt">${done}/${total}</span>` +
           `<span class="pm"><button data-d="-1" title="한 차시 되돌리기">−</button><button data-d="1" title="한 차시 완료">+</button></span></div>`;
       }).join('') : '<div class="ev-empty">진도표에 등록된 반이 없습니다.</div>';
+      prep.render();
     }
     $('progList').addEventListener('click', async e => {
       const btn = e.target.closest('button[data-d]'); if (!btn) return;
@@ -2784,16 +2803,22 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       r.readAsDataURL(file);
     });
 
-    async function initMatView() {
-      if (!matInited) {
-        matInited = true;
+    // 자료 탭과 대시보드 「수업 준비」가 함께 쓰는 비공개 저장소 설정(한 번만 읽음)
+    let ghSettingsLoad = null;
+    function loadGhSettings() {
+      if (matInited) return ghSettingsLoad || Promise.resolve();
+      matInited = true;
+      return ghSettingsLoad = (async () => {
         try {
           const snap = await get(ref(db, 'desk/settings/github'));
           const cfg = snap.val() || {};
           ghToken = cfg.token || null;
           if (cfg.repo) matRepo = cfg.repo;
         } catch { ghToken = null; }
-      }
+      })();
+    }
+    async function initMatView() {
+      await loadGhSettings();
       if (ghToken) { showMatPanel(); loadMatList(); }
       else showMatSetup();
     }
@@ -2832,7 +2857,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
         ghToken = token; matRepo = repo;
         await set(ref(db, 'desk/settings/github'), { token, repo, savedAt: Date.now() });
         $('ghTokenInput').value = '';
-        showMatPanel(); loadMatList();
+        showMatPanel(); loadMatList(); prep.refreshFiles();
       } catch (e) { warn.textContent = e.message; warn.style.display = ''; }
       $('ghTokenSaveBtn').disabled = false;
     });
@@ -2884,7 +2909,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
         if (request !== matViewRequest || auth.currentUser?.email !== OWNER_EMAIL) { w?.close(); return; }
         matViewExtension = ext;
         const mime = ext === 'pdf' ? 'application/pdf'
-                   : ['html','htm'].includes(ext) ? 'text/html'
+                   : ['html','htm'].includes(ext) ? 'text/html;charset=utf-8'
                    : raw.type || 'application/octet-stream';
         if (matViewUrl) URL.revokeObjectURL(matViewUrl);
         matViewUrl = URL.createObjectURL(new Blob([raw], { type: mime }));
@@ -4074,6 +4099,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       ghToken = null; matInited = false;   // 업로드 토큰도 메모리에서 제거
       gichul.reset();
       lectures.reset();
+      prep.reset();
       dlStats.reset();
     }
   </script>
