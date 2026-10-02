@@ -1644,6 +1644,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
         <div class="dash-h">이번 주</div>
         <div class="week-bars" id="weekBars"></div>
         <div class="week-sum" id="weekSum"></div>
+        <div class="wk-rep" id="weekReport" hidden></div>
       </div>
 
       <!-- 기록 -->
@@ -1880,6 +1881,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {mountLectures} from './assets/desk-lectures.mjs';
     import {mountDownloadStats} from './assets/desk-dlstats.mjs';
     import {mountPrep} from './assets/desk-prep.mjs';
+    import {mountWeekly} from './assets/desk-weekly.mjs';
     import {renderGrammar} from './assets/grammar-format.mjs';
     import {renderConcept} from './assets/concept-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1925,6 +1927,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       hasGithub: () => matInited ? !!ghToken : undefined,
       completeLesson: (id, cur) => update(ref(db, `progress/classes/${id}`), { done: Math.min(progLessons.length, cur + 1) })
     });
+    const weekly = mountWeekly($('weekReport'), { escapeHTML: s => escapeHTML(String(s ?? '')), study: () => study });   // 공부 탭 주간 리포트
     // ── iPhone 앱(Desk.app) 모드: ?app=1 — 앱이 네이티브 Google 토큰을 window.nativeSignIn 으로 넘긴다 (study.html과 동일) ──
     const APP = new URLSearchParams(location.search).get('app') === '1';
     const postApp = m => { try { window.webkit.messageHandlers.study.postMessage(m); } catch {} };
@@ -3417,6 +3420,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       const diff = sum - last;
       $('weekSum').innerHTML = `이번 주 <b>${fmtMin(sum)}</b> · 목표 달성 <b>${hit}</b>/7일` +
         (last || sum ? ` · 지난주 대비 <b>${diff >= 0 ? '+' : '−'}${fmtMin(Math.abs(diff))}</b>` : '');
+      weekly.render();
     }
     function renderSessions(byDay) {
       const tKey = keyOf(new Date());
