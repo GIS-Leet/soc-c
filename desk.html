@@ -464,6 +464,9 @@ button.stat-i { border: 0; background: none; cursor: pointer; font-family: inher
 .mat-row { display: flex; align-items: center; gap: 12px; padding: 10px 2px;
   border-bottom: 1px solid var(--st-separator); font-size: 13.5px; min-width: 0; }
 .mat-row:last-child { border-bottom: 0; }
+button.mat-dir { width: 100%; font: inherit; color: inherit; text-align: left; background: none; border: 0; border-bottom: 1px solid var(--st-separator); cursor: pointer; }
+button.mat-dir:hover { background: var(--st-fill-3); }
+button.mat-dir[data-up] .fn { color: var(--st-label-2); font-weight: 500; }
 .mat-row .ext {
   font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--st-label-3); border: 1px solid var(--st-separator);
@@ -2750,14 +2753,15 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
 
     // ════════════════ 자료 업로드 (비공개 저장소 — 학생에게 노출되지 않음) ════════════════
     let ghToken = null, matRepo = 'GIS-Leet/soc-c-private';
-    let matFolder = '수업', matFiles = [], matBusy = false, matInited = false;
+    let matFolder = '수업', matSub = [], matFiles = [], matDirs = [], matBusy = false, matInited = false;   // matSub = 탭 아래로 들어간 하위 폴더(과목 › 단원)
+    const matPath = () => [matFolder, ...matSub].join('/');
 
     const ghHeaders = () => ({ 'Authorization': 'Bearer ' + ghToken, 'Accept': 'application/vnd.github+json' });
     const ghErr = s => s === 401
       ? '토큰이 만료되었거나 무효합니다 — 「토큰」 버튼에서 새 토큰으로 교체하세요'
       : s === 403 ? '권한이 없습니다 — 토큰의 Contents 권한이 Read and write인지 확인하세요'
       : 'HTTP ' + s;
-    const matApiUrl = name => `https://api.github.com/repos/${matRepo}/contents/${encodeURIComponent(matFolder)}` + (name ? '/' + encodeURIComponent(name) : '');
+    const matApiUrl = name => `https://api.github.com/repos/${matRepo}/contents/${[matFolder, ...matSub].map(encodeURIComponent).join('/')}` + (name ? '/' + encodeURIComponent(name) : '');
     const fmtSize = b => b > 1048576 ? (b/1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b/1024)) + ' KB';
     const fileToB64 = file => new Promise((ok, no) => {
       const r = new FileReader();
@@ -2824,9 +2828,9 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       $('matList').innerHTML = '<div class="ev-empty">파일 목록을 불러오는 중…</div>';
       try {
         const res = await fetch(matApiUrl(), { headers: ghHeaders() });
-        if (res.status === 404) { matFiles = []; }
+        if (res.status === 404) { matFiles = []; matDirs = []; }
         else if (!res.ok) throw new Error(ghErr(res.status));
-        else matFiles = (await res.json()).filter(f => f.type === 'file');
+        else { const all = await res.json(); matFiles = all.filter(f => f.type === 'file'); matDirs = all.filter(f => f.type === 'dir'); }
       } catch (e) {
         $('matList').innerHTML = `<div class="ev-empty">목록을 불러오지 못했습니다 (${escapeHTML(e.message)})</div>`;
         return;
@@ -2834,14 +2838,16 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       renderMatList();
     }
     function renderMatList() {
-      $('matList').innerHTML = matFiles.length ? matFiles.map(f => {
+      const up = matSub.length ? `<button class="mat-row mat-dir" data-up="1"><span class="ext">‹</span><span class="fn">${escapeHTML([matFolder, ...matSub].join(' › '))}</span><span class="sz">상위 폴더</span></button>` : '';
+      const dirs = matDirs.map(d => `<button class="mat-row mat-dir" data-dir="${escapeHTML(d.name)}"><span class="ext">폴더</span><span class="fn">${escapeHTML(d.name)}</span><span class="sz">›</span></button>`).join('');
+      $('matList').innerHTML = up + dirs + (matFiles.length ? matFiles.map(f => {
         const ext = (f.name.match(/\.(\w+)$/) || [,'—'])[1];
         return `<div class="mat-row"><span class="ext">${escapeHTML(ext)}</span>` +
           `<span class="fn">${escapeHTML(f.name)}</span>` +
           `<span class="sz">${fmtSize(f.size||0)}</span>` +
           `<span class="op"><button class="vw" data-view-name="${escapeHTML(f.name)}">보기</button>` +
           `<button data-name="${escapeHTML(f.name)}" data-sha="${f.sha}">삭제</button></span></div>`;
-      }).join('') : '<div class="ev-empty">이 폴더에 파일이 없습니다. 「+ 업로드」로 시작하세요.</div>';
+      }).join('') : (matDirs.length ? '' : '<div class="ev-empty">이 폴더에 파일이 없습니다. 「+ 업로드」로 시작하세요.</div>'));
     }
 
     // 비공개 파일 열람 — 토큰 인증으로 받아 Desk 안 뷰어에서 바로 연다 (공개 URL이 존재하지 않음)
@@ -2890,7 +2896,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
 
     $('matFolders').addEventListener('click', e => {
       const btn = e.target.closest('button'); if (!btn || matBusy) return;
-      matFolder = btn.dataset.folder;
+      matFolder = btn.dataset.folder; matSub = [];
       $('matFolders').querySelectorAll('button').forEach(b => b.classList.toggle('on', b === btn));
       loadMatList();
     });
@@ -2912,7 +2918,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
           const res = await fetch(matApiUrl(file.name), {
             method: 'PUT', headers: ghHeaders(),
             body: JSON.stringify({
-              message: `자료 업로드: ${matFolder}/${file.name} (Desk)`,
+              message: `자료 업로드: ${matPath()}/${file.name} (Desk)`,
               content, ...(existing ? { sha: existing.sha } : {})
             })
           });
@@ -2927,6 +2933,8 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     }
 
     $('matList').addEventListener('click', async e => {
+      const dir = e.target.closest('.mat-dir');
+      if (dir) { if (matBusy) return; if (dir.dataset.up) matSub.pop(); else matSub.push(dir.dataset.dir); loadMatList(); return; }
       const vw = e.target.closest('button[data-view-name]');
       if (vw) { viewMatFile(vw.dataset.viewName); return; }
       const btn = e.target.closest('button[data-sha]'); if (!btn || matBusy) return;
@@ -2936,7 +2944,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       try {
         const res = await fetch(matApiUrl(name), {
           method: 'DELETE', headers: ghHeaders(),
-          body: JSON.stringify({ message: `자료 삭제: ${matFolder}/${name} (Desk)`, sha: btn.dataset.sha })
+          body: JSON.stringify({ message: `자료 삭제: ${matPath()}/${name} (Desk)`, sha: btn.dataset.sha })
         });
         if (!res.ok) throw new Error(ghErr(res.status));
       } catch (e2) { alert('삭제 실패: ' + e2.message); }
