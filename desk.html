@@ -1738,6 +1738,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
             <button data-folder="구조도">구조도</button>
           </nav>
           <div class="mat-actions">
+            <button class="btn-sub" id="dlStatsBtn" title="홈페이지 자료실에서 학생이 연·받은 횟수">통계</button>
             <button class="btn-sub" id="ghTokenEditBtn" title="토큰 변경">토큰</button>
             <button class="btn-solid" id="matUploadBtn">+ 업로드</button>
             <input type="file" id="matFileInput" multiple accept=".html,.pdf,.hwp,.hwpx,.ppt,.pptx,.doc,.docx" style="display:none;">
@@ -1870,6 +1871,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {createSessionScope} from './assets/session-scope.mjs';
     import {mountGichul} from './assets/gichul-view.mjs';
     import {mountLectures} from './assets/desk-lectures.mjs';
+    import {mountDownloadStats} from './assets/desk-dlstats.mjs';
     import {renderGrammar} from './assets/grammar-format.mjs';
     import {renderConcept} from './assets/concept-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1904,6 +1906,8 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     const escapeHTML = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const gichul = mountGichul($('gichulView'), { db, ref, get, set, remove, onValue, escapeHTML: s => escapeHTML(String(s ?? '')) });   // 기출 뷰
     const lectures = mountLectures($('lecView'), { db, ref, set, update, remove, push, onValue, escapeHTML: s => escapeHTML(String(s ?? '')), showUndo: (m, fn) => showUndo(m, fn) });   // 강의 영상 뷰
+    const dlStats = mountDownloadStats({ db, ref, get, escapeHTML: s => escapeHTML(String(s ?? '')) });   // 자료 통계 시트
+    $('dlStatsBtn').addEventListener('click', () => dlStats.open());
     // ── iPhone 앱(Desk.app) 모드: ?app=1 — 앱이 네이티브 Google 토큰을 window.nativeSignIn 으로 넘긴다 (study.html과 동일) ──
     const APP = new URLSearchParams(location.search).get('app') === '1';
     const postApp = m => { try { window.webkit.messageHandlers.study.postMessage(m); } catch {} };
@@ -4070,6 +4074,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       ghToken = null; matInited = false;   // 업로드 토큰도 메모리에서 제거
       gichul.reset();
       lectures.reset();
+      dlStats.reset();
     }
   </script>
 </body>
