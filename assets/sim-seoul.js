@@ -1,3 +1,4 @@
+import { haversineKm, journeyMinutes } from "./sim-models.mjs";
 /* Teaching atlas. Locations and corridors are schematic, not legal boundaries or live routes. */
 (() => {
   const $ = (id) => document.getElementById(id);
@@ -239,6 +240,82 @@
         "GTX 등 광역급행 교통은 장거리 이동의 시간 부담을 줄이는 방향으로 추진됩니다. 표시된 선은 연결 방향이며, 실제 개통 상태나 운행 시간표가 아닙니다.",
     },
   };
+  const accessPanel = document.createElement("section");
+  accessPanel.className = "control-panel research-extra";
+  accessPanel.innerHTML =
+    '<div class="panel-heading"><h2>거리와 시간의 실험</h2><span class="panel-no">가상 조건</span></div><label for="townSelect">관찰할 대표점</label><select id="townSelect"></select><div class="control-divider"></div><div class="field-label"><label for="travelSpeed">가정 속도</label><output id="speedValue">40 km/h</output></div><input id="travelSpeed" type="range" min="20" max="120" step="5" value="40"><div class="field-label"><label for="routeFactor">우회계수 · 직선 대비</label><output id="routeValue">1.25배</output></div><input id="routeFactor" type="range" min="1" max="2" step=".05" value="1.25"><div class="field-label"><label for="accessTime">접근·대기 시간 가정</label><output id="accessValue">10분</output></div><input id="accessTime" type="range" min="0" max="30" step="1" value="10"><div class="metric-grid"><div class="metric"><span>서울 도심까지 직선거리</span><strong id="distanceValue"></strong></div><div class="metric"><span>가상 이동시간</span><strong id="journeyValue"></strong></div></div><p class="note-caption">실제 운행시간이 아닙니다. 대표점과 서울 도심 사이의 거리만 계산하고, 속도·우회·접근시간은 직접 가정합니다.</p><details><summary>대표점 거리 표</summary><div class="comparison-scroll"><table class="annual-data" id="cityData"></table></div></details>';
+  document.querySelector(".lab-controls").append(accessPanel);
+  const center = [37.5665, 126.978],
+    allTowns = [["서울 도심", ...center, 0], ...first, ...second];
+  allTowns.forEach(([name], index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = name;
+    $("townSelect").append(option);
+  });
+  let selectedLink = null;
+  function currentTown() {
+    return allTowns[Number($("townSelect").value)] || allTowns[0];
+  }
+  function updateAccessibility() {
+    const phase = Number($("stageSlider").value),
+      limit = phase === 1 ? 0 : phase === 2 ? 5 : 12;
+    for (const option of $("townSelect").options)
+      option.disabled = Number(option.value) > limit;
+    if (Number($("townSelect").value) > limit) $("townSelect").value = "0";
+    const town = currentTown(),
+      point = [town[1], town[2]],
+      distance = haversineKm(center, point),
+      speed = Number($("travelSpeed").value),
+      factor = Number($("routeFactor").value),
+      access = Number($("accessTime").value),
+      time = journeyMinutes(distance, speed, factor, access);
+    $("speedValue").textContent = speed + " km/h";
+    $("routeValue").textContent = factor.toFixed(2) + "배";
+    $("accessValue").textContent = access + "분";
+    $("distanceValue").innerHTML = distance.toFixed(1) + "<small> km</small>";
+    $("journeyValue").innerHTML = time.toFixed(1) + "<small> 분</small>";
+    for (const id of ["travelSpeed", "routeFactor", "accessTime"])
+      Lab.paintRange($(id));
+    if (selectedLink) map.removeLayer(selectedLink);
+    selectedLink = L.layerGroup([
+      L.polyline([center, point], {
+        color: "#c34e2c",
+        weight: 2,
+        dashArray: "2 5",
+      }),
+      L.circleMarker(point, {
+        radius: 7,
+        color: "#c34e2c",
+        weight: 2,
+        fillOpacity: 0,
+      }),
+    ]);
+    selectedLink.addTo(map);
+    $("cityData").innerHTML =
+      "<tr><th>대표점</th><th>직선거리(km)</th><th>가상 시간(분)</th></tr>" +
+      allTowns
+        .slice(1, limit + 1)
+        .map((t) => {
+          const d = haversineKm(center, [t[1], t[2]]);
+          return (
+            "<tr><td>" +
+            t[0] +
+            "</td><td>" +
+            d.toFixed(1) +
+            "</td><td>" +
+            journeyMinutes(d, speed, factor, access).toFixed(1) +
+            "</td></tr>"
+          );
+        })
+        .join("");
+    Lab.changed();
+  }
+  for (const id of ["townSelect", "travelSpeed", "routeFactor", "accessTime"])
+    $(id).addEventListener(
+      id === "townSelect" ? "change" : "input",
+      updateAccessibility,
+    );
   function update() {
     const phase = Number($("stageSlider").value),
       data = phases[phase];
@@ -259,6 +336,7 @@
     $("cityCount").innerHTML = `${data.count}<small>곳</small>`;
     $("phaseValue").textContent = data.label;
     Lab.setPresets("stageSlider", phase);
+    updateAccessibility();
     $("stageSlider").setAttribute(
       "aria-valuetext",
       `${data.year}년대, ${data.label}`,
@@ -279,7 +357,71 @@
       },
     );
   new ResizeObserver(() => map.invalidateSize()).observe($("map"));
+  $("stageSlider").value = "2";
+  $("townSelect").value = "1";
   update();
   $("resetView").click();
+  function figure() {
+    const phase = Number($("stageSlider").value),
+      items = allTowns.slice(0, phase === 1 ? 1 : phase === 2 ? 6 : 13),
+      x = (lon) => 90 + ((lon - 126.6) / 0.8) * 810,
+      y = (lat) => 630 - ((lat - 37.1) / 0.8) * 540;
+    return (
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="760" viewBox="0 0 1000 760"><rect width="1000" height="760" fill="#f5f4ef"/><g font-family="sans-serif" fill="#1b302f"><text x="40" y="45" font-size="25">서울과 신도시 · 대표점의 공간 분포</text><text x="40" y="75" font-size="14">' +
+      phases[phase].year +
+      "년대 개념도 · 실제 경계나 노선도가 아닙니다.</text>" +
+      items
+        .map(
+          (t, i) =>
+            '<circle cx="' +
+            x(t[2]) +
+            '" cy="' +
+            y(t[1]) +
+            '" r="' +
+            (i === 0 ? 8 : 5) +
+            '" fill="' +
+            (i === 0 ? "#354e42" : i <= 5 ? "#2d806f" : "#a67430") +
+            '"/><text x="' +
+            (x(t[2]) + 9) +
+            '" y="' +
+            (y(t[1]) - 8) +
+            '" font-size="14">' +
+            t[0] +
+            "</text>",
+        )
+        .join("") +
+      '<text x="40" y="710" font-size="13">대표 좌표의 개략 분포. 경도축은 지도 투영과 다릅니다. Geographia Lab / 모형 v2.0.0</text><text x="40" y="735" font-size="13">' +
+      currentTown()[0] +
+      " → 서울 도심 직선거리 " +
+      haversineKm(center, currentTown().slice(1, 3)).toFixed(1) +
+      " km · 가상 속도 " +
+      $("travelSpeed").value +
+      " km/h</text></g></svg>"
+    );
+  }
+  Lab.register({
+    figure,
+    measure() {
+      const town = currentTown(),
+        distance = haversineKm(center, [town[1], town[2]]),
+        speed = Number($("travelSpeed").value),
+        factor = Number($("routeFactor").value),
+        access = Number($("accessTime").value);
+      return {
+        "공간 변화 단계": phases[Number($("stageSlider").value)].label,
+        "관찰 대표점": town[0],
+        "직선거리 (km)": +distance.toFixed(3),
+        "가정 속도 (km/h)": speed,
+        우회계수: factor,
+        "접근·대기 (분)": access,
+        "가상 이동시간 (분)": +journeyMinutes(
+          distance,
+          speed,
+          factor,
+          access,
+        ).toFixed(3),
+      };
+    },
+  });
   Lab.ready();
 })();

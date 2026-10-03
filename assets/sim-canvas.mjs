@@ -20,6 +20,7 @@ export function fitCanvas(canvas, draw) {
     draw(ctx, width, height);
   };
   new ResizeObserver(render).observe(canvas);
+  document.addEventListener("lab:theme", render);
   document.fonts?.ready.then(render);
   return render;
 }
@@ -33,6 +34,12 @@ export function line(
   width = 1,
   dash = [],
 ) {
+  if (
+    !ctx.canvas.closest(".stage") &&
+    document.documentElement.dataset.theme === "dark" &&
+    ["#bc5634", "#b85635"].includes(color)
+  )
+    color = "#efa884";
   ctx.beginPath();
   ctx.setLineDash(dash);
   ctx.moveTo(x1, y1);
@@ -51,6 +58,14 @@ export function text(
   color = "#b9cdba",
   align = "left",
 ) {
+  if (
+    !ctx.canvas.closest(".stage") &&
+    ["#6d806f", "#738073", "#7a887a"].includes(color)
+  )
+    color =
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--muted")
+        .trim() || color;
   ctx.font = `${size}px "Space Grotesk","Pretendard Variable",sans-serif`;
   ctx.fillStyle = color;
   ctx.textAlign = align;

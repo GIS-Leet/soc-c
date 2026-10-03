@@ -65,18 +65,8 @@
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
     <link rel="stylesheet" href="assets/sim-lab.css?v=138cf8e7" />
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-E1W226W5M4");
-    </script>
+
+    <link rel="stylesheet" href="assets/sim-research.css?v=e09c011c" />
   </head>
   <body data-lab="terrain">
     <a href="#main" class="skip-link">본문으로 이동</a>
@@ -194,7 +184,7 @@
                     stroke-linejoin="round"
                     aria-hidden="true"
                   >
-                    <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
+                    <path d="M8 3H3v5 단위13-5h5v5M3 16v5h5 단위13-5v5h-5" />
                   </svg>
                 </button>
               </div>
@@ -239,8 +229,8 @@
             </div>
           </section>
           <p class="model-note">
-            지형과 고도(m)는 학습용 모형 좌표입니다. ‘백두산·한반도’도 실제
-            지형을 단순화한 모형이며 수치표고모델(DEM)이 아닙니다.
+            지형과 높이(모형 단위)는 학습용 모형 좌표입니다. ‘백두산·한반도’도
+            실제 지형을 단순화한 모형이며 수치표고모델(DEM)이 아닙니다.
           </p>
         </div>
         <aside class="lab-controls" aria-label="실험 조작">
@@ -311,7 +301,7 @@
             </div>
             <div class="field-label">
               <label for="seaLevel">해수면</label
-              ><output id="seaVal" data-reading="해수면">5m</output>
+              ><output id="seaVal" data-reading="해수면">5 단위</output>
             </div>
             <input
               type="range"
@@ -321,7 +311,7 @@
               value="5"
               step="1"
             />
-            <div class="range-ends"><span>−20m</span><span>50m</span></div>
+            <div class="range-ends"><span>−20 단위</span><span>50 단위</span></div>
             <div class="scenario-grid" style="margin-top: 16px">
               <button class="scenario-btn" id="btnIceAge">낮은 해수면</button
               ><button class="scenario-btn" id="btnPresent">기준</button
@@ -348,8 +338,8 @@
                 >
               </div>
               <div class="metric">
-                <span>최고 고도</span
-                ><strong id="heightValue" data-reading="최고 고도"
+                <span>최고 높이</span
+                ><strong id="heightValue" data-reading="최고 높이"
                   >—<small>m</small></strong
                 >
               </div>
@@ -365,7 +355,9 @@
             </div>
             <div class="tool-grid">
               <button class="tool-btn" id="btnBaekdu">백두산 모형</button
-              ><button class="tool-btn" id="btnKorea">한반도 모형</button>
+              ><button class="tool-btn" id="btnKorea">
+                한반도 이미지 참고
+              </button>
             </div>
             <div class="action-btns">
               <button class="secondary-btn" id="randomBtn">새 지형 생성</button
@@ -403,8 +395,8 @@
           </div>
           <h2>관찰에서 설명으로</h2>
           <p class="observation-question">
-            지형을 그대로 두고 해수면만 −15m에서 25m로 높여 보세요. 어떤 곳이
-            먼저 잠기나요?
+            지형을 그대로 두고 해수면만 −15 단위에서 25 단위로 높여 보세요. 어떤
+            곳이 먼저 잠기나요?
           </p>
           <p>
             ① 조건 하나만 바꾸기 &nbsp; ② 변화의 차이 찾기 &nbsp; ③ 원인을 내
@@ -450,13 +442,15 @@
         >GEOGRAPHIA / FIELDWORK<br />KGGHS 통합사회 · © 2026 TaeHyun Lee</span
       ><a href="simulators.html">모든 실험 살펴보기 ↗</a>
     </footer>
-    <script src="assets/sim-lab.js?v=ab387436"></script>
+    <script src="assets/sim-lab.js?v=d39d6a0b"></script>
+    <script src="assets/sim-runtime.js?v=2ba6f1b6"></script>
     <script src="assets/sim-vendor/three.min.js?v=7a7802bf"></script>
     <script src="assets/sim-vendor/OrbitControls.js?v=63530cfe"></script>
     <script src="assets/sim-vendor/Sky.js?v=85b1b30c"></script>
     <script src="assets/sim-vendor/Water.js?v=87b390b0"></script>
     <script src="assets/sim-vendor/simplex-noise.min.js?v=60f65487"></script>
     <script src="assets/sim-vendor/chart.umd.min.js?v=cb555814"></script>
-    <script type="module" src="assets/sim-terrain.mjs?v=bf31ca64"></script>
+    <script type="module" src="assets/sim-terrain.mjs?v=d33330d4"></script>
+    <script type="module" src="assets/sim-workbench.mjs?v=f594c23d"></script>
   </body>
 </html>

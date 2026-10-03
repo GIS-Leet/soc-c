@@ -25,6 +25,7 @@
     document.documentElement.dataset.theme = dark ? "dark" : "light";
     storage.set("geo-theme", dark ? "dark" : "light");
     $("#themeToggle").setAttribute("aria-pressed", String(dark));
+    document.dispatchEvent(new Event('lab:theme'));
   });
   $("#themeToggle")?.setAttribute(
     "aria-pressed",
@@ -78,7 +79,7 @@
         : primary.id === "sunSlider"
           ? v + "°"
           : primary.id === "seaLevel"
-            ? v + "m"
+            ? v + " 단위"
             : v + "단계";
     mirrors.set(primary, { input, output, format });
     quick.append(label, output, input);
@@ -225,9 +226,19 @@
     }),
   );
   window.Lab = {
+    quality: "balanced",
+    model: null,
+    register(model) {
+      this.model = model;
+    },
+    changed() {
+      document.dispatchEvent(new Event("lab:change"));
+      this.invalidate?.();
+    },
     paintRange,
     ready() {
       document.body.dataset.ready = "true";
+      document.dispatchEvent(new Event("lab:ready"));
     },
     setPresets(id, value) {
       $$(`[data-target="${id}"]`).forEach((b) =>

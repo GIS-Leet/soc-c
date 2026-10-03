@@ -16,7 +16,7 @@
   );
   camera.position.set(0, 150, 400);
 
-  const renderer = new THREE.WebGLRenderer({
+  const renderer = Lab.createRenderer(THREE, {
     antialias: true,
     powerPreference: "high-performance",
   });
@@ -675,6 +675,7 @@
       curStage === sc.stages.length - 1;
 
     buildLabels(st);
+    Lab.changed();
     document
       .getElementById("btnPlay")
       .setAttribute("aria-pressed", String(autoPlay));
@@ -751,7 +752,6 @@
   // ====================================================
   let previousFrame = 0;
   function animate(timestamp = 0) {
-    requestAnimationFrame(animate);
     const dt = Math.min(0.05, Math.max(0, (timestamp - previousFrame) / 1000));
     previousFrame = timestamp;
     if (document.hidden) return;
@@ -770,7 +770,7 @@
       }
     }
     if (seaMesh.visible && Math.abs(seaMesh.position.y - targetWaterY) > 0.1)
-      seaMesh.position.y += (targetWaterY - seaMesh.position.y) * 0.03;
+      seaMesh.position.y += (targetWaterY - seaMesh.position.y) * blend(0.03);
 
     if (isMorphing) {
       let still = false;
@@ -848,7 +848,6 @@
   loadScenario("fold");
   curStage = 2;
   applyStage();
-  animate();
 
   const grid = new THREE.GridHelper(330, 22, 0x506a5a, 0x294338);
   grid.position.y = -65;
@@ -904,5 +903,53 @@
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
   }).observe(container);
+  function profile() {
+    const sc = scenarios[curKey],
+      st = sc.stages[curStage],
+      first = sc.stages[0],
+      x = Array.from({ length: 81 }, (_, i) => -100 + i * 2.5);
+    const height = (stage, x) =>
+      sc.kind === "block"
+        ? stage.deform(x, BH / 2, 0)[1] - BH / 2
+        : stage.h(x, 0);
+    return {
+      x,
+      y: x.map((x) => height(st, x)),
+      baseline: x.map((x) => height(first, x)),
+    };
+  }
+  Lab.register({
+    profile,
+    pause: stopAuto,
+    validateChoices: (c) =>
+      !!scenarios[c.scenario] &&
+      Number.isInteger(c.step) &&
+      c.step >= 0 &&
+      c.step < scenarios[c.scenario].stages.length,
+    measure() {
+      const p = profile(),
+        sc = scenarios[curKey];
+      return {
+        과정: sc.title,
+        단계: curStage + 1,
+        "단계 이름": sc.stages[curStage].name,
+        "중앙 단면 최고 높이": +Math.max(...p.y).toFixed(2),
+        "중앙 단면 최저 높이": +Math.min(...p.y).toFixed(2),
+        "중앙 단면 비고": +(Math.max(...p.y) - Math.min(...p.y)).toFixed(2),
+      };
+    },
+  });
+  Lab.renderLoop(animate, {
+    element: container,
+    renderer,
+    controls,
+    active: () =>
+      autoPlay ||
+      controls.autoRotate ||
+      isMovingCamera ||
+      isMorphing ||
+      isBlockMorphing ||
+      (seaMesh.visible && Math.abs(seaMesh.position.y - targetWaterY) > 0.1),
+  });
   Lab.ready();
 })();

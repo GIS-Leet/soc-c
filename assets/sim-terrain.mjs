@@ -1,6 +1,14 @@
+import { encodeGrid, decodeGrid } from "./sim-records.mjs?v=c4583f9f";
+import {
+  seededRandom,
+  gridSample,
+  terrainStats,
+  diffuseTerrain,
+  contourSegments,
+} from "./sim-models.mjs?v=a32b816f";
 import { createElapsedClock, approach } from "./simulation-time.mjs?v=422c4a21";
 const clock = createElapsedClock();
-let motionPaused = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let motionPaused = true;
 const motionButton = document.getElementById("motionPause");
 const renderMotionButton = () => {
   motionButton.textContent = motionPaused ? "움직임 재생" : "움직임 일시 정지";
@@ -14,6 +22,23 @@ renderMotionButton();
 // ----------------------------------------------------
 // 단면도 차트 (Chart.js) 초기화 - 붉은 잉크 테마(Terra)로 색상 변경
 // ----------------------------------------------------
+const researchPanel = document.createElement("section");
+researchPanel.className = "control-panel research-extra";
+researchPanel.innerHTML =
+  '<div class="panel-heading"><h2>재현 가능한 지형 실험</h2><span class="panel-no">탐구</span></div><label for="terrainSeed">지형 시드</label><input type="number" id="terrainSeed" min="1" max="999999" step="1" value="2026"><div class="action-btns"><button id="applySeed" class="secondary-btn">이 시드로 만들기</button><button id="planView" class="secondary-btn">위에서 보기</button></div><div class="action-btns"><button id="undoTerrain" class="secondary-btn" disabled>실행 취소</button><button id="redoTerrain" class="secondary-btn" disabled>다시 실행</button></div><div class="layer-switch"><label for="contourToggle">등고선 · 높이 5단위 간격</label><input type="checkbox" id="contourToggle"></div><button class="secondary-btn" id="smoothTerrain">사면 완화 10회</button><p class="note-caption">이웃 셀 사이의 높이를 교환합니다. 닫힌 영역에서 물질의 총량을 보존하는 단순 사면 모형입니다.</p><div class="metric-grid"><div class="metric"><span>비고</span><strong id="reliefValue"></strong></div><div class="metric"><span>평균 경사</span><strong id="slopeMetric"></strong></div></div><p id="massBalance" role="status" class="note-caption">높이·거리는 모형 단위입니다.</p>';
+document.querySelector(".lab-controls").append(researchPanel);
+const keyboardPanel = document.createElement("div");
+keyboardPanel.className = "research-extra";
+keyboardPanel.innerHTML =
+  '<div class="metric-grid"><div><label for="brushX">적용 위치 X</label><input id="brushX" type="number" min="-95" max="95" step="5" value="0"></div><div><label for="brushZ">적용 위치 Z</label><input id="brushZ" type="number" min="-95" max="95" step="5" value="0"></div></div>';
+document.getElementById("centerBrush").parentElement.before(keyboardPanel);
+document.getElementById("centerBrush").textContent = "선택 위치에 적용";
+let terrainSeed = 2026,
+  terrainSource = "seed",
+  smoothingSteps = 0,
+  contourTimer;
+const undoStack = [],
+  redoStack = [];
 const ctxChart = document.getElementById("profileChart").getContext("2d");
 let profileChart = new Chart(ctxChart, {
   type: "line",
@@ -21,7 +46,7 @@ let profileChart = new Chart(ctxChart, {
     labels: Array(50).fill(""),
     datasets: [
       {
-        label: "모형 고도(m)",
+        label: "모형 높이",
         data: Array(50).fill(0),
         borderColor: "#b4502e",
         backgroundColor: "rgba(180, 80, 46, 0.15)",
@@ -76,7 +101,7 @@ seaInput.oninput = () => {
   targetSeaLevel = parseFloat(seaInput.value);
   if (motionPaused) {
     water.position.y = targetSeaLevel;
-    seaVal.innerText = Math.round(targetSeaLevel) + "m";
+    seaVal.innerText = Math.round(targetSeaLevel) + " 단위";
   }
 };
 sunInput.oninput = () => {
@@ -158,7 +183,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.set(200, 150, 200);
 
-const renderer = new THREE.WebGLRenderer({
+const renderer = Lab.createRenderer(THREE, {
   antialias: true,
   powerPreference: "high-performance",
 });
@@ -285,19 +310,24 @@ function updateTerrainColors() {
     else
       c.copy(colorPalette.rock).lerp(
         colorPalette.snow,
-        Math.min((y - 22) / 5, 1),
+        Math.min((y - 22) / 35, 1),
       );
     colorAttr.setXYZ(i, c.r, c.g, c.b);
   }
   colorAttr.needsUpdate = true;
   updateMetrics();
   if (sectionLine.visible) extractProfileAndGraph();
+  clearTimeout(contourTimer);
+  contourTimer = setTimeout(updateContours, 100);
+  Lab.changed();
 }
 
 function generateTerrain() {
+  terrainSource = "seed";
+  smoothingSteps = 0;
   sectionLine.visible = false;
   updateChart([]);
-  const seed = Math.random() * 1000;
+  const seed = seededRandom(terrainSeed)() * 1000;
   colors.length = 0;
   baseHeights.length = 0;
   for (let i = 0; i < positionAttribute.count; i++) {
@@ -320,6 +350,8 @@ function generateTerrain() {
 }
 
 function generateBaekdu() {
+  terrainSource = "caldera";
+  smoothingSteps = 0;
   sectionLine.visible = false;
   updateChart([]);
   colors.length = 0;
@@ -358,6 +390,9 @@ function loadDEM(imageUrl) {
   const img = new Image();
   img.crossOrigin = "Anonymous";
   img.onload = function () {
+    remember();
+    terrainSource = "image";
+    smoothingSteps = 0;
     sectionLine.visible = false;
     updateChart([]);
     const imgCanvas = document.createElement("canvas");
@@ -436,39 +471,148 @@ function updateSectionLine() {
   sectionLine.visible = true;
 }
 
-function extractProfileAndGraph() {
-  const samples = 50;
-  const heightsData = [];
-  const downRay = new THREE.Raycaster();
-  const dirDown = new THREE.Vector3(0, -1, 0);
-
-  for (let i = 0; i < samples; i++) {
-    const t = i / (samples - 1);
-    const px = startPt.x + (endPt.x - startPt.x) * t;
-    const pz = startPt.z + (endPt.z - startPt.z) * t;
-
-    downRay.set(new THREE.Vector3(px, 500, pz), dirDown);
-    const hits = downRay.intersectObject(terrain);
-    if (hits.length > 0) {
-      heightsData.push(Math.round(hits[0].point.y * 10) / 10);
-    } else {
-      heightsData.push(0);
-    }
-  }
-  updateChart(heightsData);
+function heights() {
+  return Array.from({ length: positionAttribute.count }, (_, i) =>
+    positionAttribute.getY(i),
+  );
 }
-
+function extractProfileAndGraph() {
+  const grid = heights();
+  updateChart(
+    Array.from({ length: 50 }, (_, i) =>
+      gridSample(
+        grid,
+        resolution + 1,
+        startPt.x + ((endPt.x - startPt.x) * i) / 49,
+        startPt.z + ((endPt.z - startPt.z) * i) / 49,
+        terrainSize,
+      ),
+    ),
+  );
+}
+function snapshot() {
+  return {
+    heights: heights(),
+    base: [...baseHeights],
+    seed: terrainSeed,
+    source: terrainSource,
+    steps: smoothingSteps,
+    sea: Number(seaInput.value),
+  };
+}
+function updateHistory() {
+  document.getElementById("undoTerrain").disabled = !undoStack.length;
+  document.getElementById("redoTerrain").disabled = !redoStack.length;
+}
+function remember() {
+  undoStack.push(snapshot());
+  if (undoStack.length > 20) undoStack.shift();
+  redoStack.length = 0;
+  updateHistory();
+}
+function restoreTerrain(data) {
+  terrainSeed = data.seed;
+  terrainSource = data.source;
+  smoothingSteps = data.steps;
+  document.getElementById("terrainSeed").value = terrainSeed;
+  baseHeights.splice(0, baseHeights.length, ...data.base);
+  for (let i = 0; i < positionAttribute.count; i++)
+    positionAttribute.setY(i, data.heights[i]);
+  seaInput.value = data.sea;
+  seaInput.dispatchEvent(new Event("input"));
+  positionAttribute.needsUpdate = true;
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  updateTerrainColors();
+  updateHistory();
+  Lab.invalidate();
+}
+let contourLines;
+function updateContours() {
+  if (contourLines) {
+    scene.remove(contourLines);
+    contourLines.geometry.dispose();
+    contourLines.material.dispose();
+    contourLines = null;
+  }
+  if (!document.getElementById("contourToggle").checked) {
+    Lab.invalidate();
+    return;
+  }
+  const grid = heights(),
+    vertices = [],
+    stats = terrainStats(grid, resolution + 1, Number(seaInput.value));
+  for (let level = Math.ceil(stats.min / 5) * 5; level <= stats.max; level += 5)
+    for (const [a, b] of contourSegments(
+      grid,
+      resolution + 1,
+      level,
+      terrainSize,
+    ))
+      vertices.push(a[0], level + 0.16, a[1], b[0], level + 0.16, b[1]);
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(vertices, 3),
+  );
+  contourLines = new THREE.LineSegments(
+    geometry,
+    new THREE.LineBasicMaterial({
+      color: 0xeff0b8,
+      transparent: true,
+      opacity: 0.75,
+    }),
+  );
+  scene.add(contourLines);
+  Lab.invalidate();
+}
+let lastBrush = null,
+  flattenTarget = 0;
+function sculpt(point, multiplier = 0.2) {
+  const radius = Number(sizeInput.value),
+    power = Number(powerInput.value);
+  for (let i = 0; i < positionAttribute.count; i++) {
+    const dist = Math.hypot(
+      positionAttribute.getX(i) - point.x,
+      positionAttribute.getZ(i) - point.z,
+    );
+    if (dist >= radius) continue;
+    const weight = Math.cos(((dist / radius) * Math.PI) / 2),
+      y = positionAttribute.getY(i);
+    const next =
+      currentTool === "flatten"
+        ? y + (flattenTarget - y) * weight * 0.1
+        : y + (currentTool === "raise" ? 1 : -1) * weight * power * multiplier;
+    positionAttribute.setY(i, Math.min(150, Math.max(-150, next)));
+  }
+}
 function handlePointer(event, type) {
-  if (currentTool === "orbit") return;
+  if (
+    currentTool === "orbit" ||
+    (type === "move" && !isSculpting && !isDrawingSection)
+  )
+    return;
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  mouse.y = (-(event.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObject(terrain);
-
-  if (intersects.length > 0) {
-    const point = intersects[0].point;
-
+  const hit = renderer.isFallback
+    ? {
+        point: new THREE.Vector3(
+          (mouse.x * terrainSize) / 2,
+          gridSample(
+            heights(),
+            resolution + 1,
+            (mouse.x * terrainSize) / 2,
+            (-mouse.y * terrainSize) / 2,
+            terrainSize,
+          ),
+          (-mouse.y * terrainSize) / 2,
+        ),
+      }
+    : raycaster.intersectObject(terrain)[0];
+  if (hit) {
+    const point = hit.point;
     if (currentTool === "section") {
       if (type === "down") {
         isDrawingSection = true;
@@ -479,39 +623,34 @@ function handlePointer(event, type) {
       } else if (type === "move" && isDrawingSection) {
         endPt.copy(point);
         updateSectionLine();
-      } else if (type === "up" && isDrawingSection) {
-        isDrawingSection = false;
-        controls.enabled = true;
-        extractProfileAndGraph();
       }
-    } else {
-      if (type === "down" || (type === "move" && isSculpting)) {
-        if (type === "down") {
-          isSculpting = true;
-          controls.enabled = false;
-        }
-        const bSize = parseFloat(sizeInput.value);
-        const bPower = parseFloat(powerInput.value);
-        for (let i = 0; i < positionAttribute.count; i++) {
-          const vx = positionAttribute.getX(i);
-          const vz = positionAttribute.getZ(i);
-          const vy = positionAttribute.getY(i);
-          const dist = Math.sqrt((vx - point.x) ** 2 + (vz - point.z) ** 2);
-          if (dist < bSize) {
-            const influence = Math.cos((dist / bSize) * (Math.PI / 2));
-            let newY = vy;
-            if (currentTool === "raise") newY += influence * bPower * 0.2;
-            else if (currentTool === "lower") newY -= influence * bPower * 0.2;
-            else if (currentTool === "flatten")
-              newY += (point.y - vy) * influence * 0.1;
-            positionAttribute.setY(i, newY);
+    } else if (type === "down" || (type === "move" && isSculpting)) {
+      if (type === "down") {
+        remember();
+        isSculpting = true;
+        controls.enabled = false;
+        lastBrush = point.clone();
+        flattenTarget = point.y;
+        sculpt(point);
+      } else {
+        const distance = Math.hypot(
+            point.x - lastBrush.x,
+            point.z - lastBrush.z,
+          ),
+          spacing = Math.max(1, Number(sizeInput.value) * 0.2),
+          count = Math.floor(distance / spacing);
+        if (count) {
+          const origin = lastBrush.clone();
+          for (let i = 1; i <= count; i++) {
+            lastBrush.copy(origin).lerp(point, (i * spacing) / distance);
+            sculpt(lastBrush);
           }
         }
-        positionAttribute.needsUpdate = true;
-        geometry.computeVertexNormals();
-        geometry.computeBoundingSphere();
-        updateTerrainColors();
       }
+      positionAttribute.needsUpdate = true;
+      geometry.computeVertexNormals();
+      geometry.computeBoundingSphere();
+      updateTerrainColors();
     }
   }
   if (type === "up") {
@@ -519,7 +658,9 @@ function handlePointer(event, type) {
     isSculpting = false;
     isDrawingSection = false;
     controls.enabled = true;
+    lastBrush = null;
   }
+  Lab.invalidate();
 }
 
 container.addEventListener(
@@ -547,6 +688,9 @@ container.addEventListener("pointercancel", () => {
 });
 
 document.getElementById("randomBtn").onclick = () => {
+  remember();
+  terrainSeed = (terrainSeed % 999999) + 1;
+  document.getElementById("terrainSeed").value = terrainSeed;
   sectionLine.visible = false;
   document
     .querySelectorAll(".tool-btn:not([data-tool])")
@@ -554,6 +698,8 @@ document.getElementById("randomBtn").onclick = () => {
   generateTerrain();
 };
 document.getElementById("resetBtn").onclick = () => {
+  remember();
+  smoothingSteps = 0;
   sectionLine.visible = false;
   updateChart([]);
   for (let i = 0; i < positionAttribute.count; i++)
@@ -575,13 +721,12 @@ window.addEventListener("resize", () => {
 // ★ 메인 렌더링 루프 ★
 // ----------------------------------------------------
 function animate(timestamp) {
-  requestAnimationFrame(animate);
   const dt = clock.tick(timestamp, !motionPaused && !document.hidden);
   water.material.uniforms["time"].value += dt;
 
   if (Math.abs(water.position.y - targetSeaLevel) > 0.05) {
     water.position.y = approach(water.position.y, targetSeaLevel, 0.05, dt);
-    seaVal.innerText = Math.round(water.position.y) + "m";
+    seaVal.innerText = Math.round(water.position.y) + " 단위";
   }
 
   controls.update();
@@ -590,25 +735,40 @@ function animate(timestamp) {
 
 updateSun();
 generateTerrain();
-animate();
 
 const grid = new THREE.GridHelper(300, 24, 0x587262, 0x29483d);
 grid.position.y = -25;
 scene.add(grid);
 scene.add(new THREE.HemisphereLight(0xe5edcb, 0x334f44, 0.35));
-function updateMetrics() {
-  let above = 0,
-    highest = -Infinity;
-  for (let i = 0; i < positionAttribute.count; i++) {
-    const y = positionAttribute.getY(i);
-    if (y > Number(seaInput.value)) above++;
-    highest = Math.max(highest, y);
-  }
-  document.getElementById("landValue").innerHTML =
-    ((above / positionAttribute.count) * 100).toFixed(0) + "<small>%</small>";
-  document.getElementById("heightValue").innerHTML =
-    highest.toFixed(1) + "<small>m</small>";
+function measure() {
+  const stats = terrainStats(
+    heights(),
+    resolution + 1,
+    Number(seaInput.value),
+    terrainSize,
+  );
+  return {
+    "지형 시드": terrainSeed,
+    "지형 출처": terrainSource,
+    "해수면 (모형 단위)": Number(seaInput.value),
+    "육지 비율 (%)": +stats.landPercent.toFixed(2),
+    "최고 높이": +stats.max.toFixed(3),
+    비고: +stats.relief.toFixed(3),
+    "평균 경사 (°)": +stats.meanSlope.toFixed(3),
+    "사면 완화 횟수": smoothingSteps,
+  };
 }
+function updateMetrics() {
+  const m = measure();
+  document.getElementById("landValue").innerHTML =
+    m["육지 비율 (%)"].toFixed(1) + "<small>%</small>";
+  document.getElementById("heightValue").textContent =
+    m["최고 높이"].toFixed(1);
+  document.getElementById("reliefValue").textContent = m["비고"].toFixed(1);
+  document.getElementById("slopeMetric").innerHTML =
+    m["평균 경사 (°)"].toFixed(1) + "<small>°</small>";
+}
+
 seaInput.addEventListener("input", () => {
   updateMetrics();
   Lab.paintRange(seaInput);
@@ -629,33 +789,25 @@ document.getElementById("resetView").onclick = () => {
 };
 document.getElementById("centerBrush").onclick = () => {
   if (currentTool === "section") {
-    startPt.set(-95, 0, 0);
-    endPt.set(95, 0, 0);
+    startPt.set(-95, 0, Number(document.getElementById("brushZ").value));
+    endPt.set(95, 0, Number(document.getElementById("brushZ").value));
     updateSectionLine();
     extractProfileAndGraph();
+    Lab.invalidate();
     return;
   }
   if (currentTool === "orbit") return;
-  const radius = Number(sizeInput.value),
-    power = Number(powerInput.value),
-    middle = positionAttribute.getY(Math.floor(positionAttribute.count / 2));
-  for (let i = 0; i < positionAttribute.count; i++) {
-    const d = Math.hypot(positionAttribute.getX(i), positionAttribute.getZ(i));
-    if (d >= radius) continue;
-    const weight = Math.cos(((d / radius) * Math.PI) / 2),
-      y = positionAttribute.getY(i);
-    positionAttribute.setY(
-      i,
-      currentTool === "flatten"
-        ? y + (middle - y) * weight * 0.1
-        : y + (currentTool === "raise" ? 1 : -1) * weight * power * 0.8,
-    );
-  }
+  remember();
+  const x = Number(document.getElementById("brushX").value),
+    z = Number(document.getElementById("brushZ").value);
+  flattenTarget = gridSample(heights(), resolution + 1, x, z, terrainSize);
+  sculpt({ x, z }, 0.8);
   positionAttribute.needsUpdate = true;
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   updateTerrainColors();
 };
+
 new ResizeObserver(() => {
   const w = container.clientWidth,
     h = container.clientHeight;
@@ -665,4 +817,153 @@ new ResizeObserver(() => {
   renderer.setSize(w, h);
 }).observe(container);
 updateMetrics();
+document.getElementById("applySeed").onclick = () => {
+  const value = Number(document.getElementById("terrainSeed").value);
+  if (!Number.isInteger(value) || value < 1 || value > 999999) {
+    document.getElementById("massBalance").textContent =
+      "시드는 1~999999의 정수로 입력하세요.";
+    return;
+  }
+  remember();
+  terrainSeed = value;
+  generateTerrain();
+};
+document.getElementById("undoTerrain").onclick = () => {
+  if (!undoStack.length) return;
+  redoStack.push(snapshot());
+  restoreTerrain(undoStack.pop());
+};
+document.getElementById("redoTerrain").onclick = () => {
+  if (!redoStack.length) return;
+  undoStack.push(snapshot());
+  restoreTerrain(redoStack.pop());
+};
+document.getElementById("planView").onclick = () => {
+  camera.position.set(0, 265, 0.01);
+  controls.target.set(0, 0, 0);
+  controls.update();
+  Lab.invalidate();
+};
+document
+  .getElementById("contourToggle")
+  .addEventListener("change", updateContours);
+const originalBaekdu = document.getElementById("btnBaekdu").onclick;
+document.getElementById("btnBaekdu").onclick = () => {
+  remember();
+  originalBaekdu();
+};
+document.getElementById("smoothTerrain").onclick = () => {
+  remember();
+  const before = heights(),
+    sum = before.reduce((a, b) => a + b, 0),
+    next = diffuseTerrain(before, resolution + 1, 0.12, 10);
+  for (let i = 0; i < next.length; i++) positionAttribute.setY(i, next[i]);
+  smoothingSteps += 10;
+  positionAttribute.needsUpdate = true;
+  geometry.computeVertexNormals();
+  geometry.computeBoundingSphere();
+  updateTerrainColors();
+  const after = heights().reduce((a, b) => a + b, 0);
+  document.getElementById("massBalance").textContent =
+    "높이 합 변화: " +
+    (after - sum).toExponential(2) +
+    " · 닫힌 영역의 부동소수점 오차";
+};
+function validateExtra(data) {
+  return (
+    data &&
+    Number.isInteger(data.seed) &&
+    data.seed >= 1 &&
+    data.seed <= 999999 &&
+    ["seed", "caldera", "image"].includes(data.source) &&
+    Number.isInteger(data.steps) &&
+    data.steps >= 0 &&
+    Number.isFinite(data.sea) &&
+    data.sea >= -20 &&
+    data.sea <= 50 &&
+    ["heights", "base"].every(
+      (key) =>
+        Array.isArray(data[key]) &&
+        data[key].length === positionAttribute.count &&
+        data[key].every((v) => Number.isFinite(v) && v >= -150 && v <= 150),
+    )
+  );
+}
+function packed() {
+  const data = snapshot();
+  return {
+    ...data,
+    encoding: "f32le-base64",
+    heights: encodeGrid(data.heights),
+    base: encodeGrid(data.base),
+  };
+}
+function unpack(data) {
+  if (data?.encoding !== "f32le-base64")
+    throw new Error("지원하지 않는 격자 형식입니다.");
+  return {
+    ...data,
+    heights: decodeGrid(data.heights, positionAttribute.count),
+    base: decodeGrid(data.base, positionAttribute.count),
+  };
+}
+const flatMap = document.createElement("canvas");
+flatMap.width = flatMap.height = resolution + 1;
+let mapImage;
+function drawFlat(ctx, w, h) {
+  const side = resolution + 1;
+  if (!mapImage)
+    mapImage = flatMap.getContext("2d").createImageData(side, side);
+  const grid = heights();
+  for (let i = 0; i < grid.length; i++) {
+    const value = grid[i],
+      under = value < Number(seaInput.value),
+      c = under
+        ? [42, 85, 92]
+        : [
+            100 + Math.min(100, value * 2),
+            126 + Math.min(90, value),
+            88 + Math.min(80, value),
+          ];
+    mapImage.data.set([...c, 255], i * 4);
+  }
+  flatMap.getContext("2d").putImageData(mapImage, 0, 0);
+  ctx.drawImage(flatMap, 0, 0, w, h);
+  ctx.fillStyle = "#102827db";
+  ctx.fillRect(0, 0, w, 45);
+  ctx.fillStyle = "#edf2d5";
+  ctx.font = "13px sans-serif";
+  ctx.fillText("2D 평면 고도 · 밝을수록 높은 땅 / 파랑은 수면 아래", 16, 28);
+}
+Lab.register({
+  fallback: drawFlat,
+  measure,
+  serialize: packed,
+  normalizeState(state) {
+    state.inputs.terrainSeed = String(terrainSeed);
+  },
+  validate(data) {
+    try {
+      return validateExtra(unpack(data));
+    } catch {
+      return false;
+    }
+  },
+  restore(data) {
+    remember();
+    restoreTerrain(unpack(data));
+  },
+  pause() {
+    motionPaused = true;
+    renderMotionButton();
+    water.position.y = targetSeaLevel;
+    seaVal.innerText = targetSeaLevel + " 단위";
+  },
+});
+Lab.renderLoop(animate, {
+  element: container,
+  renderer,
+  controls,
+  active: () => !motionPaused || isSculpting || isDrawingSection,
+});
 Lab.ready();

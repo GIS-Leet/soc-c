@@ -1,9 +1,11 @@
+import { dailyInsolation, solarAltitude } from "./sim-models.mjs?v=a32b816f";
+import { fitCanvas, line, text } from "./sim-canvas.mjs?v=a3a44df5";
 import {
   declination,
   noonAltitude,
   dayLength,
   latitudeLabel,
-} from "./sim-math.mjs?v=999595c7";
+} from "./sim-math.mjs?v=ad464be2";
 import {
   createElapsedClock,
   advancePhase,
@@ -14,7 +16,7 @@ const clock = createElapsedClock(),
   scene = new THREE.Scene();
 scene.background = new THREE.Color(0x102827);
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2500);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = Lab.createRenderer(THREE, { antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
 renderer.outputEncoding = THREE.sRGBEncoding;
 container.appendChild(renderer.domElement);
@@ -204,6 +206,97 @@ const monthSlider = $("monthSlider"),
 let orbitMonth = 6,
   isPlaying = false,
   tiltAngle = 23.5;
+
+const observation = document.createElement("section");
+observation.className = "control-panel research-extra";
+observation.innerHTML =
+  '<div class="panel-heading"><h2>하루 동안 달라지는 빛</h2><span class="panel-no">관찰</span></div><div class="field-label"><label for="solarHour">태양시</label><output id="solarHourValue">12:00</output></div><input id="solarHour" type="range" min="0" max="24" step=".25" value="12"><div class="metric-grid"><div class="metric"><span>현재 태양 고도</span><strong id="hourAltitude"></strong></div><div class="metric"><span>일평균 일사 · 대기권 밖</span><strong id="dailySolar"></strong></div></div><canvas id="dayCurve" role="img" aria-label="태양시에 따른 태양 고도 곡선"></canvas><p class="note-caption">태양시 12시는 남중 시각입니다. 시계의 12시와 다릅니다. 주황 점은 선택한 태양시의 가상 관찰점입니다.</p><details><summary>12개월 계산 표</summary><div class="comparison-scroll"><table class="annual-data" id="orbitTable"></table></div></details>';
+document.querySelector(".lab-controls").append(observation);
+const observerPoint = new THREE.Mesh(
+  new THREE.SphereGeometry(1.7, 16, 12),
+  new THREE.MeshBasicMaterial({ color: 0xffa05c }),
+);
+earthGroup.add(observerPoint);
+const renderDay = fitCanvas($("dayCurve"), (ctx, w, h) => {
+  const lat = Number(latitudeSlider.value),
+    dec = declination(Number(monthSlider.value), tiltAngle),
+    px = (v) => 30 + (v / 24) * (w - 42),
+    py = (v) => h - 24 - ((v + 90) / 180) * (h - 40);
+  line(ctx, 30, py(0), w - 12, py(0), "#899a8988", 1, [3, 4]);
+  for (let i = 1; i <= 96; i++)
+    line(
+      ctx,
+      px((i - 1) / 4),
+      py(solarAltitude(lat, dec, (i - 1) / 4)),
+      px(i / 4),
+      py(solarAltitude(lat, dec, i / 4)),
+      "#bc5634",
+      2,
+    );
+  const hour = Number($("solarHour").value);
+  ctx.fillStyle = "#b24d30";
+  ctx.beginPath();
+  ctx.arc(px(hour), py(solarAltitude(lat, dec, hour)), 4, 0, Math.PI * 2);
+  ctx.fill();
+  for (const t of [0, 6, 12, 18, 24])
+    text(ctx, String(t), px(t), h - 5, 9, "#6d806f", "center");
+  text(ctx, "0°", 25, py(0) + 3, 9, "#6d806f", "right");
+});
+let annualTableKey = "";
+function updateObservation() {
+  const lat = Number(latitudeSlider.value),
+    m = Number(monthSlider.value),
+    dec = declination(m, tiltAngle),
+    hour = Number($("solarHour").value);
+  $("solarHourValue").textContent =
+    String(Math.floor(hour)).padStart(2, "0") +
+    ":" +
+    String(Math.round((hour % 1) * 60)).padStart(2, "0");
+  $("hourAltitude").innerHTML =
+    solarAltitude(lat, dec, hour).toFixed(1) + "<small>°</small>";
+  $("dailySolar").innerHTML =
+    dailyInsolation(lat, dec).toFixed(1) + "<small> W/m²</small>";
+  Lab.paintRange($("solarHour"));
+  earthGroup.updateMatrixWorld(true);
+  const towardSun = earthGroup.position
+    .clone()
+    .negate()
+    .normalize()
+    .applyQuaternion(earthGroup.quaternion.clone().invert());
+  const lon =
+    Math.atan2(towardSun.z, towardSun.x) + ((hour - 12) * Math.PI) / 12;
+  observerPoint.position.set(
+    (earthRadius + 1) * Math.cos((lat * Math.PI) / 180) * Math.cos(lon),
+    (earthRadius + 1) * Math.sin((lat * Math.PI) / 180),
+    (earthRadius + 1) * Math.cos((lat * Math.PI) / 180) * Math.sin(lon),
+  );
+  const tableKey = `${lat}|${tiltAngle}`;
+  if (tableKey !== annualTableKey) {
+    annualTableKey = tableKey;
+    $("orbitTable").innerHTML =
+      "<tr><th>월</th><th>낮(h)</th><th>남중(°)</th><th>일사(W/m²)</th></tr>" +
+      Array.from({ length: 12 }, (_, i) => {
+        const d = declination(i + 1, tiltAngle);
+        return (
+          "<tr><td>" +
+          (i + 1) +
+          "</td><td>" +
+          dayLength(lat, d).toFixed(2) +
+          "</td><td>" +
+          noonAltitude(lat, d).toFixed(2) +
+          "</td><td>" +
+          dailyInsolation(lat, d).toFixed(2) +
+          "</td></tr>"
+        );
+      }).join("");
+  }
+  renderDay();
+}
+$("solarHour").addEventListener("input", () => {
+  updateObservation();
+  Lab.changed();
+});
+
 function updateSimulation() {
   const m = Number(monthSlider.value),
     latitude = Number(latitudeSlider.value),
@@ -227,6 +320,8 @@ function updateSimulation() {
   Lab.setPresets("monthSlider", m);
   Lab.paintRange(latitudeSlider);
   latitudeSlider.setAttribute("aria-valuetext", latitudeLabel(latitude));
+  updateObservation();
+  Lab.changed();
 }
 monthSlider.addEventListener("input", () => {
   orbitMonth = Number(monthSlider.value);
@@ -267,7 +362,6 @@ new ResizeObserver(resize).observe(container);
 resize();
 resetView();
 function animate(timestamp) {
-  requestAnimationFrame(animate);
   const dt = clock.tick(timestamp, isPlaying && !document.hidden);
   if (dt) {
     orbitMonth = advancePhase(orbitMonth, 0.9, dt, 1, 13);
@@ -285,5 +379,66 @@ function animate(timestamp) {
 }
 // 최초 1회 실행
 updateSimulation();
-animate();
+function drawFlat(ctx, w, h) {
+  const cx = w / 2,
+    cy = h * 0.52,
+    r = Math.min(w * 0.32, h * 0.3),
+    angle = Math.PI - ((Number(monthSlider.value) - 6) * Math.PI) / 6;
+  ctx.strokeStyle = "#91aa86";
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, r, r * 0.7, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = "#f1cf93";
+  ctx.beginPath();
+  ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+  ctx.fill();
+  const x = cx + r * Math.cos(angle),
+    y = cy + r * 0.7 * Math.sin(angle);
+  ctx.fillStyle = "#75b6b1";
+  ctx.beginPath();
+  ctx.arc(x, y, 17, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#f1dbc0";
+  ctx.beginPath();
+  ctx.moveTo(x - 10 * Math.sin((tiltAngle * Math.PI) / 180), y + 28);
+  ctx.lineTo(x + 10 * Math.sin((tiltAngle * Math.PI) / 180), y - 28);
+  ctx.stroke();
+  ctx.fillStyle = "#e3e8cf";
+  ctx.font = "14px sans-serif";
+  ctx.fillText("2D 공전 모형 · 축의 방향은 유지됩니다", 24, 35);
+  ctx.fillText(
+    "선택 위도의 낮 길이와 태양 고도는 수치 패널에서 비교하세요",
+    24,
+    h - 28,
+  );
+}
+Lab.register({
+  fallback: drawFlat,
+  pause() {
+    if (isPlaying) $("playBtn").click();
+  },
+  measure() {
+    const m = Number(monthSlider.value),
+      lat = Number(latitudeSlider.value),
+      dec = declination(m, tiltAngle),
+      hour = Number($("solarHour").value);
+    return {
+      "공전 위치 (월)": +m.toFixed(2),
+      "위도 (°)": lat,
+      "기울기 (°)": tiltAngle,
+      "태양시 (h)": hour,
+      "적위 (°)": +dec.toFixed(3),
+      "낮 길이 (h)": +dayLength(lat, dec).toFixed(3),
+      "남중 고도 (°)": +noonAltitude(lat, dec).toFixed(3),
+      "태양 고도 (°)": +solarAltitude(lat, dec, hour).toFixed(3),
+      "일평균 일사 (W/m²)": +dailyInsolation(lat, dec).toFixed(3),
+    };
+  },
+});
+Lab.renderLoop(animate, {
+  element: container,
+  renderer,
+  controls,
+  active: () => isPlaying,
+});
 Lab.ready();

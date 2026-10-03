@@ -15,7 +15,7 @@
   );
   camera.position.set(0, 150, 400);
 
-  const renderer = new THREE.WebGLRenderer({
+  const renderer = Lab.createRenderer(THREE, {
     antialias: true,
     powerPreference: "high-performance",
   });
@@ -756,6 +756,7 @@
       curStage === sc.stages.length - 1;
 
     buildLabels(st);
+    Lab.changed();
     document
       .getElementById("btnPlay")
       .setAttribute("aria-pressed", String(autoPlay));
@@ -839,7 +840,6 @@
   // ----------------------------------------------------
   let previousFrame = 0;
   function animate(timestamp = 0) {
-    requestAnimationFrame(animate);
     const dt = Math.min(0.05, Math.max(0, (timestamp - previousFrame) / 1000));
     previousFrame = timestamp;
     if (document.hidden) return;
@@ -859,7 +859,7 @@
     }
 
     if (Math.abs(water.position.y - targetWaterY) > 0.1) {
-      water.position.y += (targetWaterY - water.position.y) * 0.03;
+      water.position.y += (targetWaterY - water.position.y) * blend(0.03);
     }
 
     if (isMorphing) {
@@ -921,7 +921,6 @@
   loadScenario("volcano");
   curStage = 3;
   applyStage();
-  animate();
 
   const grid = new THREE.GridHelper(330, 22, 0x506a5a, 0x294338);
   grid.position.y = -32;
@@ -970,5 +969,48 @@
     if (document.hidden) stopAuto();
   });
   new ResizeObserver(resizeView).observe(container);
+  function profile() {
+    const sc = scenarios[curKey],
+      st = sc.stages[curStage],
+      first = sc.stages[0],
+      x = Array.from({ length: 81 }, (_, i) => -100 + i * 2.5);
+    return {
+      x,
+      y: x.map((x) => st.h(x, 0)),
+      baseline: x.map((x) => first.h(x, 0)),
+    };
+  }
+  Lab.register({
+    profile,
+    pause: stopAuto,
+    validateChoices: (c) =>
+      !!scenarios[c.scenario] &&
+      Number.isInteger(c.step) &&
+      c.step >= 0 &&
+      c.step < scenarios[c.scenario].stages.length,
+    measure() {
+      const p = profile(),
+        sc = scenarios[curKey];
+      return {
+        과정: sc.title,
+        단계: curStage + 1,
+        "단계 이름": sc.stages[curStage].name,
+        "중앙 단면 최고 높이": +Math.max(...p.y).toFixed(2),
+        "중앙 단면 최저 높이": +Math.min(...p.y).toFixed(2),
+        "중앙 단면 비고": +(Math.max(...p.y) - Math.min(...p.y)).toFixed(2),
+      };
+    },
+  });
+  Lab.renderLoop(animate, {
+    element: container,
+    renderer,
+    controls,
+    active: () =>
+      autoPlay ||
+      controls.autoRotate ||
+      isMovingCamera ||
+      isMorphing ||
+      Math.abs(water.position.y - targetWaterY) > 0.1,
+  });
   Lab.ready();
 })();

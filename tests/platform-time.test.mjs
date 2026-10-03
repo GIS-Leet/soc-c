@@ -21,7 +21,7 @@ test('계절 페이지의 일시 정지는 공전·자전·배경 회전을 모�
 });
 test('일시 정지 중 해수면 수동 조작도 숫자 표시를 갱신한다',async()=>{
  const html=await readFile(new URL('../assets/sim-terrain.mjs',import.meta.url),'utf8'),line=html.match(/seaInput\.oninput\s*=\s*\(\)\s*=>\s*\{[\s\S]*?^\};/m)[0];
- const context={seaInput:{value:'25'},seaVal:{innerText:'5m'},motionPaused:true,water:{position:{y:5}},targetSeaLevel:5};vm.createContext(context);vm.runInContext(line,context);context.seaInput.oninput();assert.equal(context.water.position.y,25);assert.equal(context.seaVal.innerText,'25m');
+ const context={seaInput:{value:'25'},seaVal:{innerText:'5m'},motionPaused:true,water:{position:{y:5}},targetSeaLevel:5};vm.createContext(context);vm.runInContext(line,context);context.seaInput.oninput();assert.equal(context.water.position.y,25);assert.equal(context.seaVal.innerText,'25 단위');
 });
 test('인라인 모듈의 의존성 로드 실패도 대체 안내를 표시한다',async()=>{
  for(const page of ['climate_3d.html','climate_itcz.html','terrain.html']){
