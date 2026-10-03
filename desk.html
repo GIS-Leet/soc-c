@@ -1881,7 +1881,9 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {mountLectures} from './assets/desk-lectures.mjs';
     import {mountDownloadStats} from './assets/desk-dlstats.mjs';
     import {mountPrep} from './assets/desk-prep.mjs';
-    import {mountWeekly} from './assets/desk-weekly.mjs';
+    import {mountWeekly, summaryLine} from './assets/desk-weekly.mjs';
+    import {mountAlerts} from './assets/desk-alerts.mjs';
+    import {mountMini} from './assets/desk-mini.mjs';
     import {renderGrammar} from './assets/grammar-format.mjs';
     import {renderConcept} from './assets/concept-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1928,6 +1930,10 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       completeLesson: (id, cur) => update(ref(db, `progress/classes/${id}`), { done: Math.min(progLessons.length, cur + 1) })
     });
     const weekly = mountWeekly($('weekReport'), { escapeHTML: s => escapeHTML(String(s ?? '')), study: () => study });   // 공부 탭 주간 리포트
+    // 브라우저 알림(수업·일정·주간) — 상단 바 종 버튼에서 켜고 끔
+    const alerts = mountAlerts(document.querySelector('.desk-side'), { active: () => !!sessionUid, table: () => ttable, start: () => P_START, calendar: () => calendar, weeklyLine: () => summaryLine(weekly.summary()) });
+    // 미니 창(desk.html#mini) — 위젯 대신 작은 창에 띄워 두기
+    const mini = mountMini($('dashView'), { escapeHTML: s => escapeHTML(String(s ?? '')), table: () => ttable, start: () => P_START, len: () => P_LEN, openQuestions: () => Object.values(questions).filter(isOpen).length });
     // ── iPhone 앱(Desk.app) 모드: ?app=1 — 앱이 네이티브 Google 토큰을 window.nativeSignIn 으로 넘긴다 (study.html과 동일) ──
     const APP = new URLSearchParams(location.search).get('app') === '1';
     const postApp = m => { try { window.webkit.messageHandlers.study.postMessage(m); } catch {} };
@@ -2168,6 +2174,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       $('ttable').innerHTML = head + rows;
       renderNextClass();
       prep.render();
+      mini.render();
     }
     // 오늘 패널 — 지금/다음 수업
     function renderNextClass() {
@@ -2534,6 +2541,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
         `<span style="overflow:hidden;text-overflow:ellipsis;">${escapeHTML(q.title) || '제목 없음'}</span></span>` +
         `<span class="d">${escapeHTML(q.author||'익명')} · ${escapeHTML(q.time||'')}</span></button>`).join('')
         : `<div class="rail-empty">${qaFilterMode==='open' ? '미답변 질문이 없습니다 🎉' : '질문이 없습니다.'}</div>`;
+      mini.render();
       if (currentQ && !questions[currentQ]) closeQa();
       else if (currentQ) renderQaDetail();
       renderStats();
@@ -4063,6 +4071,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
             } else if (saveState.textContent.startsWith('오프라인')) saveState.textContent = '';
           });
           // 1분마다 '오늘'과 현재 교시 갱신
+          alerts.start();
           minuteTimer = setInterval(sessionScope.guard(() => { renderToday(); renderTable(); renderBackupStat(); studyMinute(); }), 60 * 1000);
         }
       } else if (user) {
@@ -4104,6 +4113,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       gichul.reset();
       lectures.reset();
       prep.reset();
+      alerts.stop();
       dlStats.reset();
     }
   </script>
