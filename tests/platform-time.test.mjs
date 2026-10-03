@@ -12,15 +12,15 @@ test('일시 정지와 숨겨진 페이지 복귀는 시간을 누적하지 않�
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
 test('계절 페이지의 일시 정지는 공전·자전·배경 회전을 모두 멈춘다',async()=>{
- const html=await readFile(new URL('../climate_3d.html',import.meta.url),'utf8');
- const body=html.slice(html.indexOf('        function animate(timestamp) {'),html.indexOf('        // 최초 1회 실행'));
+ const html=await readFile(new URL('../assets/sim-orbit.mjs',import.meta.url),'utf8');
+ const body=html.slice(html.indexOf('function animate(timestamp) {'),html.indexOf('// 최초 1회 실행'));
  const context={createElapsedClock,advancePhase,clock:createElapsedClock(),requestAnimationFrame(){},isPlaying:false,document:{hidden:false},orbitMonth:6,monthSlider:{value:6,setAttribute(){}},updateSimulation(){},earth:{rotation:{y:0}},starField:{rotation:{y:0}},controls:{update(){}},renderer:{render(){}},scene:{},camera:{}};
  vm.createContext(context);vm.runInContext(body,context);context.animate(0);context.animate(100);assert.equal(context.earth.rotation.y,0);assert.equal(context.starField.rotation.y,0);assert.equal(context.orbitMonth,6);
  context.isPlaying=true;context.animate(200);context.animate(300);assert.ok(Math.abs(context.earth.rotation.y-.3)<1e-9);assert.ok(Math.abs(context.orbitMonth-6.09)<1e-9);
  context.document.hidden=true;context.animate(400);context.document.hidden=false;context.animate(9000);assert.ok(Math.abs(context.earth.rotation.y-.3)<1e-9);
 });
 test('일시 정지 중 해수면 수동 조작도 숫자 표시를 갱신한다',async()=>{
- const html=await readFile(new URL('../terrain.html',import.meta.url),'utf8'),line=html.split('\n').find(x=>x.includes('seaInput.oninput ='));
+ const html=await readFile(new URL('../assets/sim-terrain.mjs',import.meta.url),'utf8'),line=html.match(/seaInput\.oninput\s*=\s*\(\)\s*=>\s*\{[\s\S]*?^\};/m)[0];
  const context={seaInput:{value:'25'},seaVal:{innerText:'5m'},motionPaused:true,water:{position:{y:5}},targetSeaLevel:5};vm.createContext(context);vm.runInContext(line,context);context.seaInput.oninput();assert.equal(context.water.position.y,25);assert.equal(context.seaVal.innerText,'25m');
 });
 test('인라인 모듈의 의존성 로드 실패도 대체 안내를 표시한다',async()=>{
