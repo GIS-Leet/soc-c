@@ -1,220 +1,414 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="ko">
-<head>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-E1W226W5M4');
-</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
-<title>공간 시뮬레이터 — Leet's Geographia</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-
-<!-- 디자인 시스템 -->
-<link rel="stylesheet" href="design-system/stratum.css?v=18a16beb">
-<link rel="stylesheet" href="design-system/geo.css?v=1309406e">
-
-<style>
-/* ============================================================================
-   공간 시뮬레이터 — 페이지 전용
-   ========================================================================== */
-.unit { margin-top: clamp(34px, 5vw, 60px); }
-.unit__head {
-  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  padding-bottom: 12px; margin-bottom: 16px;
-  border-bottom: 1px solid var(--st-separator);
-}
-.unit__no {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
-  color: var(--accent-ink); font-variant-numeric: tabular-nums;
-}
-.unit__head h2 { font-size: clamp(1.05rem, 1.7vw, 1.3rem); font-weight: 700; letter-spacing: -0.022em; }
-.unit__head span { margin-left: auto; font-size: 11.5px; color: var(--st-label-3);
-                   letter-spacing: var(--track-ko); }
-
-.sim-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
-
-.sim {
-  display: flex; flex-direction: column; overflow: hidden;
-  background: var(--st-surface); border: 1px solid var(--st-separator);
-  border-radius: var(--st-r-container); box-shadow: var(--st-shadow-low);
-  transition: border-color var(--st-dur-fast) var(--st-ease),
-              box-shadow var(--st-dur-fast) var(--st-ease),
-              transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
-}
-.sim:hover { transform: translateY(-3px); box-shadow: var(--st-shadow-med);
-             border-color: var(--st-separator-strong); }
-
-/* 표지 — 각 시뮬레이터의 성격을 색과 도형으로만 암시한다 */
-.sim__cover { position: relative; height: 132px; display: grid; place-items: center; overflow: hidden; }
-.sim__cover svg { width: 40px; height: 40px; color: rgba(255,255,255,0.94); position: relative; }
-.sim__cover::after {
-  content: ''; position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(255,255,255,.13) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,.13) 1px, transparent 1px);
-  background-size: 26px 26px;
-}
-.c-climate { background: linear-gradient(135deg, var(--st-blue), var(--st-indigo)); }
-.c-terrain { background: linear-gradient(135deg, var(--st-green), var(--st-teal)); }
-.c-city    { background: linear-gradient(135deg, var(--st-orange), var(--st-red)); }
-.c-ai      { background: linear-gradient(135deg, var(--st-purple), var(--st-blue)); }
-
-.sim__body { padding: 16px 18px 18px; flex: 1; display: flex; flex-direction: column; }
-.sim__body h3 { font-size: 15.5px; font-weight: 700; letter-spacing: -0.02em; color: var(--st-label); }
-.sim__body p { margin-top: 8px; font-size: 13px; line-height: 1.7; color: var(--st-label-2);
-               letter-spacing: var(--track-ko); flex: 1; }
-.sim__go {
-  display: inline-flex; align-items: center; gap: 7px; margin-top: 16px;
-  font-size: 13px; font-weight: 600; color: var(--accent-ink); letter-spacing: var(--track-ko);
-}
-.sim__go svg { width: 14px; height: 14px; transition: transform 0.4s var(--ease); }
-.sim:hover .sim__go svg { transform: translateX(3px); }
-
-.hint {
-  margin-top: clamp(34px, 5vw, 56px); padding: 18px 20px;
-  border-radius: var(--st-r-container);
-  background: var(--st-fill-3); border: 1px solid var(--st-separator);
-  font-size: 13px; line-height: 1.75; color: var(--st-label-2); letter-spacing: var(--track-ko);
-}
-.hint b { color: var(--st-label); font-weight: 600; }
-</style>
-<!-- PWA — 홈 화면에 추가 시 앱처럼 동작 -->
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Geographia">
-<meta name="theme-color" content="#f2f2f7">
-<meta name="description" content="지리 시뮬레이터 — 하나의 조건만 바꾸고 전후 결과를 비교한 뒤, 그 이유를 설명해 보세요.">
-<link rel="canonical" href="https://nyuheatgis.com/simulators.html">
-<meta property="og:title" content="지리 시뮬레이터 · Geographia">
-<meta property="og:description" content="지리 시뮬레이터 — 하나의 조건만 바꾸고 전후 결과를 비교한 뒤, 그 이유를 설명해 보세요.">
-<meta property="og:url" content="https://nyuheatgis.com/simulators.html">
-<meta property="og:type" content="website">
-<style>
-.sim-pause { max-width: 640px; margin: var(--st-sp-6) auto; padding: var(--st-sp-6) 0; border-block: 1px solid var(--st-separator); }
-.sim-pause__cap { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--accent-ink); margin-bottom: var(--st-sp-3); }
-.sim-pause h2 { font-size: 24px; letter-spacing: var(--track-ko); margin: 0 0 var(--st-sp-3); }
-.sim-pause p { color: var(--st-label-2); line-height: 1.7; margin: 0 0 var(--st-sp-5); }
-.sim-pause__act { display: flex; gap: var(--st-sp-3); flex-wrap: wrap; }
-</style>
-</head>
-<body>
-
-<div class="geo-page">
-  <header class="st-glass st-bar">
-    <div class="geo-bar__in">
-      <a class="geo-logo lg" href="index.html" aria-label="Geographia 홈">
-        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="24" cy="24" r="20"/>
-          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
-          <path d="M24 4v40M4 24h40"/>
-          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
-          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
-        </svg>
-        <b>Geographia</b>
-      </a>
-      <nav class="geo-nav">
-        <a class="lg" href="library.html">자료실</a>
-        <a class="lg" href="progress.html">진도표</a>
-        <a class="lg" href="qna.html">Q&amp;A</a>
-        <a class="lg on" href="simulators.html">시뮬레이터</a>
-        <a class="lg" href="feedback.html">건의</a>
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      window.showSimulationFallback = function () {
+        window.simulationFailed = true;
+        const notice = document.getElementById("simulationFallback");
+        if (notice) notice.hidden = false;
+      };
+      window.addEventListener(
+        "error",
+        function (event) {
+          if (
+            event.error ||
+            (event.target?.tagName === "SCRIPT" &&
+              (event.target.type === "module" ||
+                /sim-|three|chart|leaflet|earth/i.test(event.target.src)))
+          )
+            window.showSimulationFallback();
+        },
+        true,
+      );
+      window.addEventListener(
+        "unhandledrejection",
+        window.showSimulationFallback,
+      );
+      document.addEventListener("DOMContentLoaded", function () {
+        if (window.simulationFailed) window.showSimulationFallback();
+      });
+    </script>
+    <script>
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem("geo-theme") || "light";
+      } catch (e) {}
+    </script>
+    <meta
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+      name="viewport"
+    />
+    <title>지리를 직접 실험하는 공간 — Geographia Lab</title>
+    <meta
+      content="계절, 기후, 지형, 도시. 일곱 가지 인터랙티브 실험으로 세상이 움직이는 원리를 발견하세요."
+      name="description"
+    />
+    <link href="https://nyuheatgis.com/simulators.html" rel="canonical" />
+    <meta
+      content="지리를 직접 실험하는 공간 · Geographia Lab"
+      property="og:title"
+    />
+    <meta
+      content="계절, 기후, 지형, 도시. 일곱 가지 인터랙티브 실험으로 세상이 움직이는 원리를 발견하세요."
+      property="og:description"
+    />
+    <meta content="https://nyuheatgis.com/simulators.html" property="og:url" />
+    <meta content="website" property="og:type" />
+    <meta content="#f2f2f7" name="theme-color" />
+    <link href="manifest.json" rel="manifest" />
+    <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+      rel="stylesheet"
+    />
+    <link href="assets/sim-stratum.css?v=622e01ff" rel="stylesheet" />
+  </head>
+  <body data-design="stratum" data-lab="simulators">
+    <a class="skip-link" href="#main">본문으로 이동</a>
+    <header class="lab-header">
+      <a aria-label="Geographia 홈" class="lab-brand" href="index.html"
+        ><svg
+          aria-hidden="true"
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.4"
+          viewBox="0 0 24 24"
+        >
+          <circle cx="12" cy="12" r="9"></circle>
+          <ellipse cx="12" cy="12" rx="4" ry="9"></ellipse>
+          <path d="M3 12h18M5 6.5h14M5 17.5h14"></path></svg
+        ><span>Geographia<span class="brand-dot">.</span></span></a
+      >
+      <nav aria-label="주 메뉴" class="lab-nav">
+        <a href="library.html">자료실</a><a href="progress.html">진도표</a
+        ><a aria-current="page" href="simulators.html">시뮬레이터</a
+        ><a href="qna.html">Q&amp;A</a>
       </nav>
-      <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
-
-
-  <div class="geo-shell">
-    <section class="sheet-head">
-      <div class="geo-aura"></div>
-      <div class="sheet-num">공간 시뮬레이터</div>
-      <h1 class="sheet-title">Simulator</h1>
-      <p class="sheet-meta">글로 읽으면 어려운 것들을 직접 돌려 보면서 익힙니다.
-        지금은 정비 중이라 잠시 닫아 두었습니다.</p>
-      <div class="sheet-rule"></div>
-    </section>
-
-    <main class="geo-main">
-      <section class="sim-pause" aria-labelledby="pauseTitle">
-        <div class="sim-pause__cap">점검 안내</div>
-        <h2 id="pauseTitle">시뮬레이터를 잠시 정비하고 있습니다</h2>
-        <p>더 나은 모습으로 다시 열기 위해 손보는 중입니다. 정비가 끝나면 이 자리에서 바로 열립니다.</p>
-        <div class="sim-pause__act">
-          <a class="st-btn st-btn--filled st-btn--md" href="library.html">자료실 보기</a>
-          <a class="st-btn st-btn--outline st-btn--md" href="qna.html">Q&amp;A 열기</a>
+      <div class="header-actions">
+        <button
+          aria-label="다크 모드"
+          aria-pressed="false"
+          class="icon-btn"
+          id="themeToggle"
+          title="밝은 화면 / 어두운 화면"
+        >
+          <svg
+            aria-hidden="true"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.4"
+            viewBox="0 0 24 24"
+          >
+            <path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10Z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <aside class="fallback" hidden="" id="simulationFallback" role="status">
+      <h2>실험 화면을 불러오지 못했습니다</h2>
+      <p>
+        새로고침 후 다시 시도해 주세요. 그래픽 기능이 지원되지 않는 기기에서는
+        <a href="library.html">공개 자료실</a>에서 관련 내용을 학습할 수
+        있습니다.
+      </p>
+    </aside>
+    <noscript
+      ><div class="fallback">
+        이 실험에는 JavaScript가 필요합니다.
+        <a href="library.html">공개 자료실로 이동</a>
+      </div></noscript
+    >
+    <main class="directory" id="main">
+      <section class="lab-intro">
+        <h1 class="directory-title">지리 시뮬레이터</h1>
+      </section>
+      <section aria-labelledby="directoryHeading">
+        <div class="directory-toolbar">
+          <h2 id="directoryHeading">
+            오늘은 무엇을 탐구할까요?
+            <span class="directory-status" id="filterCount" role="status"
+              >07 experiments</span
+            >
+          </h2>
+          <div aria-label="실험 분야" class="filter-list">
+            <button aria-pressed="true" data-filter="all">전체</button
+            ><button aria-pressed="false" data-filter="기후">기후와 계절</button
+            ><button aria-pressed="false" data-filter="지형">지형과 변화</button
+            ><button aria-pressed="false" data-filter="도시">
+              도시와 공간
+            </button>
+          </div>
+        </div>
+        <div class="experiment-grid">
+          <a class="experiment-card" data-category="기후" href="climate_3d.html"
+            ><div class="experiment-cover">
+              <img
+                alt=""
+                height="520"
+                loading="lazy"
+                src="assets/sim-previews/climate_3d.jpg"
+                width="980"
+              />
+            </div>
+            <div class="experiment-body">
+              <div class="experiment-meta">기후 / ORBIT &amp; SEASONS</div>
+              <h3>지구 공전과 계절</h3>
+              <p>
+                같은 태양, 다른 계절. 자전축과 공전 위치를 바꾸며 두 반구에
+                도달하는 햇빛을 비교해 보세요.
+              </p>
+              <div class="experiment-go">
+                <span>자전축 · 공전 · 낮의 길이</span
+                ><svg
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5"></path>
+                </svg>
+              </div></div></a
+          ><a
+            class="experiment-card"
+            data-category="기후"
+            href="climate_itcz.html"
+            ><div class="experiment-cover">
+              <img
+                alt=""
+                height="520"
+                loading="lazy"
+                src="assets/sim-previews/climate_itcz.jpg"
+                width="980"
+              />
+            </div>
+            <div class="experiment-body">
+              <div class="experiment-meta">기후 / THE MOVING RAIN BELT</div>
+              <h3>적도 수렴대의 이동</h3>
+              <p>
+                계절을 따라 움직이는 비의 띠. 한 해를 돌려 보며 열대 지역의
+                우기와 건기가 나타나는 이유를 찾습니다.
+              </p>
+              <div class="experiment-go">
+                <span>무역풍 · 우기와 건기</span
+                ><svg
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5"></path>
+                </svg>
+              </div></div></a
+          ><a
+            class="experiment-card"
+            data-category="기후"
+            href="climate_solar.html"
+            ><div class="experiment-cover">
+              <img
+                alt=""
+                height="520"
+                loading="lazy"
+                src="assets/sim-previews/climate_solar.jpg"
+                width="980"
+              />
+            </div>
+            <div class="experiment-body">
+              <div class="experiment-meta">기후 / THE GEOMETRY OF SUNLIGHT</div>
+              <h3>태양 고도와 일사량</h3>
+              <p>
+                태양을 조금 더 높이 올려 보세요. 같은 빛이 닿는 면적이
+                줄어들면서 지표가 받는 에너지가 달라집니다.
+              </p>
+              <div class="experiment-go">
+                <span>입사각 · 에너지 밀도</span
+                ><svg
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5"></path>
+                </svg>
+              </div></div></a
+          ><a class="experiment-card" data-category="지형" href="terrain.html"
+            ><div class="experiment-cover">
+              <img
+                alt=""
+                height="520"
+                loading="lazy"
+                src="assets/sim-previews/terrain.jpg"
+                width="980"
+              />
+            </div>
+            <div class="experiment-body">
+              <div class="experiment-meta">지형 / LANDSCAPE STUDIO</div>
+              <h3>지형 만들기 스튜디오</h3>
+              <p>
+                땅을 높이고, 골짜기를 깎고, 바닷물을 채웁니다. 직접 만든 지형을
+                단면으로 잘라 변화의 흔적을 살펴보세요.
+              </p>
+              <div class="experiment-go">
+                <span>융기 · 침식 · 해수면</span
+                ><svg
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5"></path>
+                </svg>
+              </div></div></a
+          ><a
+            class="experiment-card"
+            data-category="지형"
+            href="dynamic_earth.html"
+            ><div class="experiment-cover">
+              <img
+                alt=""
+                height="520"
+                loading="lazy"
+                src="assets/sim-previews/dynamic_earth.jpg"
+                width="980"
+              />
+            </div>
+            <div class="experiment-body">
+              <div class="experiment-meta">
+                지형 / FORCES BENEATH &amp; ABOVE
+              </div>
+              <h3>지형 형성 작용</h3>
+              <p>
+                솟아오르고, 휘어지고, 깎여 나갑니다. 눈에 보이지 않을 만큼 긴
+                시간의 변화를 한 단계씩 펼쳐 봅니다.
+              </p>
+              <div class="experiment-go">
+                <span>내적 작용 · 외적 작용</span
+                ><svg
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5"></path>
+                </svg>
+              </div></div></a
+          ><a
+            class="experiment-card"
+            data-category="지형"
+            href="world_landforms.html"
+            ><div class="experiment-cover">
+              <img
+                alt=""
+                height="520"
+                loading="lazy"
+                src="assets/sim-previews/world_landforms.jpg"
+                width="980"
+              />
+            </div>
+            <div class="experiment-body">
+              <div class="experiment-meta">
+                지형 / A FIELD GUIDE TO LANDFORMS
+              </div>
+              <h3>세계 지형 탐구</h3>
+              <p>
+                화산의 분화구부터 빙하가 남긴 골짜기까지. 익숙한 풍경을 되감아
+                그 풍경을 만든 과정을 관찰합니다.
+              </p>
+              <div class="experiment-go">
+                <span>화산 · 빙하 · 카르스트</span
+                ><svg
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5"></path>
+                </svg>
+              </div></div></a
+          ><a class="experiment-card" data-category="도시" href="seoul.html"
+            ><div class="experiment-cover">
+              <img
+                alt=""
+                height="520"
+                loading="lazy"
+                src="assets/sim-previews/seoul.jpg"
+                width="980"
+              />
+            </div>
+            <div class="experiment-body">
+              <div class="experiment-meta">도시 / THE EXPANDING METROPOLIS</div>
+              <h3>서울 대도시권의 확장</h3>
+              <p>
+                집과 일터 사이를 잇는 교통망. 신도시와 광역 교통의 확장이
+                대도시권을 어떻게 바꾸는지 지도 위에서 읽습니다.
+              </p>
+              <div class="experiment-go">
+                <span>신도시 · 교통망 · 생활권</span
+                ><svg
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M5 12h14m-5-5 5 5-5 5"></path>
+                </svg>
+              </div></div
+          ></a>
+        </div>
+      </section>
+      <section class="directory-guide">
+        <h2>사용 방법</h2>
+        <div class="guide-steps">
+          <div>
+            <b>01 · 예상하기</b>
+            <p>조건을 바꾸기 전에 어떤 변화가 일어날지 생각해 보세요.</p>
+          </div>
+          <div>
+            <b>02 · 조건 바꾸기</b>
+            <p>각도, 계절, 지형. 한 번에 하나의 조건만 바꾸어 비교하세요.</p>
+          </div>
+          <div>
+            <b>03 · 변화 설명하기</b>
+            <p>눈으로 발견한 차이를 바탕으로 변화의 이유를 설명하세요.</p>
+          </div>
         </div>
       </section>
     </main>
-  </div>
-
-  <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
-    <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
-    <a class="lg" href="index.html">← 메인으로</a>
-  </footer>
-</div>
-
-<div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
-  <div class="geo-menu__top">
-    <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
-      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="24" cy="24" r="20"/>
-        <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
-        <path d="M24 4v40M4 24h40"/>
-        <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
-        <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
-      </svg>
-      <b>Geographia</b>
-    </a>
-    <button class="geo-close" id="geoClose" aria-label="메뉴 닫기">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </button>
-  </div>
-  <div class="geo-menu__links">
-    <a class="lg" href="library.html">자료실</a>
-    <a class="lg" href="progress.html">진도표</a>
-    <a class="lg" href="qna.html">Q&amp;A</a>
-    <a class="lg" href="simulators.html">시뮬레이터</a>
-    <a class="lg" href="feedback.html">건의</a>
-  </div>
-  <div class="geo-group">
-    <h3>공간 시뮬레이터</h3>
-    <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
-    <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
-  </div>
-  <div class="geo-group">
-    <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
-    <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
-    <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
-    <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
-  </div>
-  <div class="geo-menu__foot">
-    <a class="geo-menu__cta lg" href="index.html">홈으로 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-    <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
-      <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-      <svg class="sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-    </button>
-  </div>
-</div>
-
-<script src="design-system/stratum.js?v=133fd953"></script>
-<script src="design-system/geo.js?v=d2966f98"></script>
-</body>
+    <footer class="lab-footer">
+      <span
+        >GEOGRAPHIA / FIELDWORK<br />KGGHS 통합사회 · © 2026 TaeHyun Lee</span
+      ><a href="simulators.html">모든 실험 살펴보기 ↗</a>
+    </footer>
+    <script src="assets/sim-lab.js?v=46b94a08"></script>
+    <script src="assets/sim-runtime.js?v=2ba6f1b6"></script>
+    <script src="design-system/earth.js?v=81bfe3b3"></script>
+  </body>
 </html>

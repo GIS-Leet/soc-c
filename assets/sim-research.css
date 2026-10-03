@@ -1,0 +1,634 @@
+/* Classroom and inquiry layers: keep the visualization spacious and the evidence legible. */
+.experiment-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 12px 0 18px;
+}
+.experiment-actions button,
+.experiment-actions select {
+  min-height: 44px;
+}
+.experiment-actions a {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--green);
+}
+.quality-control {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.quality-control select {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0 10px;
+}
+.research-workbench {
+  border-top: 1px solid var(--line);
+  margin: 42px 0 30px;
+  padding-top: 32px;
+}
+.workbench-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.workbench-heading h2 {
+  font-size: clamp(22px, 2vw, 30px);
+  letter-spacing: -1px;
+  margin: 8px 0;
+}
+.model-kind {
+  color: var(--green);
+  font-size: 12px;
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  padding: 7px 12px;
+  white-space: nowrap;
+}
+.inquiry-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 30px;
+}
+.inquiry-task,
+.inquiry-notes {
+  min-width: 0;
+}
+.inquiry-task > label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.inquiry-task select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.inquiry-task h3 {
+  font-size: 20px;
+  line-height: 1.6;
+  margin: 22px 0 16px;
+}
+.inquiry-task ol {
+  padding-left: 22px;
+  line-height: 1.9;
+  font-size: 14px;
+}
+.inquiry-task li {
+  padding: 4px 0 4px 5px;
+}
+.variable-guide {
+  border-left: 2px solid var(--accent);
+  padding: 10px 16px;
+  background: var(--accent-soft);
+  font-size: 12px;
+  line-height: 1.9;
+  margin: 22px 0;
+}
+.teacher-guide,
+.model-details {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 16px 20px;
+  line-height: 1.8;
+}
+.teacher-guide summary,
+.model-details summary {
+  cursor: pointer;
+  min-height: 28px;
+  font-weight: 600;
+}
+.teacher-guide p,
+.model-details p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+.teacher-guide h4 {
+  margin: 18px 0 0;
+}
+.inquiry-notes label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.inquiry-notes label span {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 5px;
+}
+.inquiry-notes textarea {
+  width: 100%;
+  min-height: 88px;
+  resize: vertical;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  line-height: 1.8;
+  font-size: 14px;
+  margin: 0 0 18px;
+}
+.evidence-section {
+  margin-top: 28px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 24px;
+}
+.evidence-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.evidence-heading h3 {
+  font-size: 17px;
+  margin: 0;
+}
+#trialCount {
+  font: 11px var(--mono);
+  color: var(--muted);
+  margin-left: 8px;
+  white-space: nowrap;
+}
+.comparison-scroll {
+  overflow: auto;
+  max-height: 430px;
+  border-radius: 6px;
+  overscroll-behavior: contain;
+}
+.comparison-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.evidence-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.evidence-table caption {
+  text-align: left;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 6px 0 16px;
+}
+.evidence-table th,
+.evidence-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  min-width: 130px;
+  text-align: left;
+  vertical-align: top;
+}
+.evidence-table thead {
+  background: var(--paper);
+}
+.evidence-table th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  min-width: 135px;
+  z-index: 1;
+}
+.evidence-table th b {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.text-btn {
+  min-height: 30px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  padding: 4px 8px 4px 0;
+  margin-right: 10px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+#emptyEvidence {
+  font-size: 13px;
+  padding: 14px 0;
+  color: var(--muted);
+}
+.report-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.report-actions > * {
+  min-height: 42px;
+}
+.file-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.file-button:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.workbench-status {
+  font-size: 12px;
+  color: var(--green);
+  margin-top: 12px;
+  min-height: 20px;
+}
+.model-details {
+  margin-top: 20px;
+  background: var(--surface);
+}
+.model-details h3 {
+  font-size: 14px;
+  margin-top: 20px;
+}
+.model-details li {
+  font-size: 13px;
+  margin: 5px 0;
+}
+.model-details a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.profile-lab {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 15px;
+}
+.profile-lab canvas {
+  display: block;
+  width: 100%;
+  height: 190px;
+}
+.profile-lab p,
+.profile-lab summary {
+  font-size: 12px;
+  color: var(--muted);
+}
+.profile-lab table,
+.annual-data {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.profile-lab th,
+.profile-lab td,
+.annual-data td,
+.annual-data th {
+  padding: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.research-extra {
+  margin-top: 14px;
+}
+.research-extra label {
+  font-size: 13px;
+  display: block;
+  margin-bottom: 7px;
+}
+.research-extra select,
+.research-extra input[type="number"] {
+  min-height: 44px;
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+.research-extra canvas {
+  width: 100%;
+  height: 160px;
+  display: block;
+}
+.research-extra details {
+  font-size: 12px;
+  margin-top: 14px;
+}
+.research-extra .metric-grid {
+  margin: 15px 0;
+}
+.research-extra .metric strong {
+  font-size: 25px;
+}
+.process-measure {
+  font-size: 12px;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  margin-top: 10px;
+}
+.process-measure output {
+  color: var(--ink);
+  font-weight: 600;
+}
+.step-dots button {
+  min-width: 26px;
+  min-height: 26px;
+  border: 7px solid var(--surface);
+  border-radius: 50%;
+}
+.layer-switch input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+}
+.presentation-mode .lab-header,
+.presentation-mode .breadcrumbs,
+.presentation-mode .lab-footer,
+.presentation-mode .research-workbench,
+.presentation-mode .lab-bottom {
+  display: none;
+}
+.presentation-mode .lab-intro {
+  padding-top: 18px;
+  margin-bottom: 18px;
+}
+.presentation-mode .lab-intro h1 {
+  font-size: clamp(26px, 3vw, 42px);
+}
+.presentation-mode .stage-viewport {
+  height: 68vh;
+  min-height: 380px;
+}
+.presentation-mode .experiment-actions a {
+  display: none;
+}
+.presentation-mode .lab-controls {
+  font-size: 16px;
+}
+.presentation-mode .control-panel h2 {
+  font-size: 17px;
+}
+.presentation-mode .metric strong {
+  font-size: 36px;
+}
+.presentation-mode .profile-lab {
+  display: none;
+}
+@media (max-width: 820px) {
+  .inquiry-layout {
+    grid-template-columns: 1fr;
+  }
+  .workbench-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .research-workbench {
+    padding-top: 24px;
+  }
+  .evidence-section {
+    padding: 18px;
+  }
+  .experiment-actions a {
+    display: none;
+  }
+  .experiment-actions {
+    gap: 7px;
+  }
+  .evidence-heading {
+    align-items: flex-start;
+  }
+  .report-actions > * {
+    flex: 1 1 140px;
+    justify-content: center;
+  }
+  .presentation-mode .stage-viewport {
+    height: 58vh;
+    min-height: 340px;
+  }
+}
+@media (max-width: 420px) {
+  .experiment-actions .primary-btn,
+  .experiment-actions .secondary-btn {
+    padding: 10px;
+    font-size: 12px;
+  }
+  .quality-control {
+    margin-left: auto;
+  }
+  .evidence-heading {
+    flex-direction: column;
+  }
+  .evidence-table th,
+  .evidence-table td {
+    min-width: 110px;
+  }
+  .research-workbench h2 {
+    font-size: 24px;
+  }
+  .model-kind {
+    white-space: normal;
+  }
+}
+@media print {
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light;
+    --paper: white;
+    --surface: white;
+    --ink: #111;
+    --muted: #444;
+    --accent: #87321e;
+    --accent-soft: #f4eee9;
+    --line: #bbb;
+  }
+  body {
+    background: white !important;
+    color: #111 !important;
+  }
+  .lab-header,
+  .skip-link,
+  .lab-footer,
+  .lab-controls,
+  .experiment-actions,
+  .stage,
+  .insight-panel,
+  .source-details,
+  .profile-lab,
+  .breadcrumb,
+  .breadcrumbs,
+  .teacher-guide,
+  .report-actions,
+  .text-btn,
+  #recordTrialBottom,
+  .model-details,
+  .model-kind {
+    display: none !important;
+  }
+  .lab-main,
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .lab-intro {
+    margin: 0 0 14px !important;
+  }
+  .lab-intro h1 {
+    font-size: 22px !important;
+  }
+  .lab-workspace {
+    display: none !important;
+  }
+  .research-workbench {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0;
+  }
+  .inquiry-layout {
+    display: block;
+  }
+  .inquiry-notes textarea {
+    height: auto;
+    min-height: 90px;
+    border: 0;
+    border-bottom: 1px solid #aaa;
+    background: white;
+    color: black;
+    overflow: visible;
+  }
+  .inquiry-task select {
+    border: 0;
+    font-weight: bold;
+  }
+  .evidence-section {
+    padding: 0;
+    border: 0;
+  }
+  .comparison-scroll {
+    overflow: visible;
+    max-height: none;
+  }
+  .evidence-table {
+    font-size: 9px;
+    table-layout: fixed;
+  }
+  .evidence-table th,
+  .evidence-table td {
+    min-width: 0;
+    padding: 5px;
+    overflow-wrap: anywhere;
+  }
+  .workbench-heading h2 {
+    font-size: 18px;
+  }
+  .evidence-table tr,
+  .inquiry-task,
+  .inquiry-notes label {
+    break-inside: avoid;
+  }
+  .workbench-status {
+    display: none;
+  }
+  .evidence-table th:first-child {
+    position: static;
+  }
+  .inquiry-notes textarea {
+    white-space: pre-wrap;
+  }
+  .variable-guide {
+    font-size: 10px;
+  }
+}
+
+.experiment-actions > .primary-btn {
+  width: auto;
+  flex: 1 1 180px;
+  margin: 0;
+}
+.experiment-actions > .secondary-btn {
+  margin: 0;
+}
+.research-extra > input[type="range"] {
+  margin: 12px 0 18px;
+}
+.profile-lab details table {
+  min-width: 280px;
+}
+
+.printed-note {
+  display: none;
+}
+@media print {
+  .inquiry-notes textarea {
+    display: none !important;
+  }
+  .printed-note {
+    display: block;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    min-height: 70px;
+    padding: 10px 0 18px;
+    border-bottom: 1px solid #aaa;
+    margin-bottom: 15px;
+    font-size: 11pt;
+    line-height: 1.7;
+  }
+  .lab-workspace {
+    display: none !important;
+  }
+  .lab-bottom {
+    display: none !important;
+  }
+}
+
+body[data-renderer="2d"] #label-layer,
+body[data-renderer="2d"] .compass {
+  display: none;
+}
+
+:root:not([data-theme="dark"]) {
+  --accent: #ad3f25;
+  --muted: #59675f;
+}
+.step-dots {
+  gap: 2px;
+}
+.step-dots button {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  border: 9px solid var(--surface);
+  padding: 0;
+  background-clip: padding-box;
+  box-sizing: border-box;
+}

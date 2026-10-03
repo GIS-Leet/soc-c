@@ -1,0 +1,222 @@
+:root {
+  color-scheme: light;
+
+  /* 회색 램프 — Apple systemGray (살짝 푸른 뉴트럴. 따뜻한 회색 금지) */
+  --st-gray-0: #ffffff;
+  --st-gray-6: #f2f2f7;
+  --st-gray-5: #e5e5ea;
+  --st-gray-4: #d1d1d6;
+  --st-gray-3: #c7c7cc;
+  --st-gray-2: #aeaeb2;
+  --st-gray-1: #8e8e93;
+  --st-gray-d1: #6c6c70;
+  --st-gray-d2: #55555a;
+  --st-gray-d3: #48484a;
+  --st-gray-d4: #3a3a3c;
+  --st-gray-d5: #2c2c2e;
+  --st-gray-d6: #1c1c1e;
+  --st-gray-d7: #000000;
+
+  /* 배경 계층 */
+  --st-bedrock: #f2f2f7; /* 페이지 바탕 */
+  --st-bedrock-sunken: #e5e5ea;
+  --st-surface: #ffffff; /* 패널·카드 */
+  --st-fill: rgba(120, 120, 128, 0.2); /* 반투명 채움 — 입력 배경, 보조 버튼 */
+  --st-fill-2: rgba(120, 120, 128, 0.12);
+  --st-fill-3: rgba(120, 120, 128, 0.07);
+
+  /* 글자 4단계 */
+  --st-label: #000000; /* 제목·본문 */
+  --st-label-2: #55555a; /* 보조 설명 (7.4:1) */
+  --st-label-3: #6c6c70; /* 메타·캡션 (5.2:1) */
+  --st-label-4: #8e8e93; /* 텍스트 금지 — 장식·비활성 아이콘만 */
+
+  /* 경계 */
+  --st-separator: #d1d1d6; /* 행 구분선·패널 테두리 */
+  --st-separator-strong: #c7c7cc;
+  --st-border-control: #8e8e93; /* 입력칸 등 조작 요소 테두리 (3:1 이상) */
+
+  /* 액센트 — 채움색과 글자색을 반드시 분리 */
+  --st-accent: #0088ff; /* 면·점·틴트 (장식) */
+  --st-accent-ink: #0069d9; /* 글자·아이콘 */
+  --st-accent-solid: #0069d9; /* 채운 버튼 배경 (흰 글자) */
+  --st-accent-hover: #0074dd;
+  --st-accent-soft: rgba(0, 136, 255, 0.12); /* 선택된 행, hover 배경 */
+  --st-accent-line: rgba(0, 136, 255, 0.35); /* 포커스 링 */
+  --st-on-accent: #ffffff;
+
+  /* 신호색 — 상태 표시에만. -ink = 글자, -soft = 옅은 배경 */
+  --st-success: #34c759;
+  --st-success-ink: #177c36;
+  --st-success-soft: rgba(52, 199, 89, 0.14);
+  --st-warning: #ff8d28;
+  --st-warning-ink: #a34900;
+  --st-warning-soft: rgba(255, 141, 40, 0.16);
+  --st-danger: #ff383c;
+  --st-danger-ink: #c9000f;
+  --st-danger-soft: rgba(255, 56, 60, 0.13);
+
+  /* 반전(토스트 등) */
+  --st-ink: #1c1c1e;
+  --st-on-ink: #ffffff;
+
+  /* 간격 — 4px 그리드 */
+  --st-sp-1: 4px;
+  --st-sp-2: 8px;
+  --st-sp-3: 12px;
+  --st-sp-4: 16px;
+  --st-sp-5: 20px;
+  --st-sp-6: 24px;
+  --st-sp-8: 32px;
+  --st-sp-10: 40px;
+  --st-sp-12: 48px;
+  --st-sp-16: 64px;
+
+  /* 반경 — 정해진 단계만. 안쪽 반경 = 바깥 반경 − 안쪽 여백 (동심원 규칙) */
+  --st-r-inner: 4px; /* 태그·체크박스 */
+  --st-r-element: 8px; /* 입력칸·작은 버튼 */
+  --st-r-container: 12px; /* 목록 그룹·작은 카드 */
+  --st-r-page: 20px; /* 패널·시트·모달 */
+  --st-r-full: 9999px; /* 버튼·세그먼트·토스트 */
+
+  /* 컨트롤 높이 */
+  --st-h-sm: 28px;
+  --st-h-md: 32px;
+  --st-h-lg: 36px;
+  --st-h-xl: 44px;
+
+  /* 그림자 — 옅게 */
+  --st-shadow-low: 0 1px 1px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.05);
+  --st-shadow-med:
+    0 1px 2px rgba(0, 0, 0, 0.05), 0 6px 20px rgba(0, 0, 0, 0.08);
+  --st-shadow-high:
+    0 2px 4px rgba(0, 0, 0, 0.06), 0 16px 44px rgba(0, 0, 0, 0.12); /* 모달·시트만 */
+  --st-ring: 0 0 0 3.5px var(--st-accent-line);
+
+  /* 모션 */
+  --st-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --st-dur-instant: 90ms; /* 눌림 */
+  --st-dur-fast: 175ms; /* hover·색 변화 */
+  --st-dur-medium: 410ms; /* 진입·퇴장 */
+
+  /* 글꼴 */
+  --st-font-sans:
+    "Space Grotesk", "Pretendard Variable", "Pretendard", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --st-font-mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* 다크 모드 — data-theme 우선, 없으면 OS 설정 */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --st-bedrock: #000000;
+  --st-bedrock-sunken: #000000;
+  --st-surface: #1c1c1e;
+  --st-fill: rgba(120, 120, 128, 0.36);
+  --st-fill-2: rgba(120, 120, 128, 0.24);
+  --st-fill-3: rgba(120, 120, 128, 0.14);
+  --st-label: #ffffff;
+  --st-label-2: #aeaeb2;
+  --st-label-3: #8e8e93;
+  --st-label-4: #6c6c70;
+  --st-separator: #38383a;
+  --st-separator-strong: #48484a;
+  --st-border-control: #8e8e93;
+  --st-accent: #0091ff;
+  --st-accent-ink: #0091ff;
+  --st-accent-solid: #0071e3;
+  --st-accent-hover: #3ca5ff;
+  --st-accent-soft: rgba(0, 145, 255, 0.2);
+  --st-accent-line: rgba(0, 145, 255, 0.45);
+  --st-success: #30d158;
+  --st-success-ink: #30d158;
+  --st-success-soft: rgba(48, 209, 88, 0.18);
+  --st-warning: #ff9230;
+  --st-warning-ink: #ff9230;
+  --st-warning-soft: rgba(255, 146, 48, 0.18);
+  --st-danger: #ff4245;
+  --st-danger-ink: #ff4245;
+  --st-danger-soft: rgba(255, 66, 69, 0.2);
+  --st-ink: #2c2c2e;
+  --st-shadow-low: 0 1px 1px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --st-shadow-med: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.5);
+  --st-shadow-high:
+    0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 44px rgba(0, 0, 0, 0.6);
+}
+/* 같은 다크 값을 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { … } } 에도 복제 */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --st-bedrock: #000000;
+    --st-bedrock-sunken: #000000;
+    --st-surface: #1c1c1e;
+    --st-fill: rgba(120, 120, 128, 0.36);
+    --st-fill-2: rgba(120, 120, 128, 0.24);
+    --st-fill-3: rgba(120, 120, 128, 0.14);
+    --st-label: #ffffff;
+    --st-label-2: #aeaeb2;
+    --st-label-3: #8e8e93;
+    --st-label-4: #6c6c70;
+    --st-separator: #38383a;
+    --st-separator-strong: #48484a;
+    --st-border-control: #8e8e93;
+    --st-accent: #0091ff;
+    --st-accent-ink: #0091ff;
+    --st-accent-solid: #0071e3;
+    --st-accent-hover: #3ca5ff;
+    --st-accent-soft: rgba(0, 145, 255, 0.2);
+    --st-accent-line: rgba(0, 145, 255, 0.45);
+    --st-success: #30d158;
+    --st-success-ink: #30d158;
+    --st-success-soft: rgba(48, 209, 88, 0.18);
+    --st-warning: #ff9230;
+    --st-warning-ink: #ff9230;
+    --st-warning-soft: rgba(255, 146, 48, 0.18);
+    --st-danger: #ff4245;
+    --st-danger-ink: #ff4245;
+    --st-danger-soft: rgba(255, 66, 69, 0.2);
+    --st-ink: #2c2c2e;
+    --st-shadow-low:
+      0 1px 1px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.35);
+    --st-shadow-med:
+      0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.5);
+    --st-shadow-high:
+      0 2px 4px rgba(0, 0, 0, 0.4), 0 16px 44px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Simulator layout dimensions extend the supplied scale; scene materials are
+   physically descriptive colours in sim-landscape.js, not additional UI accents. */
+:root {
+  --sim-max: 1360px;
+  --sim-sidebar: 300px;
+  --sim-header: 58px;
+  --sim-scene: 520px;
+  --sim-scene-mobile: 400px;
+  --sim-profile: 180px;
+  --sim-note-height: 104px;
+  --sim-border: 1px;
+  --sim-icon: 18px;
+  --sim-font-title: 28px;
+  --sim-font-reading: 48px;
+  --sim-font-reading-mobile: 36px;
+  --sim-thumbnail: 180px;
+  --sim-thumbnail-mobile: 108px;
+  --sim-font-section: 19px;
+  --sim-font-body: 15px;
+  --sim-font-row: 14px;
+  --sim-font-meta: 12px;
+  --sim-font-eyebrow: 11px;
+  --sim-leading: 1.6;
+  --sim-control: 38px;
+  --sim-dot: 6px;
+  --sim-line: 32px;
+  --sim-label-lift: -44px;
+  --sim-canvas: #edf0f3;
+  --sim-glass: rgba(255, 255, 255, 0.82);
+}
+:root[data-theme="dark"] {
+  --sim-canvas: #15191e;
+  --sim-glass: rgba(28, 28, 30, 0.86);
+}
