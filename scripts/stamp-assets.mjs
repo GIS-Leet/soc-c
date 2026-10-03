@@ -9,13 +9,10 @@ const ROOT=join(dirname(fileURLToPath(import.meta.url)),'..');
 const SKIP_HTML=new Set(['desk.html','material-viewer.html']);   // 서비스 워커 셸: 캐시 열쇠가 주소 그대로라 스탬프를 붙이지 않는다
 const check=process.argv.includes('--check');
 const hash=s=>createHash('sha1').update(s).digest('hex').slice(0,8);
-// Git may check text assets out as CRLF on Windows; deployment uses LF on Linux.
-// Hash the canonical text so an identical checkout has identical asset URLs.
-const assetText=path=>readFileSync(path,'utf8').replace(/\r\n/g,'\n');
 const strip=s=>s.replace(/\?v=[0-9a-f]{8}/g,'');
 // 1) 모듈끼리 부르는 상대 import — 불리는 쪽 해시가 정해져야 부르는 쪽 해시가 정해지므로 안정될 때까지 반복
 const modules={};
-for(const f of readdirSync(join(ROOT,'assets')).filter(f=>f.endsWith('.mjs')))modules['assets/'+f]=strip(assetText(join(ROOT,'assets',f)));
+for(const f of readdirSync(join(ROOT,'assets')).filter(f=>f.endsWith('.mjs')))modules['assets/'+f]=strip(readFileSync(join(ROOT,'assets',f),'utf8'));
 for(let pass=0;pass<8;pass++){
   let changed=false;
   for(const key of Object.keys(modules)){
@@ -25,9 +22,9 @@ for(let pass=0;pass<8;pass++){
   if(!changed)break;
 }
 const planned=[];
-for(const [key,text] of Object.entries(modules)){const path=join(ROOT,key);if(assetText(path)!==text)planned.push([path,text]);}
+for(const [key,text] of Object.entries(modules)){const path=join(ROOT,key);if(readFileSync(path,'utf8')!==text)planned.push([path,text]);}
 // 2) HTML 이 부르는 assets/·design-system/ 파일
-const fileHash=rel=>modules[rel]?hash(modules[rel]):existsSync(join(ROOT,rel))?hash(assetText(join(ROOT,rel))):null;
+const fileHash=rel=>modules[rel]?hash(modules[rel]):existsSync(join(ROOT,rel))?hash(readFileSync(join(ROOT,rel))):null;
 const htmlFiles=[...readdirSync(ROOT).filter(f=>f.endsWith('.html')),...(existsSync(join(ROOT,'test'))?readdirSync(join(ROOT,'test')).filter(f=>f.endsWith('.html')).map(f=>'test/'+f):[])];
 for(const rel of htmlFiles){
   if(SKIP_HTML.has(rel))continue;
