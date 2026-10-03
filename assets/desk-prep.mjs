@@ -193,6 +193,7 @@ export function mountPrep(panel, ctx) {
   return {
     render() { render(); if (ctx.active() && (files === null || Date.now() - filesAt > 300000)) loadFiles(); },
     refreshFiles() { loadFiles(true); },
+    async listFiles() { if (ctx.active()) await loadFiles(); return files || []; },
     reset() { closeShow(); files = null; filesAt = 0; filesFor = ''; last = null; if (blobUrl) URL.revokeObjectURL(blobUrl); blobUrl = null; body.innerHTML = ''; }
   };
 }
