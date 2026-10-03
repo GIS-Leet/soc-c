@@ -24,6 +24,13 @@
       undefined,
       () => {
         failed = true;
+        const fallback = document.createElement("canvas");
+        fallback.width = fallback.height = 2;
+        const context = fallback.getContext("2d");
+        context.fillStyle = name.includes("height") ? "#808080" : "#a6a394";
+        context.fillRect(0, 0, 2, 2);
+        texture.image = fallback;
+        texture.needsUpdate = true;
         document.body.dataset.materials = "fallback";
         Lab.invalidate?.();
       },
@@ -34,7 +41,7 @@
     // remain linear data. Sampling UVs in object space avoids swimming materials.
     textures[name] = texture;
   }
-  Landscape.photoMaterial = () => {
+  Landscape.photoMaterial = (options = {}) => {
     const material = new THREE.MeshStandardMaterial({
       roughness: 0.91,
       metalness: 0,
@@ -42,6 +49,13 @@
     });
     material.extensions = { derivatives: true };
     material.onBeforeCompile = (shader) => {
+      shader.uniforms.surfaceTint = {
+        value: new THREE.Color(options.tint ?? 0xffffff),
+      };
+      shader.uniforms.preserveLayers = {
+        value: options.preserveLayers ? 1 : 0,
+      };
+      shader.uniforms.surfaceSaturation = { value: options.saturation ?? 1 };
       for (const [key, name] of [
         ["rockColor", "rock-color"],
         ["rockHeight", "rock-height"],
@@ -58,6 +72,7 @@
       );
       shader.fragmentShader =
         `
+        uniform vec3 surfaceTint; uniform float preserveLayers; uniform float surfaceSaturation;
         uniform sampler2D rockColor;uniform sampler2D rockHeight;uniform sampler2D groundColor;uniform sampler2D groundHeight;
         varying vec3 vSurface;varying vec3 vObjectPoint;varying vec3 vObjectNormal;
         vec3 linearPhoto(vec3 c){return pow(c,vec3(2.2));}
@@ -78,6 +93,13 @@
         float rockMix=clamp(vSurface.x,0.,1.);
         vec3 naturalSurface=mix(ground,rock,rockMix);
         naturalSurface*=mix(.77,1.14,clamp(vColor.r*2.6,0.,1.));
+        naturalSurface*=surfaceTint;
+        naturalSurface=mix(vec3(dot(naturalSurface,vec3(.2126,.7152,.0722))),naturalSurface,surfaceSaturation);
+        naturalSurface=mix(naturalSurface,mix(naturalSurface*.45,vColor*.72,.7),preserveLayers);
+        if(vSurface.x < -.5){
+          float crevasse=pow(abs(sin(vObjectPoint.z*.52+sin(vObjectPoint.x*.18)*.8)),36.);
+          naturalSurface=mix(vec3(.67,.83,.88),vec3(.12,.29,.38),crevasse*.5);
+        }
         diffuseColor.rgb*=naturalSurface;
         diffuseColor.rgb*=mix(1.,.62,vSurface.z);
         float terrainAO=clamp(vSurface.y,.32,1.);

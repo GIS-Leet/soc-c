@@ -1,5 +1,6 @@
+import { earthImage } from "./sim-earth-image.mjs?v=9051904f";
 import { dailyInsolation, solarAltitude } from "./sim-models.mjs?v=a32b816f";
-import { fitCanvas, line, text } from "./sim-canvas.mjs?v=31de4804";
+import { fitCanvas, line, text } from "./sim-canvas.mjs?v=0a622b13";
 import {
   declination,
   noonAltitude,
@@ -14,7 +15,7 @@ const $ = (id) => document.getElementById(id),
   container = $("simulation-container");
 const clock = createElapsedClock(),
   scene = new THREE.Scene();
-scene.background = new THREE.Color(0x102827);
+scene.background = new THREE.Color(0x10151f);
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2500);
 const renderer = Lab.createRenderer(THREE, { antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
@@ -23,11 +24,13 @@ container.appendChild(renderer.domElement);
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
-controls.minDistance = 190;
+controls.minDistance = 65;
 controls.maxDistance = 850;
 controls.maxPolarAngle = Math.PI * 0.88;
-scene.add(new THREE.AmbientLight(0x749286, 0.45));
-scene.add(new THREE.PointLight(0xffe5b9, 2, 0));
+scene.add(new THREE.AmbientLight(0xb3c7e3, 0.18));
+const sunlight = new THREE.DirectionalLight(0xfff6e5, 1.55);
+scene.add(sunlight);
+scene.add(sunlight.target);
 const sun = new THREE.Mesh(
   new THREE.SphereGeometry(20, 40, 32),
   new THREE.MeshBasicMaterial({ color: 0xf2cc8c }),
@@ -52,6 +55,7 @@ const glow = new THREE.Sprite(
 );
 glow.scale.set(115, 115, 1);
 scene.add(glow);
+let viewMode = "earth";
 const R = 133,
   earthRadius = 28,
   earthGroup = new THREE.Group();
@@ -63,21 +67,28 @@ texture.encoding = THREE.sRGBEncoding;
 texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 const earth = new THREE.Mesh(
   new THREE.SphereGeometry(earthRadius, 64, 48),
-  new THREE.MeshPhongMaterial({
+  new THREE.MeshLambertMaterial({
     map: texture,
-    shininess: 8,
-    specular: 0x446655,
   }),
 );
 earthGroup.add(earth);
+earthImage.then((image) => {
+  if (!image) return;
+  texture.image = image;
+  texture.needsUpdate = true;
+  Lab.invalidate?.();
+  document.body.dataset.earthImage = "ready";
+});
 const atmosphere = new THREE.Mesh(
-  new THREE.SphereGeometry(earthRadius * 1.04, 48, 32),
-  new THREE.MeshBasicMaterial({
-    color: 0xa3c1b5,
+  new THREE.SphereGeometry(earthRadius * 1.018, 48, 32),
+  new THREE.ShaderMaterial({
     transparent: true,
-    opacity: 0.1,
-    side: THREE.BackSide,
     depthWrite: false,
+    side: THREE.BackSide,
+    vertexShader:
+      "varying vec3 n;varying vec3 v;void main(){vec4 p=modelViewMatrix*vec4(position,1.);n=normalize(normalMatrix*normal);v=normalize(-p.xyz);gl_Position=projectionMatrix*p;}",
+    fragmentShader:
+      "varying vec3 n;varying vec3 v;void main(){float rim=pow(1.-abs(dot(normalize(n),normalize(v))),3.);gl_FragColor=vec4(.24,.5,.87,rim*.45);}",
   }),
 );
 earthGroup.add(atmosphere);
@@ -192,7 +203,7 @@ starField.add(
       new THREE.Float32BufferAttribute(stars, 3),
     ),
     new THREE.PointsMaterial({
-      color: 0xa9b99c,
+      color: 0xbac9de,
       size: 1.2,
       transparent: true,
       opacity: 0.35,
@@ -303,7 +314,15 @@ function updateSimulation() {
     dec = declination(m, tiltAngle),
     hours = dayLength(latitude, dec);
   const theta = Math.PI - ((m - 6) * Math.PI) / 6;
+  const previousPosition = earthGroup.position.clone();
   earthGroup.position.set(R * Math.cos(theta), 0, R * Math.sin(theta));
+  sunlight.position.set(0, 0, 0);
+  sunlight.target.position.copy(earthGroup.position);
+  if (viewMode === "earth") {
+    const delta = earthGroup.position.clone().sub(previousPosition);
+    camera.position.add(delta);
+    controls.target.copy(earthGroup.position);
+  }
   earthGroup.rotation.z = (-tiltAngle * Math.PI) / 180;
   ray.setDirection(earthGroup.position.clone().normalize());
   monthLabel.innerHTML = `${Math.floor(m)}<small>월</small>`;
@@ -344,12 +363,42 @@ $("playBtn").addEventListener("click", () => {
   $("playIconSpan").textContent = isPlaying ? "Ⅱ" : "▶";
 });
 function resetView() {
-  const factor = container.clientWidth / container.clientHeight < 1 ? 1.35 : 1;
-  camera.position.set(180 * factor, 235 * factor, 345 * factor);
-  controls.target.set(0, 0, 0);
+  if (viewMode === "earth") {
+    const factor =
+      container.clientWidth / container.clientHeight < 1 ? 1.25 : 1;
+    controls.target.copy(earthGroup.position);
+    camera.position
+      .copy(earthGroup.position)
+      .add(new THREE.Vector3(85, 55, 115).multiplyScalar(factor));
+  } else {
+    const factor =
+      container.clientWidth / container.clientHeight < 1 ? 1.35 : 1;
+    camera.position.set(180 * factor, 235 * factor, 345 * factor);
+    controls.target.set(0, 0, 0);
+  }
   controls.update();
+  Lab.invalidate?.();
 }
 $("resetView").addEventListener("click", resetView);
+const views = document.createElement("div");
+views.className = "scene-views";
+views.innerHTML =
+  '<button class="scene-view-btn" data-orbit-view="earth" aria-pressed="true">지구 확대</button><button class="scene-view-btn" data-orbit-view="orbit" aria-pressed="false">공전 궤도</button>';
+document.querySelector(".lab-controls .control-panel").prepend(views);
+views.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-orbit-view]");
+  if (!button) return;
+  viewMode = button.dataset.orbitView;
+  views
+    .querySelectorAll("button")
+    .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+  resetView();
+});
+const imageNote = document.createElement("p");
+imageNote.className = "note-caption";
+imageNote.textContent =
+  "지표: NASA Blue Marble, 2004년 6월 합성 영상. 지구·태양의 크기와 거리는 관찰을 위해 과장했습니다. 영상의 식생·눈은 월 조작에 따라 변하지 않습니다.";
+document.querySelector(".lab-visual").append(imageNote);
 function resize() {
   const w = container.clientWidth,
     h = container.clientHeight;
@@ -357,6 +406,7 @@ function resize() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  Lab.invalidate?.();
 }
 new ResizeObserver(resize).observe(container);
 resize();

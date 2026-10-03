@@ -6,7 +6,8 @@
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x102827);
   scene.background = new THREE.Color(0x102827);
-  scene.fog = new THREE.Fog(0x102827, 600, 1300);
+  scene.fog = new THREE.Fog(0xedf0f3, 800, 1500);
+  SceneVisual.theme(scene);
 
   const camera = new THREE.PerspectiveCamera(
     45,
@@ -24,7 +25,7 @@
   // 밝은 곳이 하얗게 타지 않도록 밝기 압축과 색공간을 지정한다
   if (THREE.ACESFilmicToneMapping) {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.72;
+    renderer.toneMappingExposure = 1.02;
   }
   if ("outputColorSpace" in renderer && THREE.SRGBColorSpace)
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -43,7 +44,7 @@
     document.getElementById("rotateToggle")?.checked || false;
   controls.autoRotateSpeed = 0.32;
 
-  const sun = new THREE.DirectionalLight(0xfff3df, 0.9);
+  const sun = new THREE.DirectionalLight(0xfff3df, 1.6);
   sun.position.set(120, 205, 85);
   sun.castShadow = true;
   sun.shadow.mapSize.width = 2048;
@@ -57,7 +58,7 @@
   sun.shadow.bias = -0.0004;
   sun.shadow.normalBias = 0.03;
   scene.add(sun);
-  scene.add(new THREE.HemisphereLight(0xbcd6ea, 0x4a4030, 0.42));
+  scene.add(new THREE.HemisphereLight(0xbcd6ea, 0x4a4030, 0.75));
   scene.add(new THREE.AmbientLight(0x6b6b66, 0.16));
 
   const sky = new THREE.Sky();
@@ -96,6 +97,7 @@
   water.rotation.x = -Math.PI / 2;
   water.position.y = -100;
   scene.add(water);
+  SceneVisual.calmWater(water);
   water.material.uniforms["sunDirection"].value.copy(
     sun.position.clone().normalize(),
   );
@@ -141,15 +143,7 @@
     tarCol.push(new THREE.Color(0x6f8f5a));
     tColorAttr.setXYZ(i, 0.43, 0.56, 0.35);
   }
-  const terrain = new THREE.Mesh(
-    tGeo,
-    new THREE.MeshStandardMaterial({
-      vertexColors: true,
-      roughness: 1.0,
-      metalness: 0.0,
-      flatShading: false,
-    }),
-  );
+  const terrain = new THREE.Mesh(tGeo, SceneVisual.photoSurface(tGeo));
   terrain.castShadow = terrain.receiveShadow = true;
   terrain.visible = false;
   scene.add(terrain);
@@ -246,7 +240,23 @@
   const BW = 210,
     BH = 50,
     BD = 120;
-  const bGeo = new THREE.BoxGeometry(BW, BH, BD, 108, 16, 3);
+  // Separate closed halves: fault displacement must expose two cut faces,
+  // rather than stretching triangles across the fracture into a false ramp.
+  const bGeo = new THREE.BufferGeometry();
+  const halves = [-1, 1].map((sign) => {
+    const g = new THREE.BoxGeometry(BW / 2, BH, BD, 54, 16, 3).toNonIndexed();
+    g.translate(sign * (BW / 4 + 0.0001), 0, 0);
+    return g;
+  });
+  for (const name of ["position", "normal", "uv"]) {
+    const a = halves[0].attributes[name],
+      b = halves[1].attributes[name],
+      values = new Float32Array(a.array.length + b.array.length);
+    values.set(a.array);
+    values.set(b.array, a.array.length);
+    bGeo.setAttribute(name, new THREE.BufferAttribute(values, a.itemSize));
+  }
+  halves.forEach((g) => g.dispose());
   const bPos = bGeo.attributes.position;
   const bRest = new Float32Array(bPos.count * 3);
   const bTarget = new Float32Array(bPos.count * 3);
@@ -275,12 +285,7 @@
   }
   const blockMesh = new THREE.Mesh(
     bGeo,
-    new THREE.MeshStandardMaterial({
-      vertexColors: true,
-      roughness: 0.95,
-      metalness: 0.0,
-      flatShading: false,
-    }),
+    SceneVisual.photoSurface(bGeo, { rock: 1, preserveLayers: true }),
   );
   blockMesh.position.y = -BH / 2; // 윗면이 월드 y=0
   blockMesh.castShadow = blockMesh.receiveShadow = true;
@@ -553,7 +558,7 @@
   // 화면 비율을 반영해 카메라 거리를 정함 — 세로(모바일)일수록 뒤로 빼서 지형 전체가 들어오게
   function frameCamera() {
     const aspect = container.clientWidth / Math.max(1, container.clientHeight);
-    const f = 1.45 * Math.max(1, 1.2 / aspect);
+    const f = 1.28 * Math.max(1, 1.1 / aspect);
     const t = new THREE.Vector3(...curTgt);
     targetCamPos.copy(
       new THREE.Vector3(...curCam).sub(t).multiplyScalar(f).add(t),
@@ -787,6 +792,7 @@
       tPos.needsUpdate = true;
       tColorAttr.needsUpdate = true;
       tGeo.computeVertexNormals();
+      SceneVisual.surfaceData(tGeo);
       if (!still) {
         isMorphing = false;
       }
@@ -833,6 +839,7 @@
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
+    Lab.invalidate?.();
     frameCamera();
     if (!isMovingCamera) {
       camera.position.copy(targetCamPos);
@@ -851,6 +858,7 @@
 
   const grid = new THREE.GridHelper(330, 22, 0x506a5a, 0x294338);
   grid.position.y = -65;
+  grid.visible = false;
   scene.add(grid);
   scene.add(new THREE.HemisphereLight(0xd0dec3, 0x29483c, 0.22));
   document
@@ -902,6 +910,7 @@
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
+    Lab.invalidate?.();
   }).observe(container);
   function profile() {
     const sc = scenarios[curKey],

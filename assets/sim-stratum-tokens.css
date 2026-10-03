@@ -199,6 +199,10 @@
   --sim-border: 1px;
   --sim-icon: 18px;
   --sim-font-title: 28px;
+  --sim-font-reading: 48px;
+  --sim-font-reading-mobile: 36px;
+  --sim-thumbnail: 180px;
+  --sim-thumbnail-mobile: 108px;
   --sim-font-section: 19px;
   --sim-font-body: 15px;
   --sim-font-row: 14px;

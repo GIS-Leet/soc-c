@@ -55,17 +55,17 @@ import { haversineKm, journeyMinutes } from "./sim-models.mjs";
     [37.625, 126.915],
   ];
   L.polygon(seoul, {
-    color: "#586b56",
+    color: "#697381",
     weight: 1.4,
-    fillColor: "#6a8160",
+    fillColor: "#94a3b8",
     fillOpacity: 0.16,
   })
     .bindTooltip("서울 · 경계를 단순화한 개념도")
     .addTo(map);
   L.circleMarker([37.5665, 126.978], {
     radius: 5,
-    fillColor: "#374f39",
-    color: "#fffce9",
+    fillColor: "#263442",
+    color: "#ffffff",
     weight: 2,
     fillOpacity: 1,
   })
@@ -102,16 +102,18 @@ import { haversineKm, journeyMinutes } from "./sim-models.mjs";
           weight: 1.2,
         }).bindTooltip(`${name} · ${generation}기 신도시`),
         L.circleMarker([lat, lng], {
-          radius: 3,
-          color: "#fffce9",
+          radius: 5,
+          color: "#ffffff",
           weight: 1,
           fillColor: color,
           fillOpacity: 1,
         })
-          .bindTooltip(name, {
+          .bindTooltip(`${name} ${generation}기`, {
             permanent: true,
-            direction: "top",
-            offset: [0, -4],
+            direction: ["평촌", "판교", "광교"].includes(name)
+              ? "right"
+              : "left",
+            offset: [0, 0],
           })
           .bindPopup(
             `<b>${name}</b><br>${generation}기 신도시의 대표 위치<br><small>원은 실제 개발 경계를 뜻하지 않습니다.</small>`,
@@ -119,8 +121,8 @@ import { haversineKm, journeyMinutes } from "./sim-models.mjs";
       ]),
     );
   }
-  const firstLayer = towns(first, "#328975", 1),
-    secondLayer = towns(second, "#b47b38", 2);
+  const firstLayer = towns(first, "#0069d9", 1),
+    secondLayer = towns(second, "#426989", 2);
   const localRoutes = L.layerGroup(
     [
       [
@@ -142,7 +144,7 @@ import { haversineKm, journeyMinutes } from "./sim-models.mjs";
       ],
     ].map((coords) =>
       L.polyline(coords, {
-        color: "#578775",
+        color: "#0069d9",
         weight: 2,
         dashArray: "4 6",
         opacity: 0.8,
@@ -160,13 +162,13 @@ import { haversineKm, journeyMinutes } from "./sim-models.mjs";
       [37.55, 126.74],
       [37.68, 126.75],
     ],
-    { color: "#aa8b59", weight: 2, dashArray: "5 7", opacity: 0.8 },
+    { color: "#697381", weight: 2, dashArray: "5 7", opacity: 0.8 },
   ).bindTooltip("수도권 순환 교통축 · 개념도");
   const express = L.layerGroup(
     [
       [
         "A",
-        "#af6062",
+        "#0069d9",
         [
           [37.73, 126.74],
           [37.61, 126.92],
@@ -177,7 +179,7 @@ import { haversineKm, journeyMinutes } from "./sim-models.mjs";
       ],
       [
         "B",
-        "#69938d",
+        "#345b87",
         [
           [37.38, 126.64],
           [37.52, 126.92],
@@ -188,7 +190,7 @@ import { haversineKm, journeyMinutes } from "./sim-models.mjs";
       ],
       [
         "C",
-        "#bf964c",
+        "#61768d",
         [
           [37.84, 127.06],
           [37.63, 127.05],
@@ -356,6 +358,30 @@ import { haversineKm, journeyMinutes } from "./sim-models.mjs";
         animate: !matchMedia("(prefers-reduced-motion: reduce)").matches,
       },
     );
+  function arrangeLabels() {
+    const occupied = [];
+    map.eachLayer((layer) => {
+      const tooltip = layer.getTooltip?.(),
+        el = tooltip?.getElement();
+      if (!el || !tooltip.options.permanent) return;
+      el.style.visibility = "visible";
+      const r = el.getBoundingClientRect();
+      if (
+        occupied.some(
+          (b) =>
+            r.left < b.right + 4 &&
+            r.right > b.left - 4 &&
+            r.top < b.bottom + 4 &&
+            r.bottom > b.top - 4,
+        )
+      )
+        el.style.visibility = "hidden";
+      else occupied.push(r);
+    });
+  }
+  map.on("moveend zoomend layeradd", () =>
+    requestAnimationFrame(arrangeLabels),
+  );
   new ResizeObserver(() => map.invalidateSize()).observe($("map"));
   $("stageSlider").value = "2";
   $("townSelect").value = "1";

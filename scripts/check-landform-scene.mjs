@@ -26,7 +26,7 @@ try {
       report.errors.push(m.text());
   });
   await p.goto(base + "/world_landforms.html");
-  await p.waitForFunction(() => document.body.dataset.workbench === "ready");
+  await p.waitForFunction(() => document.body.dataset.viewer === "ready");
   await p.waitForFunction(() => document.body.dataset.materials === "ready");
   await p.locator('[data-view="whole"]').click();
   assert.equal(
@@ -34,10 +34,7 @@ try {
     "true",
   );
   await p.locator('[data-view="oblique"]').click();
-  assert.equal(
-    await p.evaluate(() => Lab.workbench.documentData().modelVersion),
-    "4.0.0-landforms",
-  );
+  assert.equal(await p.evaluate(() => Lab.model.version), "4.0.0-landforms");
   for (const theme of ["light", "dark"]) {
     if ((await p.locator("html").getAttribute("data-theme")) !== theme)
       await p.locator("#themeToggle").click();
@@ -77,12 +74,19 @@ try {
   await p.waitForTimeout(500);
   report.frames.rotating = (await frames()) - before;
   assert.ok(report.frames.rotating > 0);
-  await p.evaluate(() => scrollTo(0, document.body.scrollHeight));
+  await p.evaluate(() => {
+    const spacer = document.createElement("div");
+    spacer.id = "qaSpacer";
+    spacer.style.height = "1400px";
+    document.body.append(spacer);
+    scrollTo(0, document.body.scrollHeight);
+  });
   await p.waitForTimeout(300);
   before = await frames();
   await p.waitForTimeout(1000);
   report.frames.offscreen = (await frames()) - before;
   assert.equal(report.frames.offscreen, 0);
+  await p.evaluate(() => document.getElementById("qaSpacer").remove());
   await p.locator("#rotateToggle").uncheck();
   await p.locator('[data-view="top"]').click();
   await p.locator(".stage").scrollIntoViewIfNeeded();
@@ -147,7 +151,7 @@ try {
   await p.waitForFunction(
     () =>
       document.body.dataset.materials === "fallback" &&
-      document.body.dataset.workbench === "ready",
+      document.body.dataset.viewer === "ready",
   );
   await p.locator('[data-scenario="volcano"]').click();
   await p.locator('[data-step="3"]').click();

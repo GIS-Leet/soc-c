@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
 @import url("./sim-stratum-tokens.css");
+@import url("./sim-stratum-controls.css");
 * {
   box-sizing: border-box;
 }
@@ -90,7 +91,7 @@ h3 {
   line-height: 1.35;
   letter-spacing: -0.016em;
 }
-svg {
+svg:not(.leaflet-zoom-animated) {
   width: var(--sim-icon);
   height: var(--sim-icon);
   flex: none;
@@ -249,6 +250,12 @@ svg {
   width: 100%;
   height: 100%;
   outline: none;
+}
+#simCanvas,
+#map {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 #label-layer {
   position: absolute;
@@ -752,7 +759,7 @@ tbody th {
 }
 .model-details {
   margin-top: var(--st-sp-6);
-  padding: var(--st-sp-5) 0;
+  padding: var(--st-sp-5);
   border-top: var(--sim-border) solid var(--st-separator);
   font-size: var(--sim-font-row);
   color: var(--st-label-2);

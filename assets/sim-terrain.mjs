@@ -80,6 +80,24 @@ function updateChart(heightsData) {
   profileChart.data.datasets[0].data = heightsData;
   profileChart.update();
 }
+function themeChart() {
+  const style = getComputedStyle(document.documentElement);
+  profileChart.data.datasets[0].borderColor = style
+    .getPropertyValue("--st-accent-ink")
+    .trim();
+  profileChart.data.datasets[0].backgroundColor = style
+    .getPropertyValue("--st-accent-soft")
+    .trim();
+  profileChart.options.scales.y.ticks.color = style
+    .getPropertyValue("--st-label-2")
+    .trim();
+  profileChart.options.scales.y.grid.color = style
+    .getPropertyValue("--st-separator")
+    .trim();
+  profileChart.update();
+}
+themeChart();
+document.addEventListener("lab:theme", themeChart);
 
 // ----------------------------------------------------
 // UI 요소 및 해수면 애니메이션 로직
@@ -174,7 +192,7 @@ document.querySelectorAll(".tool-btn[data-tool]").forEach((btn) => {
 // ----------------------------------------------------
 const container = document.getElementById("webgl-container");
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x102827);
+SceneVisual.theme(scene);
 const camera = new THREE.PerspectiveCamera(
   45,
   container.clientWidth / container.clientHeight,
@@ -191,7 +209,7 @@ renderer.setSize(container.clientWidth, container.clientHeight);
 // 밝은 곳이 하얗게 타지 않도록 밝기 압축과 색공간을 지정한다
 if (THREE.ACESFilmicToneMapping) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.72;
+  renderer.toneMappingExposure = 1.0;
 }
 if ("outputColorSpace" in renderer && THREE.SRGBColorSpace)
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -220,7 +238,7 @@ skyUniforms["mieCoefficient"].value = 0.005;
 skyUniforms["mieDirectionalG"].value = 0.8;
 
 const sun = new THREE.Vector3();
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+const dirLight = new THREE.DirectionalLight(0xfff5e6, 1.6);
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.width = 2048;
 dirLight.shadow.mapSize.height = 2048;
@@ -231,7 +249,7 @@ dirLight.shadow.camera.right = 150;
 dirLight.shadow.camera.top = 150;
 dirLight.shadow.camera.bottom = -150;
 scene.add(dirLight);
-scene.add(new THREE.AmbientLight(0x404040, 0.6));
+scene.add(new THREE.HemisphereLight(0xdce8f6, 0x726b5e, 0.75));
 
 const waterGeometry = new THREE.PlaneGeometry(270, 270);
 const water = new THREE.Water(waterGeometry, {
@@ -252,6 +270,7 @@ const water = new THREE.Water(waterGeometry, {
 water.rotation.x = -Math.PI / 2;
 water.position.y = 5;
 scene.add(water);
+SceneVisual.calmWater(water);
 
 function updateSun() {
   const phi = THREE.MathUtils.degToRad(90 - sunInput.value);
@@ -273,12 +292,7 @@ const geometry = new THREE.PlaneGeometry(
 );
 geometry.rotateX(-Math.PI / 2);
 
-const material = new THREE.MeshStandardMaterial({
-  vertexColors: true,
-  roughness: 0.8,
-  metalness: 0.05,
-  flatShading: false,
-});
+const material = SceneVisual.photoSurface(geometry);
 const terrain = new THREE.Mesh(geometry, material);
 terrain.castShadow = true;
 terrain.receiveShadow = true;
@@ -301,20 +315,19 @@ function updateTerrainColors() {
   let c = new THREE.Color();
   for (let i = 0; i < positionAttribute.count; i++) {
     const y = positionAttribute.getY(i);
-    if (y < -2) c.copy(colorPalette.sand).lerp(colorPalette.deepWater, 0.5);
-    else if (y < 2) c.copy(colorPalette.sand);
-    else if (y < 12)
-      c.copy(colorPalette.grass).lerp(colorPalette.forest, (y - 2) / 10);
-    else if (y < 22)
-      c.copy(colorPalette.forest).lerp(colorPalette.rock, (y - 12) / 10);
-    else
-      c.copy(colorPalette.rock).lerp(
-        colorPalette.snow,
-        Math.min((y - 22) / 35, 1),
-      );
+    c.copy(colorPalette.rock).multiplyScalar(
+      0.75 +
+        (simplex.noise2D(
+          positionAttribute.getX(i) / 24,
+          positionAttribute.getZ(i) / 24,
+        ) +
+          1) *
+          0.1,
+    );
     colorAttr.setXYZ(i, c.r, c.g, c.b);
   }
   colorAttr.needsUpdate = true;
+  SceneVisual.surfaceData(geometry, { water: targetSeaLevel });
   updateMetrics();
   if (sectionLine.visible) extractProfileAndGraph();
   clearTimeout(contourTimer);
@@ -738,6 +751,7 @@ generateTerrain();
 
 const grid = new THREE.GridHelper(300, 24, 0x587262, 0x29483d);
 grid.position.y = -25;
+grid.visible = false;
 scene.add(grid);
 scene.add(new THREE.HemisphereLight(0xe5edcb, 0x334f44, 0.35));
 function measure() {
@@ -815,6 +829,7 @@ new ResizeObserver(() => {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  Lab.invalidate?.();
 }).observe(container);
 updateMetrics();
 document.getElementById("applySeed").onclick = () => {

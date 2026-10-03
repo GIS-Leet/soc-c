@@ -17,41 +17,39 @@ const base = process.env.SIM_URL || "http://127.0.0.1:8770";
       viewport: { width: 1100, height: 950 },
       reducedMotion: "reduce",
     });
-    await p.goto(base + "/climate_solar.html");
-    await p.waitForFunction(() => !!window.Lab?.workbench);
-    const note =
-      "긴 관찰 기록의 모든 문장이 인쇄에 포함되어야 합니다.\n".repeat(25);
-    await p.locator("#predictionNote").fill(note);
-    await p.locator("#recordTrial").click();
-    const dl = p.waitForEvent("download");
-    await p.locator("#downloadCSV").click();
-    const download = await dl;
-    assert.match(download.suggestedFilename(), /csv$/);
-    await p.evaluate(() => {
-      document.documentElement.dataset.theme = "dark";
-      document.body.classList.add("presentation-mode");
-      window.dispatchEvent(new Event("beforeprint"));
+    await p.addInitScript(() => {
+      localStorage.setItem(
+        "geographia-notebook-v2-climate_solar",
+        "legacy-notebook",
+      );
+      window.noteWrites = [];
+      const original = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (key, value) {
+        if (/notebook|lab-note/.test(key)) window.noteWrites.push(key);
+        return original.call(this, key, value);
+      };
     });
-    await p.emulateMedia({ media: "print" });
-    assert.equal(await p.locator(".printed-note").first().textContent(), note);
-    assert.equal(await p.locator("#researchWorkbench").isVisible(), true);
-    assert.equal(await p.locator("#predictionNote").isVisible(), false);
+    await p.goto(base + "/climate_solar.html");
+    await p.waitForFunction(() => document.body.dataset.viewer === "ready");
     assert.equal(
       await p
-        .locator(".evidence-section")
-        .evaluate((el) => getComputedStyle(el).backgroundColor),
-      "rgb(255, 255, 255)",
+        .locator("#researchWorkbench,#recordTrial,#observationNote")
+        .count(),
+      0,
     );
-    await p.screenshot({
-      path: ".superpowers/qa/visual/print-report.png",
-      fullPage: true,
-    });
+    await p.locator('[data-preset="30"]').click();
+    assert.deepEqual(await p.evaluate(() => window.noteWrites), []);
+    assert.equal(
+      await p.evaluate(() =>
+        localStorage.getItem("geographia-notebook-v2-climate_solar"),
+      ),
+      "legacy-notebook",
+    );
     console.log(
-      "PASS CSV download and complete print notes in dark/presentation mode",
+      "PASS notebook UI removed, no notebook writes, historical local data preserved",
     );
-    await p.emulateMedia({ media: "screen" });
     await p.goto(base + "/climate_3d.html");
-    await p.waitForFunction(() => !!window.Lab?.workbench);
+    await p.waitForFunction(() => document.body.dataset.viewer === "ready");
     await p.locator(".stage").scrollIntoViewIfNeeded();
     const count = await p.evaluate(() => Lab.renderStats().length);
     await p.evaluate(() => {

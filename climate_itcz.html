@@ -1,7 +1,8 @@
 <!doctype html>
+
 <html lang="ko">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <script>
       window.showSimulationFallback = function () {
         window.simulationFailed = true;
@@ -36,88 +37,85 @@
       } catch (e) {}
     </script>
     <meta
-      name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
+      name="viewport"
     />
     <title>비를 몰고 다니는 적도 수렴대 — Geographia Lab</title>
     <meta
+      content="계절을 따라 움직이는 비의 띠. 한 해를 돌려 보며 열대 지역의 우기와 건기가 나타나는 이유를 찾습니다."
       name="description"
-      content="계절을 따라 움직이는 비의 띠. 한 해를 돌려 보며 열대 지역의 우기와 건기가 나타나는 이유를 찾습니다."
     />
-    <link rel="canonical" href="https://nyuheatgis.com/climate_itcz.html" />
+    <link href="https://nyuheatgis.com/climate_itcz.html" rel="canonical" />
     <meta
-      property="og:title"
       content="비를 몰고 다니는 적도 수렴대 · Geographia Lab"
+      property="og:title"
     />
     <meta
-      property="og:description"
       content="계절을 따라 움직이는 비의 띠. 한 해를 돌려 보며 열대 지역의 우기와 건기가 나타나는 이유를 찾습니다."
+      property="og:description"
     />
     <meta
-      property="og:url"
       content="https://nyuheatgis.com/climate_itcz.html"
+      property="og:url"
     />
-    <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#f5f4ef" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <meta content="website" property="og:type" />
+    <meta content="#f2f2f7" name="theme-color" />
+    <link href="manifest.json" rel="manifest" />
+    <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link
-      rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+      rel="stylesheet"
     />
-    <link rel="stylesheet" href="assets/sim-lab.css?v=138cf8e7" />
-
-    <link rel="stylesheet" href="assets/sim-research.css?v=e09c011c" />
+    <link href="assets/sim-stratum.css?v=622e01ff" rel="stylesheet" />
   </head>
-  <body data-lab="climate_itcz">
-    <a href="#main" class="skip-link">본문으로 이동</a>
+  <body data-design="stratum" data-lab="climate_itcz">
+    <a class="skip-link" href="#main">본문으로 이동</a>
     <header class="lab-header">
-      <a class="lab-brand" href="index.html" aria-label="Geographia 홈"
+      <a aria-label="Geographia 홈" class="lab-brand" href="index.html"
         ><svg
-          viewBox="0 0 24 24"
+          aria-hidden="true"
           fill="none"
           stroke="currentColor"
-          stroke-width="1.4"
           stroke-linecap="round"
           stroke-linejoin="round"
-          aria-hidden="true"
+          stroke-width="1.4"
+          viewBox="0 0 24 24"
         >
-          <circle cx="12" cy="12" r="9" />
-          <ellipse cx="12" cy="12" rx="4" ry="9" />
-          <path d="M3 12h18M5 6.5h14M5 17.5h14" /></svg
+          <circle cx="12" cy="12" r="9"></circle>
+          <ellipse cx="12" cy="12" rx="4" ry="9"></ellipse>
+          <path d="M3 12h18M5 6.5h14M5 17.5h14"></path></svg
         ><span>Geographia<span class="brand-dot">.</span></span></a
       >
-      <nav class="lab-nav" aria-label="주 메뉴">
+      <nav aria-label="주 메뉴" class="lab-nav">
         <a href="library.html">자료실</a><a href="progress.html">진도표</a
-        ><a href="simulators.html" aria-current="page">시뮬레이터</a
+        ><a aria-current="page" href="simulators.html">시뮬레이터</a
         ><a href="qna.html">Q&amp;A</a>
       </nav>
       <div class="header-actions">
-        <span class="lab-edition">A FIELD GUIDE TO OUR WORLD</span
-        ><button
-          class="icon-btn"
-          id="themeToggle"
+        <button
           aria-label="다크 모드"
           aria-pressed="false"
+          class="icon-btn"
+          id="themeToggle"
           title="밝은 화면 / 어두운 화면"
         >
           <svg
-            viewBox="0 0 24 24"
+            aria-hidden="true"
             fill="none"
             stroke="currentColor"
-            stroke-width="1.4"
             stroke-linecap="round"
             stroke-linejoin="round"
-            aria-hidden="true"
+            stroke-width="1.4"
+            viewBox="0 0 24 24"
           >
-            <path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10Z" />
+            <path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10Z"></path>
           </svg>
         </button>
       </div>
     </header>
-    <aside class="fallback" id="simulationFallback" role="status" hidden>
+    <aside class="fallback" hidden="" id="simulationFallback" role="status">
       <h2>실험 화면을 불러오지 못했습니다</h2>
       <p>
         새로고침 후 다시 시도해 주세요. 그래픽 기능이 지원되지 않는 기기에서는
@@ -132,15 +130,12 @@
       </div></noscript
     >
     <main class="lab-main" id="main">
-      <nav class="breadcrumb" aria-label="현재 위치">
+      <nav aria-label="현재 위치" class="breadcrumb">
         <a href="simulators.html">모든 실험</a><span>/</span
         ><span>기후 실험실</span><span>/</span><span>02</span>
       </nav>
       <section class="lab-intro">
         <div>
-          <div class="eyebrow">
-            EXPERIMENT 02 &nbsp; / &nbsp; THE MOVING RAIN BELT
-          </div>
           <h1>비를 몰고 다니는 적도 수렴대</h1>
         </div>
         <p class="intro-copy">
@@ -150,37 +145,35 @@
       </section>
       <div class="lab-workspace">
         <div class="lab-visual">
-          <section class="stage" aria-label="ATMOSPHERIC FIELD 실험 화면">
+          <section aria-label="ATMOSPHERIC FIELD 실험 화면" class="stage">
             <div class="stage-toolbar">
-              <span class="stage-caption"
-                ><i class="status-dot"></i>ATMOSPHERIC FIELD</span
-              >
+              <span class="stage-caption">수렴대 관찰</span>
               <div class="stage-tools">
                 <button
-                  data-fullscreen
                   aria-label="전체 화면 열기"
                   aria-pressed="false"
+                  data-fullscreen=""
                   title="전체 화면"
                 >
                   <svg
-                    viewBox="0 0 24 24"
+                    aria-hidden="true"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="1.4"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    aria-hidden="true"
+                    stroke-width="1.4"
+                    viewBox="0 0 24 24"
                   >
-                    <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
+                    <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"></path>
                   </svg>
                 </button>
               </div>
             </div>
             <div class="stage-viewport">
               <canvas
+                aria-label="남북으로 이동하는 적도 수렴대와 무역풍, 관찰 위도"
                 id="simCanvas"
                 role="img"
-                aria-label="남북으로 이동하는 적도 수렴대와 무역풍, 관찰 위도"
               ></canvas>
             </div>
             <div class="stage-foot">
@@ -193,20 +186,20 @@
           <section class="insight-panel">
             <div class="insight-icon">
               <svg
-                viewBox="0 0 24 24"
+                aria-hidden="true"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="1.4"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                aria-hidden="true"
+                stroke-width="1.4"
+                viewBox="0 0 24 24"
               >
-                <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" />
-                <circle cx="12" cy="12" r="3" />
+                <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
               </svg>
             </div>
             <div>
-              <h2>READ THE PATTERN</h2>
+              <h2>관찰 결과</h2>
               <p id="infoText">
                 수렴대는 북반구 여름에 북쪽, 남반구 여름에 남쪽으로 이동합니다.
               </p>
@@ -217,7 +210,7 @@
             관측·예보 자료가 아니며 대륙·해양별 차이를 생략했습니다.
           </p>
         </div>
-        <aside class="lab-controls" aria-label="실험 조작">
+        <aside aria-label="실험 조작" class="lab-controls">
           <section class="control-panel">
             <div class="panel-heading">
               <h2>비의 띠를 따라가 보세요</h2>
@@ -226,64 +219,64 @@
             <div class="field-label">
               <label for="monthSlider">계절</label><span>MONTH</span>
             </div>
-            <div class="big-value" id="monthLabel" data-state-title>
+            <div class="big-value" data-state-title="" id="monthLabel">
               6<small>월</small>
             </div>
             <div class="field-label">
               <label for="monthSlider">한 해의 흐름</label>
             </div>
             <input
-              type="range"
               id="monthSlider"
-              min="1"
               max="12.99"
-              value="6"
+              min="1"
               step="0.02"
+              type="range"
+              value="6"
             />
             <div class="range-ends"><span>1월</span><span>12월</span></div>
             <div class="preset-row">
               <button
-                type="button"
-                data-target="monthSlider"
-                data-preset="1"
                 aria-pressed="false"
+                data-preset="1"
+                data-target="monthSlider"
+                type="button"
               >
                 1월</button
               ><button
-                type="button"
-                data-target="monthSlider"
-                data-preset="4"
                 aria-pressed="false"
+                data-preset="4"
+                data-target="monthSlider"
+                type="button"
               >
                 4월</button
               ><button
-                type="button"
-                data-target="monthSlider"
-                data-preset="7"
                 aria-pressed="false"
+                data-preset="7"
+                data-target="monthSlider"
+                type="button"
               >
                 7월</button
               ><button
-                type="button"
-                data-target="monthSlider"
-                data-preset="10"
                 aria-pressed="false"
+                data-preset="10"
+                data-target="monthSlider"
+                type="button"
               >
                 10월
               </button>
             </div>
-            <button class="play-btn" id="playBtn" aria-pressed="false">
+            <button aria-pressed="false" class="play-btn" id="playBtn">
               <span id="playIconSpan"
                 ><svg
-                  viewBox="0 0 24 24"
+                  aria-hidden="true"
                   fill="none"
                   stroke="currentColor"
-                  stroke-width="1.4"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  aria-hidden="true"
+                  stroke-width="1.4"
+                  viewBox="0 0 24 24"
                 >
-                  <path d="m8 4 12 8-12 8Z" /></svg></span
+                  <path d="m8 4 12 8-12 8Z"></path></svg></span
               ><span id="playText">한 해 재생</span>
             </button>
           </section>
@@ -297,131 +290,51 @@
               ><output id="latitudeValue">15.0°N</output>
             </div>
             <input
-              type="range"
               id="latitudeSlider"
-              min="-30"
               max="30"
-              value="15"
+              min="-30"
               step="1"
+              type="range"
+              value="15"
             />
             <div class="range-ends"><span>30°S</span><span>30°N</span></div>
             <div class="control-divider"></div>
             <div class="metric-grid">
               <div class="metric">
                 <span>수렴대 중심 위도</span
-                ><strong id="itczValue" data-reading="수렴대 중심 위도"
+                ><strong data-reading="수렴대 중심 위도" id="itczValue"
                   >20.0°N</strong
                 >
               </div>
               <div class="metric">
                 <span>강수 가능성</span
-                ><strong id="rainValue" data-reading="강수 가능성">높음</strong>
+                ><strong data-reading="강수 가능성" id="rainValue">높음</strong>
               </div>
             </div>
             <canvas
-              id="rainChart"
-              width="280"
-              height="130"
-              style="width: 100%; height: 130px; margin-top: 20px"
-              role="img"
               aria-label="선택한 위도의 월별 상대 강수 가능성"
+              height="130"
+              id="rainChart"
+              role="img"
+              style="width: 100%; height: 130px; margin-top: 20px"
+              width="280"
             ></canvas>
             <p class="note-caption">
               수렴대가 가까워질수록 공기가 상승하고 비가 내리기 쉬워집니다.
             </p>
           </section>
-          <section class="control-panel">
-            <div class="panel-heading">
-              <h2>조건을 저장하고 비교하기</h2>
-              <span class="panel-no">03</span>
-            </div>
-            <p class="note-caption" style="margin-top: 0">
-              조건 하나를 바꾼 뒤, 두 결과를 비교해 보세요.
-            </p>
-            <div class="snapshot-controls">
-              <button class="secondary-btn" id="captureState">
-                + 현재 결과 담기</button
-              ><button
-                class="secondary-btn"
-                id="clearSnapshots"
-                aria-label="비교 기록 비우기"
-              >
-                비우기
-              </button>
-            </div>
-            <div class="snapshot-list" id="snapshotList"></div>
-            <p class="snapshot-status" id="snapshotStatus" role="status">
-              최대 두 개의 관찰 결과를 담을 수 있습니다.
-            </p>
-          </section>
         </aside>
       </div>
-      <section class="lab-bottom">
-        <div>
-          <div class="eyebrow" style="margin-bottom: 14px">
-            THINK LIKE A GEOGRAPHER
-          </div>
-          <h2>관찰에서 설명으로</h2>
-          <p class="observation-question">
-            북위 15°에서 1월과 7월을 비교해 보세요. 강수 가능성이 높은 계절은
-            언제인가요?
-          </p>
-          <p>
-            ① 조건 하나만 바꾸기 &nbsp; ② 변화의 차이 찾기 &nbsp; ③ 원인을 내
-            말로 설명하기
-          </p>
-          <nav class="learning-links" aria-label="관련 학습">
-            <a href="library.html">수업 자료 ↗</a
-            ><a href="qna.html?q=기후">질문 남기기 ↗</a
-            ><a href="progress.html#class-progress">우리 반 진도 ↗</a>
-          </nav>
-          <details class="source-details">
-            <summary>모형과 참고 자료</summary>
-            <p>
-              북반구에 육지가 더 많은 효과를 단순화해 수렴대 중심을 평균 5°N,
-              계절 진폭 15°로 설정했습니다. 그래프는 상대 강수 가능성만 표시하며
-              강수량(mm)을 뜻하지 않습니다.
-            </p>
-          </details>
-        </div>
-        <div class="notebook">
-          <label for="observationNote"><h2>나의 관찰 노트</h2></label>
-          <p>무엇을 바꾸었고, 무엇이 달라졌나요?</p>
-          <textarea
-            id="observationNote"
-            placeholder="예: 월을 바꾸자 강수대가 이동했다. 관찰 위도의 강수는…"
-          ></textarea>
-          <div class="notebook-foot">
-            <span id="noteStatus" role="status"
-              >메모는 이 기기에만 저장됩니다.</span
-            ><button class="secondary-btn" id="copyNote">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <rect x="8" y="8" width="12" height="13" rx="2" />
-                <path d="M16 8V3H3v13h5" />
-              </svg>
-              복사
-            </button>
-          </div>
-        </div>
-      </section>
     </main>
     <footer class="lab-footer">
       <span
         >GEOGRAPHIA / FIELDWORK<br />KGGHS 통합사회 · © 2026 TaeHyun Lee</span
       ><a href="simulators.html">모든 실험 살펴보기 ↗</a>
     </footer>
-    <script src="assets/sim-lab.js?v=d39d6a0b"></script>
+    <script src="assets/sim-lab.js?v=46b94a08"></script>
     <script src="assets/sim-runtime.js?v=2ba6f1b6"></script>
     <script src="design-system/earth.js?v=81bfe3b3"></script>
-    <script type="module" src="assets/sim-itcz.mjs?v=73bcb6ef"></script>
-    <script type="module" src="assets/sim-workbench.mjs?v=95f2d185"></script>
+    <script src="assets/sim-itcz.mjs?v=12b34390" type="module"></script>
+    <script src="assets/sim-viewer.mjs?v=532709f9" type="module"></script>
   </body>
 </html>

@@ -23,8 +23,11 @@ try {
       reducedMotion: "reduce",
     });
     await page.goto(base + "/" + name + ".html");
+    await page.waitForFunction(() => document.body.dataset.viewer === "ready");
     await page.waitForFunction(
-      () => document.body.dataset.workbench === "ready",
+      () =>
+        document.body.dataset.earthImage === "ready" ||
+        document.body.dataset.materials === "ready",
     );
     await page.locator(".stage").scrollIntoViewIfNeeded();
     await page.waitForTimeout(600);
@@ -34,6 +37,14 @@ try {
     await page.waitForTimeout(1000);
     const idleFrames = (await frames()) - first;
     assert.equal(idleFrames, 0, name + " must not render an unchanged scene");
+    first = await frames();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForTimeout(600);
+    assert.ok(
+      (await frames()) > first,
+      name + " repaints its resized drawing buffer",
+    );
+    await page.setViewportSize({ width: 1366, height: 900 });
     await page
       .locator(
         name === "terrain"
@@ -49,7 +60,13 @@ try {
     await page.waitForTimeout(500);
     const activeFrames = (await frames()) - first;
     assert.ok(activeFrames > 0, name + " animates when visible");
-    await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
+    await page.evaluate(() => {
+      const spacer = document.createElement("div");
+      spacer.style.height = "1400px";
+      spacer.setAttribute("aria-hidden", "true");
+      document.body.append(spacer);
+      scrollTo(0, document.body.scrollHeight);
+    });
     await page.waitForTimeout(250);
     assert.ok(
       await page

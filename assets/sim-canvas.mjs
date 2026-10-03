@@ -21,6 +21,7 @@ export function fitCanvas(canvas, draw) {
   };
   new ResizeObserver(render).observe(canvas);
   document.addEventListener("lab:theme", render);
+  document.addEventListener("lab:assets", render);
   document.fonts?.ready.then(render);
   return render;
 }

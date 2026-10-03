@@ -151,7 +151,7 @@ try {
     assert.equal(await page.locator("#simulationFallback").isVisible(), false);
     if (name !== "simulators")
       await page.waitForFunction(
-        () => document.body.dataset.workbench === "ready",
+        () => document.body.dataset.viewer === "ready",
       );
     const duplicates = await page.evaluate(() => {
       const ids = [...document.querySelectorAll("[id]")].map((el) => el.id);
@@ -222,14 +222,6 @@ try {
     if (name === "dynamic_earth" || name === "world_landforms")
       await scenarios(page);
     if (name === "terrain") {
-      const appliedSeed = await page.locator("#terrainSeed").inputValue();
-      await page.locator("#terrainSeed").fill("12345");
-      assert.equal(
-        await page.evaluate(() => Lab.workbench.readState().inputs.terrainSeed),
-        appliedSeed,
-        "record the applied terrain seed, not a pending edit",
-      );
-      await page.locator("#terrainSeed").fill(appliedSeed);
       await range(page, "seaLevel", -15);
       const low = await numeric(page, "#landValue");
       await range(page, "seaLevel", 25);
@@ -302,121 +294,28 @@ try {
       await page.locator("#transportToggle").check();
     }
     if (name !== "simulators") {
-      // Save/restore has to reproduce numerical results, not just slider positions.
-      const before = await page.evaluate(() => ({
-        state: Lab.workbench.readState(),
-        metrics: Lab.model.measure(),
-      }));
-      await page.locator("#recordTrial").click();
-      assert.equal(await page.locator("#evidenceTable thead th").count(), 2);
-      await page
-        .locator("#predictionNote")
-        .fill("조건 하나만 바꾸면 결과가 달라질 것이다.");
-      await page
-        .locator("#evidenceNote")
-        .fill("통제한 조건과 측정값을 비교했다.");
-      await page
-        .locator("#explanationNote")
-        .fill("모형의 가정과 한계를 함께 설명한다.");
-      await page.waitForTimeout(400);
-      const downloadPromise = page.waitForEvent("download");
-      await page.locator("#downloadJSON").click();
-      const download = await downloadPromise;
-      const exported = JSON.parse(
-        await readFile(await download.path(), "utf8"),
-      );
-      assert.equal(exported.records.length, 1);
-      assert.equal(exported.page, name);
-      await page.reload();
-      await page.waitForFunction(
-        () => document.body.dataset.workbench === "ready",
-      );
       assert.equal(
-        await page.locator("#predictionNote").inputValue(),
-        "조건 하나만 바꾸면 결과가 달라질 것이다.",
+        await page
+          .locator(
+            "#researchWorkbench,#recordTrial,#captureState,#predictionNote,#observationNote",
+          )
+          .count(),
+        0,
       );
-      await page.locator("#evidenceTable button").first().click();
-      assert.deepEqual(
-        await page.evaluate(() => Lab.workbench.readState()),
-        before.state,
-      );
+      const before = await page.evaluate(() => Lab.model.measure());
+      await page.locator("#presentationMode").click();
+      assert.equal(await page.locator(".lab-controls").isVisible(), false);
+      await page.locator("#presentationMode").click();
+      assert.equal(await page.locator(".lab-controls").isVisible(), true);
+      await page.locator("#renderQuality").selectOption("eco");
+      await page.locator("#renderQuality").selectOption("balanced");
+      await page.locator("#themeToggle").click();
+      await page.locator("#themeToggle").click();
       assert.deepEqual(
         await page.evaluate(() => Lab.model.measure()),
-        before.metrics,
+        before,
+        "view changes preserve model results",
       );
-      const malicious = { ...exported, page: "wrong-page" };
-      await page.locator("#importJSON").setInputFiles({
-        name: "bad.json",
-        mimeType: "application/json",
-        buffer: Buffer.from(JSON.stringify(malicious)),
-      });
-      await page.waitForFunction(() =>
-        document
-          .getElementById("workbenchStatus")
-          .textContent.includes("현재 실험"),
-      );
-      assert.match(
-        await page.locator("#workbenchStatus").textContent(),
-        /현재 실험/,
-      );
-      assert.equal(await page.locator("#evidenceTable thead th").count(), 2);
-      await page.locator("#importJSON").setInputFiles({
-        name: "roundtrip.json",
-        mimeType: "application/json",
-        buffer: Buffer.from(JSON.stringify(exported)),
-      });
-      await page.waitForFunction(() =>
-        document
-          .getElementById("workbenchStatus")
-          .textContent.includes("실험 파일을 열었습니다"),
-      );
-      assert.equal(await page.locator("#evidenceTable thead th").count(), 2);
-      const imageDownload = page.waitForEvent("download");
-      await page.locator("#exportFigure").click();
-      const image = await imageDownload;
-      const imageBytes = await readFile(await image.path());
-      assert.ok(imageBytes.length > 1000);
-      if (name !== "seoul")
-        assert.equal(imageBytes.subarray(1, 4).toString(), "PNG");
-      else assert.ok(imageBytes.toString().includes("<svg"));
-      if (name === "climate_solar") {
-        await page
-          .context()
-          .grantPermissions(["clipboard-read", "clipboard-write"], {
-            origin: base,
-          });
-        await page.locator("#shareConditions").click();
-        const link = await page.evaluate(() => navigator.clipboard.readText());
-        assert.ok(link.includes("#lab="));
-        assert.ok(!decodeURIComponent(link).includes("조건 하나만"));
-        const shared = await browser.newPage();
-        await shared.goto(link);
-        await shared.waitForFunction(
-          () => document.body.dataset.workbench === "ready",
-        );
-        assert.deepEqual(
-          await shared.evaluate(() => Lab.workbench.readState()),
-          await page.evaluate(() => Lab.workbench.readState()),
-        );
-        await shared.close();
-        for (let i = 0; i < 8; i++)
-          await page.evaluate(() => Lab.workbench.record());
-        assert.equal(await page.locator("#evidenceTable thead th").count(), 9);
-        assert.match(
-          await page.locator("#workbenchStatus").textContent(),
-          /8개/,
-        );
-      }
-      await page.locator("#presentationMode").click();
-      assert.equal(await page.locator("#researchWorkbench").isVisible(), false);
-      await page.locator("#presentationMode").click();
-      assert.equal(await page.locator("#researchWorkbench").isVisible(), true);
-      await page.locator("#themeToggle").click();
-      assert.equal(
-        await page.locator("html").getAttribute("data-theme"),
-        "dark",
-      );
-      await page.locator("#themeToggle").click();
     }
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
@@ -467,7 +366,7 @@ try {
     console.log(`PASS ${name}: interactions, responsive layout, local assets`);
     await page.close();
   }
-  // A device without WebGL still supports the same numeric model and journal.
+  // A device without WebGL still supports the same numeric model and observation tools.
   for (const name of [
     "terrain",
     "climate_3d",
@@ -485,7 +384,7 @@ try {
     });
     await fallback.goto(base + "/" + name + ".html");
     await fallback.waitForFunction(
-      () => document.body.dataset.workbench === "ready",
+      () => document.body.dataset.viewer === "ready",
     );
     assert.equal(
       await fallback.locator("body").getAttribute("data-renderer"),

@@ -25,7 +25,7 @@
     document.documentElement.dataset.theme = dark ? "dark" : "light";
     storage.set("geo-theme", dark ? "dark" : "light");
     $("#themeToggle").setAttribute("aria-pressed", String(dark));
-    document.dispatchEvent(new Event('lab:theme'));
+    document.dispatchEvent(new Event("lab:theme"));
   });
   $("#themeToggle")?.setAttribute(
     "aria-pressed",
@@ -251,4 +251,5 @@
       if (input) paintRange(input);
     },
   };
+  if (page === "simulators") Lab.ready();
 })();

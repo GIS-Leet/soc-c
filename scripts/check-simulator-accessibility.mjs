@@ -32,30 +32,39 @@ try {
     await page.waitForFunction(() => document.body.dataset.ready === "true");
     if (name !== "simulators")
       await page.waitForFunction(
-        () => document.body.dataset.workbench === "ready",
+        () => document.body.dataset.viewer === "ready",
       );
-    for (const theme of ["light", "dark"]) {
-      await page.evaluate(
-        (theme) => (document.documentElement.dataset.theme = theme),
-        theme,
-      );
-      const result = await new AxeBuilder({ page })
-        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
-        .analyze();
-      report.push({
-        page: name,
-        theme,
-        violations: result.violations.map((v) => ({
-          id: v.id,
-          impact: v.impact,
-          help: v.help,
-          nodes: v.nodes.map((n) => ({
-            target: n.target,
-            summary: n.failureSummary,
+    for (const width of [1366, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const theme of ["light", "dark"]) {
+        await page.evaluate(
+          (theme) => (document.documentElement.dataset.theme = theme),
+          theme,
+        );
+        const result = await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+          .analyze();
+        report.push({
+          page: name,
+          width,
+          theme,
+          violations: result.violations.map((v) => ({
+            id: v.id,
+            impact: v.impact,
+            help: v.help,
+            nodes: v.nodes.map((n) => ({
+              target: n.target,
+              summary: n.failureSummary,
+            })),
           })),
-        })),
-      });
-      console.log(name, theme, JSON.stringify(report.at(-1).violations));
+        });
+        console.log(
+          name,
+          width,
+          theme,
+          JSON.stringify(report.at(-1).violations),
+        );
+      }
     }
     await context.close();
   }

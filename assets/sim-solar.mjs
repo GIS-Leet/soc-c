@@ -1,5 +1,12 @@
+import { drawSolar } from "./sim-solar-drawing.mjs?v=1c99307a";
 import { surfaceIllumination } from "./sim-models.mjs?v=a32b816f";
-import { fitCanvas, line, text, circle, arrow } from "./sim-canvas.mjs?v=31de4804";
+import {
+  fitCanvas,
+  line,
+  text,
+  circle,
+  arrow,
+} from "./sim-canvas.mjs?v=0a622b13";
 const $ = (id) => document.getElementById(id),
   slider = $("sunSlider");
 const extra = document.createElement("div");
@@ -9,145 +16,10 @@ extra.innerHTML =
 slider.closest(".control-panel").append(extra);
 let altitude = 45,
   slope = 0;
-const render = fitCanvas($("simCanvas"), (ctx, w, h) => {
-  const small = w < 520,
-    cx = w * 0.43,
-    cy = h * 0.59,
-    a = (altitude * Math.PI) / 180,
-    b = (slope * Math.PI) / 180;
-  const illum = surfaceIllumination(altitude, slope),
-    length = Math.min(w * 0.33, h * 0.36),
-    beam = Math.min(w * 0.025, 14);
-  const dir = { x: Math.cos(b), y: Math.sin(b) },
-    normal = { x: Math.sin(b), y: -Math.cos(b) },
-    ray = { x: -Math.cos(a), y: Math.sin(a) };
-  const sun = { x: cx - ray.x * length, y: cy - ray.y * length };
-  for (let x = 20; x < w; x += 34) line(ctx, x, 0, x, h, "#a5b8a00b");
-  for (let y = 20; y < h; y += 34) line(ctx, 0, y, w, y, "#a5b8a00b");
-  text(
-    ctx,
-    "SAME BEAM / DIFFERENT SURFACE",
-    w * 0.06,
-    32,
-    small ? 8 : 10,
-    "#9ab5a4",
-  );
-  line(ctx, 0, cy, w, cy, "#9cbaa366", 1, [4, 6]);
-  const extent = Math.max(w, h);
-  ctx.beginPath();
-  ctx.moveTo(cx - dir.x * extent, cy - dir.y * extent);
-  ctx.lineTo(cx + dir.x * extent, cy + dir.y * extent);
-  ctx.lineTo(w, h);
-  ctx.lineTo(0, h);
-  ctx.closePath();
-  ctx.fillStyle = "#759a6d15";
-  ctx.fill();
-  line(
-    ctx,
-    cx - dir.x * extent,
-    cy - dir.y * extent,
-    cx + dir.x * extent,
-    cy + dir.y * extent,
-    "#acc092",
-    2,
-  );
-  arrow(
-    ctx,
-    cx,
-    cy,
-    cx + normal.x * length * 0.86,
-    cy + normal.y * length * 0.86,
-    "#a8d3c3",
-    5,
-  );
-  text(
-    ctx,
-    "면에 수직인 법선",
-    cx + normal.x * length * 0.86 - 7,
-    cy + normal.y * length * 0.86 - 12,
-    10,
-    "#a8d3c3",
-    "right",
-  );
-  const hits = [];
-  for (let i = -2; i <= 2; i++) {
-    const offset = (i * beam) / 2,
-      ox = sun.x + offset * Math.sin(a),
-      oy = sun.y + offset * Math.cos(a);
-    const cross = ray.x * dir.y - ray.y * dir.x;
-    const t =
-      Math.abs(cross) < 1e-10
-        ? length * 3
-        : ((cx - ox) * dir.y - (cy - oy) * dir.x) / cross;
-    const hit = { x: ox + ray.x * t, y: oy + ray.y * t };
-    if (illum.cosine > 1e-8) {
-      line(ctx, ox, oy, hit.x, hit.y, "#ebc389", i === 0 ? 1.8 : 1);
-      hits.push(hit);
-    } else
-      line(
-        ctx,
-        ox,
-        oy,
-        ox + ray.x * length * 2,
-        oy + ray.y * length * 2,
-        "#ebc38988",
-        1,
-      );
-  }
-  if (hits.length)
-    line(ctx, hits[0].x, hits[0].y, hits.at(-1).x, hits.at(-1).y, "#f7cb8e", 5);
-  circle(ctx, sun.x, sun.y, 24, "#efcf9420");
-  circle(ctx, sun.x, sun.y, 13, "#efcf94");
-  circle(ctx, cx, cy, 3, "#ffe9c1");
-  const r = Math.min(57, w * 0.13);
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, -a, 0);
-  ctx.strokeStyle = "#d7b884";
-  ctx.stroke();
-  text(ctx, `${altitude}°`, cx + r + 12, cy - 8, small ? 14 : 18, "#e8c78f");
-  text(
-    ctx,
-    `입사각 ${illum.incidence.toFixed(1)}°`,
-    w * 0.06,
-    h * 0.18,
-    small ? 12 : 15,
-    "#a8d3c3",
-  );
-  text(
-    ctx,
-    `수광 비율 ${(illum.cosine * 100).toFixed(1)}%`,
-    w * 0.06,
-    h * 0.24,
-    small ? 12 : 15,
-    "#eac58c",
-  );
-  const boxY = h - 88;
-  ctx.fillStyle = "#102827ef";
-  ctx.fillRect(0, boxY - 15, w, 103);
-  text(
-    ctx,
-    illum.footprint === null
-      ? "빛이 닿지 않는 방향 · 수광 비율 0%"
-      : `같은 빛이 닿는 면적 ${illum.footprint.toFixed(2)}배`,
-    w / 2,
-    boxY + 3,
-    small ? 11 : 13,
-    "#e3e6cb",
-    "center",
-  );
-  line(ctx, w * 0.12, boxY + 28, w * 0.88, boxY + 28, "#a8bba533", 6);
-  line(
-    ctx,
-    w * 0.12,
-    boxY + 28,
-    w * (0.12 + 0.76 * illum.cosine),
-    boxY + 28,
-    "#e7be83",
-    6,
-  );
-  text(ctx, "0%", w * 0.12, boxY + 51, 10, "#9bb5a2");
-  text(ctx, "100% · 면에 수직", w * 0.88, boxY + 51, 10, "#9bb5a2", "right");
-});
+const render = fitCanvas($("simCanvas"), (ctx, w, h) =>
+  drawSolar(ctx, w, h, altitude, slope, surfaceIllumination(altitude, slope)),
+);
+
 function measure() {
   const result = surfaceIllumination(altitude, slope);
   return {

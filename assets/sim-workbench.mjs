@@ -6,7 +6,7 @@ import {
   parseNotebook,
   recordsCSV,
 } from "./sim-records.mjs?v=c4583f9f";
-import { fitCanvas, line, text } from "./sim-canvas.mjs?v=31de4804";
+import { fitCanvas, line, text } from "./sim-canvas.mjs?v=0a622b13";
 
 const page = document.body.dataset.lab,
   config = curriculum[page];

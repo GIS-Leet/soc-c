@@ -73,10 +73,117 @@
   }
   const material = Landscape.rockMaterial({ vertexColors: true });
   const photoMaterial = Landscape.photoMaterial();
+  const basaltPhoto = Landscape.photoMaterial({
+    tint: 0x777c83,
+    saturation: 0.08,
+  });
+  const limestonePhoto = Landscape.photoMaterial({ tint: 0xe4e5d5 });
+  const sceneMaterial = () =>
+    curKey === "lava"
+      ? curStage === 0
+        ? material
+        : basaltPhoto
+      : curKey === "karst"
+        ? limestonePhoto
+        : photoMaterial;
   const terrain = new THREE.Mesh(geometry, material);
   terrain.castShadow = true;
   terrain.receiveShadow = true;
   scene.add(terrain);
+  const waterEdge = new THREE.Mesh(
+    new THREE.BufferGeometry(),
+    new THREE.MeshStandardMaterial({
+      color: 0x163e4e,
+      roughness: 0.5,
+      side: THREE.DoubleSide,
+    }),
+  );
+  const iceEdge = new THREE.Mesh(
+    new THREE.BufferGeometry(),
+    new THREE.MeshStandardMaterial({
+      color: 0xa9cbd8,
+      roughness: 0.45,
+      side: THREE.DoubleSide,
+    }),
+  );
+  scene.add(waterEdge, iceEdge);
+  function rebuildSurfaceEdges(st) {
+    const waterVertices = [],
+      iceVertices = [];
+    function quad(out, a, b, topA, topB, lowA, lowB) {
+      if (topA <= lowA && topB <= lowB) return;
+      const p = [a[0], topA, a[1]],
+        q = [b[0], topB, b[1]],
+        r = [a[0], Math.min(lowA, topA), a[1]],
+        s = [b[0], Math.min(lowB, topB), b[1]];
+      for (const v of [p, r, q, q, r, s]) out.push(...v);
+    }
+    for (let i = 0; i < 256; i++) {
+      const a = -125 + (i * 250) / 256,
+        b = -125 + ((i + 1) * 250) / 256;
+      if (st.sea > -40)
+        for (const [p, q] of [
+          [
+            [a, -125],
+            [b, -125],
+          ],
+          [
+            [a, 125],
+            [b, 125],
+          ],
+          [
+            [-125, a],
+            [-125, b],
+          ],
+          [
+            [125, a],
+            [125, b],
+          ],
+        ]) {
+          const lowA = stageHeight(st, ...p),
+            lowB = stageHeight(st, ...q);
+          if (lowA < st.sea && lowB < st.sea)
+            quad(
+              waterVertices,
+              p,
+              q,
+              st.sea + 0.035,
+              st.sea + 0.035,
+              lowA,
+              lowB,
+            );
+        }
+      if (
+        curKey === "glacier" &&
+        curStage === 1 &&
+        Math.abs(a) < 48 &&
+        Math.abs(b) < 48
+      )
+        for (const z of [-125, 125])
+          quad(
+            iceVertices,
+            [a, z],
+            [b, z],
+            stageHeight(st, a, z),
+            stageHeight(st, b, z),
+            uShape(a, z) + detail(a, z),
+            uShape(b, z) + detail(b, z),
+          );
+    }
+    for (const [mesh, vertices] of [
+      [waterEdge, waterVertices],
+      [iceEdge, iceVertices],
+    ]) {
+      mesh.geometry.dispose();
+      mesh.geometry = new THREE.BufferGeometry();
+      mesh.geometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(vertices, 3),
+      );
+      mesh.geometry.computeVertexNormals();
+      mesh.visible = vertices.length > 0;
+    }
+  }
 
   // A cut-out block, not a paper-thin plane. These walls expose the model domain,
   // not measured bedding or a claimed sequence of geological strata.
@@ -104,10 +211,16 @@
         b = boundary[(i + 1) % boundary.length];
       const ax = pos.getX(a),
         az = pos.getZ(a),
-        ay = pos.getY(a),
+        ay =
+          curKey === "glacier" && curStage === 1
+            ? Math.min(pos.getY(a), uShape(ax, az) + detail(ax, az))
+            : pos.getY(a),
         bx = pos.getX(b),
         bz = pos.getZ(b),
-        by = pos.getY(b);
+        by =
+          curKey === "glacier" && curStage === 1
+            ? Math.min(pos.getY(b), uShape(bx, bz) + detail(bx, bz))
+            : pos.getY(b);
       for (const v of [
         ax,
         ay,
@@ -228,10 +341,7 @@
     mesh.position.y = level + 0.035;
   }
 
-  const basaltMat = Landscape.rockMaterial({
-    color: 0x45474a,
-    roughness: 0.91,
-  });
+  const basaltMat = basaltPhoto;
   const basaltColumns = new THREE.Group();
   const colR = 3.4,
     dx = Math.sqrt(3) * colR,
@@ -282,6 +392,17 @@
   themeScene();
   document.addEventListener("lab:theme", themeScene);
   const n = (x, z, f) => simplex.noise2D(x / f, z / f);
+  for (const c of basaltColumns.children) {
+    SceneVisual.surfaceData(c.geometry, { rock: 1 });
+    if (!c.geometry.getAttribute("color"))
+      c.geometry.setAttribute(
+        "color",
+        new THREE.BufferAttribute(
+          new Float32Array(c.geometry.attributes.position.count * 3).fill(0.6),
+          3,
+        ),
+      );
+  }
   const detail = (x, z) => Landscape.detail(x, z, curKey, curStage);
 
   // I. 작용의 원리
@@ -889,11 +1010,8 @@
       targetHeights[i] = stageHeight(st, pos.getX(i), pos.getZ(i));
     const stride = resolution + 1,
       cell = size / resolution;
-    const ao =
-      curKey === "volcano"
-        ? Landscape.occlusion(targetHeights, resolution, size)
-        : null;
-    terrain.material = ao ? photoMaterial : material;
+    const ao = Landscape.occlusion(targetHeights, resolution, size);
+    terrain.material = sceneMaterial();
     for (let i = 0; i < pos.count; i++) {
       const row = Math.floor(i / stride),
         col = i % stride;
@@ -910,7 +1028,15 @@
       const rockMix = THREE.MathUtils.smoothstep(slope, 0.32, 1.0);
       surfaceData.setXYZ(
         i,
-        Math.max(rockMix, THREE.MathUtils.smoothstep(y, 36, 65) * 0.86),
+        curKey === "glacier" &&
+          curStage === 1 &&
+          Math.abs(pos.getX(i)) < 48 &&
+          iceSurf(pos.getX(i), pos.getZ(i)) >
+            uShape(pos.getX(i), pos.getZ(i)) + 0.4
+          ? -1
+          : curKey === "lava" || (curKey === "coast" && y < 10)
+            ? 1
+            : Math.max(rockMix, THREE.MathUtils.smoothstep(y, 36, 65) * 0.86),
         ao ? ao[i] : 1,
         st.lake !== undefined && Landscape.inCrater(pos.getX(i), pos.getZ(i))
           ? 1 - THREE.MathUtils.smoothstep(Math.abs(y - st.lake), 0, 2)
@@ -948,6 +1074,7 @@
       );
     basaltColumns.visible = !!st.columns;
     rebuildUndercut(st);
+    rebuildSurfaceEdges(st);
 
     fitSceneView();
     targetWaterY = water.position.y;
@@ -1162,9 +1289,7 @@
     }
 
     terrain.material =
-      curKey === "volcano" && document.body.dataset.materials === "ready"
-        ? photoMaterial
-        : material;
+      document.body.dataset.materials === "ready" ? sceneMaterial() : material;
     controls.update();
     updateLabels();
     renderer.render(scene, camera);
