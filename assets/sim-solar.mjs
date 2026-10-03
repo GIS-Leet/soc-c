@@ -1,5 +1,5 @@
 import { surfaceIllumination } from "./sim-models.mjs?v=a32b816f";
-import { fitCanvas, line, text, circle, arrow } from "./sim-canvas.mjs?v=a3a44df5";
+import { fitCanvas, line, text, circle, arrow } from "./sim-canvas.mjs?v=31de4804";
 const $ = (id) => document.getElementById(id),
   slider = $("sunSlider");
 const extra = document.createElement("div");

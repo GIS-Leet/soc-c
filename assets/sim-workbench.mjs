@@ -1,12 +1,12 @@
 import { curriculum } from "./sim-curriculum.mjs?v=6025bf3a";
-import { MODEL_VERSION } from "./sim-models.mjs?v=a32b816f";
+import { MODEL_VERSION as DEFAULT_MODEL_VERSION } from "./sim-models.mjs?v=a32b816f";
 import {
   RECORD_VERSION,
   validateState,
   parseNotebook,
   recordsCSV,
 } from "./sim-records.mjs?v=c4583f9f";
-import { fitCanvas, line, text } from "./sim-canvas.mjs?v=a3a44df5";
+import { fitCanvas, line, text } from "./sim-canvas.mjs?v=31de4804";
 
 const page = document.body.dataset.lab,
   config = curriculum[page];
@@ -31,6 +31,7 @@ if (config) {
 }
 function init() {
   const model = Lab.model || {},
+    MODEL_VERSION = model.version || DEFAULT_MODEL_VERSION,
     fields = {},
     inputs = [
       ...document.querySelectorAll(
@@ -44,7 +45,10 @@ function init() {
     else if (["range", "number"].includes(el.type))
       fields[el.id] = { min: Number(el.min), max: Number(el.max) };
   }
-  const notebookKey = "geographia-notebook-v2-" + page;
+  const notebookKey =
+    "geographia-notebook-v2-" +
+    page +
+    (model.version ? "-" + model.version : "");
   let records = [],
     task = 0,
     refreshTimer;
@@ -443,6 +447,13 @@ function init() {
   window.addEventListener("afterprint", () =>
     document.body.classList.remove("printing-report"),
   );
+  if (document.body.dataset.design === "stratum") {
+    document.querySelector(".workbench-heading h2").textContent = "탐구 기록";
+    $("recordTrial").textContent = "조건 기록";
+    $("recordTrialBottom").textContent = "기록 추가";
+    $("exportFigure").textContent = "그림 저장";
+    document.querySelector(".experiment-actions>a").textContent = "탐구 기록";
+  }
   showTask();
   try {
     const saved = localStorage.getItem(notebookKey);
@@ -483,6 +494,9 @@ function init() {
     const section = create("section", undefined, "profile-lab");
     section.innerHTML =
       '<div class="panel-heading"><h2>중앙 기준선의 표면 단면</h2><span>모형 단위</span></div><canvas id="processProfile" role="img" aria-label="현재 단계와 첫 단계의 중앙 단면 비교"></canvas><p>실선: 현재 단계 · 점선: 첫 단계. 변형 전 기준 위치에 대응하는 표면 높이입니다. 축척과 실제 형성 시간은 재현하지 않습니다.</p><details><summary>단면 수치 표</summary><div class="comparison-scroll"><table id="profileData"></table></div></details>';
+    if (document.body.dataset.design === "stratum")
+      section.querySelector("p").textContent =
+        "실선: 현재 단계 · 점선: 첫 단계. 중앙 기준선의 지표·암석 상단 높이입니다. 수면과 해식 노치의 안쪽 벽은 이 높이 곡선에 포함하지 않습니다.";
     document.querySelector(".lab-visual").append(section);
     const render = fitCanvas($("processProfile"), (ctx, w, h) => {
       const profile = model.profile(),

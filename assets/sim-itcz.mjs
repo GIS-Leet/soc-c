@@ -12,7 +12,7 @@ import {
   createElapsedClock,
   advancePhase,
 } from "./simulation-time.mjs?v=422c4a21";
-import { fitCanvas, line, text, arrow } from "./sim-canvas.mjs?v=a3a44df5";
+import { fitCanvas, line, text, arrow } from "./sim-canvas.mjs?v=31de4804";
 const $ = (id) => document.getElementById(id),
   month = $("monthSlider"),
   latitude = $("latitudeSlider"),

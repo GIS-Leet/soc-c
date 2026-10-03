@@ -32,23 +32,23 @@
     <script>
       try {
         document.documentElement.dataset.theme =
-          localStorage.getItem("geo-theme") || "light";
+          localStorage.getItem("geo-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
       } catch (e) {}
     </script>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>지형에 새겨진 지구의 이야기 — Geographia Lab</title>
+    <title>지형 형성 — Geographia Lab</title>
     <meta
       name="description"
       content="화산의 분화구부터 빙하가 남긴 골짜기까지. 익숙한 풍경을 되감아 그 풍경을 만든 과정을 관찰합니다."
     />
     <link rel="canonical" href="https://nyuheatgis.com/world_landforms.html" />
-    <meta
-      property="og:title"
-      content="지형에 새겨진 지구의 이야기 · Geographia Lab"
-    />
+    <meta property="og:title" content="지형 형성 · Geographia Lab" />
     <meta
       property="og:description"
       content="화산의 분화구부터 빙하가 남긴 골짜기까지. 익숙한 풍경을 되감아 그 풍경을 만든 과정을 관찰합니다."
@@ -67,11 +67,9 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
-    <link rel="stylesheet" href="assets/sim-lab.css?v=138cf8e7" />
-
-    <link rel="stylesheet" href="assets/sim-research.css?v=e09c011c" />
+    <link rel="stylesheet" href="assets/sim-stratum.css?v=c94e4572" />
   </head>
-  <body data-lab="world_landforms">
+  <body data-lab="world_landforms" data-design="stratum">
     <a href="#main" class="skip-link">본문으로 이동</a>
     <header class="lab-header">
       <a class="lab-brand" href="index.html" aria-label="Geographia 홈"
@@ -141,19 +139,16 @@
           <div class="eyebrow">
             EXPERIMENT 06 &nbsp; / &nbsp; A FIELD GUIDE TO LANDFORMS
           </div>
-          <h1>지형에 새겨진 지구의 이야기</h1>
+          <h1>지형 형성</h1>
         </div>
-        <p class="intro-copy">
-          화산의 분화구부터 빙하가 남긴 골짜기까지. 익숙한 풍경을 되감아 그
-          풍경을 만든 과정을 관찰합니다.
-        </p>
+        <p class="intro-copy">화산·빙하·용식·해안 침식의 형성 단계 비교</p>
       </section>
       <div class="lab-workspace">
         <div class="lab-visual">
-          <section class="stage" aria-label="FORMATION STUDIO 실험 화면">
+          <section class="stage" aria-label="지형 관찰 실험 화면">
             <div class="stage-toolbar">
               <span class="stage-caption"
-                ><i class="status-dot"></i>FORMATION STUDIO</span
+                ><i class="status-dot"></i>지형 관찰</span
               >
               <div class="stage-tools">
                 <button
@@ -224,14 +219,14 @@
               </div>
               <p class="caption-sub" id="capSub"></p>
               <div class="stepper">
-                <button class="step-btn" id="btnPrev">← 이전</button
+                <button class="step-btn" id="btnPrev">이전</button
                 ><button
                   class="step-btn play"
                   id="btnPlay"
                   aria-pressed="false"
                 >
-                  ▶ 자동 재생</button
-                ><button class="step-btn" id="btnNext">다음 →</button>
+                  재생</button
+                ><button class="step-btn" id="btnNext">다음</button>
                 <div
                   class="step-dots"
                   id="capDots"
@@ -241,14 +236,14 @@
             </div>
           </section>
           <p class="model-note">
-            수평·수직 축척과 변화 속도를 단순화한 모형입니다. 사례 지역은 형성
-            원리를 이해하기 위한 참고입니다.
+            형성 원리를 설명하는 3D 모형 · 실제 지형 측량 자료가 아니며
+            축척·시간을 재현하지 않습니다.
           </p>
         </div>
         <aside class="lab-controls" aria-label="실험 조작">
           <section class="control-panel">
             <div class="panel-heading">
-              <h2>탐구할 지형을 선택하세요</h2>
+              <h2>지형 유형</h2>
               <span class="panel-no">01</span>
             </div>
             <div class="scenario-list">
@@ -288,7 +283,7 @@
                   ><span class="row1"
                     ><b>화산과 칼데라호</b
                     ><span class="force-tag">내적</span></span
-                  ><span class="sub">백두산 천지의 형성 과정</span></span
+                  ><span class="sub">화산체 성장 · 함몰 · 호수 형성</span></span
                 ></button
               ><button
                 class="scenario-card"
@@ -345,6 +340,26 @@
             <div class="panel-heading">
               <h2>관찰 도구</h2>
               <span class="panel-no">02</span>
+            </div>
+            <div class="scene-views" aria-label="관찰 방향">
+              <button
+                class="scene-view-btn"
+                data-view="oblique"
+                aria-pressed="true"
+              >
+                입체
+              </button>
+              <button
+                class="scene-view-btn"
+                data-view="top"
+                aria-pressed="false"
+              >
+                위에서
+              </button>
+            </div>
+            <div class="layer-switch">
+              <label for="gridToggle">기준 격자</label
+              ><input type="checkbox" id="gridToggle" />
             </div>
             <div class="layer-switch">
               <label for="labelToggle">지형 이름 표시</label
@@ -424,10 +439,10 @@
     <script src="assets/sim-runtime.js?v=2ba6f1b6"></script>
     <script src="assets/sim-vendor/three.min.js?v=7a7802bf"></script>
     <script src="assets/sim-vendor/OrbitControls.js?v=63530cfe"></script>
-    <script src="assets/sim-vendor/Sky.js?v=85b1b30c"></script>
-    <script src="assets/sim-vendor/Water.js?v=87b390b0"></script>
     <script src="assets/sim-vendor/simplex-noise.min.js?v=60f65487"></script>
-    <script src="assets/sim-landforms.js?v=49637981"></script>
-    <script type="module" src="assets/sim-workbench.mjs?v=f594c23d"></script>
+    <script src="assets/sim-vendor/Water.js?v=87b390b0"></script>
+    <script src="assets/sim-landscape.js?v=9af99c87"></script>
+    <script src="assets/sim-landforms.js?v=68317bac"></script>
+    <script type="module" src="assets/sim-workbench.mjs?v=95f2d185"></script>
   </body>
 </html>

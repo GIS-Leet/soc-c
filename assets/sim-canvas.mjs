@@ -35,6 +35,19 @@ export function line(
   dash = [],
 ) {
   if (
+    document.body.dataset.design === "stratum" &&
+    !ctx.canvas.closest(".stage")
+  ) {
+    const styles = getComputedStyle(document.documentElement);
+    color = styles
+      .getPropertyValue(
+        ["#bc5634", "#b85635"].includes(color)
+          ? "--st-accent-ink"
+          : "--st-label-3",
+      )
+      .trim();
+  }
+  if (
     !ctx.canvas.closest(".stage") &&
     document.documentElement.dataset.theme === "dark" &&
     ["#bc5634", "#b85635"].includes(color)
@@ -58,6 +71,15 @@ export function text(
   color = "#b9cdba",
   align = "left",
 ) {
+  if (
+    document.body.dataset.design === "stratum" &&
+    !ctx.canvas.closest(".stage")
+  ) {
+    color = getComputedStyle(document.documentElement)
+      .getPropertyValue("--st-label-3")
+      .trim();
+    size = Math.max(12, size);
+  }
   if (
     !ctx.canvas.closest(".stage") &&
     ["#6d806f", "#738073", "#7a887a"].includes(color)

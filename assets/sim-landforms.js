@@ -4,214 +4,252 @@
   // ----------------------------------------------------
   const container = document.getElementById("webgl-container");
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x102827);
-  scene.background = new THREE.Color(0x102827);
-
   const camera = new THREE.PerspectiveCamera(
-    45,
+    42,
     container.clientWidth / container.clientHeight,
     0.1,
-    2000,
+    1800,
   );
-  camera.position.set(0, 150, 400);
-
   const renderer = Lab.createRenderer(THREE, {
     antialias: true,
-    powerPreference: "high-performance",
+    powerPreference: "default",
   });
   renderer.setSize(container.clientWidth, container.clientHeight);
-  // 밝은 곳이 하얗게 타지 않도록 밝기 압축과 색공간을 지정한다
-  if (THREE.ACESFilmicToneMapping) {
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.72;
-  }
-  if ("outputColorSpace" in renderer && THREE.SRGBColorSpace)
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-  else if ("outputEncoding" in renderer && THREE.sRGBEncoding)
-    renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.96;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
-
+  camera.position.set(230, 220, 310);
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.maxPolarAngle = Math.PI / 2 - 0.05;
-  controls.autoRotate =
-    document.getElementById("rotateToggle")?.checked || false;
-  controls.autoRotateSpeed = 0.35;
-
-  // 대기 원근(거리감) — 먼 지형이 옅은 안개에 잠기게
-  scene.fog = new THREE.Fog(0x102827, 750, 1800);
-
-  const sun = new THREE.DirectionalLight(0xfff3df, 0.9); // 살짝 따뜻한 태양광
-  sun.position.set(120, 205, 85);
+  controls.dampingFactor = 0.09;
+  controls.minDistance = 110;
+  controls.maxDistance = 720;
+  controls.maxPolarAngle = Math.PI * 0.475;
+  controls.target.set(0, 18, 0);
+  controls.autoRotateSpeed = 0.3;
+  const sun = new THREE.DirectionalLight(0xfff5e6, 1.8);
+  sun.position.set(-160, 260, 140);
   sun.castShadow = true;
-  sun.shadow.mapSize.width = 2048;
-  sun.shadow.mapSize.height = 2048;
-  sun.shadow.camera.left = -160;
-  sun.shadow.camera.right = 160;
-  sun.shadow.camera.top = 160;
-  sun.shadow.camera.bottom = -160;
-  sun.shadow.camera.near = 0.5;
-  sun.shadow.camera.far = 650;
-  sun.shadow.bias = -0.0004;
-  sun.shadow.normalBias = 0.03; // 그림자 얼룩(acne) 방지
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, {
+    left: -195,
+    right: 195,
+    top: 195,
+    bottom: -195,
+    near: 1,
+    far: 700,
+  });
+  sun.shadow.bias = -0.0006;
+  sun.shadow.normalBias = 0.55;
   scene.add(sun);
-  // 반구광: 위에서는 하늘빛, 아래에서는 따뜻한 지면 반사광 → 자연스러운 음영
-  scene.add(new THREE.HemisphereLight(0xbcd6ea, 0x4a4030, 0.6));
-  scene.add(new THREE.AmbientLight(0x6b6b66, 0.22));
-
-  const sky = new THREE.Sky();
-  sky.scale.setScalar(10000);
-  sky.visible = false;
-  scene.add(sky);
-  sky.material.uniforms["turbidity"].value = 8;
-  sky.material.uniforms["rayleigh"].value = 1.6;
-  sky.material.uniforms["mieCoefficient"].value = 0.005;
-  sky.material.uniforms["mieDirectionalG"].value = 0.8;
-  sky.material.uniforms["sunPosition"].value.copy(
-    sun.position.clone().normalize(),
-  ); // 태양광과 하늘 일치
-
-  // ----------------------------------------------------
-  // ★ 지형 메시 세팅 ★
-  // ----------------------------------------------------
+  scene.add(new THREE.HemisphereLight(0xdce8f6, 0x726b5e, 0.7));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.12));
   const simplex = new SimplexNoise("geographia-fieldwork");
-  const resolution = 160;
-  const size = 250;
+  const resolution = 192,
+    size = 250;
   const geometry = new THREE.PlaneGeometry(size, size, resolution, resolution);
   geometry.rotateX(-Math.PI / 2);
-
   const pos = geometry.attributes.position;
   const colorAttr = new THREE.BufferAttribute(
     new Float32Array(pos.count * 3),
     3,
   );
   geometry.setAttribute("color", colorAttr);
-
-  const targetHeights = new Float32Array(pos.count);
-  const currentColors = [];
-  const targetColors = [];
-
+  const targetHeights = new Float32Array(pos.count),
+    currentColors = [],
+    targetColors = [];
   for (let i = 0; i < pos.count; i++) {
     pos.setY(i, 0);
-    targetHeights[i] = 0;
-    currentColors.push(new THREE.Color(0x6f8f5a));
-    targetColors.push(new THREE.Color(0x6f8f5a));
-    colorAttr.setXYZ(i, 0.43, 0.56, 0.35);
+    currentColors.push(new THREE.Color());
+    targetColors.push(new THREE.Color());
   }
-
-  const material = new THREE.MeshStandardMaterial({
-    vertexColors: true,
-    roughness: 1.0,
-    metalness: 0.0,
-    flatShading: false,
-  });
+  const material = Landscape.rockMaterial({ vertexColors: true });
   const terrain = new THREE.Mesh(geometry, material);
   terrain.castShadow = true;
   terrain.receiveShadow = true;
   scene.add(terrain);
 
-  const waterGeo = new THREE.PlaneGeometry(300, 300);
-  const water = new THREE.Water(waterGeo, {
-    textureWidth: 512,
-    textureHeight: 512,
-    waterNormals: new THREE.TextureLoader().load(
-      "assets/sim-vendor/waternormals.jpg",
-      (t) => {
-        t.wrapS = t.wrapT = THREE.RepeatWrapping;
-      },
-    ),
-    sunDirection: new THREE.Vector3(),
-    sunColor: 0xffffff,
-    waterColor: 0x274f63,
-    distortionScale: 2.4,
-  });
-  water.rotation.x = -Math.PI / 2;
-  water.position.y = -100;
-  scene.add(water);
-  water.material.uniforms["sunDirection"].value.copy(
-    sun.position.clone().normalize(),
+  // A cut-out block, not a paper-thin plane. These walls expose the model domain,
+  // not measured bedding or a claimed sequence of geological strata.
+  const boundary = [];
+  for (let i = 0; i <= resolution; i++) boundary.push(i);
+  for (let j = 1; j <= resolution; j++)
+    boundary.push(j * (resolution + 1) + resolution);
+  for (let i = resolution - 1; i >= 0; i--)
+    boundary.push(resolution * (resolution + 1) + i);
+  for (let j = resolution - 1; j > 0; j--) boundary.push(j * (resolution + 1));
+  const wallGeo = new THREE.BufferGeometry(),
+    wallPos = new Float32Array(boundary.length * 18);
+  wallGeo.setAttribute("position", new THREE.BufferAttribute(wallPos, 3));
+  const walls = new THREE.Mesh(
+    wallGeo,
+    Landscape.rockMaterial({ color: 0x645f57, side: THREE.DoubleSide }),
   );
-
-  // 칼데라호(천지) 전용 호수면 — 전체 바다와 분리해 분화구만 채움
-  const craterLake = new THREE.Mesh(
-    new THREE.CircleGeometry(24, 64),
-    new THREE.MeshStandardMaterial({
-      color: 0x3f86ab,
-      roughness: 0.15,
-      metalness: 0.2,
-      emissive: 0x10303f,
-      emissiveIntensity: 0.5,
-    }),
-  );
-  craterLake.rotation.x = -Math.PI / 2;
-  craterLake.position.y = -999;
-  craterLake.visible = false;
-  craterLake.receiveShadow = true;
-  scene.add(craterLake);
-
-  // 주상절리(육각 기둥) 묶음 — 용암이 식으며 수축해 갈라진 다각형 기둥
-  const basaltMat = new THREE.MeshStandardMaterial({
-    color: 0x4c463d,
-    roughness: 0.92,
-    flatShading: true,
-  });
-  const basaltColumns = new THREE.Group();
-  (function buildColumns() {
-    const colR = 3.6,
-      dx = colR * Math.sqrt(3),
-      dz = colR * 1.5,
-      baseY = 6;
-    for (let row = -6; row <= 6; row++) {
-      for (let col = -7; col <= 7; col++) {
-        const x = col * dx + (Math.abs(row) % 2 ? dx / 2 : 0);
-        const z = row * dz;
-        const r = Math.sqrt(x * x + z * z);
-        if (r > 30) continue; // 원형 영역만
-        const top = 28 - r * 0.18 + simplex.noise2D(x / 12, z / 12) * 5; // 가운데 높고 가장자리 낮게 + 요철
-        const h = Math.max(6, top - baseY);
-        const m = new THREE.Mesh(
-          new THREE.CylinderGeometry(colR * 0.95, colR * 0.95, h, 6),
-          basaltMat,
-        );
-        m.position.set(x, baseY + h / 2, z);
-        m.rotation.y = (col + row) * 0.16;
-        m.castShadow = true;
-        m.receiveShadow = true;
-        basaltColumns.add(m);
-      }
+  walls.castShadow = true;
+  walls.receiveShadow = true;
+  scene.add(walls);
+  function updateWalls() {
+    let k = 0;
+    for (let i = 0; i < boundary.length; i++) {
+      const a = boundary[i],
+        b = boundary[(i + 1) % boundary.length];
+      const ax = pos.getX(a),
+        az = pos.getZ(a),
+        ay = pos.getY(a),
+        bx = pos.getX(b),
+        bz = pos.getZ(b),
+        by = pos.getY(b);
+      for (const v of [
+        ax,
+        ay,
+        az,
+        ax,
+        -22,
+        az,
+        bx,
+        by,
+        bz,
+        bx,
+        by,
+        bz,
+        ax,
+        -22,
+        az,
+        bx,
+        -22,
+        bz,
+      ])
+        wallPos[k++] = v;
     }
-  })();
-  basaltColumns.visible = false;
-  scene.add(basaltColumns);
-
-  // ----------------------------------------------------
-  // ★ 색상 팔레트 & 고도별 채색 ★
-  // ----------------------------------------------------
-  const palette = {
-    sand: new THREE.Color(0xd9c48a),
-    grass: new THREE.Color(0x6aa84f),
-    forest: new THREE.Color(0x2f6b34),
-    rock: new THREE.Color(0x817567),
-    snow: new THREE.Color(0xf2f0ea),
-  };
-  function elevColor(y) {
-    const c = new THREE.Color();
-    if (y < 12) c.copy(palette.grass).lerp(palette.forest, Math.max(0, y) / 12);
-    else if (y < 26) c.copy(palette.forest).lerp(palette.rock, (y - 12) / 14);
-    else c.copy(palette.rock).lerp(palette.snow, Math.min((y - 26) / 12, 1));
-    return c;
+    wallGeo.attributes.position.needsUpdate = true;
+    wallGeo.computeVertexNormals();
+    wallGeo.computeBoundingSphere();
+  }
+  const waterNormals = new THREE.TextureLoader().load(
+    "assets/sim-vendor/waternormals.jpg",
+    (texture) => {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      Lab.invalidate?.();
+    },
+  );
+  function reflectiveWater() {
+    const mesh = new THREE.Water(new THREE.PlaneGeometry(1, 1), {
+      textureWidth: 512,
+      textureHeight: 512,
+      waterNormals,
+      sunDirection: sun.position.clone().normalize(),
+      sunColor: 0xfff7eb,
+      waterColor: 0x16465a,
+      distortionScale: 0.65,
+      size: 3.2,
+      alpha: 1,
+    });
+    mesh.rotation.x = -Math.PI / 2;
+    // Air/water normal-incidence reflectance is about 2%, not a metallic 30%.
+    mesh.material.fragmentShader = mesh.material.fragmentShader.replace(
+      "float rf0 = 0.3;",
+      "float rf0 = 0.02;",
+    );
+    mesh.visible = false;
+    scene.add(mesh);
+    return mesh;
+  }
+  const water = reflectiveWater(),
+    craterLake = reflectiveWater();
+  function waterGeometry(mesh, g, level) {
+    if (mesh === water && curKey === "coast" && curStage === 1) {
+      const existing = Array.from(g.attributes.position.array),
+        y = level + 0.035;
+      existing.push(
+        16,
+        y,
+        -125,
+        16,
+        y,
+        125,
+        24,
+        y,
+        -125,
+        24,
+        y,
+        -125,
+        16,
+        y,
+        125,
+        24,
+        y,
+        125,
+      );
+      g.dispose();
+      g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.Float32BufferAttribute(existing, 3));
+      g.computeVertexNormals();
+    }
+    mesh.geometry.dispose();
+    g.translate(0, -level - 0.035, 0);
+    g.rotateX(Math.PI / 2);
+    mesh.geometry = g;
+    mesh.position.y = level + 0.035;
   }
 
-  // ----------------------------------------------------
-  // ★ 지형별 높이 함수 (단계별 형성 과정) ★
-  //   x, z 범위: 약 -125 ~ 125
-  // ----------------------------------------------------
+  const basaltMat = Landscape.rockMaterial({
+    color: 0x45474a,
+    roughness: 0.91,
+  });
+  const basaltColumns = new THREE.Group();
+  const colR = 3.4,
+    dx = Math.sqrt(3) * colR,
+    dz = 1.5 * colR;
+  for (let row = -7; row <= 7; row++)
+    for (let col = -8; col <= 8; col++) {
+      const x = col * dx + (Math.abs(row) % 2 ? dx / 2 : 0),
+        z = row * dz;
+      if (Math.hypot(x, z) > 36) continue;
+      const top = 24 + simplex.noise2D(x / 17, z / 17) * 4;
+      const mesh = new THREE.Mesh(
+        new THREE.CylinderGeometry(colR * 0.97, colR * 0.97, top - 2, 6),
+        basaltMat,
+      );
+      mesh.position.set(x, (top + 2) / 2, z);
+      // The tessellating orientation is shared. Randomly rotating each hexagon
+      // creates impossible overlaps rather than adjacent contraction joints.
+      mesh.rotation.y = 0;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData.columnTop = top;
+      basaltColumns.add(mesh);
+    }
+  basaltColumns.visible = false;
+  scene.add(basaltColumns);
+  const palette = {
+    sand: new THREE.Color(0xa99d87),
+    grass: new THREE.Color(0x596345),
+    forest: new THREE.Color(0x3e5141),
+    rock: new THREE.Color(0x898479),
+    snow: new THREE.Color(0xe5eaf0),
+  };
+  function elevColor(y) {
+    return palette.grass
+      .clone()
+      .lerp(palette.rock, Landscape.smooth(20, 65, y) * 0.55);
+  }
+  const grid = new THREE.GridHelper(250, 10, 0x8c969f, 0xb8c0c6);
+  grid.position.y = -30.2;
+  grid.visible = false;
+  scene.add(grid);
+  function themeScene() {
+    const dark = document.documentElement.dataset.theme === "dark";
+    scene.background = new THREE.Color(dark ? 0x15191e : 0xedf0f3);
+    scene.fog = new THREE.Fog(scene.background, 850, 1600);
+    Lab.invalidate?.();
+  }
+  themeScene();
+  document.addEventListener("lab:theme", themeScene);
   const n = (x, z, f) => simplex.noise2D(x / f, z / f);
-  const detail = (x, z) => n(x, z, 6.5) * 0.75 + n(x, z, 2.8) * 0.35; // 표면 미세 굴곡(자연스러운 거칠기)
+  const detail = (x, z) => Landscape.detail(x, z, curKey, curStage);
 
   // I. 작용의 원리
   const upl = (x, z) => Math.max(0, n(x, z, 55) * 40 + n(x, z, 24) * 16 + 6);
@@ -224,41 +262,14 @@
       Math.exp(-Math.pow(x / 30, 2)) *
         (58 + Math.cos(x / 8) * 16 + n(x, z, 12) * 10),
     );
-  const oldFold = (x, z) =>
-    Math.exp(-Math.pow((x + 82) / 26, 2)) *
-    (16 + Math.cos(x / 10) * 4 + Math.abs(n(x, z, 20)) * 3);
   const plain = (x, z) => Math.max(0, n(x, z, 40) * 2.5 + 1);
 
   // III. 화산 (백두산) — 용암대지(base) 위 화산체 → 칼데라 → 천지
-  const VBASE = 30; // 용암대지 높이
-  const VR = 34,
-    VRIM = 47,
-    VFLOOR = 18,
-    VINNER = 24; // 분화구 반경/가장자리/바닥/바닥반경
-  const volCone = (x, z) => {
-    // 함몰 전: 높이 솟은 원뿔형 화산체
-    const d = Math.sqrt(x * x + z * z);
-    return VBASE + Math.max(0, 50 - d * 0.5) + n(x, z, 30) * 1.2;
-  };
-  const volCaldera = (x, z) => {
-    // 정상부가 함몰된 칼데라
-    const d = Math.sqrt(x * x + z * z);
-    if (d < VINNER) return VFLOOR + n(x, z, 25) * 0.6; // 평평한 바닥
-    if (d < VR)
-      return VFLOOR + (VRIM - VFLOOR) * ((d - VINNER) / (VR - VINNER)); // 가파른 안쪽 벽
-    return VBASE + (VRIM - VBASE) * Math.max(0, 1 - (d - VR) / 60); // 바깥 사면(rim→대지)
-  };
+  const volCone = Landscape.cone,
+    volCaldera = Landscape.caldera;
   function volColor(x, z, y) {
-    if (y < VBASE + 2) return new THREE.Color(0x4a4038); // 용암대지(현무암)
-    if (y < VBASE + 16)
-      return new THREE.Color(0x36692f).lerp(
-        new THREE.Color(0x6b5d4f),
-        (y - VBASE - 2) / 14,
-      ); // 숲→화산암
-    return new THREE.Color(0x6b5d4f).lerp(
-      new THREE.Color(0xc9bdab),
-      Math.min((y - VBASE - 16) / 30, 1),
-    ); // 정상 화산재
+    const c = palette.grass.clone();
+    return c.lerp(new THREE.Color(0x8e8575), Landscape.smooth(20, 47, y));
   }
 
   // IV. 용암대지 & 주상절리
@@ -267,7 +278,11 @@
     if (Math.abs(x) < 6) y -= (6 - Math.abs(x)) * 0.8;
     return y;
   }; // 갈라진 틈(열하)에서 분출
-  const lavaPlateau = (x, z) => 10 + n(x, z, 45) * 1.2; // 넓고 평평한 용암대지
+  const lavaPlateau = (x, z) => 24 + n(x, z, 17) * 4;
+  const lavaExposed = (x, z) => {
+    const r = Math.hypot(x, z);
+    return 3 + (lavaPlateau(x, z) - 3) * Landscape.smooth(37, 49, r);
+  };
   function lavaHotColor(x, z, y) {
     const c = new THREE.Color(0x4a423a);
     if (Math.abs(x) < 7)
@@ -283,11 +298,13 @@
 
   // V. 빙하 (V자곡 → U자곡)
   const vShape = (x, z) =>
-    Math.min(52, 8 + Math.abs(x) * 1.05) - z * 0.04 + n(x, z, 22) * 2;
+    Math.min(52, 8 + Math.abs(x) * 1.05) -
+    z * 0.04 +
+    n(x, z, 22) * 2 * Landscape.smooth(0, 25, Math.abs(x));
   const uShape = (x, z) =>
     Math.min(52, 6 + Math.pow(Math.abs(x) / 50, 2) * 46) -
     z * 0.04 +
-    n(x, z, 22) * 2;
+    n(x, z, 22) * 2 * Landscape.smooth(0, 25, Math.abs(x));
   const iceSurf = (x, z) => 32 - z * 0.04;
   const glacierIce = (x, z) =>
     Math.abs(x) < 48 ? Math.max(uShape(x, z), iceSurf(x, z)) : uShape(x, z);
@@ -326,13 +343,10 @@
   const COAST_SEA = 5;
   const coastLand = (x, z) => 20 - x * 0.3 + n(x, z, 30) * 1.3; // 완만한 해안 경사(육지)
   const coastGentle = (x, z) => coastLand(x, z);
-  const coastNotch = (x, z) => {
-    // 파도가 밑부분을 깎아 해식 노치
-    let y = coastLand(x, z);
-    const nd = x - 24;
-    if (Math.abs(nd) < 7) y -= (7 - Math.abs(nd)) * 1.4;
-    return y;
-  };
+  // Top envelope only. A separate overhanging mesh represents the undercut;
+  // a heightfield alone cannot represent two heights at the same (x,z).
+  const coastNotch = (x, z) =>
+    x <= 24 ? coastLand(x, z) : 1 - (x - 24) * 0.12;
   function coastProfile(x, z, cliffBase, withStack) {
     let y;
     if (x < cliffBase)
@@ -357,8 +371,8 @@
       ); // 시스택(암석 기둥)
     if (y < 9) return new THREE.Color(0x9c968a); // 파식대(젖은 암반)
     if (y < 17) return new THREE.Color(0x7d7264); // 해식애 암벽
-    return new THREE.Color(0x5f9a4f).lerp(
-      new THREE.Color(0x2f6b34),
+    return new THREE.Color(0x576949).lerp(
+      new THREE.Color(0x3e5141),
       Math.min((y - 17) / 20, 1),
     ); // 해안 위 식생
   }
@@ -373,7 +387,7 @@
       force: "both",
       forceLabel: "복합 작용",
       example: "모든 지형의 출발점",
-      cam: [185, 140, 205],
+      cam: [200, 205, 280],
       color: null,
       stages: [
         {
@@ -408,7 +422,7 @@
       force: "in",
       forceLabel: "내적 작용",
       example: "신기: <b>히말라야·안데스</b> / 고기: <b>우랄·애팔래치아</b>",
-      cam: [40, 175, 330],
+      cam: [100, 220, 300],
       color: null,
       stages: [
         {
@@ -431,29 +445,26 @@
           tag: "단계 3",
           name: "오래된 산지의 침식",
           sea: -10,
-          h: (x, z) => newFold(x, z) * 0.92 + oldFold(x, z) + plain(x, z) * 0.3,
-          d: "아주 오래전 솟은 산지는 긴 세월 깎여 낮고 완만해집니다. 이것이 ‘고기 습곡 산지’입니다.",
-          labels: [
-            { t: "신기 습곡 산지", s: "신기", x: 0, z: 0 },
-            { t: "고기 습곡 산지", s: "낮고 완만", x: -82, z: 0 },
-          ],
+          h: (x, z) => newFold(x, z) * 0.3 + plain(x, z) * 0.35,
+          d: "융기보다 침식이 우세한 조건을 오래 지속시킨 개념적 모습입니다. 실제 산지 높이는 연대뿐 아니라 융기 속도·암석·기후에 따라 달라집니다.",
+          labels: [{ t: "침식된 산지", s: "낮아진 기복", x: 0, z: 0 }],
         },
       ],
     },
     volcano: {
       cat: "§ SECTION III · 화산 지형",
-      title: "화산 지형 ① — 백두산 천지",
+      title: "화산과 칼데라호",
       force: "in",
       forceLabel: "내적 작용",
       example: "<b>백두산 천지</b> (칼데라호)",
-      cam: [95, 150, 150],
+      cam: [170, 310, 220],
       color: volColor,
       stages: [
         {
           tag: "단계 1",
           name: "용암대지",
           sea: -50,
-          h: (x, z) => VBASE + n(x, z, 40) * 1.5,
+          h: Landscape.plateau,
           d: "땅속 마그마가 흘러나와 굳으며 넓고 평평한 ‘용암대지’를 이룹니다.",
           labels: [],
         },
@@ -470,17 +481,17 @@
           name: "정상부 함몰 → 칼데라",
           sea: -50,
           h: volCaldera,
-          d: "큰 분출 뒤 빈 마그마방이 무너지면서 정상부가 거대하게 내려앉습니다. 이 움푹한 곳이 ‘칼데라’입니다.",
+          d: "대규모 분출 등으로 마그마가 빠져나가면 지지력이 줄어 정상부가 함몰될 수 있습니다. 이렇게 생긴 큰 함몰 지형이 칼데라입니다.",
           labels: [{ t: "칼데라", s: "함몰 분지", x: 0, z: 0 }],
         },
         {
           tag: "단계 4",
-          name: "물이 고인 칼데라호 (천지)",
+          name: "물이 고인 칼데라호",
           sea: -50,
           h: volCaldera,
-          lake: 24,
-          d: "칼데라에 빗물과 지하수가 고여 호수가 됩니다. 백두산 정상의 ‘천지’가 바로 이 칼데라호입니다.",
-          labels: [{ t: "천지", s: "칼데라호", x: 0, z: 0, y: 24 }],
+          lake: 32,
+          d: "칼데라 분지에 물이 모여 호수를 이룬 모습입니다. 백두산 천지는 칼데라호의 사례이며, 이 장면은 천지의 실측 지형이 아닙니다.",
+          labels: [{ t: "칼데라호", s: "", x: -10, z: 0, y: 32 }],
         },
       ],
     },
@@ -490,7 +501,7 @@
       force: "in",
       forceLabel: "내적 작용",
       example: "철원 <b>용암대지</b> / 제주·한탄강 <b>주상절리</b>",
-      cam: [78, 72, 116],
+      cam: [170, 180, 235],
       color: basaltColor,
       stages: [
         {
@@ -512,11 +523,11 @@
         },
         {
           tag: "단계 3",
-          name: "식으며 갈라진 주상절리",
+          name: "냉각 수축과 주상절리의 노출",
           sea: -50,
-          h: lavaPlateau,
+          h: lavaExposed,
           columns: true,
-          d: "두껍게 쌓인 용암이 식으며 부피가 줄어(수축) 다각형(주로 육각형) 기둥으로 쪼개집니다. 이것이 ‘주상절리’입니다.",
+          d: "용암이 냉각·수축하면서 다각형 절리가 생깁니다. 주변이 침식되어 드러난 모습을 함께 표현했습니다. 냉각할 때 기둥이 위로 자라는 것은 아닙니다.",
           labels: [{ t: "주상절리", s: "육각 기둥", x: 0, z: 0, y: 30 }],
         },
       ],
@@ -527,7 +538,7 @@
       force: "ex",
       forceLabel: "외적 작용",
       example: "<b>알프스</b> · 노르웨이 <b>피오르</b>",
-      cam: [85, 80, 165],
+      cam: [175, 165, 270],
       color: null,
       stages: [
         {
@@ -565,7 +576,7 @@
       force: "ex",
       forceLabel: "외적 작용",
       example: "강원 <b>정선·삼척</b> / 슬로베니아 <b>카르스트</b>",
-      cam: [0, 150, 165],
+      cam: [85, 250, 250],
       color: limeColor,
       stages: [
         {
@@ -573,7 +584,7 @@
           name: "평평한 석회암 대지",
           sea: -50,
           h: karstFlat,
-          d: "바닷속 조개·산호가 쌓여 굳은 석회암이 넓은 대지를 이룹니다.",
+          d: "석회암이 지표에 드러난 대지입니다. 석회암은 탄산칼슘 퇴적물이나 생물의 유해 등이 쌓여 형성될 수 있습니다.",
           labels: [],
         },
         {
@@ -603,7 +614,7 @@
       force: "ex",
       forceLabel: "외적 작용",
       example: "부산 <b>태종대</b> / 호주 <b>12사도 바위</b>",
-      cam: [118, 56, 122],
+      cam: [230, 155, 250],
       color: coastColor,
       stages: [
         {
@@ -620,14 +631,14 @@
           sea: COAST_SEA,
           h: coastNotch,
           d: "파도는 해수면 높이의 절벽 밑부분을 집중적으로 깎습니다. 그 결과 움푹 파인 ‘해식 노치’가 생깁니다.",
-          labels: [{ t: "해식 노치", s: "밑부분이 패임", x: 24, z: 0, y: 2 }],
+          labels: [{ t: "해식 노치", s: "해수면 부근", x: 17, z: 8, y: 5 }],
         },
         {
           tag: "단계 3",
           name: "절벽 붕괴 → 해식애·파식대",
           sea: COAST_SEA,
           h: coastCliffYoung,
-          d: "밑이 파인 절벽이 무너져 깎아지른 ‘해식애’가 되고, 그 앞 바닥에는 평평한 암반 ‘파식대’가 드러납니다.",
+          d: "절벽이 후퇴하며 앞쪽에 완만한 파식대가 발달합니다. 여기서는 지형을 관찰하도록 파식대가 드러난 낮은 수위 조건을 표현했습니다.",
           labels: [
             { t: "해식애", s: "절벽", x: -2, z: 0, y: 20 },
             { t: "파식대", s: "평평한 암반", x: 26, z: 12, y: 7 },
@@ -664,11 +675,149 @@
   let targetWaterY = -100;
   let isMovingCamera = false;
   let isMorphing = false;
+  let viewKind = "oblique";
+  const viewTarget = new THREE.Vector3();
+  function fitSceneView() {
+    const direction =
+      viewKind === "top"
+        ? new THREE.Vector3(0, 1, 0.001)
+        : new THREE.Vector3(...scenarios[curKey].cam).normalize();
+    const right = new THREE.Vector3()
+      .crossVectors(new THREE.Vector3(0, 1, 0), direction)
+      .normalize();
+    const up = new THREE.Vector3().crossVectors(direction, right).normalize();
+    viewTarget.set(0, -16, 0);
+    let distance = 0;
+    const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    function include(x, y, z) {
+      const dy = y - viewTarget.y,
+        depth = x * direction.x + dy * direction.y + z * direction.z;
+      const px = x * right.x + dy * right.y + z * right.z,
+        py = x * up.x + dy * up.y + z * up.z;
+      distance = Math.max(
+        distance,
+        depth + Math.abs(px) / (tan * camera.aspect),
+        depth + Math.abs(py) / tan,
+      );
+    }
+    for (let i = 0; i < pos.count; i++)
+      include(pos.getX(i), targetHeights[i], pos.getZ(i));
+    for (const x of [-125, 125])
+      for (const z of [-125, 125]) include(x, -22, z);
+    targetCamPos.copy(viewTarget).addScaledVector(direction, distance * 1.055);
+    isMovingCamera = true;
+  }
 
-  function setColor(target, x, z, y, cfn) {
+  function stageHeight(st, x, z) {
+    return st.h(x, z) + detail(x, z);
+  }
+  function rockSurface(st, x, z) {
+    let y = stageHeight(st, x, z);
+    if (st.columns)
+      for (const column of basaltColumns.children) {
+        const px = x - column.position.x,
+          pz = z - column.position.z,
+          r = colR * 0.97;
+        let inside = true;
+        for (let k = 0; k < 6; k++) {
+          const a = (k * Math.PI) / 3,
+            b = ((k + 1) * Math.PI) / 3;
+          const ax = r * Math.sin(a),
+            az = r * Math.cos(a),
+            bx = r * Math.sin(b),
+            bz = r * Math.cos(b);
+          if ((bx - ax) * (pz - az) - (bz - az) * (px - ax) > 1e-8) {
+            inside = false;
+            break;
+          }
+        }
+        if (inside) y = Math.max(y, column.userData.columnTop);
+      }
+    return y;
+  }
+  const undercut = new THREE.Mesh(
+    new THREE.BufferGeometry(),
+    Landscape.rockMaterial({ color: 0x777267, side: THREE.DoubleSide }),
+  );
+  undercut.castShadow = true;
+  undercut.receiveShadow = false;
+  undercut.visible = false;
+  scene.add(undercut);
+  function rebuildUndercut(st) {
+    undercut.visible = curKey === "coast" && curStage === 1;
+    terrain.visible = !undercut.visible;
+    walls.visible = !undercut.visible;
+    if (!undercut.visible) return;
+    const vertices = [];
+    function crossSection(z) {
+      const points = [];
+      for (let x = -125; x <= 20; x += 2.5)
+        points.push([x, stageHeight(st, x, z), z]);
+      points.push(
+        [24, coastLand(24, z), z],
+        [24, 9, z],
+        [16, 5, z],
+        [24, 1, z],
+      );
+      for (let x = 26; x <= 125; x += 3)
+        points.push([x, 1 - (x - 24) * 0.12, z]);
+      points.push([125, 1 - 101 * 0.12, z]);
+      return points;
+    }
+    const rows = [];
+    for (let i = 0; i <= 100; i++) rows.push(crossSection(-125 + i * 2.5));
+    for (let j = 0; j < rows.length - 1; j++)
+      for (let i = 0; i < rows[j].length - 1; i++) {
+        const a = rows[j][i],
+          b = rows[j][i + 1],
+          c = rows[j + 1][i],
+          d = rows[j + 1][i + 1];
+        for (const p of [a, c, b, b, c, d]) vertices.push(...p);
+      }
+    for (const row of [rows[0], rows.at(-1)]) {
+      const points = row.map((p) => new THREE.Vector2(p[0], p[1]));
+      points.push(new THREE.Vector2(125, -22), new THREE.Vector2(-125, -22));
+      const cap = new THREE.ShapeGeometry(
+        new THREE.Shape(points),
+      ).toNonIndexed();
+      const a = cap.attributes.position;
+      for (let i = 0; i < a.count; i++)
+        vertices.push(a.getX(i), a.getY(i), row[0][2]);
+      cap.dispose();
+    }
+    for (const index of [0, rows[0].length - 1])
+      for (let j = 0; j < rows.length - 1; j++) {
+        const a = rows[j][index],
+          b = rows[j + 1][index],
+          c = [a[0], -22, a[2]],
+          d = [b[0], -22, b[2]];
+        for (const p of [a, b, c, c, b, d]) vertices.push(...p);
+      }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+    g.computeVertexNormals();
+    undercut.geometry.dispose();
+    undercut.geometry = g;
+  }
+  function setColor(target, x, z, y, cfn, slope) {
     if (cfn) target.copy(cfn(x, z, y));
     else target.copy(elevColor(y));
-    target.multiplyScalar(0.9 + (n(x, z, 11) + 1) * 0.1); // 0.9~1.1 미세한 명암 변화로 단조로운 색띠 완화
+    const rocky = Landscape.smooth(0.35, 1.35, slope);
+    if (curKey === "volcano") {
+      target.copy(volColor(x, z, y));
+      target.lerp(new THREE.Color(0x928878), rocky * 0.82);
+      if (y < 26 && curStage >= 2 && Math.hypot(x, z) < 42)
+        target.lerp(new THREE.Color(0x544e45), 0.6);
+    } else if (curKey === "glacier") {
+      const ice =
+        curStage === 1 &&
+        Math.abs(x) < 48 &&
+        iceSurf(x, z) > uShape(x, z) + 0.4;
+      if (!ice)
+        target.copy(new THREE.Color(0x696c61)).lerp(palette.rock, rocky);
+    } else if (curKey !== "lava") target.lerp(palette.rock, rocky * 0.78);
+    target.multiplyScalar(0.89 + (Landscape.noise(x, z, 18) + 1) * 0.065);
+    target.convertSRGBToLinear();
   }
 
   function buildLabels(st) {
@@ -684,7 +833,7 @@
         (L.s ? " <small>" + L.s + "</small>" : "");
       el.style.opacity = "0";
       labelLayer.appendChild(el);
-      const y = (L.y !== undefined ? L.y : st.h(L.x, L.z)) + 9;
+      const y = (L.y !== undefined ? L.y : stageHeight(st, L.x, L.z)) + 1;
       activeLabels.push({ el, x: L.x, y, z: L.z });
       requestAnimationFrame(() => {
         setTimeout(() => (el.style.opacity = "1"), 250);
@@ -701,25 +850,56 @@
     const st = sc.stages[curStage];
     const cfn = st.color !== undefined ? st.color : sc.color;
 
+    for (let i = 0; i < pos.count; i++)
+      targetHeights[i] = stageHeight(st, pos.getX(i), pos.getZ(i));
+    const stride = resolution + 1,
+      cell = size / resolution;
     for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i),
-        z = pos.getZ(i);
-      const y = st.h(x, z);
-      targetHeights[i] = y + detail(x, z);
-      setColor(targetColors[i], x, z, y, cfn);
+      const row = Math.floor(i / stride),
+        col = i % stride;
+      const sx =
+        (targetHeights[row * stride + Math.min(col + 1, resolution)] -
+          targetHeights[row * stride + Math.max(0, col - 1)]) /
+        (cell * (col === 0 || col === resolution ? 1 : 2));
+      const sz =
+        (targetHeights[Math.min(row + 1, resolution) * stride + col] -
+          targetHeights[Math.max(0, row - 1) * stride + col]) /
+        (cell * (row === 0 || row === resolution ? 1 : 2));
+      setColor(
+        targetColors[i],
+        pos.getX(i),
+        pos.getZ(i),
+        targetHeights[i],
+        cfn,
+        Math.hypot(sx, sz),
+      );
     }
-
-    // 칼데라호 / 주상절리 표시 여부
     if (st.lake !== undefined) {
+      // Clip only the closed crater basin, excluding low outer flanks.
+      waterGeometry(
+        craterLake,
+        Landscape.basinWater(
+          (x, z) =>
+            Math.hypot(x * 0.94, z * 1.08) < 45 ? stageHeight(st, x, z) : 100,
+          st.lake,
+          49,
+          144,
+        ),
+        st.lake,
+      );
       craterLake.visible = true;
-      craterLake.position.y = st.lake;
     } else craterLake.visible = false;
+    if (st.sea > -40)
+      waterGeometry(
+        water,
+        Landscape.basinWater((x, z) => stageHeight(st, x, z), st.sea, 125, 128),
+        st.sea,
+      );
     basaltColumns.visible = !!st.columns;
+    rebuildUndercut(st);
 
-    targetCamPos
-      .set(...sc.cam)
-      .multiplyScalar(1.65 * Math.max(1, 1.15 / camera.aspect));
-    targetWaterY = st.sea;
+    fitSceneView();
+    targetWaterY = water.position.y;
     water.visible = st.sea > -40;
     isMovingCamera = true;
     isMorphing = true;
@@ -802,7 +982,7 @@
       clearTimeout(playTimer);
       playTimer = null;
     }
-    document.getElementById("btnPlay").innerText = "▶ 자동 재생";
+    document.getElementById("btnPlay").innerText = "재생";
     document.getElementById("btnPlay").setAttribute("aria-pressed", "false");
   }
   function playAll() {
@@ -812,7 +992,7 @@
       return;
     }
     autoPlay = true;
-    document.getElementById("btnPlay").innerText = "❚❚ 정지";
+    document.getElementById("btnPlay").innerText = "정지";
     if (curStage === scenarios[curKey].stages.length - 1) curStage = 0;
     applyStage();
   }
@@ -822,16 +1002,54 @@
   // ----------------------------------------------------
   function updateLabels() {
     const w = container.clientWidth,
-      h = container.clientHeight;
+      h = container.clientHeight,
+      used = [];
     for (const L of activeLabels) {
       tmpV.set(L.x, L.y, L.z).project(camera);
-      if (tmpV.z > 1) {
+      if (tmpV.z > 1 || tmpV.z < -1) {
+        L.el.style.display = "none";
+        continue;
+      }
+      const anchorX = (tmpV.x * 0.5 + 0.5) * w,
+        anchorY = (-tmpV.y * 0.5 + 0.5) * h;
+      if (anchorX < 0 || anchorX > w || anchorY < 0 || anchorY > h) {
         L.el.style.display = "none";
         continue;
       }
       L.el.style.display = "block";
-      L.el.style.left = (tmpV.x * 0.5 + 0.5) * w + "px";
-      L.el.style.top = (-tmpV.y * 0.5 + 0.5) * h + "px";
+      const width = L.el.offsetWidth,
+        height = L.el.offsetHeight;
+      const left = Math.max(
+        width / 2 + 8,
+        Math.min(w - width / 2 - 8, anchorX),
+      );
+      let lift = 48,
+        rect;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        rect = {
+          left: left - width / 2,
+          right: left + width / 2,
+          top: anchorY - lift,
+          bottom: anchorY - lift + height,
+        };
+        if (
+          !used.some(
+            (r) =>
+              rect.left < r.right + 8 &&
+              rect.right > r.left - 8 &&
+              rect.top < r.bottom + 8 &&
+              rect.bottom > r.top - 8,
+          )
+        )
+          break;
+        lift += height + 10;
+      }
+      used.push(rect);
+      L.el.style.left = left + "px";
+      L.el.style.top = anchorY + "px";
+      L.el.style.transform = `translate(-50%, ${-lift}px)`;
+      L.el.style.setProperty("--leader-h", Math.max(4, lift - height) + "px");
+      L.el.style.setProperty("--leader-x", anchorX - left + width / 2 + "px");
     }
   }
 
@@ -850,7 +1068,7 @@
 
     if (isMovingCamera) {
       camera.position.lerp(targetCamPos, blend(0.05));
-      controls.target.lerp(new THREE.Vector3(0, 0, 0), blend(0.05));
+      controls.target.lerp(viewTarget, blend(0.05));
       if (camera.position.distanceTo(targetCamPos) < 1) {
         isMovingCamera = false;
         controls.autoRotate =
@@ -884,18 +1102,14 @@
       pos.needsUpdate = true;
       colorAttr.needsUpdate = true;
       geometry.computeVertexNormals();
+      geometry.computeBoundingSphere();
+      updateWalls();
 
       if (!stillMorphing) {
         isMorphing = false;
       }
     }
 
-    if (
-      autoPlay &&
-      !document.hidden &&
-      !matchMedia("(prefers-reduced-motion: reduce)").matches
-    )
-      water.material.uniforms["time"].value += dt;
     controls.update();
     updateLabels();
     renderer.render(scene, camera);
@@ -909,10 +1123,7 @@
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
     if (curKey) {
-      targetCamPos
-        .set(...scenarios[curKey].cam)
-        .multiplyScalar(1.65 * Math.max(1, 1.15 / camera.aspect));
-      isMovingCamera = true;
+      fitSceneView();
     }
   }
   window.addEventListener("resize", resizeView);
@@ -922,10 +1133,6 @@
   curStage = 3;
   applyStage();
 
-  const grid = new THREE.GridHelper(330, 22, 0x506a5a, 0x294338);
-  grid.position.y = -32;
-  scene.add(grid);
-  scene.add(new THREE.HemisphereLight(0xd0dec3, 0x29483c, 0.22));
   document
     .querySelectorAll("[data-scenario]")
     .forEach((button) =>
@@ -950,6 +1157,25 @@
       applyStage();
     }
   });
+  document.getElementById("gridToggle").onchange = (event) => {
+    grid.visible = event.target.checked;
+    Lab.invalidate();
+  };
+  document.querySelectorAll("[data-view]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        stopAuto();
+        isMovingCamera = false;
+        controls.autoRotate = false;
+        document.getElementById("rotateToggle").checked = false;
+        viewKind = button.dataset.view;
+        fitSceneView();
+        Lab.invalidate();
+        document
+          .querySelectorAll("[data-view]")
+          .forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+      }),
+  );
   document.getElementById("labelToggle").onchange = (event) => {
     labelLayer.hidden = !event.target.checked;
   };
@@ -976,12 +1202,53 @@
       x = Array.from({ length: 81 }, (_, i) => -100 + i * 2.5);
     return {
       x,
-      y: x.map((x) => st.h(x, 0)),
-      baseline: x.map((x) => first.h(x, 0)),
+      y: x.map((x) => rockSurface(st, x, 0)),
+      baseline: x.map((x) => first.h(x, 0) + Landscape.detail(x, 0, curKey, 0)),
     };
   }
   Lab.register({
+    version: Landscape.version,
     profile,
+    fallback(ctx, w, h) {
+      const style = getComputedStyle(document.documentElement),
+        p = profile();
+      ctx.fillStyle = style.getPropertyValue("--sim-canvas").trim();
+      ctx.fillRect(0, 0, w, h);
+      const low = Math.min(...p.y, ...p.baseline),
+        high = Math.max(...p.y, ...p.baseline) + 1;
+      ctx.font = "14px sans-serif";
+      ctx.fillStyle = style.getPropertyValue("--st-label").trim();
+      ctx.fillText("중앙 단면 · 실선 현재 / 점선 첫 단계", 20, 30);
+      for (const [values, color, dash] of [
+        [p.baseline, "--st-label-3", [5, 5]],
+        [p.y, "--st-accent-ink", []],
+      ]) {
+        ctx.beginPath();
+        ctx.strokeStyle = style.getPropertyValue(color).trim();
+        ctx.lineWidth = 2;
+        ctx.setLineDash(dash);
+        values.forEach((v, i) => {
+          const x = 20 + (i / (values.length - 1)) * (w - 40),
+            y = h - 45 - ((v - low) / (high - low)) * (h - 100);
+          i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        });
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      ctx.fillText(
+        "모형 높이 " + low.toFixed(1) + " ~ " + (high - 1).toFixed(1),
+        20,
+        h - 18,
+      );
+    },
+    sceneInfo: () => ({
+      key: curKey,
+      stage: curStage,
+      vertices: pos.count,
+      waterLevel:
+        scenarios[curKey].stages[curStage].lake ??
+        scenarios[curKey].stages[curStage].sea,
+    }),
     pause: stopAuto,
     validateChoices: (c) =>
       !!scenarios[c.scenario] &&

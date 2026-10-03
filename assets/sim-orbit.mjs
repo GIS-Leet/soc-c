@@ -1,5 +1,5 @@
 import { dailyInsolation, solarAltitude } from "./sim-models.mjs?v=a32b816f";
-import { fitCanvas, line, text } from "./sim-canvas.mjs?v=a3a44df5";
+import { fitCanvas, line, text } from "./sim-canvas.mjs?v=31de4804";
 import {
   declination,
   noonAltitude,
