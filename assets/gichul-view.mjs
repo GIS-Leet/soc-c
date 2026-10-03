@@ -1,6 +1,7 @@
 // Desk 「기출」 뷰 — 진도·이어서 분류·PDF 추가(선택·끌어다 놓기)·분류(문항 + 3축 태그)·단원별 보기(풀이 화면)·시험·검색(인쇄)·통계. 데이터는 앱과 같은 desk/gichul · GitHub 기출/
 import * as G from './gichul.mjs?v=79235d16';
 import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=c8039730';
+import { sheetHtml, openSheetDialog } from './gichul-sheet.mjs?v=6b268506';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -237,6 +238,7 @@ export function mountGichul(root, fb) {
         <div class="gc-results">
           <div class="gc-res-h"><b>${esc(G.leafOf(S.part))} · ${items.length}문항</b><div class="gc-res-a">
             <select id="gcPType" class="gc-sel"><option value="">모든 자료</option>${types.map(t => `<option ${t === S.pType ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>
+            <button class="btn-sub" id="gcSheetGo" ${items.length && items.length <= 120 ? '' : 'disabled'} title="${items.length > 120 ? '120문항까지' : '수업 배포용 A4 문제지로 인쇄'}">문제집 인쇄</button>
             <button class="btn-solid" id="gcSolveGo" ${items.length ? '' : 'disabled'}>풀이 화면</button></div></div>
           <div class="gc-scroll">${items.map((it, i) => { const e = G.exam(S.data, it.examId); return `<div class="gc-row" data-solve="${i}" role="button" tabindex="0">${thumb(it)}<div><b>${esc(e?.title || '')} ${it.number}번${it.pts != null ? ` <i class="gc-pts ${it.pts >= 3 ? 'hi' : ''}">${it.pts}점</i>` : ''}</b><span>${esc([...(it.tags.c || []).map(G.leafOf), ...(it.tags.d || [])].join(' · '))}</span></div><button class="btn-sub gc-edit" data-go="${esc(it.id)}">분류 고치기</button></div>`; }).join('')}
             <p class="gc-hint">정답과 풀이 요점은 풀이 화면에서 「정답 보기」를 눌러야 나옵니다.</p></div>
@@ -248,6 +250,7 @@ export function mountGichul(root, fb) {
       const p = e.target.closest('[data-part]'); if (p) { S.uTop = $('#gcUList').scrollTop; S.part = p.dataset.part; S.pType = ''; return renderUnits(); }
       const g = e.target.closest('[data-go]'); if (g) return go('tag', g.dataset.go);
       if (e.target.closest('#gcSolveGo')) return openSolve(items, 0);
+      if (e.target.closest('#gcSheetGo')) return printItems(items, G.leafOf(S.part) + (S.pType ? ' · ' + S.pType : ''));
       const r = e.target.closest('[data-solve]'); if (r) openSolve(items, Number(r.dataset.solve));
     };
     observeThumbs();
@@ -341,7 +344,7 @@ export function mountGichul(root, fb) {
           <div class="gc-list" id="gcSList">${tagList(S.sAxis, S.sSubject, S.sTags, S.sQ)}</div>
         </div>
         <div class="gc-results">
-          <div class="gc-res-h"><b>결과 ${res.length}개</b>${res.length ? `<button class="btn-sub" id="gcPrint" ${res.length > 120 ? 'disabled title="120문항까지"' : ''}>인쇄 · PDF 저장</button>` : ''}</div>
+          <div class="gc-res-h"><b>결과 ${res.length}개</b>${res.length ? `<button class="btn-sub" id="gcPrint" ${res.length > 120 ? 'disabled title="120문항까지"' : ''}>문제집 인쇄</button>` : ''}</div>
           <div class="gc-scroll">${res.map(it => { const e = G.exam(S.data, it.examId); return `<button class="gc-row" data-go="${esc(it.id)}">${thumb(it)}<div><b>${esc(e?.title || '')} ${it.number}번</b><span>${esc(G.allTags(it).map(G.leafOf).join(' · '))}</span></div></button>`; }).join('')}</div>
         </div>
       </div>`;
@@ -352,21 +355,26 @@ export function mountGichul(root, fb) {
       const c = e.target.closest('.gc-filter .gc-chip, .gc-list [data-t]');
       if (c) { const t = c.dataset.t, i = S.sTags.indexOf(t); if (i >= 0) S.sTags.splice(i, 1); else S.sTags.push(t); return renderSearch(); }
       const g = e.target.closest('[data-go]'); if (g) return go('tag', g.dataset.go);
-      if (e.target.closest('#gcPrint')) printItems(res);
+      if (e.target.closest('#gcPrint')) printItems(res, S.sTags.map(G.leafOf).join(' · ') || S.sSubject || '기출 모음');
     };
     observeThumbs();
   }
   /** 고른 문항을 A4 인쇄 창으로 — 브라우저 인쇄에서 「PDF 로 저장」 */
-  async function printItems(items) {
-    const w = window.open('', '_blank'); if (!w) return status('팝업이 막혔습니다 — 이 사이트의 팝업을 허용해 주세요.', true);
-    w.document.write('<p style="font:14px sans-serif;padding:24px">문항을 그리는 중…</p>');
-    const blocks = [];
-    for (const it of items) {
-      const e = G.exam(S.data, it.examId);
-      try { const cv = await renderParts(await pdfOf(e), it.parts, 2.4); blocks.push(`<figure><figcaption>${esc(e.title)} ${it.number}번</figcaption><img src="${cv.toDataURL('image/png')}"></figure>`); } catch {}
-    }
-    const title = S.sTags.map(G.leafOf).join('·') || S.sSubject || '기출 모음';
-    w.document.open(); w.document.write(`<!doctype html><meta charset="utf-8"><title>기출 ${esc(title)}</title><style>@page{size:A4;margin:14mm}body{margin:0;font-family:Pretendard,-apple-system,sans-serif}figure{margin:0 0 8mm;break-inside:avoid}figcaption{font-size:9pt;font-weight:600;color:#555;margin-bottom:2mm}img{width:100%;max-height:250mm;object-fit:contain;object-position:left top}</style>${blocks.join('')}<script>onload=()=>setTimeout(()=>print(),300)<\/script>`); w.document.close();
+  /** 문제집 인쇄 — 옵션 창(제목·2단·이름 칸·출처·정답표) → 새 창에 A4 문제지를 그려 인쇄(종이·PDF 저장) */
+  function printItems(items, title) {
+    openSheetDialog({ title, count: items.length, noAnswer: items.filter(i => !i.ans).length, onPrint: async opts => {
+      const w = window.open('', '_blank'); if (!w) return status('팝업이 막혔습니다 — 이 사이트의 팝업을 허용해 주세요.', true);
+      w.document.write(`<p style="font:14px sans-serif;padding:24px">문항을 그리는 중… <span id="n">0</span> / ${items.length}</p>`);
+      const scale = items.length > 60 ? 2.4 : 3, out = []; let fail = 0;
+      for (const it of items) {
+        const e = G.exam(S.data, it.examId);
+        try { const cv = await renderParts(await pdfOf(e), it.parts, scale); out.push({ src: cv.toDataURL('image/png'), source: `${e.title} ${it.number}번`, ans: it.ans, memo: it.memo }); } catch { fail++; }
+        if (w.closed) return;
+        try { w.document.getElementById('n').textContent = out.length + fail; } catch {}
+      }
+      w.document.open(); w.document.write(sheetHtml(out, { ...opts, autoPrint: true })); w.document.close();
+      if (fail) status(`문항 ${fail}개는 그리지 못해 문제집에서 빠졌습니다.`, true);
+    } });
   }
 
   // ── 통계 ──
