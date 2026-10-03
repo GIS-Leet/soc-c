@@ -1,7 +1,7 @@
 // Desk 「기출」 뷰 — 진도·이어서 분류·PDF 추가(선택·끌어다 놓기)·분류(문항 + 3축 태그)·단원별 보기(풀이 화면)·시험·검색(인쇄)·통계. 데이터는 앱과 같은 desk/gichul · GitHub 기출/
 import * as G from './gichul.mjs?v=79235d16';
 import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=c8039730';
-import { sheetHtml, openSheetDialog } from './gichul-sheet.mjs?v=6b268506';
+import { sheetHtml, openSheetDialog } from './gichul-sheet.mjs?v=bfeed7aa';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -368,7 +368,7 @@ export function mountGichul(root, fb) {
       const scale = items.length > 60 ? 2.4 : 3, out = []; let fail = 0;
       for (const it of items) {
         const e = G.exam(S.data, it.examId);
-        try { const cv = await renderParts(await pdfOf(e), it.parts, scale); out.push({ src: cv.toDataURL('image/png'), source: `${e.title} ${it.number}번`, ans: it.ans, memo: it.memo }); } catch { fail++; }
+        try { const cv = await renderParts(await pdfOf(e), it.parts, scale); out.push({ src: cv.toDataURL('image/png'), source: `${e.title} ${it.number}번`, ans: it.ans, memo: it.memo, w: Math.max(...it.parts.map(p => p.w)), subject: e.meta?.subject, year: e.meta?.year, exam: e.meta?.exam }); } catch { fail++; }
         if (w.closed) return;
         try { w.document.getElementById('n').textContent = out.length + fail; } catch {}
       }
