@@ -1,6 +1,6 @@
 // Desk 「답변 도우미」·노트 요약 — 비슷한 이전 질문·답, 관련 자료, Claude 로 답변 초안. Desk 앱 QAAssist·KnowledgeIndex·NoteSummary 와 같은 규칙.
 // 자료 색인(비공개 자료함 + 홈페이지 공개 자료실의 HTML·PDF·MD 글자 조각)은 이 브라우저 IndexedDB 에만, Claude API 키는 이 기기 localStorage 에만 둔다.
-import { openPdf } from './gichul-pdf.mjs?v=c8039730';
+import { openPdf } from './gichul-pdf.mjs?v=2c0d37a3';
 
 // ── 낱말 뽑기 — 조사·어미를 떼고 긴 합성어는 앞뒤 두 글자도 (앱 KnowledgeIndex.terms) ──
 const SUFFIXES = '이라는 이라고 에서는 에서도 으로는 으로도 에게서 한테서 이지만 이어서 이에요 이예요 입니다 습니다 합니다 됩니다 있나요 인가요 하나요 했는데 하는데 인데요 는데요 잖아요 때문에 에서 에게 한테 으로 이랑 하고 이나 부터 까지 처럼 보다 마다 조차 밖에 이며 이고 이라 라는 라고 다는 다고 는데 은데 인데 나요 가요 까요 어요 아요 에요 예요 네요 지요 었던 했던 하는 되는 있는 없는 같은 이다 였다 했다 한다 된다 에도 에는 에만 와는 과는 인건 인지 은 는 이 가 을 를 에 의 와 과 도 만 로 랑 요 죠 다 고 며 서 지 나 게 면'.split(' ').sort((a, b) => b.length - a.length);
