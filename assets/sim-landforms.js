@@ -48,7 +48,7 @@
   scene.add(new THREE.HemisphereLight(0xdce8f6, 0x726b5e, 0.7));
   scene.add(new THREE.AmbientLight(0xffffff, 0.12));
   const simplex = new SimplexNoise("geographia-fieldwork");
-  const resolution = 192,
+  const resolution = 256,
     size = 250;
   const geometry = new THREE.PlaneGeometry(size, size, resolution, resolution);
   geometry.rotateX(-Math.PI / 2);
@@ -58,6 +58,11 @@
     3,
   );
   geometry.setAttribute("color", colorAttr);
+  const surfaceData = new THREE.BufferAttribute(
+    new Float32Array(pos.count * 3),
+    3,
+  );
+  geometry.setAttribute("surfaceData", surfaceData);
   const targetHeights = new Float32Array(pos.count),
     currentColors = [],
     targetColors = [];
@@ -67,6 +72,7 @@
     targetColors.push(new THREE.Color());
   }
   const material = Landscape.rockMaterial({ vertexColors: true });
+  const photoMaterial = Landscape.photoMaterial();
   const terrain = new THREE.Mesh(geometry, material);
   terrain.castShadow = true;
   terrain.receiveShadow = true;
@@ -135,7 +141,7 @@
       Lab.invalidate?.();
     },
   );
-  function reflectiveWater() {
+  function reflectiveWater(calm = false) {
     const mesh = new THREE.Water(new THREE.PlaneGeometry(1, 1), {
       textureWidth: 512,
       textureHeight: 512,
@@ -153,12 +159,34 @@
       "float rf0 = 0.3;",
       "float rf0 = 0.02;",
     );
+    mesh.material.vertexShader =
+      "attribute vec3 color; varying float waterDepth;\n" +
+      mesh.material.vertexShader.replace(
+        "void main() {",
+        "void main() { waterDepth=color.r;",
+      );
+    mesh.material.fragmentShader =
+      "varying float waterDepth;\n" +
+      mesh.material.fragmentShader
+        .replace(
+          "vec3( 1.5, 1.0, 1.5 )",
+          calm ? "vec3( .16, 1.0, .16 )" : "vec3( .6, 1.0, .6 )",
+        )
+        .replace(
+          "vec3 outgoingLight = albedo;",
+          `
+        float depthFade=1.0-exp(-max(waterDepth,0.0)*0.24);
+        vec3 shallow=vec3(0.10,0.29,0.27),deep=vec3(0.012,0.065,0.09);
+        vec3 body=mix(shallow,deep,depthFade);
+        vec3 outgoingLight=mix(body,albedo,0.26+reflectance*0.65);
+      `,
+        );
     mesh.visible = false;
     scene.add(mesh);
     return mesh;
   }
   const water = reflectiveWater(),
-    craterLake = reflectiveWater();
+    craterLake = reflectiveWater(true);
   function waterGeometry(mesh, g, level) {
     if (mesh === water && curKey === "coast" && curStage === 1) {
       const existing = Array.from(g.attributes.position.array),
@@ -187,6 +215,11 @@
       g = new THREE.BufferGeometry();
       g.setAttribute("position", new THREE.Float32BufferAttribute(existing, 3));
       g.computeVertexNormals();
+    }
+    if (!g.getAttribute("color")) {
+      const depths = new Float32Array(g.attributes.position.count * 3);
+      for (let i = 0; i < depths.length; i += 3) depths[i] = 8;
+      g.setAttribute("color", new THREE.BufferAttribute(depths, 3));
     }
     mesh.geometry.dispose();
     g.translate(0, -level - 0.035, 0);
@@ -686,7 +719,8 @@
       .crossVectors(new THREE.Vector3(0, 1, 0), direction)
       .normalize();
     const up = new THREE.Vector3().crossVectors(direction, right).normalize();
-    viewTarget.set(0, -16, 0);
+    const focus = curKey === "volcano" && viewKind === "oblique";
+    viewTarget.set(0, focus ? 28 : -16, 0);
     let distance = 0;
     const tan = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     function include(x, y, z) {
@@ -701,8 +735,9 @@
       );
     }
     for (let i = 0; i < pos.count; i++)
-      include(pos.getX(i), targetHeights[i], pos.getZ(i));
-    for (const x of [-125, 125])
+      if (!focus || Math.hypot(pos.getX(i), pos.getZ(i)) < 100)
+        include(pos.getX(i), targetHeights[i], pos.getZ(i));
+    for (const x of focus ? [] : [-125, 125])
       for (const z of [-125, 125]) include(x, -22, z);
     targetCamPos.copy(viewTarget).addScaledVector(direction, distance * 1.055);
     isMovingCamera = true;
@@ -854,6 +889,11 @@
       targetHeights[i] = stageHeight(st, pos.getX(i), pos.getZ(i));
     const stride = resolution + 1,
       cell = size / resolution;
+    const ao =
+      curKey === "volcano"
+        ? Landscape.occlusion(targetHeights, resolution, size)
+        : null;
+    terrain.material = ao ? photoMaterial : material;
     for (let i = 0; i < pos.count; i++) {
       const row = Math.floor(i / stride),
         col = i % stride;
@@ -865,6 +905,17 @@
         (targetHeights[Math.min(row + 1, resolution) * stride + col] -
           targetHeights[Math.max(0, row - 1) * stride + col]) /
         (cell * (row === 0 || row === resolution ? 1 : 2));
+      const slope = Math.hypot(sx, sz),
+        y = targetHeights[i];
+      const rockMix = THREE.MathUtils.smoothstep(slope, 0.32, 1.0);
+      surfaceData.setXYZ(
+        i,
+        Math.max(rockMix, THREE.MathUtils.smoothstep(y, 36, 65) * 0.86),
+        ao ? ao[i] : 1,
+        st.lake !== undefined && Landscape.inCrater(pos.getX(i), pos.getZ(i))
+          ? 1 - THREE.MathUtils.smoothstep(Math.abs(y - st.lake), 0, 2)
+          : 0,
+      );
       setColor(
         targetColors[i],
         pos.getX(i),
@@ -874,16 +925,16 @@
         Math.hypot(sx, sz),
       );
     }
+    surfaceData.needsUpdate = true;
     if (st.lake !== undefined) {
       // Clip only the closed crater basin, excluding low outer flanks.
       waterGeometry(
         craterLake,
         Landscape.basinWater(
-          (x, z) =>
-            Math.hypot(x * 0.94, z * 1.08) < 45 ? stageHeight(st, x, z) : 100,
+          (x, z) => (Landscape.inCrater(x, z) ? stageHeight(st, x, z) : 100),
           st.lake,
-          49,
-          144,
+          68,
+          192,
         ),
         st.lake,
       );
@@ -1110,6 +1161,10 @@
       }
     }
 
+    terrain.material =
+      curKey === "volcano" && document.body.dataset.materials === "ready"
+        ? photoMaterial
+        : material;
     controls.update();
     updateLabels();
     renderer.render(scene, camera);

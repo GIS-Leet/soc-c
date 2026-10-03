@@ -13,23 +13,33 @@
     n(x, z, 32) * 2.2 + n(x, z, 12) * 1.1 + n(x, z, 4) * 0.38;
   function volcanic(x, z, collapsed) {
     const angle = Math.atan2(z, x);
-    const radial = Math.hypot(x * 0.94, z * 1.08);
-    const rim =
-      40 + 2.3 * Math.sin(angle * 3 + 0.7) + 1.8 * Math.sin(angle * 7);
-    const ridge = 58 + 3.2 * Math.sin(angle * 5 + 1) + 2 * Math.sin(angle * 9);
-    const base = 7 + fbm(x, z) * 0.7;
+    const radial = Math.hypot(x * 0.9, z * 1.08);
+    const rim = craterRim(angle);
+    const ridge =
+      66 +
+      6 * Math.sin(angle * 3 + 1) +
+      4 * Math.sin(angle * 7) +
+      2 * Math.sin(angle * 13 + 0.4);
+    const base = 6 + fbm(x, z) * 0.6;
+    const warp = n(x, z, 28) * 1.7 + n(x, z, 11) * 0.28;
     const channels = Math.pow(
-      0.5 + 0.5 * Math.sin(angle * 21 + radial * 0.048 + n(x, z, 22)),
-      5,
+      0.5 + 0.5 * Math.sin(angle * 17 + radial * 0.038 + warp),
+      6,
     );
-    const flank = Math.max(0, 1 - (radial - rim) / 87);
+    const branches = Math.pow(
+      0.5 + 0.5 * Math.sin(angle * 39 + radial * 0.06 + warp * 1.4),
+      8,
+    );
+    const flank = Math.max(0, 1 - (radial - rim) / 100);
     const outer =
       base +
-      (ridge - base) * Math.pow(flank, 1.65) -
-      channels * 5.2 * smooth(42, 65, radial) * (1 - smooth(95, 126, radial));
+      (ridge - base) * Math.pow(flank, 2.2) -
+      (channels * 8 + branches * 2.5) *
+        smooth(rim, rim + 16, radial) *
+        (1 - smooth(115, 148, radial));
     if (!collapsed) {
       const cone =
-        base + Math.max(0, 94 * Math.pow(Math.max(0, 1 - radial / 130), 1.3));
+        base + Math.max(0, 102 * Math.pow(Math.max(0, 1 - radial / 148), 1.35));
       return (
         cone -
         channels * 4 * smooth(12, 42, radial) * (1 - smooth(85, 130, radial)) +
@@ -37,16 +47,23 @@
       );
     }
     const floor = 18 + n(x, z, 19) * 0.55;
-    const wall = smooth(rim - 17, rim, radial);
+    const wall = smooth(rim - 18, rim, radial);
+    const crags =
+      (n(x, z, 4.8) * 1.5 + n(x, z, 1.8) * 0.38) * smooth(0.2, 0.6, wall);
     return radial < rim
-      ? floor + (ridge - floor) * wall + fbm(x, z) * wall * 0.42
-      : outer + fbm(x, z) * 0.65;
+      ? floor + (ridge - floor) * wall + fbm(x, z) * wall * 0.5 + crags
+      : outer + fbm(x, z) * 0.8 + n(x, z, 2.1) * 0.24 * smooth(10, 45, outer);
+  }
+  function craterRim(angle) {
+    return 51 + 3.4 * Math.sin(angle * 3 + 0.7) + 2.1 * Math.sin(angle * 7);
   }
   const surface = {
-    version: "3.0.0-landforms",
+    version: "4.0.0-landforms",
     noise: n,
     cone: (x, z) => volcanic(x, z, false),
     caldera: (x, z) => volcanic(x, z, true),
+    inCrater: (x, z) =>
+      Math.hypot(x * 0.9, z * 1.08) < craterRim(Math.atan2(z, x)),
     plateau: (x, z) => 7 + fbm(x, z) * 0.7,
     detail(x, z, key, stage) {
       if (key === "volcano") return 0;
@@ -143,5 +160,43 @@
     g.setAttribute("color", new THREE.Float32BufferAttribute(depths, 3));
     g.computeVertexNormals();
     return g;
+  };
+  // Discrete horizon visibility. This darkens sheltered surfaces; it does not
+  // modify their measured height. Calculated once per stage, never per frame.
+  surface.occlusion = (heights, resolution, size) => {
+    const stride = resolution + 1,
+      cell = size / resolution,
+      out = new Float32Array(heights.length);
+    const directions = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+      [1, 1],
+      [-1, 1],
+      [1, -1],
+      [-1, -1],
+    ];
+    for (let row = 0; row <= resolution; row++)
+      for (let col = 0; col <= resolution; col++) {
+        const index = row * stride + col,
+          y = heights[index];
+        let blocked = 0;
+        for (const [dx, dz] of directions) {
+          let horizon = 0;
+          for (const step of [2, 5, 11, 21]) {
+            const x = col + dx * step,
+              z = row + dz * step;
+            if (x < 0 || z < 0 || x > resolution || z > resolution) continue;
+            const slope =
+              (heights[z * stride + x] - y) /
+              (cell * step * Math.hypot(dx, dz));
+            horizon = Math.max(horizon, slope);
+          }
+          blocked += Math.atan(horizon) / (Math.PI / 2);
+        }
+        out[index] = Math.max(0.38, 1 - (blocked / directions.length) * 0.9);
+      }
+    return out;
   };
 })();

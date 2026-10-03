@@ -3,7 +3,7 @@ import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, writeFile } from "node:fs/promises";
 const base = process.env.SIM_URL || "http://127.0.0.1:8770";
-const output = process.env.SCENE_SCREENSHOTS || ".superpowers/scene-v3";
+const output = process.env.SCENE_SCREENSHOTS || ".superpowers/scene-v4";
 await mkdir(output, { recursive: true });
 const b = await chromium.launch({
   headless: true,
@@ -27,15 +27,25 @@ try {
   });
   await p.goto(base + "/world_landforms.html");
   await p.waitForFunction(() => document.body.dataset.workbench === "ready");
+  await p.waitForFunction(() => document.body.dataset.materials === "ready");
+  await p.locator('[data-view="whole"]').click();
+  assert.equal(
+    await p.locator('[data-view="whole"]').getAttribute("aria-pressed"),
+    "true",
+  );
+  await p.locator('[data-view="oblique"]').click();
   assert.equal(
     await p.evaluate(() => Lab.workbench.documentData().modelVersion),
-    "3.0.0-landforms",
+    "4.0.0-landforms",
   );
   for (const theme of ["light", "dark"]) {
     if ((await p.locator("html").getAttribute("data-theme")) !== theme)
       await p.locator("#themeToggle").click();
     await p.waitForTimeout(450);
     await p.screenshot({ path: output + "/landforms-" + theme + ".png" });
+    await p
+      .locator(".stage")
+      .screenshot({ path: output + "/landforms-scene-" + theme + ".png" });
     const a = await new AxeBuilder({ page: p })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
       .analyze();
@@ -132,6 +142,20 @@ try {
       });
     }
   }
+  await p.route("**/sim-textures/rock-color.jpg", (route) => route.abort());
+  await p.reload();
+  await p.waitForFunction(
+    () =>
+      document.body.dataset.materials === "fallback" &&
+      document.body.dataset.workbench === "ready",
+  );
+  await p.locator('[data-scenario="volcano"]').click();
+  await p.locator('[data-step="3"]').click();
+  await p.waitForTimeout(400);
+  assert.ok(
+    (await p.evaluate(() => Lab.model.profile().y)).every(Number.isFinite),
+  );
+  report.materialFallback = true;
   assert.deepEqual(report.errors, []);
   assert.ok(
     report.accessibility.every((r) => r.violations.length === 0),

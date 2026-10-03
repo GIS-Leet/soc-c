@@ -18,7 +18,7 @@ test("caldera retains a closed rim above its lake and a depressed floor", () => 
   for (let i = 0; i < 720; i++) {
     const angle = (i * Math.PI) / 360;
     let crest = -Infinity;
-    for (let r = 30; r <= 52; r += 0.5)
+    for (let r = 38; r <= 70; r += 0.5)
       crest = Math.max(
         crest,
         model.caldera(r * Math.cos(angle), r * Math.sin(angle)),
@@ -49,10 +49,10 @@ test("landscape geometry is deterministic, finite and independent of UI theme", 
 });
 test("lake triangulation is level, clipped to its closed basin and has upward normals", () => {
   const g = model.basinWater(
-    (x, z) => (Math.hypot(x * 0.94, z * 1.08) < 45 ? model.caldera(x, z) : 100),
+    (x, z) => (model.inCrater(x, z) ? model.caldera(x, z) : 100),
     32,
-    49,
-    144,
+    68,
+    192,
   );
   const p = g.attributes.position,
     n = g.attributes.normal;
@@ -60,7 +60,7 @@ test("lake triangulation is level, clipped to its closed basin and has upward no
   for (let i = 0; i < p.count; i++) {
     assert.ok(Math.abs(p.getY(i) - 32.035) < 1e-5);
     assert.ok(
-      Math.hypot(p.getX(i) * 0.94, p.getZ(i) * 1.08) < 38,
+      model.inCrater(p.getX(i), p.getZ(i)),
       "no water on the outer flank",
     );
     assert.ok(
@@ -78,4 +78,19 @@ test("water mask produces no geometry above a dry flat surface", () => {
   assert.equal(wet.attributes.position.count, 8 * 8 * 6);
   dry.dispose();
   wet.dispose();
+});
+
+test("horizon shading is neutral on flat land and darker in a basin without changing heights", () => {
+  const n = 32,
+    stride = n + 1,
+    flat = new Float32Array(stride * stride).fill(5);
+  assert.ok(model.occlusion(flat, n, 64).every((v) => v === 1));
+  const heights = Float32Array.from(flat, (_, i) =>
+    Math.hypot((i % stride) - n / 2, Math.floor(i / stride) - n / 2),
+  );
+  const copy = heights.slice(),
+    ao = model.occlusion(heights, n, 64);
+  assert.ok(ao.every((v) => Number.isFinite(v) && v >= 0.38 && v <= 1));
+  assert.ok(ao[(n / 2) * stride + n / 2] < ao[0]);
+  assert.deepEqual(heights, copy);
 });
