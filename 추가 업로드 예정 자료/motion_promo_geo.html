@@ -1,0 +1,647 @@
+<!-- 세계시민과 지리 — 과목 선택 홍보 모션 그래픽(1920×1080, 약 2분, 자동 재생).
+     수치를 고칠 때는 아래 스크립트 맨 위의 DATA 블록만 고치면 된다.
+     조작: Space 재생/정지 · ← → 장면 이동 · R 처음부터 · F 전체 화면.  주소 뒤 ?t=초 = 그 시각의 정지 화면, ?clean=1 = 조작 표시 숨김(녹화용). -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>세계시민과 지리 — 2027 과목 선택</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root {
+    --bg: #0a0a0c; --ink: #f5f5f7; --sub: #a1a1a6; --dim: #6e6e73; --faint: #3a3a3c; --blue: #2f9bff;
+    --kr: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    --num: 'Space Grotesk', 'Pretendard Variable', Pretendard, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #000; overflow: hidden; }
+  body { font-family: var(--kr); color: var(--ink); -webkit-font-smoothing: antialiased; cursor: default; user-select: none; }
+  .stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; background: var(--bg); overflow: hidden; }
+  .scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; background: var(--bg); color: var(--ink); overflow: hidden; }
+  .scene.light { --bg: #f5f5f7; --ink: #1d1d1f; --sub: #55555a; --dim: #86868b; --faint: #d2d2d7; --blue: #0069d9; }
+  .cv { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  .a, .abs { position: absolute; }
+  .a { opacity: 0; will-change: transform, opacity; white-space: nowrap; }
+
+  .eyebrow { font-family: var(--num); font-size: 22px; font-weight: 600; letter-spacing: .16em; color: var(--blue); text-transform: uppercase; }
+  .eyebrow.kr { font-family: var(--kr); letter-spacing: .08em; font-weight: 700; }
+  .t-xl { font-size: 168px; font-weight: 800; line-height: 1.04; letter-spacing: -.04em; }
+  .t-l  { font-size: 104px; font-weight: 800; line-height: 1.12; letter-spacing: -.035em; }
+  .t-m  { font-size: 76px;  font-weight: 800; line-height: 1.18; letter-spacing: -.03em; }
+  .t-s  { font-size: 52px;  font-weight: 700; line-height: 1.25; letter-spacing: -.025em; }
+  .lead { font-size: 40px; font-weight: 500; line-height: 1.5; letter-spacing: -.015em; color: var(--sub); }
+  .body { font-size: 30px; font-weight: 500; line-height: 1.5; letter-spacing: -.01em; color: var(--sub); }
+  .note { font-size: 20px; font-weight: 500; letter-spacing: 0; color: var(--dim); }
+  .num  { font-family: var(--num); font-feature-settings: 'tnum'; letter-spacing: -.03em; }
+  .blue { color: var(--blue); }
+  .ink  { color: var(--ink); }
+  .ch { display: inline-block; opacity: 0; will-change: transform, opacity; }
+  .strike { position: relative; display: inline-block; }
+  .strike i { position: absolute; left: -2%; right: -2%; top: 54%; height: 10px; background: var(--blue); transform: scaleX(0); transform-origin: 0 50%; }
+
+  /* 조작 표시 — 무대 밖(녹화에는 들어가지 않음) */
+  .hud { position: fixed; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,.08); z-index: 5; }
+  .hud i { display: block; height: 100%; width: 0; background: #2f9bff; }
+  .hint { position: fixed; right: 18px; bottom: 14px; font: 500 12px/1 var(--kr); color: rgba(255,255,255,.5); z-index: 5; transition: opacity .6s; }
+  body.clean .hud, body.clean .hint { display: none; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- 01 — 1854 런던 -->
+  <section class="scene" data-id="snow" data-dur="9.5">
+    <canvas class="cv" width="1920" height="1080"></canvas>
+    <div class="a eyebrow" style="left:128px;top:112px" data-in=".4">1854 · London, Soho</div>
+    <p class="a lead" style="left:128px;top:700px" data-in="1.1" data-out="4.3">의사 존 스노는 콜레라 사망자가 난 집을<br>지도에 하나씩 표시했다.</p>
+    <p class="a lead" style="left:128px;top:700px" data-in="4.7" data-out="6.7">표시는 한 식수 펌프 둘레에 몰려 있었다.</p>
+    <h1 class="a t-m" style="left:128px;top:690px" data-in="7.0" data-k="chars">세균을 몰랐던 시대,<br>지도가 원인을 찾아냈다.</h1>
+  </section>
+
+  <!-- 02 — 제목 -->
+  <section class="scene" data-id="title" data-dur="6.5">
+    <canvas class="cv" width="1920" height="1080"></canvas>
+    <div class="a eyebrow kr" style="left:128px;top:300px" data-in=".5">2027 · 2학년 선택 과목</div>
+    <h1 class="a t-xl" style="left:120px;top:356px" data-in=".8" data-k="chars">세계시민과<br>지리</h1>
+    <p class="a lead" style="left:128px;top:760px" data-in="2.3">세상을 공간으로 읽는 과목.</p>
+  </section>
+
+  <!-- 03 — 학력평가의 지리 -->
+  <section class="scene" data-id="exam" data-dur="25">
+    <canvas class="cv" width="1920" height="1080"></canvas>
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3" data-out="15.2">통합사회 전국연합학력평가 · 2025년 3월 – 2026년 9월</div>
+    <h1 class="a t-l" style="left:128px;top:176px" data-in=".7" data-out="4.4" data-k="chars">통합사회 시험에서<br>지리는 얼마나 나올까</h1>
+
+    <div class="a num" style="left:120px;top:150px;font-size:300px;font-weight:600;line-height:1" data-in="5.0" data-out="15.2" data-k="count" data-count="80" id="exCount">0</div>
+    <div class="a t-s" style="left:520px;top:258px;color:var(--sub)" data-in="5.2" data-out="15.2"><span class="num">/ <span id="exTotal">245</span></span>문항</div>
+    <div class="a body" style="left:524px;top:340px" data-in="5.6" data-out="15.2">최근 10회 시험에서<br><span class="blue">지리 내용</span>을 묻는 문항</div>
+    <h1 class="a t-l" style="left:900px;top:196px" data-in="11.0" data-out="15.2" data-k="chars">세 문제 가운데<br><span class="blue">하나</span>는 지리.</h1>
+
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in="16.0">주제별 문항 수</div>
+    <h1 class="a t-s" style="left:1180px;top:330px" data-in="20.2" data-k="rise">이 가운데 <span class="blue num" id="exCover">59</span><span class="blue">문항</span>은<br>세계시민과 지리가<br>다루는 주제.</h1>
+    <p class="a body" style="left:1182px;top:580px" data-in="21.2">기후 · 지형 · 문화권과 종교 · 환경<br>인구 · 자원과 에너지 · 분쟁과 세계화</p>
+    <div class="a note" style="left:128px;top:1000px" data-in="5.4">고1 7회 · 고2 3회의 문항을 내용 기준으로 분류. 고1 3월 시험은 중학교 범위이며 2025년은 20문항.</div>
+    <div id="exLabels"></div>
+  </section>
+
+  <!-- 04 — 수능 -->
+  <section class="scene" data-id="csat" data-dur="5">
+    <div class="a eyebrow kr" style="left:128px;top:330px" data-in=".3">그리고</div>
+    <h1 class="a t-l" style="left:128px;top:390px" data-in=".6" data-k="chars">2028학년도 수능부터<br>사회탐구는 <span class="blue">통합사회</span>.</h1>
+    <p class="a lead" style="left:128px;top:680px" data-in="2.2">학력평가에서 지리는 통합사회의 3분의 1.</p>
+  </section>
+
+  <!-- 05 — 오해 -->
+  <section class="scene light" data-id="myth" data-dur="10">
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3">흔한 오해</div>
+    <h1 class="a t-l" style="left:128px;top:170px" data-in=".6">지리는 <span class="strike" id="strike">암기<i></i></span> 과목이다.</h1>
+    <h1 class="a t-l blue" style="left:128px;top:296px" data-in="2.9" data-k="chars">원리를 묻는 과목이다.</h1>
+
+    <div class="a num" style="left:128px;top:520px;font-size:64px;font-weight:600;color:var(--dim)" data-in="4.3">1904</div>
+    <div class="a t-s" style="left:330px;top:522px" data-in="4.4">매킨더 · 심장지대 이론</div>
+    <div class="a body" style="left:960px;top:540px" data-in="4.6">위치로 국제 정세를 읽는 지정학의 출발점</div>
+
+    <div class="a num" style="left:128px;top:660px;font-size:64px;font-weight:600;color:var(--dim)" data-in="5.2">1970</div>
+    <div class="a t-s" style="left:330px;top:662px" data-in="5.3">토블러 · 지리학 제1법칙</div>
+    <div class="a body" style="left:960px;top:680px" data-in="5.5">가까운 것일수록 더 강하게 연결된다</div>
+
+    <div class="a num" style="left:128px;top:800px;font-size:64px;font-weight:600;color:var(--dim)" data-in="6.1">2008</div>
+    <div class="a t-s" style="left:330px;top:802px" data-in="6.2">크루그먼 · 노벨 경제학상</div>
+    <div class="a body" style="left:960px;top:820px" data-in="6.4">산업은 왜 한곳에 모이는가</div>
+  </section>
+
+  <!-- 06 — 세계 동향 -->
+  <section class="scene" data-id="world" data-dur="8.5">
+    <canvas class="cv" width="1920" height="1080"></canvas>
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3">세계의 흐름</div>
+    <h1 class="a t-m" style="left:128px;top:166px" data-in=".6" data-k="chars">지리를 다시 필수로.</h1>
+    <div id="worldLabels"></div>
+  </section>
+
+  <!-- 07 — 이유 ① 융합 -->
+  <section class="scene" data-id="fusion" data-dur="6.5">
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3">이유 하나 · 융합</div>
+    <h1 class="a t-m" style="left:128px;top:166px" data-in=".6" data-k="chars">한 과목에<br>세 갈래 학문.</h1>
+    <p class="a lead" style="left:128px;top:820px" data-in="3.4">자료는 GIS와 통계로 다룬다.</p>
+    <div id="fusionRings"></div>
+  </section>
+
+  <!-- 08 — 한 주제, 다섯 시선 -->
+  <section class="scene" data-id="phone" data-dur="8">
+    <canvas class="cv" width="1920" height="1080"></canvas>
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3">예를 들면</div>
+    <h1 class="a t-m" style="left:128px;top:166px" data-in=".6" data-k="chars">스마트폰 하나,<br>다섯 개의 시선.</h1>
+    <div id="phoneList"></div>
+    <div id="phoneLabels"></div>
+  </section>
+
+  <!-- 09 — 이유 ② 데이터 -->
+  <section class="scene" data-id="gis" data-dur="9">
+    <canvas class="cv" width="1920" height="1080"></canvas>
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3">이유 둘 · 데이터</div>
+    <h1 class="a t-m" style="left:128px;top:166px" data-in=".6" data-k="chars">지도를 보는 과목에서<br>지도로 분석하는 과목으로.</h1>
+    <p class="a body" style="left:128px;top:560px" data-in="2.2">인구 · 교통 · 시설의 지도를 겹쳐<br>가장 알맞은 자리를 찾는다.</p>
+    <p class="a body ink" style="left:128px;top:730px" data-in="5.4">GIS 레이어 중첩 · 공개 데이터 시각화<br>위성 · 기후 자료 읽기</p>
+    <div id="gisLabels"></div>
+  </section>
+
+  <!-- 10 — 생활기록부 -->
+  <section class="scene light" data-id="record" data-dur="9">
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3">생활기록부에 남는 한 줄</div>
+    <h1 class="a t-m" style="left:128px;top:250px;font-weight:700" data-in=".9" data-k="type" data-d="3.2">“공간 데이터를 수집 · 분석 · 시각화하여<br>지역 문제의 해결 방안을 제시함.”</h1>
+    <p class="a lead" style="left:128px;top:560px" data-in="4.6">어느 학과에서도 읽히는 기록.</p>
+    <div id="recordChips"></div>
+  </section>
+
+  <!-- 11 — 한 학기 -->
+  <section class="scene" data-id="course" data-dur="9.5">
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3">한 학기 · 48차시</div>
+    <h1 class="a t-m" style="left:128px;top:166px" data-in=".6" data-k="chars">네 개의 영역,<br>두 번의 수행평가.</h1>
+    <div id="courseTrack"></div>
+    <p class="a body" style="left:128px;top:820px" data-in="5.0"><span class="blue">수행평가 ①</span>&nbsp; 지도를 겹쳐 이주민 지원 거점의 자리 고르기</p>
+    <p class="a body" style="left:128px;top:880px" data-in="5.6"><span class="blue">수행평가 ②</span>&nbsp; 세계 문제에 대한 우리 지역의 대안 제안하기</p>
+    <div class="a note" style="left:128px;top:1000px" data-in="5.0">2027학년도 운영 계획(안) 기준.</div>
+  </section>
+
+  <!-- 12 — 진로 -->
+  <section class="scene light" data-id="path" data-dur="8">
+    <div class="a eyebrow kr" style="left:128px;top:112px" data-in=".3">진로</div>
+    <h1 class="a t-m" style="left:128px;top:166px" data-in=".6" data-k="chars">어느 계열로 가도<br>닿는 과목.</h1>
+    <div id="pathRows"></div>
+    <div class="a note" style="left:128px;top:1000px" data-in="2.6">서울특별시교육청 ‘진학 학과별 추천 과목’ 안내 기준. 자연과학 계열은 ‘기후변화와 지속가능한 세계’(2학년 2학기)를 함께 들을 때.</div>
+  </section>
+
+  <!-- 13 — 맺음 -->
+  <section class="scene" data-id="end" data-dur="9">
+    <canvas class="cv" width="1920" height="1080"></canvas>
+    <h1 class="a t-l" style="left:128px;top:150px" data-in=".8" data-k="chars">넓게 본 만큼,<br>깊게 남는다.</h1>
+    <div class="a t-s" style="left:128px;top:470px" data-in="3.0">세계시민과 지리</div>
+    <div class="a body" style="left:130px;top:548px" data-in="3.4">2027 · 2학년 선택 과목</div>
+  </section>
+
+</div>
+<div class="hud"><i id="bar"></i></div>
+<div class="hint" id="hint">Space 재생 · 정지 &nbsp;|&nbsp; ← → 장면 &nbsp;|&nbsp; R 처음 &nbsp;|&nbsp; F 전체 화면</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   DATA — 수치를 고칠 때는 여기만.
+   학력평가 지리 문항 수는 문제지 10회분(245문항)을 문항 내용 기준으로 분류한 값.
+   geo = 지리 내용이 문항의 중심인 것(기후·지형·재해·환경·문화권·종교·도시와 지역·인구·자원·분쟁과 세계화).
+   ════════════════════════════════════════════════════════════════════════ */
+const DATA = {
+  exams: [   // 시행 순서대로. n = 문항 수, geo = 지리 문항 수
+    { grade: '고1', label: "’25 · 3월",  n: 20, geo: 7 },
+    { grade: '고1', label: "’25 · 6월",  n: 25, geo: 12 },
+    { grade: '고1', label: "’25 · 9월",  n: 25, geo: 8 },
+    { grade: '고1', label: "’25 · 10월", n: 25, geo: 6 },
+    { grade: '고1', label: "’26 · 3월",  n: 25, geo: 8 },
+    { grade: '고1', label: "’26 · 6월",  n: 25, geo: 11 },
+    { grade: '고1', label: "’26 · 9월",  n: 25, geo: 8 },
+    { grade: '고2', label: "’26 · 3월",  n: 25, geo: 6 },
+    { grade: '고2', label: "’26 · 6월",  n: 25, geo: 8 },
+    { grade: '고2', label: "’26 · 9월",  n: 25, geo: 6 },
+  ],
+  topics: [  // 합계 = 위 geo 의 합. cover = 세계시민과 지리가 다루는 주제인가
+    { name: '도시 · 지역의 변화', n: 15, cover: false },
+    { name: '기후와 생활',        n: 14, cover: true },
+    { name: '지형과 경관',        n: 11, cover: true },
+    { name: '문화권과 종교',      n: 11, cover: true },
+    { name: '환경 문제',          n: 9,  cover: true },
+    { name: '자연재해',           n: 6,  cover: false },
+    { name: '인구',               n: 6,  cover: true },
+    { name: '자원과 에너지',      n: 5,  cover: true },
+    { name: '분쟁 · 세계화',      n: 3,  cover: true },
+  ],
+  majors: ['경제', '경영', '도시공학', '컴퓨터공학', '통계', '환경공학', '정치외교', '사회학', '국제학', '언론정보'],
+  units: [   // [이름, 다루는 것, 시작 차시, 끝 차시]
+    ['Ⅰ 세계화와 지역', '스케일 · 경제 블록 · GIS', 1, 9],
+    ['Ⅱ 자연환경과 문화', '기후 · 지형 · 종교 · 음식과 축제', 10, 22],
+    ['Ⅲ 인구와 경제 공간', '이주 · 식량 · 초국적 기업', 23, 33],
+    ['Ⅳ 환경과 평화', '에너지 · 기후 위기 · 분쟁', 34, 48],
+  ],
+  tasks: [[25, 26], [43, 45]],      // 수행평가 차시
+  paths: [
+    ['상경', '경제 · 경영 · 무역 · 광고홍보 · 행정'],
+    ['사회과학', '국제 · 정치외교 · 사회학 · 지리학'],
+    ['인문', '사학 · 철학 · 인류학 · 문헌정보'],
+    ['예술 · 교육', '예술 계열 · 교육 계열'],
+    ['자연과학', '기상 · 지질 · 천문 · 통계'],
+  ],
+};
+const TOTAL_Q = DATA.exams.reduce((s, e) => s + e.n, 0), TOTAL_G = DATA.exams.reduce((s, e) => s + e.geo, 0);
+const COVER_G = DATA.topics.filter(t => t.cover).reduce((s, t) => s + t.n, 0);
+console.assert(DATA.topics.reduce((s, t) => s + t.n, 0) === TOTAL_G, '주제별 합계가 지리 문항 합계와 다름');
+
+/* ── 해안선(Natural Earth 110m 간략화, design-system/globe.js 와 같은 자료) ── */
+const LAND = [
+"-180,69 -174.3,66.3 -169.9,66 -173,64.3 -179.9,65.9 -180,65 180,65 177.4,64.6 179.2,62.3 170.3,59.9 163.5,59.9 162,58.2 163.2,57.6 162.1,54.9 156.8,51 155.9,56.8 164.5,62.6 160.1,60.5 159.3,61.8 156.7,61.4 154.2,59.8 155,59.1 142.2,59 135.1,54.7 139.9,54.2 141.4,52.2 138.2,46.3 127.5,39.8 129.1,35.1 126.5,34.4 126.9,36.9 124.7,38.1 125.3,39.6 121.1,38.9 121.6,40.9 118,39.2 118.9,37.4 122.4,37.5 119.2,34.9 121.9,31.7 121.7,28.2 115.9,22.8 110.4,20.3 108.5,21.7 105.9,19.8 109.3,13.4 109.2,11.7 105.2,8.6 100.1,13.4 99.2,9.2 103,5.5 104.2,1.3 101.4,2.8 98.3,7.8 97.2,16.9 94.2,16 94.3,18.2 91.4,22.8 87,21.5 80.3,15.9 79.9,10.4 77.5,8 73.5,16 72.6,21.4 70.5,20.9 66.4,25.4 57.4,25.7 56.5,27.1 54.7,26.5 51.5,27.9 50.1,30.1 48,30 51.8,24 54,24.1 56.4,26.4 56.8,24.2 59.8,22.3 55.3,17.2 43.5,12.6 42.7,16.8 34.6,28.1 34.9,29.5 33.9,27.6 32.4,29.9 37.5,18.6 42.7,11.7 44.6,10.4 51.1,12 51,10.6 47.7,4.2 39.2,-4.7 40.8,-14.7 34.8,-19.8 35.5,-24.1 32.6,-25.7 32.2,-28.8 28.2,-32.8 19.6,-34.8 11.8,-18.1 13.7,-10.7 11.9,-5 8.8,-1.1 9.4,3.7 5.9,4.3 4.3,6.3 -9,4.8 -16.6,12.2 -17.6,14.7 -16.1,18.1 -17,21.9 -5.9,35.8 -2.2,35.2 9.5,37.4 11.1,36.9 10.3,33.8 19.1,30.3 21.5,32.8 33.8,31 36.2,36.7 27.6,36.7 26.2,39.5 33.5,42 38.3,40.9 41.7,42 36.7,45.2 39.1,47.3 35,46.3 36.3,45.1 33.9,44.4 32.5,45.3 33.3,46.1 30.7,46.6 27.7,42.6 28.8,41.1 22.6,40.3 24,37.7 22.5,36.4 19.5,41.7 13.1,45.7 12.6,44.1 18.5,40.2 16.9,40.4 16.1,38 15.4,40 8.9,44.4 3.1,43.1 -2.1,36.7 -8.9,36.9 -9.4,43 -1.4,44 -1.2,46 -4.6,48.7 -1.6,48.6 -1.9,49.8 8.1,53.5 8.5,57.1 10.6,57.7 9.6,55.5 10.9,54 19.7,54.4 21.3,55.2 21.6,57.4 24.1,57 23.3,59.2 29.1,60 21.3,60.7 21.5,63.2 25.4,65.1 22.2,65.7 17.8,62.7 17.1,61.3 18.8,60.1 15.9,56.1 12.9,55.4 10.4,59.5 5.7,58.6 5.9,62.6 19.2,69.8 24.5,71 28.2,71.2 41.1,67.5 38.4,66 33.2,66.6 37,63.9 37.2,65.1 39.6,64.5 42.1,66.5 44,66.1 43.5,68.6 46.3,68.2 46.3,66.7 53.7,68.9 59.9,68.3 60.6,69.9 68.5,68.1 66.7,71 69.2,72.8 72.6,72.8 71.8,71.4 73.7,68.4 71.3,66.3 72.4,66.2 75.1,67.8 73.1,71.4 74.7,72.8 76.4,71.2 77.6,72.3 81.5,71.7 80.5,73.6 104.4,77.7 114.1,75.8 109.4,74.2 127,73.6 131.3,70.8 132.3,71.8 139.9,71.5 139.1,72.4 140.5,72.8 159,70.9 160.9,69.4 178.6,69.4 -180,69",
+"-90.5,69.5 -87.3,67.2 -85.5,69.9 -82.6,69.7 -81.3,67.6 -85.8,66.6 -93.2,62 -94.7,58.9 -92.3,57.1 -82.3,55.1 -79.9,51.2 -78.6,52.6 -79.8,54.7 -76.5,56.5 -78.5,58.8 -77.3,59.9 -78.1,62.3 -73.8,62.4 -69.6,61.1 -69.3,59 -67.7,58.2 -64.6,60.3 -61.8,56.3 -57.3,54.6 -55.7,52.1 -60,50.2 -66.4,50.2 -71.1,46.8 -65.1,49.2 -64.5,46.2 -61.5,45.9 -60.5,47 -59.8,45.9 -65.4,43.5 -66.2,44.5 -64.4,45.3 -67.1,45.1 -70.7,43 -70,41.6 -75.5,39.5 -75.9,37.2 -76.4,39.1 -75.7,35.6 -81.3,31.4 -80.4,25.2 -84.1,30.1 -93.8,29.7 -96.6,28.3 -97.9,22.4 -96.3,19.3 -92,18.7 -90.3,21 -87.1,21.5 -88.9,15.9 -83.4,15.3 -83.8,11.1 -81.4,8.8 -76.8,8.6 -71.8,12.4 -71.7,9.1 -69.9,12.2 -68.2,10.6 -61.9,10.7 -62.4,9.9 -57.1,6 -51.3,4.2 -50.4,-0.1 -44.9,-1.6 -44.6,-2.7 -40,-2.9 -35.6,-5.1 -34.7,-7.3 -38.7,-13.1 -40.9,-21.9 -47.6,-24.9 -48.9,-28.7 -53.8,-34.4 -58.4,-33.9 -56.8,-36.9 -59.2,-38.7 -62.3,-38.8 -62.7,-41 -65.1,-41.1 -63.5,-42.6 -67.3,-45.6 -66,-48.1 -69.1,-50.7 -68.2,-52.4 -71,-53.8 -74.9,-52.3 -75.6,-48.7 -74.1,-46.9 -75.6,-46.6 -72.7,-42.4 -74.3,-43.2 -71.4,-32.4 -70.2,-19.8 -71.5,-17.4 -76,-14.6 -81.3,-6.1 -79.8,-2.7 -80.9,-1.1 -77.1,3.8 -78.2,8.3 -79.6,8.9 -80.9,7.2 -85.7,9.9 -87.5,13.3 -103.5,18.3 -105.5,19.9 -106,22.8 -114.8,31.8 -109.4,23.2 -112.2,24.7 -117.3,33 -120.6,34.6 -124.4,40.3 -124.7,48.2 -122.6,47.1 -122.8,49 -127.4,50.8 -134.1,58.1 -147.1,60.9 -151.7,59.2 -150.6,61.3 -158.4,56 -164.8,54.4 -157,58.9 -162,58.7 -166.1,61.5 -160.8,64.8 -168.1,65.7 -161.7,66.1 -166.8,68.4 -156.6,71.4 -136.5,68.9 -128.1,70.5 -108.9,67.4 -106.1,68.8 -101.5,67.6 -97.7,68.6 -96.1,67.3 -94.2,69.1 -96.5,70.1 -95.2,71.9 -90.5,69.5",
+"-180,-84.7 -170,-83.9 -158.1,-85.4 -143.1,-85 -153.6,-83.7 -152.9,-82 -156.8,-81.1 -146.4,-80.3 -155.3,-79.1 -158.4,-76.9 -151.3,-77.4 -144.9,-75.2 -113.9,-73.7 -107.6,-75.2 -100.1,-74.9 -103.7,-72.6 -76.2,-74 -68.9,-73 -67.1,-72 -68.5,-69.7 -67.3,-66.9 -57.8,-63.3 -65.7,-68 -61.8,-70.7 -60.8,-73.7 -70.6,-76.6 -77.2,-76.7 -73.7,-77.9 -78,-79.2 -58.2,-83.2 -28.6,-80.3 -29.7,-79.3 -35.6,-79.5 -35.8,-78.3 -17.5,-75.1 -15.4,-73.1 -6.9,-70.9 27.1,-70.5 33.9,-68.5 38.6,-69.8 54.5,-65.8 61.4,-68 68.9,-67.9 69.7,-69.2 67.8,-70.3 69.1,-70.7 67.9,-71.9 69.9,-72.3 73.9,-69.9 88,-66.2 95.8,-67.4 102.8,-65.6 106.2,-66.9 113.6,-65.9 119.8,-67.3 135.1,-65.3 137.5,-67 145.5,-66.9 171.2,-71.7 163.6,-76.2 167,-78.8 161.8,-79.2 159.8,-80.9 169.4,-83.8 178.3,-84.5 -180,-84.7",
+"143.6,-13.8 145.4,-15 146.4,-19 153.1,-26.1 153.1,-30.9 150,-37.4 146.3,-39 140.6,-38 138.2,-34.4 136.8,-35.3 137.8,-32.9 136,-34.9 131.3,-31.5 118,-35.1 115,-34.2 115.7,-31.6 113.3,-26.1 114.2,-26.3 114.1,-21.8 120.9,-19.7 125.7,-14.2 129.6,-15 132.4,-11.1 136.5,-11.9 135.5,-15 140.2,-17.7 142.5,-10.7 143.6,-13.8",
+"-27.1,83.5 -20.8,82.7 -31.9,82.2 -12.2,81.3 -20,80.2 -17.7,80.1 -19.7,78.8 -18.5,77 -21.7,76.6 -19.8,76.1 -20.7,75.2 -19.4,74.3 -23.6,73.3 -22.3,72.2 -24.8,72.3 -21.8,70.7 -25.5,71.4 -26.4,70.2 -22.3,70.1 -39.8,65.5 -42.8,62.7 -43.4,60.1 -48.3,60.9 -51.6,63.6 -54,67.2 -50.9,69.9 -54.7,69.6 -54.4,70.8 -51.4,70.6 -55.8,71.7 -54.7,72.6 -58.6,75.5 -68.5,76.1 -71.4,77 -66.8,77.4 -73.3,78 -65.7,79.4 -68,80.1 -62.6,81.8 -44.5,81.7 -46.8,82.6 -27.1,83.5",
+"-86.6,73.2 -82.3,73.8 -80.8,72.1 -72.2,71.6 -67,69.2 -68.8,68.7 -61.9,66.9 -63.9,65 -68,66.3 -64.7,63.4 -68.8,63.7 -66.2,61.9 -74.8,64.7 -77.7,64.2 -77.9,65.3 -74,65.5 -72.9,67.7 -79,70.2 -89.9,71.2 -89.4,73.1 -85.8,73.8 -86.6,73.2",
+"-68.5,83.1 -61.9,82.6 -76.9,79.3 -75.4,78.5 -80.6,76.2 -89.5,76.5 -88.3,77.9 -85,77.5 -88,78.4 -85.1,79.3 -86.9,80.3 -81.8,80.5 -91.6,81.9 -68.5,83.1",
+"134.1,-1.2 135.5,-3.4 138.3,-1.7 144.6,-3.9 150.7,-10.6 144.7,-7.6 142.6,-9.3 137.6,-8.4 138.7,-7.3 137.9,-5.4 133,-4.1 132,-2.8 133.7,-2.2 130.5,-0.9 134.1,-1.2",
+"117.9,1.8 119,0.9 117.8,0.8 116.1,-4 110.2,-2.9 109.1,-0.5 109.7,2 113,3.1 116.7,6.9 119.2,5.4 117.3,3.2 117.9,1.8",
+"-114.2,73.1 -108.2,71.7 -108.4,73.1 -106.5,73.1 -101,70 -102.4,68.8 -113.3,68.5 -117.3,70 -112.4,70.4 -119.4,71.6 -114.2,73.1",
+"50.1,-13.6 47.1,-24.9 44,-25 43.3,-22.1 44.4,-16.2 47.7,-14.6 49.2,-12 50.1,-13.6",
+"105.8,-5.9 102.6,-4.2 95.3,5.5 97.5,5.2 103.8,0.1 106.1,-3.1 105.8,-5.9",
+"49.1,41.3 50.4,40.3 49.2,37.6 53.8,37 52.7,40 54.7,41 53.7,42.1 52.8,41.1 50.3,44.6 53,45.3 53,46.9 46.7,44.6 49.1,41.3",
+"-3,58.6 -4.1,57.6 -2,57.7 -3.1,56 1.7,52.7 1.4,51.3 -5.2,50 -3.4,51.4 -5.3,52 -4.6,53.5 -2.9,54 -6.2,56.8 -5,58.6 -3,58.6",
+"141,37.1 140.3,35.1 135.8,33.5 135.1,34.6 131,33.9 132,33.1 130.2,31.4 129.4,33.3 132.6,35.4 135.7,35.5 141.4,41.4 141,37.1",
+"57.5,70.7 51.5,72 55.6,75.1 68.9,76.5 58.5,74.3 55.4,72.4 57.5,70.7",
+"-14.5,66.5 -13.6,65.1 -18.7,63.5 -22.8,64 -21.8,64.4 -24,64.9 -22.2,65.4 -24.3,65.6 -14.5,66.5",
+"-94.7,77.1 -79.8,74.9 -89.8,74.5 -97.1,76.8 -94.7,77.1",
+"-120.5,71.4 -125.9,71.9 -123.9,73.7 -124.9,74.3 -115.5,73.5 -120.5,71.4",
+"18.3,79.7 21.5,79 15.9,76.8 10.4,79.7 18.3,79.7",
+"-87,79.7 -85.8,79.3 -90.8,78.2 -96.7,80.2 -92.4,81.3 -87,79.7",
+"-45.2,-78 -43.3,-80 -54.2,-80.6 -48.7,-78 -45.2,-78",
+"173,-40.9 174.2,-41.3 173.1,-43.9 169.3,-46.6 166.7,-46.2 173,-40.9",
+"-108.2,76.2 -105.7,75.5 -112.2,74.4 -117.7,75.2 -115.4,76.5 -108.2,76.2",
+"174.6,-36.2 178.5,-37.7 175.2,-41.7 173.8,-39.5 174.7,-37.4 172.6,-34.5 174.6,-36.2"
+];
+
+/* ════════════ 도구 ════════════ */
+const W = 1920, H = 1080, RAD = Math.PI / 180;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const mix = (a, b, k) => a + (b - a) * k;
+const eo = x => 1 - Math.pow(1 - x, 3);
+const eio = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const ex = x => x >= 1 ? 1 : 1 - Math.pow(2, -10 * x);
+const pop = x => { const c = 1.9; return x >= 1 ? 1 : 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+function el(parent, cls, html, style) { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; if (style) d.style.cssText = style; parent.appendChild(d); return d; }
+
+/* ── 육지 판정용 마스크 ── */
+const MW = 1440, MH = 720;
+const mask = (() => {
+  const c = document.createElement('canvas'); c.width = MW; c.height = MH; const g = c.getContext('2d');
+  g.fillStyle = '#fff';
+  for (const s of LAND) {
+    const r = s.split(' ').map(p => p.split(',').map(Number)), u = [r[0].slice()];
+    for (let i = 1; i < r.length; i++) { let lon = r[i][0]; const pv = u[i - 1][0]; while (lon - pv > 180) lon -= 360; while (pv - lon > 180) lon += 360; u.push([lon, r[i][1]]); }
+    for (const sh of [-360, 0, 360]) { g.beginPath(); u.forEach((p, i) => { const x = (p[0] + sh + 180) / 360 * MW, y = (90 - p[1]) / 180 * MH; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.closePath(); g.fill(); }
+  }
+  return g.getImageData(0, 0, MW, MH).data;
+})();
+const isLand = (lon, lat) => { const x = Math.floor(((lon + 540) % 360) / 360 * MW), y = Math.floor((90 - lat) / 180 * MH); return y >= 0 && y < MH && mask[(y * MW + x) * 4] > 127; };
+
+/* ── Equal Earth 도법(중앙 경선 150°E — 태평양 중심) ── */
+const EE = (() => {
+  const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796, M = Math.sqrt(3) / 2, L0 = 150;
+  const raw = (lon, lat) => {
+    let l = ((lon - L0 + 540) % 360 - 180) * RAD; const th = Math.asin(M * Math.sin(lat * RAD)), t2 = th * th, t6 = t2 * t2 * t2;
+    return [l * Math.cos(th) / (M * (A1 + 3 * A2 * t2 + t6 * (7 * A3 + 9 * A4 * t2))), th * (A1 + A2 * t2 + t6 * (A3 + A4 * t2))];
+  };
+  const XMAX = raw(L0 + 179.999, 0)[0];
+  return { raw, XMAX, L0 };
+})();
+function mapProj(cx, cy, width) { const s = width / (2 * EE.XMAX); return (lon, lat) => { const p = EE.raw(lon, lat); return [cx + p[0] * s, cy - p[1] * s]; }; }
+const MAPDOTS = (() => {            // 지도용 점: 위도 줄마다 간격이 고르게
+  const out = [], step = 2.1;
+  for (let lat = 80; lat >= -56; lat -= step) {
+    const wr = EE.raw(EE.L0 + 179.999, lat)[0] / EE.XMAX, n = Math.max(8, Math.round(360 / step * wr));
+    for (let i = 0; i < n; i++) { const lon = EE.L0 - 180 + (i + .5) * 360 / n; if (isLand(lon, lat)) out.push([lon, lat]); }
+  }
+  return out;
+})();
+const GLOBEDOTS = (() => {          // 지구본용 점: 피보나치 구
+  const out = [], N = 15000, g = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (i + .5) / N * 2, r = Math.sqrt(1 - y * y), th = i * g, lat = Math.asin(y) / RAD, lon = ((th / RAD) % 360) - 180;
+    if (isLand(lon, lat)) out.push([Math.cos(th) * r, y, Math.sin(th) * r]);
+  }
+  return out;
+})();
+function drawGlobe(g, cx, cy, R, rot, tilt, alpha, col = '245,245,247') {
+  const cr = Math.cos(rot), sr = Math.sin(rot), ct = Math.cos(tilt), st = Math.sin(tilt);
+  g.save();
+  const gr = g.createRadialGradient(cx - R * .35, cy - R * .4, R * .1, cx, cy, R);     // 구의 몸통
+  gr.addColorStop(0, `rgba(47,155,255,${.16 * alpha})`); gr.addColorStop(1, `rgba(47,155,255,${.03 * alpha})`);
+  g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
+  g.strokeStyle = `rgba(255,255,255,${.14 * alpha})`; g.lineWidth = 1.5; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.stroke();
+  for (const p of GLOBEDOTS) {
+    const x1 = p[0] * cr + p[2] * sr, z1 = -p[0] * sr + p[2] * cr, y2 = p[1] * ct - z1 * st, z2 = p[1] * st + z1 * ct;
+    if (z2 <= 0.02) continue;
+    const lit = clamp(.35 + .65 * (-x1 * .55 + y2 * .45 + z2 * .7));
+    g.fillStyle = `rgba(${col},${(.2 + .8 * lit) * alpha * Math.min(1, z2 * 3)})`;
+    const s = R / 380 * (1.5 + 2.1 * z2);
+    g.beginPath(); g.arc(cx + x1 * R, cy - y2 * R, s, 0, 7); g.fill();
+  }
+  g.restore();
+}
+
+/* ════════════ 장면별 그림 ════════════ */
+const DRAW = {}, INIT = {}, HOOK = {};
+
+/* ── 01 스노의 지도 ── */
+INIT.snow = sc => {
+  const r = rng(1854), P = [1290, 470], ang = -7.4 * RAD;
+  sc.streets = [[[700, 548], [1960, 384]], [[720, 330], [1960, 190]], [[760, 790], [1960, 640]], [[980, 120], [1070, 980]], [[1245, 90], [1345, 960]], [[1500, 60], [1590, 930]], [[1750, 40], [1820, 900]], [[700, 440], [1190, 730]]];
+  sc.pumps = [[1040, 300], [1545, 262], [1790, 505], [1105, 770], [1630, 745], [870, 525]];
+  sc.P = P; sc.dead = [];
+  for (let i = 0; i < 170; i++) {
+    let x, y;
+    if (i < 132) { const u = Math.sqrt(-2 * Math.log(r() + 1e-9)), v = 2 * Math.PI * r(), gx = u * Math.cos(v) * 150, gy = u * Math.sin(v) * 80; x = P[0] + gx * Math.cos(ang) - gy * Math.sin(ang); y = P[1] + gx * Math.sin(ang) + gy * Math.cos(ang); }
+    else { x = 820 + r() * 1040; y = 150 + r() * 760; }
+    sc.dead.push({ x, y, at: 1.2 + r() * 4.3, d: Math.hypot(x - P[0], y - P[1]) });
+  }
+};
+DRAW.snow = (g, t, sc) => {
+  const k = 1 + .05 * eio(seg(t, 0, 9.5)), P = sc.P;
+  g.save(); g.translate(P[0], P[1]); g.scale(k, k); g.translate(-P[0], -P[1]);
+  g.lineCap = 'round'; g.globalAlpha = eo(seg(t, 0, 1.2));
+  g.strokeStyle = '#1b1b1f'; g.lineWidth = 34; for (const s of sc.streets) { g.beginPath(); g.moveTo(...s[0]); g.lineTo(...s[1]); g.stroke(); }
+  g.strokeStyle = '#232328'; g.lineWidth = 1.5; for (const s of sc.streets) { g.beginPath(); g.moveTo(...s[0]); g.lineTo(...s[1]); g.stroke(); }
+  g.globalAlpha = 1;
+  const focus = eo(seg(t, 4.7, 5.8));
+  for (const d of sc.dead) {
+    const p = seg(t, d.at, d.at + .35); if (p <= 0) continue;
+    const far = d.d > 300 ? 1 : 0;
+    g.fillStyle = `rgba(245,245,247,${mix(.92, far ? .28 : .92, focus)})`;
+    g.beginPath(); g.arc(d.x, d.y, 4.6 * pop(p), 0, 7); g.fill();
+  }
+  const pa = eo(seg(t, .6, 1.6));
+  for (const p of sc.pumps) { g.strokeStyle = `rgba(161,161,166,${.8 * pa})`; g.lineWidth = 2; g.beginPath(); g.arc(p[0], p[1], 9, 0, 7); g.stroke(); }
+  g.strokeStyle = `rgba(161,161,166,${.8 * pa * (1 - focus)})`; g.lineWidth = 2; g.beginPath(); g.arc(P[0], P[1], 9, 0, 7); g.stroke();
+  if (focus > 0) {
+    g.fillStyle = `rgba(47,155,255,${focus})`; g.beginPath(); g.arc(P[0], P[1], 11 * pop(focus), 0, 7); g.fill();
+    g.strokeStyle = `rgba(47,155,255,${.75 * focus})`; g.lineWidth = 2.5; g.setLineDash([10, 9]); g.beginPath(); g.ellipse(P[0], P[1], 300 * eo(focus), 176 * eo(focus), -7.4 * RAD, 0, 7); g.stroke(); g.setLineDash([]);
+    for (let i = 0; i < 2; i++) { const q = ((t - 4.7) * .55 + i * .5) % 1; g.strokeStyle = `rgba(47,155,255,${.5 * (1 - q) * focus})`; g.lineWidth = 2; g.beginPath(); g.arc(P[0], P[1], 14 + q * 70, 0, 7); g.stroke(); }
+  }
+  g.restore();
+  const gr = g.createLinearGradient(560, 0, 1000, 0); gr.addColorStop(0, 'rgba(10,10,12,1)'); gr.addColorStop(1, 'rgba(10,10,12,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 1000, H);
+  const gb = g.createLinearGradient(0, 620, 0, 900); gb.addColorStop(0, 'rgba(10,10,12,0)'); gb.addColorStop(1, 'rgba(10,10,12,.9)');
+  g.fillStyle = gb; g.fillRect(0, 620, 1300, 460);
+};
+
+/* ── 02 제목 ── */
+DRAW.title = (g, t) => drawGlobe(g, 1390, 560, 400 * mix(.94, 1, ex(seg(t, 0, 2))), 2.2 + t * .2, 20 * RAD, eo(seg(t, .1, 1.6)));
+
+/* ── 03 학력평가 ── */
+INIT.exam = sc => {
+  const sp = 28, bw = 5 * sp, gap = 24, ggap = 64, n = DATA.exams.length, nG1 = DATA.exams.filter(e => e.grade === '고1').length;
+  const total = n * bw + (n - 2) * gap + ggap, x0 = (W - total) / 2 + sp / 2, yB = 786;
+  const dots = [], r = rng(33), lab = $('#exLabels');
+  // 주제 꼬리표를 지리 문항에 차례로 나눠 줌(어느 문항이 어느 주제인지는 그림에서 따지지 않음)
+  const tags = []; DATA.topics.forEach((tp, i) => { for (let k = 0; k < tp.n; k++) tags.push(i); });
+  for (let i = tags.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [tags[i], tags[j]] = [tags[j], tags[i]]; }
+  let gi = 0, bx = x0;
+  sc.blocks = [];
+  DATA.exams.forEach((e, bi) => {
+    if (bi === nG1) bx += ggap - gap;
+    for (let k = 0; k < e.n; k++) { const col = k % 5, row = Math.floor(k / 5); dots.push({ ax: bx + col * sp, ay: yB - row * sp, geo: k < e.geo, b: bi, k, tag: k < e.geo ? tags[gi++] : -1 }); }
+    sc.blocks.push({ x: bx, e });
+    el(lab, 'a note', e.label, `left:${bx - sp / 2}px;top:${yB + 34}px;width:${bw}px;text-align:center;font-family:var(--num);font-size:19px;letter-spacing:.02em`).dataset.in = (2.3 + bi * .16).toFixed(2);
+    const c = el(lab, 'a num', '0', `left:${bx - sp / 2}px;top:${yB - 5 * sp - 46}px;width:${bw}px;text-align:center;font-size:40px;font-weight:600;color:var(--blue)`);
+    c.dataset.in = (5.2 + bi * .22).toFixed(2); c.dataset.k = 'count'; c.dataset.count = e.geo; c.dataset.d = '1.0';
+    bx += bw + gap;
+  });
+  const g1x = sc.blocks[0].x - sp / 2, g1w = sc.blocks[nG1 - 1].x + bw - sc.blocks[0].x, g2x = sc.blocks[nG1].x - sp / 2, g2w = sc.blocks[n - 1].x + bw - sc.blocks[nG1].x;
+  el(lab, 'a body', `1학년 · ${nG1}회`, `left:${g1x}px;top:${yB + 76}px;width:${g1w}px;text-align:center;font-size:26px`).dataset.in = '3.6';
+  el(lab, 'a body', `2학년 · ${n - nG1}회`, `left:${g2x}px;top:${yB + 76}px;width:${g2w}px;text-align:center;font-size:26px`).dataset.in = '3.8';
+  $$('.a', lab).forEach(a => a.dataset.out = '9.4');
+  // B: 한 줄로 세우기(지리가 앞) — 49열 × 5행
+  const cols = Math.ceil(dots.length / 5), sB = 32, xB = (W - (cols - 1) * sB) / 2, yB2 = 640;
+  const order = [...dots].sort((a, b) => (b.geo - a.geo) || (a.b - b.b) || (a.k - b.k));
+  order.forEach((d, i) => { d.bx = xB + Math.floor(i / 5) * sB; d.by = yB2 + (i % 5) * sB; d.bi = i; });
+  const gcols = Math.ceil(TOTAL_G / 5);
+  const lb1 = el(lab, 'a body blue', `지리 ${TOTAL_G}`, `left:${xB - 14}px;top:${yB2 + 5 * sB + 12}px;font-weight:700`); lb1.dataset.in = '11.4'; lb1.dataset.out = '15.2';
+  const lb2 = el(lab, 'a body', `그 밖의 영역 ${TOTAL_Q - TOTAL_G}`, `left:${xB + gcols * sB - 14}px;top:${yB2 + 5 * sB + 12}px`); lb2.dataset.in = '11.7'; lb2.dataset.out = '15.2';
+  // C: 주제별 줄
+  const sC = 36, xC = 470, yC = 236, rowH = 78, seen = DATA.topics.map(() => 0);
+  dots.forEach(d => { if (d.tag >= 0) { d.cx = xC + seen[d.tag]++ * sC; d.cy = yC + d.tag * rowH; } });
+  sc.rows = DATA.topics.map((tp, i) => {
+    const nm = el(lab, 'a body', tp.name, `left:128px;top:${yC + i * rowH - 23}px;width:310px;text-align:right;color:var(--ink);font-weight:600`); nm.dataset.in = (16.3 + i * .11).toFixed(2);
+    const ct = el(lab, 'a num', String(tp.n), `left:${xC + tp.n * sC + 6}px;top:${yC + i * rowH - 25}px;font-size:34px;font-weight:600;color:var(--sub)`); ct.dataset.in = (17.4 + i * .11).toFixed(2);
+    return { nm, ct, tp };
+  });
+  sc.dots = dots;
+  $('#exTotal').textContent = TOTAL_Q; $('#exCount').dataset.count = TOTAL_G; $('#exCover').textContent = COVER_G;
+};
+DRAW.exam = (g, t, sc) => {
+  const toB = t < 12 ? 1 : 0;
+  for (const d of sc.dots) {
+    const inT = 2.2 + d.b * .16 + d.k * .012, pin = pop(seg(t, inT, inT + .45));
+    if (pin <= 0) continue;
+    const blueT = 5.2 + d.b * .22 + d.k * .05, pb = d.geo ? eo(seg(t, blueT, blueT + .3)) : 0;
+    const mb = eio(seg(t, 9.6 + d.bi * .004, 11.0 + d.bi * .004));
+    let x = mix(d.ax, d.bx, mb), y = mix(d.ay, d.by, mb), rad = mix(9.5, 11, mb), al = 1;
+    if (d.geo) { const mc = eio(seg(t, 15.4 + d.tag * .06, 16.8 + d.tag * .06)); x = mix(x, d.cx, mc); y = mix(y, d.cy, mc); rad = mix(rad, 12.5, mc); const dimK = eo(seg(t, 19.6, 20.6)); if (!DATA.topics[d.tag].cover) al = mix(1, .26, dimK); }
+    else al = 1 - eo(seg(t, 15.0, 15.8));
+    if (al <= 0) continue;
+    const c = d.geo ? `rgba(${Math.round(mix(72, 47, pb))},${Math.round(mix(72, 155, pb))},${Math.round(mix(77, 255, pb))},${al})` : `rgba(72,72,77,${al})`;
+    g.fillStyle = c; g.beginPath(); g.arc(x, y, rad * pin * (1 + .35 * Math.sin(Math.PI * seg(t, blueT, blueT + .3)) * (d.geo ? 1 : 0)), 0, 7); g.fill();
+  }
+};
+HOOK.exam = (t, sc) => { const k = eo(seg(t, 19.6, 20.6)); sc.rows.forEach(r => { if (!r.tp.cover) { r.nm.style.opacity *= mix(1, .32, k); r.ct.style.opacity *= mix(1, .32, k); } }); };
+
+/* ── 05 오해 ── */
+HOOK.myth = t => { $('#strike i').style.transform = `scaleX(${ex(seg(t, 2.0, 2.7))})`; $('#strike').style.color = `rgba(29,29,31,${mix(1, .34, eo(seg(t, 2.2, 2.9)))})`; };
+
+/* ── 06 세계 동향 ── */
+const WORLD_PTS = [
+  { lon: 2.5, lat: 47, name: '프랑스', desc: '고교에서 역사 · 지리 공통 필수', at: 1.8, dx: 26, dy: -128 },
+  { lon: 138, lat: 37, name: '일본', desc: '2022년 ‘지리총합’ 필수 지정<br>2025학년도 대학 입시부터 출제', at: 3.2, dx: 30, dy: -178 },
+  { lon: -98, lat: 40, name: '미국', desc: '노동부가 꼽은 3대 유망 분야 —<br>나노 · 바이오 · 지리 정보 기술 (2004)', at: 4.6, dx: 28, dy: 26 },
+];
+INIT.world = sc => {
+  sc.pr = mapProj(930, 700, 1600); const box = $('#worldLabels');
+  WORLD_PTS.forEach(p => { const [x, y] = sc.pr(p.lon, p.lat); p.x = x; p.y = y;
+    p.h = el(box, 'a t-s', p.name, `left:${x + p.dx}px;top:${y + p.dy}px;font-size:44px`); p.h.dataset.in = (p.at + .35).toFixed(2);
+    p.b = el(box, 'a body', p.desc, `left:${x + p.dx}px;top:${y + p.dy + 60}px;font-size:26px;line-height:1.42;color:#c7c7cc`); p.b.dataset.in = (p.at + .5).toFixed(2); });
+};
+function drawMap(g, pr, alpha, t0) {
+  for (const d of MAPDOTS) { const [x, y] = pr(d[0], d[1]); const a = alpha * clamp((t0 * 1400 - x * .55 + 200) / 300); if (a <= 0) continue; g.fillStyle = `rgba(134,134,140,${.74 * a})`; g.beginPath(); g.arc(x, y, 3.1, 0, 7); g.fill(); }
+}
+DRAW.world = (g, t, sc) => {
+  drawMap(g, sc.pr, 1, t);
+  for (const p of WORLD_PTS) {
+    const k = seg(t, p.at, p.at + .5); if (k <= 0) continue;
+    // 글자 밑의 지도 점을 눌러 줌 — 글자가 점과 섞이지 않게
+    const bw = Math.max(p.h.offsetWidth, p.b.offsetWidth), bh = 60 + p.b.offsetHeight, bx = p.x + p.dx, by = p.y + p.dy;
+    g.save(); g.shadowColor = 'rgba(10,10,12,1)'; g.shadowBlur = 26; g.fillStyle = `rgba(10,10,12,${.93 * eo(seg(t, p.at + .2, p.at + .8))})`; g.fillRect(bx - 10, by - 2, bw + 22, bh + 8); g.fillRect(bx - 10, by - 2, bw + 22, bh + 8); g.restore();
+    g.fillStyle = `rgba(47,155,255,${eo(k)})`; g.beginPath(); g.arc(p.x, p.y, 10 * pop(k), 0, 7); g.fill();
+    const q = ((t - p.at) * .6) % 1; g.strokeStyle = `rgba(47,155,255,${.55 * (1 - q)})`; g.lineWidth = 2; g.beginPath(); g.arc(p.x, p.y, 12 + q * 46, 0, 7); g.stroke();
+  }
+};
+
+/* ── 07 융합 ── */
+INIT.fusion = sc => {
+  const box = $('#fusionRings');
+  sc.rings = [['자연과학', '기후 · 지형<br>환경 · 생태', -90], ['사회과학', '경제 · 도시<br>인구 · 정치', 30], ['인문학', '문화 · 종교<br>언어 · 역사', 150]].map(([h, b, ang]) => {
+    const d = el(box, 'abs', `<div style="font-size:38px;font-weight:700;letter-spacing:-.02em">${h}</div><div style="font-size:26px;font-weight:500;color:var(--sub);line-height:1.4;margin-top:8px">${b}</div>`,
+      'width:440px;height:440px;border-radius:50%;border:2px solid rgba(245,245,247,.5);background:rgba(47,155,255,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:0');
+    return { d, ang: ang * RAD, txt: d.children };
+  });
+  sc.core = el(box, 'abs', '지리', 'width:200px;left:1260px;top:508px;text-align:center;font-size:76px;font-weight:800;letter-spacing:-.03em;color:var(--blue);opacity:0');
+};
+HOOK.fusion = (t, sc) => {
+  const cx = 1360, cy = 560, k = eio(seg(t, 1.9, 3.3));
+  sc.rings.forEach((r, i) => {
+    const pin = eo(seg(t, .9 + i * .28, 1.7 + i * .28)), dist = mix(330, 150, k), x = cx + Math.cos(r.ang) * dist, y = cy + Math.sin(r.ang) * dist;
+    r.d.style.opacity = pin; r.d.style.transform = `translate(${x - 220}px,${y - 220}px) scale(${mix(.86, 1, pin)})`;
+    const push = mix(0, 78, k); r.txt[0].style.transform = r.txt[1].style.transform = `translate(${Math.cos(r.ang) * push}px,${Math.sin(r.ang) * push}px)`;
+  });
+  const c = eo(seg(t, 2.9, 3.6)); sc.core.style.opacity = c; sc.core.style.transform = `scale(${mix(.7, 1, pop(seg(t, 2.9, 3.6)))})`;
+};
+
+/* ── 08 스마트폰 ── */
+const PHONE = {
+  nodes: { drc: [24, -5], chile: [-69, -24], cn: [113, 24], kr: [127.5, 36.5], us: [-100, 39], eu: [9, 49] },
+  arcs: [['drc', 'cn', 2.2, 0], ['chile', 'cn', 2.5, 0], ['kr', 'cn', 3.3, 1], ['cn', 'us', 4.3, 2], ['cn', 'eu', 4.5, 2]],
+  lens: [['자원 · 환경', '희소 금속의 산지와 채굴 환경', 2.2], ['제조 · 경제', '부품 생산의 입지와 국제 분업', 3.3], ['무역 · 물류', '공급망과 국제 운송 경로', 4.3], ['국제 · 정책', '생산국과 소비국의 이익 배분', 5.2], ['소비 · 문화', '브랜드와 소비의 지역 차이', 5.9]],
+  tags: [['drc', '코발트', 2.4, 14, 10], ['chile', '리튬', 2.7, 14, 10], ['kr', '부품', 3.5, 14, -40], ['cn', '조립', 3.7, -78, 12], ['us', '소비', 5.0, 14, -40], ['eu', '소비', 5.2, 14, -40]],
+};
+INIT.phone = sc => {
+  sc.pr = mapProj(1180, 600, 1400);
+  const list = $('#phoneList'), lab = $('#phoneLabels');
+  sc.lens = PHONE.lens.map(([h, b, at], i) => { const y = 500 + i * 96;
+    const a = el(list, 'a t-s', h, `left:128px;top:${y}px;font-size:40px`); a.dataset.in = at; const p = el(list, 'a body', b, `left:128px;top:${y + 50}px;font-size:24px`); p.dataset.in = (at + .15).toFixed(2); return a; });
+  PHONE.tags.forEach(([n, s, at, dx, dy]) => { const [x, y] = sc.pr(...PHONE.nodes[n]); el(lab, 'a body', s, `left:${x + dx}px;top:${y + dy}px;font-size:26px;font-weight:600;color:var(--ink)`).dataset.in = at; });
+};
+DRAW.phone = (g, t, sc) => {
+  const gr = g.createLinearGradient(380, 0, 760, 0);
+  drawMap(g, sc.pr, 1, t + .4);
+  gr.addColorStop(0, 'rgba(10,10,12,1)'); gr.addColorStop(1, 'rgba(10,10,12,0)'); g.fillStyle = gr; g.fillRect(0, 0, 760, H);
+  for (const [a, b, at] of PHONE.arcs) {
+    const k = eio(seg(t, at, at + 1.3)); if (k <= 0) continue;
+    const p = sc.pr(...PHONE.nodes[a]), q = sc.pr(...PHONE.nodes[b]), d = Math.hypot(q[0] - p[0], q[1] - p[1]), c = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2 - d * .28];
+    g.strokeStyle = 'rgba(47,155,255,.9)'; g.lineWidth = 3; g.lineCap = 'round'; g.beginPath();
+    let hx = p[0], hy = p[1];
+    for (let i = 0; i <= 40; i++) { const u = i / 40 * k, x = (1 - u) * (1 - u) * p[0] + 2 * u * (1 - u) * c[0] + u * u * q[0], y = (1 - u) * (1 - u) * p[1] + 2 * u * (1 - u) * c[1] + u * u * q[1]; i ? g.lineTo(x, y) : g.moveTo(x, y); hx = x; hy = y; }
+    g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.arc(hx, hy, 5, 0, 7); g.fill();
+  }
+  for (const [n, , at] of PHONE.tags) { const k = seg(t, at - .2, at + .3); if (k <= 0) continue; const [x, y] = sc.pr(...PHONE.nodes[n]); g.fillStyle = `rgba(47,155,255,${eo(k)})`; g.beginPath(); g.arc(x, y, 9 * pop(k), 0, 7); g.fill(); }
+};
+
+/* ── 09 GIS 레이어 ── */
+INIT.gis = sc => {
+  const r = rng(7), N = 6; sc.N = N; sc.L = [];
+  const peak = [3, 2];
+  for (let l = 0; l < 3; l++) { const v = []; for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const d = Math.hypot(i - peak[0] - (l - 1) * .9, j - peak[1] + (l - 1) * .7); v.push(clamp(1 - d / 4.2 + (r() - .5) * .35)); } sc.L.push(v); }
+  sc.sum = sc.L[0].map((_, i) => (sc.L[0][i] + sc.L[1][i] + sc.L[2][i]) / 3);
+  sc.best = sc.sum.indexOf(Math.max(...sc.sum));
+  const box = $('#gisLabels');
+  sc.lab = ['인구', '교통', '시설'].map((s, l) => el(box, 'abs body', s, 'left:0;top:0;font-size:28px;font-weight:600;color:var(--ink);opacity:0'));
+  sc.res = el(box, 'abs t-s blue', '가장 알맞은 자리', 'left:0;top:0;font-size:40px;opacity:0');
+};
+DRAW.gis = (g, t, sc) => {
+  const N = sc.N, a = 66, b = 34, cx = 1410, cyBase = 790, merge = eio(seg(t, 4.2, 5.4));
+  const cell = (i, j, lift) => [cx + (i - j) * a, cyBase + (i + j) * b - (N - 1) * b - lift];
+  const quad = (i, j, lift) => { const p = cell(i, j, lift); g.beginPath(); g.moveTo(p[0], p[1] - b); g.lineTo(p[0] + a, p[1]); g.lineTo(p[0], p[1] + b); g.lineTo(p[0] - a, p[1]); g.closePath(); };
+  for (let l = 0; l < 3; l++) {
+    const pin = eo(seg(t, 1.2 + l * .55, 2.1 + l * .55)); if (pin <= 0) continue;
+    const lift = mix(l * 190, 0, merge) + (1 - pin) * 90, al = pin * (l === 0 ? 1 : 1 - merge);
+    sc.lab[l].style.opacity = pin * (1 - eo(seg(t, 4.2, 4.7))); const lp = cell(0, N - 1, lift); sc.lab[l].style.transform = `translate(${lp[0] - a - 84}px,${lp[1] - 20}px)`;
+    if (al <= 0) continue;
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      const v = l === 0 ? mix(sc.L[0][j * N + i], sc.sum[j * N + i], merge) : sc.L[l][j * N + i];
+      quad(i, j, lift); g.fillStyle = `rgba(47,155,255,${(.06 + .62 * v * v) * al})`; g.fill(); g.strokeStyle = `rgba(245,245,247,${.16 * al})`; g.lineWidth = 1; g.stroke();
+    }
+  }
+  const hit = eo(seg(t, 5.5, 6.3));
+  if (hit > 0) {
+    const i = sc.best % N, j = Math.floor(sc.best / N), p = cell(i, j, 0);
+    quad(i, j, 0); g.fillStyle = `rgba(47,155,255,${hit})`; g.fill(); g.strokeStyle = `rgba(255,255,255,${hit})`; g.lineWidth = 3; g.stroke();
+    const top = p[1] - 170 * hit; g.strokeStyle = `rgba(255,255,255,${hit})`; g.lineWidth = 3; g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(p[0], top); g.stroke();
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(p[0], top, 12 * pop(seg(t, 5.8, 6.4)), 0, 7); g.fill();
+    sc.res.style.opacity = eo(seg(t, 6.1, 6.8)); sc.res.style.transform = `translate(${p[0] + 30}px,${top - 30}px)`;
+  } else sc.res.style.opacity = 0;
+};
+
+/* ── 10 생활기록부 ── */
+INIT.record = sc => {
+  const box = $('#recordChips'); let x = 128, y = 720;
+  DATA.majors.forEach((m, i) => { const w = m.length * 46 + 70; if (x + w > 1800) { x = 128; y += 104; }
+    el(box, 'a t-s', m, `left:${x}px;top:${y}px;font-size:46px;font-weight:700`).dataset.in = (5.3 + i * .16).toFixed(2); x += w; });
+};
+
+/* ── 11 한 학기 ── */
+INIT.course = sc => {
+  const box = $('#courseTrack'), x0 = 128, w = 1664, n = 48, step = w / n, y = 600;
+  sc.ticks = [];
+  for (let i = 1; i <= n; i++) { const task = DATA.tasks.some(([a, b]) => i >= a && i <= b);
+    sc.ticks.push({ d: el(box, 'abs', '', `left:${x0 + (i - 1) * step + 4}px;top:${y}px;width:${step - 8}px;height:56px;border-radius:5px;background:${task ? 'var(--blue)' : 'rgba(245,245,247,.2)'};transform-origin:50% 100%;opacity:0`), i, task }); }
+  DATA.units.forEach(([nm, sub, a, b], u) => { const x = x0 + (a - 1) * step + 4;
+    const h = el(box, 'a t-s', nm, `left:${x}px;top:${y - 132}px;font-size:36px`); h.dataset.in = (2.4 + u * .45).toFixed(2);
+    const s = el(box, 'a body', sub, `left:${x}px;top:${y - 78}px;font-size:23px`); s.dataset.in = (2.55 + u * .45).toFixed(2);
+    const r = el(box, 'a note num', `${a} – ${b}`, `left:${x}px;top:${y + 72}px;font-size:20px;letter-spacing:.04em`); r.dataset.in = (2.6 + u * .45).toFixed(2); });
+  sc.bounds = DATA.units.map(u => u[2]);
+};
+HOOK.course = (t, sc) => { for (const k of sc.ticks) { const p = seg(t, 1.5 + k.i * .03, 1.9 + k.i * .03), u = sc.bounds.filter(b => b <= k.i).length - 1; k.d.style.opacity = eo(p); k.d.style.transform = `scaleY(${pop(p)})`;
+  if (!k.task) k.d.style.background = `rgba(245,245,247,${u % 2 ? .34 : .18})`; else k.d.style.height = mix(56, 84, eo(seg(t, 4.8, 5.5))) + 'px', k.d.style.top = mix(600, 572, eo(seg(t, 4.8, 5.5))) + 'px'; } };
+
+/* ── 12 진로 ── */
+INIT.path = sc => { const box = $('#pathRows'); DATA.paths.forEach(([h, b], i) => { const y = 470 + i * 96;
+  el(box, 'a t-s', h, `left:128px;top:${y}px;font-size:46px`).dataset.in = (2.0 + i * .34).toFixed(2);
+  el(box, 'a lead', b, `left:520px;top:${y + 6}px;font-size:36px`).dataset.in = (2.12 + i * .34).toFixed(2); }); };
+
+/* ── 13 맺음 ── */
+DRAW.end = (g, t) => drawGlobe(g, 1180, 1500 - 60 * ex(seg(t, 0, 3)), 920, 1.0 + t * .09, 34 * RAD, eo(seg(t, .2, 2.2)));
+
+/* ════════════ 재생 엔진 ════════════ */
+const scenes = $$('.scene').map(node => ({ node, id: node.dataset.id, dur: +node.dataset.dur, cv: $('canvas', node) }));
+let acc = 0; for (const s of scenes) { s.t0 = acc; acc += s.dur; if (s.cv) s.g = s.cv.getContext('2d'); if (INIT[s.id]) INIT[s.id](s); }
+const DURATION = acc; window.DURATION = DURATION;
+for (const s of scenes) {
+  s.els = $$('.a', s.node).map(e => {
+    const o = { e, tin: +e.dataset.in || 0, tout: e.dataset.out != null ? +e.dataset.out : null, d: +e.dataset.d || .8, k: e.dataset.k || 'rise' };
+    if (o.k === 'chars' || o.k === 'type') {
+      o.chs = [];
+      const walk = n => { for (const c of [...n.childNodes]) { if (c.nodeType === 3) { const f = document.createDocumentFragment(); for (const ch of c.textContent) { if (ch === ' ') { f.appendChild(document.createTextNode(' ')); continue; } const sp = document.createElement('span'); sp.className = 'ch'; sp.textContent = ch; f.appendChild(sp); o.chs.push(sp); } n.replaceChild(f, c); } else if (c.nodeType === 1 && c.tagName !== 'BR') walk(c); } };
+      walk(e);
+    }
+    if (o.k === 'count') o.to = +e.dataset.count;
+    return o;
+  });
+}
+function render(T) {
+  T = clamp(T, 0, DURATION - 1e-4);
+  for (const s of scenes) {
+    const t = T - s.t0, on = t >= 0 && t < s.dur;
+    if (!on) { if (s.on) { s.node.style.visibility = 'hidden'; s.node.style.opacity = 0; s.on = false; } continue; }
+    s.on = true; s.node.style.visibility = 'visible';
+    s.node.style.opacity = eo(seg(t, 0, .45)) * (1 - eo(seg(t, s.dur - .45, s.dur)));
+    for (const o of s.els) {
+      const pin = seg(t, o.tin, o.tin + o.d), pout = o.tout != null ? seg(t, o.tout, o.tout + .45) : 0, vis = 1 - eo(pout);
+      if (o.k === 'chars') { o.e.style.opacity = vis; o.e.style.transform = `translateY(${-14 * eo(pout)}px)`; o.chs.forEach((c, i) => { const p = seg(t, o.tin + i * .042, o.tin + i * .042 + .62); c.style.opacity = eo(p); c.style.transform = `translateY(${(1 - ex(p)) * 56}px)`; }); }
+      else if (o.k === 'type') { o.e.style.opacity = vis * (t >= o.tin ? 1 : 0); const n = Math.floor(seg(t, o.tin, o.tin + o.d) * o.chs.length + 1e-6); o.chs.forEach((c, i) => { c.style.opacity = i < n ? 1 : 0; }); }
+      else { o.e.style.opacity = eo(pin) * vis; o.e.style.transform = o.k === 'fade' ? '' : `translateY(${(1 - ex(pin)) * 34 - 14 * eo(pout)}px)`; if (o.k === 'count') o.e.textContent = Math.round(o.to * eo(seg(t, o.tin, o.tin + (o.e.dataset.d ? o.d : 2.6)))); }
+    }
+    if (s.g) { s.g.clearRect(0, 0, W, H); if (DRAW[s.id]) DRAW[s.id](s.g, t, s); }
+    if (HOOK[s.id]) HOOK[s.id](t, s);
+  }
+  $('#bar').style.width = (T / DURATION * 100) + '%';
+}
+window.seek = t => { T = t; render(T); };
+
+const Q = new URLSearchParams(location.search);
+let T = Q.has('t') ? +Q.get('t') : 0, playing = !Q.has('t'), last = 0;
+if (Q.has('clean')) document.body.classList.add('clean');
+function fit() { const st = $('#stage'), k = Math.min(innerWidth / W, innerHeight / H); st.style.transform = `translate(${(innerWidth - W * k) / 2}px,${(innerHeight - H * k) / 2}px) scale(${k})`; }
+addEventListener('resize', fit); fit();
+function loop(now) { if (playing) { T += Math.min(.1, (now - last) / 1000); if (T >= DURATION) T = 0; render(T); } last = now; requestAnimationFrame(loop); }
+const jump = d => { const i = scenes.findIndex(s => T >= s.t0 && T < s.t0 + s.dur), j = clamp(i + d, 0, scenes.length - 1); T = scenes[d < 0 && T - scenes[i].t0 > 1 ? i : j].t0 + .001; render(T); };
+addEventListener('keydown', e => {
+  if (e.code === 'Space') { playing = !playing; e.preventDefault(); }
+  else if (e.code === 'ArrowRight') jump(1); else if (e.code === 'ArrowLeft') jump(-1);
+  else if (e.key === 'r' || e.key === 'R') { T = 0; playing = true; }
+  else if (e.key === 'f' || e.key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+});
+addEventListener('click', () => { playing = !playing; });
+setTimeout(() => { $('#hint').style.opacity = 0; }, 5000);
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { render(T); requestAnimationFrame(now => { last = now; requestAnimationFrame(loop); }); });
+render(T);
+</script>
+</body>
+</html>
