@@ -1425,9 +1425,9 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
         </div>
       </div>
 
-      <!-- 홈페이지 배경 영상 (assets/desk-hero.mjs) — 정한 기간 동안 첫 화면의 지구 대신 영상 -->
+      <!-- 홈페이지 홍보 영상 (assets/desk-hero.mjs) — 정한 기간 동안 첫 화면에 팝업(소리) 또는 지구 대신 배경(무음) -->
       <div class="panel p-hero" id="heroPanel">
-        <div class="dash-h">홈페이지 배경 영상 <b>저장 즉시 반영</b></div>
+        <div class="dash-h">홈페이지 홍보 영상 <b>저장 즉시 반영</b></div>
         <div class="hr-body"></div>
       </div>
 
@@ -1945,7 +1945,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     const alerts = mountAlerts(document.querySelector('.desk-side'), { active: () => !!sessionUid, table: () => ttable, start: () => P_START, calendar: () => calendar, weeklyLine: () => summaryLine(weekly.summary()) });
     // 미니 창(desk.html#mini) — 위젯 대신 작은 창에 띄워 두기
     const mini = mountMini($('dashView'), { escapeHTML: s => escapeHTML(String(s ?? '')), table: () => ttable, start: () => P_START, len: () => P_LEN, openQuestions: () => Object.values(questions).filter(isOpen).length });
-    // 홈페이지 배경 영상 설정 — 공지와 같은 경로(notices/_hero)
+    // 홈페이지 홍보 영상 설정(팝업·배경) — 공지와 같은 경로(notices/_hero)
     const heroAdmin = mountHeroAdmin($('heroPanel'), { db, ref, set, escapeHTML: s => escapeHTML(String(s ?? '')), cfg: () => noticesData._hero });
     // 답변 도우미·노트 요약(Claude) — 키·자료 색인은 이 기기에만
     const assist = mountAssist({ escapeHTML: s => escapeHTML(String(s ?? '')), github: async () => { await loadGhSettings(); return ghToken ? { token: ghToken, repo: matRepo } : null; }, files: () => prep.listFiles(), notes: () => notes });
