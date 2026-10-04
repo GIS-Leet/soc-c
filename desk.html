@@ -1039,7 +1039,8 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
 
 /* 빠른 메모 · 최근 노트 */
 .p-quick  { grid-column: 1; grid-row: 7; }
-.p-recent { grid-column: 2 / 4; grid-row: 6 / 8; }
+.p-hero   { grid-column: 1; grid-row: 8; }
+.p-recent { grid-column: 2 / 4; grid-row: 6 / 9; }
 
 /* rail 푸터 — 버튼 나란히 */
 .rail-foot-lock { display: flex; gap: 8px; }
@@ -1081,7 +1082,7 @@ html[data-theme="dark"] .tbtn .sun { display: block; }
   /* 좁은 화면에서 입력줄이 패널을 밀어내지 못하게 */
   .dash input[type=text], .dash input[type=search] { min-width: 0; }
   .dday-add .dt-in, .log-add input[type=date] { width: 112px; }
-  .p-stats, .p-links, .p-today, .p-todo, .p-dday, .p-prep, .p-table, .p-prog, .p-notice, .p-cal, .p-quick, .p-recent { grid-column: 1; grid-row: auto; }
+  .p-stats, .p-links, .p-today, .p-todo, .p-dday, .p-prep, .p-table, .p-prog, .p-notice, .p-hero, .p-cal, .p-quick, .p-recent { grid-column: 1; grid-row: auto; }
   .p-stats { flex-wrap: wrap; }
   .stat-i { flex-basis: 50%; padding: 8px; }
   .stat-i:nth-child(3) { border-left: 0; }
@@ -1422,6 +1423,12 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
           <input type="text" id="noticeDate" placeholder="2026.08.06" maxlength="10">
           <input type="text" id="noticeText" placeholder="공지 내용 — Enter로 게시" maxlength="120">
         </div>
+      </div>
+
+      <!-- 홈페이지 배경 영상 (assets/desk-hero.mjs) — 정한 기간 동안 첫 화면의 지구 대신 영상 -->
+      <div class="panel p-hero" id="heroPanel">
+        <div class="dash-h">홈페이지 배경 영상 <b>저장 즉시 반영</b></div>
+        <div class="hr-body"></div>
       </div>
 
       <!-- 월간 달력 -->
@@ -1887,6 +1894,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {mountAlerts} from './assets/desk-alerts.mjs';
     import {mountMini} from './assets/desk-mini.mjs';
     import {mountAssist} from './assets/desk-assist.mjs';
+    import {mountHeroAdmin} from './assets/desk-hero.mjs';
     import {renderGrammar} from './assets/grammar-format.mjs';
     import {renderConcept} from './assets/concept-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1937,6 +1945,8 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     const alerts = mountAlerts(document.querySelector('.desk-side'), { active: () => !!sessionUid, table: () => ttable, start: () => P_START, calendar: () => calendar, weeklyLine: () => summaryLine(weekly.summary()) });
     // 미니 창(desk.html#mini) — 위젯 대신 작은 창에 띄워 두기
     const mini = mountMini($('dashView'), { escapeHTML: s => escapeHTML(String(s ?? '')), table: () => ttable, start: () => P_START, len: () => P_LEN, openQuestions: () => Object.values(questions).filter(isOpen).length });
+    // 홈페이지 배경 영상 설정 — 공지와 같은 경로(notices/_hero)
+    const heroAdmin = mountHeroAdmin($('heroPanel'), { db, ref, set, escapeHTML: s => escapeHTML(String(s ?? '')), cfg: () => noticesData._hero });
     // 답변 도우미·노트 요약(Claude) — 키·자료 색인은 이 기기에만
     const assist = mountAssist({ escapeHTML: s => escapeHTML(String(s ?? '')), github: async () => { await loadGhSettings(); return ghToken ? { token: ghToken, repo: matRepo } : null; }, files: () => prep.listFiles(), notes: () => notes });
     const qaHelper = assist.mountQa($('qaAssist'), {
@@ -2706,7 +2716,9 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     let noticesData = {};
     const noticeDateStr = () => { const n = new Date(); return `${n.getFullYear()}.${pad(n.getMonth()+1)}.${pad(n.getDate())}`; };
     function renderNoticeAdmin() {
-      const rows = Object.entries(noticesData).sort((a, b) => (b[1].createdAt||0) - (a[1].createdAt||0));
+      heroAdmin.render();
+      // _hero(배경 영상 설정)처럼 글이 없는 항목은 공지가 아님
+      const rows = Object.entries(noticesData).filter(([, n]) => n && typeof n.text === 'string').sort((a, b) => (b[1].createdAt||0) - (a[1].createdAt||0));
       $('noticeList').innerHTML = rows.length ? rows.map(([id, n]) =>
         `<div class="notice-row"><span class="nd">${escapeHTML(n.date||'')}</span>` +
         `<span class="nt">${escapeHTML(n.text||'')}</span>` +
@@ -4135,6 +4147,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       lectures.reset();
       prep.reset();
       alerts.stop();
+      heroAdmin.reset();
       dlStats.reset();
     }
   </script>

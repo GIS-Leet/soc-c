@@ -470,7 +470,8 @@ const DDAY = { label: '중간고사', date: '2026-10-01' };
     if (!res.ok) throw new Error('notice unavailable');
     {
       const d = await res.json();
-      if (d && typeof d === 'object') rows = Object.values(d).sort((a, b) => (b.createdAt||0) - (a.createdAt||0));
+      // 글이 없는 항목(_hero = 배경 영상 설정)은 공지가 아님
+      if (d && typeof d === 'object') rows = Object.values(d).filter(n => n && typeof n.text === 'string').sort((a, b) => (b.createdAt||0) - (a.createdAt||0));
     }
   } catch (e) {
     document.getElementById('heroNoticeList').textContent = '공지사항을 불러오지 못했습니다. 연결 후 새로고침해 주세요.';
@@ -522,6 +523,8 @@ const DDAY = { label: '중간고사', date: '2026-10-01' };
 })();
 </script>
 <script src="design-system/globe.js?v=b90bb663" defer></script>
+<!-- 기간제 배경 영상 — Desk 「홈페이지 배경 영상」에서 켠 기간에만 지구 대신 영상 -->
+<script type="module">import { mountHero } from './assets/site-hero.mjs?v=a7592028'; mountHero();</script>
 <script>
 
 /* ── 콘텐츠 보호 (기존 설정 유지) ───────────────────────────────────────── */
