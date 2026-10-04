@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>질문 아카이브로 이동 중</title>
+<!-- 질문 아카이브(수행평가) 고정 주소.
+     QR과 안내문에는 이 페이지 주소를 쓴다. 웹앱 주소가 바뀌면 아래 ARCHIVE_URL 한 줄만 고치면 된다. -->
+<script>
+  var ARCHIVE_URL = 'https://script.google.com/macros/s/AKfycby-M1untQWSgVyjFA2V6guVAwRYBJp7KZ64ioNGNX_sBm0Ggz5XycdUAlm1X5y3jHzlYA/exec';
+  location.replace(ARCHIVE_URL);
+</script>
+<link rel="stylesheet" href="design-system/stratum.css">
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px;
+         background: var(--st-bedrock); color: var(--st-label); font-family: var(--st-font-kr); text-align: center; }
+  p { margin: 0 0 12px; color: var(--st-label-2); }
+  a { color: var(--st-accent-ink); font-weight: 600; }
+</style>
+</head>
+<body>
+  <main>
+    <p>질문 아카이브로 이동하고 있습니다.</p>
+    <a id="go" href="https://script.google.com/macros/s/AKfycby-M1untQWSgVyjFA2V6guVAwRYBJp7KZ64ioNGNX_sBm0Ggz5XycdUAlm1X5y3jHzlYA/exec">자동으로 넘어가지 않으면 여기를 누르세요</a>
+  </main>
+</body>
+</html>
