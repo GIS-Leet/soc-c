@@ -1,5 +1,5 @@
 // Desk 대시보드 「홈페이지 홍보 영상」 — 정한 기간 동안 홈페이지 첫 화면에 영상을 팝업(소리)으로 띄우거나 지구 대신 배경(무음)으로 까는 설정. 저장 즉시 반영(notices/_hero)
-import { HERO_KEY, DEFAULT_SRC, normalize, heroState, safeSrc } from './site-hero.mjs?v=04e199f9';
+import { HERO_KEY, DEFAULT_SRC, normalize, heroState, safeSrc, youTubeId } from './site-hero.mjs?v=76dc079e';
 
 const CSS = `
 .p-hero .hr-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; font-size: 13.5px; color: var(--st-label); }
@@ -31,7 +31,7 @@ export function mountHeroAdmin(panel, ctx) {
     <div class="hr-row"><span class="hr-l">방식</span><nav class="desk-views hr-seg" id="hrMode" style="display:inline-flex"><button type="button" data-mode="popup">팝업 · 소리</button><button type="button" data-mode="bg">배경 · 무음</button></nav></div>
     <div class="hr-row"><label class="hr-f">시작일<input type="date" id="hrStart"></label><label class="hr-f">종료일<input type="date" id="hrEnd"></label></div>
     <div class="hr-row" data-for="popup"><label class="hr-f">팝업 제목<input type="text" id="hrTitle" placeholder="예: 2027 세계시민과 지리" maxlength="60" autocomplete="off"></label></div>
-    <div class="hr-row"><label class="hr-f">영상 주소<input type="text" id="hrSrc" placeholder="${DEFAULT_SRC}" maxlength="300" autocomplete="off"></label></div>
+    <div class="hr-row"><label class="hr-f">영상 주소 — 파일 경로 또는 YouTube 링크<input type="text" id="hrSrc" placeholder="${DEFAULT_SRC}  또는  https://youtu.be/…" maxlength="300" autocomplete="off"></label></div>
     <div class="hr-row" data-for="bg"><span class="hr-l">영상 색조</span><nav class="desk-views hr-seg" id="hrTone" style="display:inline-flex"><button type="button" data-tone="dark">어두운 영상 · 흰 글자</button><button type="button" data-tone="light">밝은 영상 · 검은 글자</button></nav></div>
     <div class="hr-row" data-for="bg"><span class="hr-l">글자 뒤 막</span><input type="range" id="hrDim" min="0" max="85" step="5"><span class="hr-dim" id="hrDimV"></span></div>
     <div class="hr-row" data-for="bg"><label class="c" style="font-weight:500"><input type="checkbox" id="hrWatch"> 「영상 보기」 버튼 — 누르면 소리와 함께 크게 재생</label></div>
@@ -50,15 +50,18 @@ export function mountHeroAdmin(panel, ctx) {
       : st === 'before' ? `<b>${dayLabel(o.start)}</b>부터 ${pop ? '팝업으로 뜹니다' : '영상 배경으로 바뀝니다'}${o.end ? ` (${dayLabel(o.end)}까지)` : ''}.`
       : st === 'after' ? `기간이 지났습니다(${dayLabel(o.end)}까지) — 홈페이지에 영상이 나오지 않습니다.`
       : `<b>지금 홈페이지에 ${pop ? '팝업으로' : '배경으로'} 표시 중</b>${o.end ? ` — ${dayLabel(o.end)}까지` : ' — 끝 날짜가 없어 끌 때까지 계속'}.`;
-    const bad = o.start && o.end && o.end < o.start;
+    const bad = o.start && o.end && o.end < o.start, yt = youTubeId(o.src), ytBg = !!yt && !pop;
+    if (yt && pop && st !== 'off') t += ` YouTube 영상(${yt})으로 재생합니다.`;
     if (bad) t = '종료일이 시작일보다 앞입니다.';
+    else if (ytBg) t = '배경 방식은 YouTube 주소를 쓸 수 없습니다 — 영상 파일이 필요합니다. YouTube 영상은 「팝업 · 소리」로 띄우세요.';
     else if (fileOk === false) t += ` 다만 영상 파일(${ctx.escapeHTML(o.src)})이 아직 사이트에 없어, 올리기 전에는 홈페이지에 아무것도 뜨지 않습니다.`;
-    el.classList.toggle('warn', bad || (fileOk === false && st !== 'off'));
+    el.classList.toggle('warn', bad || ytBg || (fileOk === false && st !== 'off'));
     el.innerHTML = t;
     $('hrDimV').textContent = Math.round(o.dim * 100) + '%';
   }
   async function checkFile(src) {
     if (checked === src) return; checked = src; fileOk = null;
+    if (youTubeId(src)) { fileOk = true; return paintState(read()); }   // YouTube 는 파일 확인 대상이 아님
     const url = safeSrc(src, document.baseURI); if (!url) { fileOk = false; return paintState(read()); }
     try { const r = await fetch(url, { method: 'HEAD', cache: 'no-store' }); fileOk = r.ok; } catch { fileOk = null; }   // 다른 사이트 주소는 확인 못 할 수 있음 — 모르면 경고하지 않음
     if (checked === src) paintState(read());

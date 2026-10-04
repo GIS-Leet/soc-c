@@ -28,6 +28,17 @@ export function heroState(c, today = dayKey()) {
 export function safeSrc(src, base) {
   try { const u = new URL(src, base); return u.protocol === 'https:' || u.protocol === 'http:' ? u.href : null; } catch { return null; }
 }
+/** YouTube 주소·공유 문구·ID 에서 11자 영상 ID — YouTube 가 아니면 null (Desk 「영상」 탭과 같은 규칙) */
+export function youTubeId(s) {
+  const t = String(s ?? '').trim(), isId = x => /^[A-Za-z0-9_-]{11}$/.test(x || '');
+  const m = /https?:\/\/[^\s<>"']+/.exec(t); if (!m) return null;
+  let u; try { u = new URL(m[0]); } catch { return null; }
+  const host = u.hostname.toLowerCase();
+  if (!(host === 'youtu.be' || host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com'))) return null;
+  const parts = u.pathname.split('/').filter(Boolean);
+  const cand = host === 'youtu.be' ? parts[0] : u.searchParams.get('v') || (parts.length >= 2 && ['shorts', 'live', 'embed', 'v'].includes(parts[0]) ? parts[1] : null);
+  return isId(cand) ? cand : null;
+}
 /** 영상과 같은 이름의 .jpg — 재생 전 팝업에 보이는 장면 */
 export const posterOf = url => url.replace(/\.[A-Za-z0-9]+(?=$|[?#])/, '.jpg');
 /** 팝업을 자동으로 띄울지 — 「오늘 하루 보지 않기」(그날·그 영상)나 이번 방문에서 이미 닫았으면 띄우지 않음 */
@@ -62,6 +73,8 @@ body.hero-on .hero-watch, .hero-watch.show { display: inline-flex; }
 .hp-x { width: 34px; height: 34px; border-radius: 50%; border: 0; cursor: pointer; font-size: 18px; line-height: 1; color: inherit; background: var(--st-fill-2, rgba(0,0,0,.06)); }
 .hp-stage { position: relative; background: #000; aspect-ratio: 16 / 9; min-height: 0; }
 .hp-stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+.hp-stage img, .hp-stage iframe { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; background: #000; }
+.hp-stage .hp-play { z-index: 1; }
 .hp-play { position: absolute; inset: 0; display: grid; place-items: center; border: 0; padding: 0; cursor: pointer; background: rgba(0,0,0,.18); }
 .hp-play span { display: grid; place-items: center; width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,.94); color: #111; box-shadow: 0 8px 30px rgba(0,0,0,.35); }
 .hp-play svg { width: 26px; height: 26px; margin-left: 4px; }
@@ -86,31 +99,53 @@ export async function mountHero({ preview = new URLSearchParams(location.search)
   const o = normalize(cfg), src = safeSrc(o.src, document.baseURI);
   if (!src) return 'nosrc';
   if (!document.getElementById('hero-style')) { const st = document.createElement('style'); st.id = 'hero-style'; st.textContent = CSS; document.head.appendChild(st); }
+  const yt = youTubeId(o.src);
   if (o.mode === 'popup') {
+    if (yt) return popup(o, src, preview, yt);
     // 재생을 누르기 전에는 파일을 받지 않으므로, 영상이 실제로 있는지 먼저 확인(없으면 빈 팝업을 띄우지 않음). 다른 사이트 주소라 확인이 안 되면 그대로 진행
     try { const r = await fetch(src, { method: 'HEAD' }); if (r.status === 404) return 'nofile'; } catch {}
     return popup(o, src, preview);
   }
+  if (yt) return 'unsupported';   // 배경은 영상 파일만 — YouTube 는 무음 배경으로 깔 수 없음
   return background(o, src);
 }
 
 /** 팝업 — 영상은 재생을 눌러야 시작(소리 있는 자동 재생은 브라우저가 막고, 교실에서 갑자기 소리가 나면 안 되므로) */
-function popup(o, src, preview) {
+function popup(o, src, preview, yt = null) {
   const pop = document.createElement('div'); pop.className = 'hero-pop'; pop.hidden = true;
   pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-modal', 'true'); pop.setAttribute('aria-label', o.title || '홍보 영상');
   pop.innerHTML = `<div class="hero-pop-card"><div class="hp-head"><b></b><button type="button" class="hp-x" aria-label="닫기">×</button></div>
     <div class="hp-stage"><video controls playsinline preload="none"></video><button type="button" class="hp-play" aria-label="재생"><span>${PLAY}</span></button></div>
     <div class="hp-foot"><button type="button" class="hp-today">오늘 하루 보지 않기</button><button type="button" class="hp-close">닫기</button></div></div>`;
   pop.querySelector('.hp-head b').textContent = o.title;
-  const v = pop.querySelector('video'), play = pop.querySelector('.hp-play');
-  v.poster = posterOf(src); v.src = src;
+  const stage = pop.querySelector('.hp-stage'), v = pop.querySelector('video'), play = pop.querySelector('.hp-play');
+  let stop;
+  if (yt) {
+    // YouTube — 재생 전에는 썸네일만, 재생을 누르면 그 자리에 플레이어를 넣는다(닫으면 빼서 소리를 끊음)
+    v.remove();
+    const img = document.createElement('img'); img.alt = '';
+    img.onerror = () => { img.onerror = null; img.src = `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`; };
+    img.src = `https://i.ytimg.com/vi/${yt}/maxresdefault.jpg`;
+    stage.prepend(img);
+    play.addEventListener('click', () => {
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&rel=0&playsinline=1`;
+      f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+      f.referrerPolicy = 'strict-origin-when-cross-origin'; f.title = o.title || '홍보 영상';
+      stage.appendChild(f); play.hidden = true;
+    });
+    stop = () => { stage.querySelector('iframe')?.remove(); play.hidden = false; };
+  } else {
+    v.poster = posterOf(src); v.src = src;
+    play.addEventListener('click', () => { play.hidden = true; v.play().catch(() => { play.hidden = false; }); });
+    v.addEventListener('play', () => { play.hidden = true; });
+    stop = () => v.pause();
+  }
   const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'hero-watch show';
   btn.innerHTML = PLAY + '영상 보기';
   const open = () => { pop.hidden = false; pop.querySelector('.hp-x').focus(); };
-  const close = () => { v.pause(); pop.hidden = true; store.set(sessionStorage, 'hero-pop-closed', src); };
-  play.addEventListener('click', () => { play.hidden = true; v.play().catch(() => { play.hidden = false; }); });
-  v.addEventListener('play', () => { play.hidden = true; });
-  v.addEventListener('error', () => { pop.remove(); btn.remove(); }, { once: true });   // 파일이 없으면 팝업도 버튼도 없앰
+  const close = () => { stop(); pop.hidden = true; store.set(sessionStorage, 'hero-pop-closed', src); };
+  if (!yt) v.addEventListener('error', () => { pop.remove(); btn.remove(); }, { once: true });   // 파일이 없으면 팝업도 버튼도 없앰
   pop.addEventListener('click', e => {
     if (e.target === pop || e.target.closest('.hp-x, .hp-close')) close();
     else if (e.target.closest('.hp-today')) { store.set(localStorage, 'hero-pop-hide', `${dayKey()}|${src}`); close(); }

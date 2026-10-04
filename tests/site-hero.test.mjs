@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalize, heroState, safeSrc, posterOf, popupWanted, DEFAULT_SRC, dayKey } from '../assets/site-hero.mjs';
+import { normalize, heroState, safeSrc, posterOf, popupWanted, youTubeId, DEFAULT_SRC, dayKey } from '../assets/site-hero.mjs';
 
 test('normalize: 빈 값은 기본값, 이상한 값은 버림', () => {
   assert.deepEqual(normalize(null), { on: false, start: '', end: '', mode: 'popup', title: '', src: DEFAULT_SRC, dim: 0.35, watch: false, tone: 'dark' });
@@ -29,6 +29,15 @@ test('safeSrc: 사이트 안 경로와 https 만', () => {
   assert.equal(safeSrc('https://cdn.example.com/a.mp4', 'https://nyuheatgis.com/'), 'https://cdn.example.com/a.mp4');
   assert.equal(safeSrc('javascript:alert(1)', 'https://nyuheatgis.com/'), null);
   assert.equal(safeSrc('data:video/mp4;base64,AAAA', 'https://nyuheatgis.com/'), null);
+});
+
+test('youTubeId: YouTube 링크에서만 ID — 파일 경로는 null', () => {
+  assert.equal(youTubeId('https://youtu.be/dQw4w9WgXcQ?si=abc'), 'dQw4w9WgXcQ');
+  assert.equal(youTubeId('https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=3'), 'dQw4w9WgXcQ');
+  assert.equal(youTubeId('https://youtube.com/shorts/dQw4w9WgXcQ'), 'dQw4w9WgXcQ');
+  assert.equal(youTubeId('media/hero.mp4'), null);
+  assert.equal(youTubeId('https://nyuheatgis.com/media/hero.mp4'), null);
+  assert.equal(youTubeId('https://vimeo.com/123'), null);
 });
 
 test('posterOf: 영상과 같은 이름의 jpg', () => {
