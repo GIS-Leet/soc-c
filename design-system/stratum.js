@@ -304,11 +304,10 @@
      theme — 기존 사이트의 'geo-theme' 키를 그대로 쓴다(호환).
      ────────────────────────────────────────────────────────────────────── */
   const theme = {
-    get() { return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'; },   // 기본은 다크(팔레트 「지도」)
+    get() { return 'dark'; },   // 홈페이지는 다크만 — 라이트는 2026-10 보류(팔레트 블록은 남겨 둠)
     set(mode) {
       const root = document.documentElement;
-      if (mode === 'dark') root.dataset.theme = 'dark';
-      else root.dataset.theme = 'light';
+      root.dataset.theme = 'dark';   // 라이트 보류 — 무엇을 요청해도 다크
       try { localStorage.setItem('geo-theme', mode); } catch (e) {}
       root.dispatchEvent(new CustomEvent('stratum:theme', { detail: mode }));
     },
@@ -317,7 +316,7 @@
     restore() {
       try {
         const saved = localStorage.getItem('geo-theme');
-        document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = 'dark';
       } catch (e) {}
     }
   };

@@ -168,9 +168,9 @@ function background(o, src) {
   layer.appendChild(v);
   (document.querySelector('.globe') || document.body.firstElementChild).insertAdjacentElement('afterend', layer);
   document.body.style.setProperty('--hero-dim', String(o.dim));
-  document.body.style.setProperty('--hero-tone', o.tone === 'light' ? '255,255,255' : '0,0,0');
+  document.body.style.setProperty('--hero-tone', '0,0,0');   // 홈페이지는 다크만(2026-10) — 밝은 영상이어도 검은 막 + 흰 글자(라이트 보류 전: o.tone 이 light 면 흰 막)
   // 영상이 깔려 있는 동안 첫 화면 테마를 영상 색조에 고정 — 테마 버튼을 눌러도 글자가 영상에 묻히지 않게(저장된 테마 설정은 건드리지 않음)
-  const root = document.documentElement, lock = () => { if (o.tone === 'dark') { if (root.dataset.theme !== 'dark') root.dataset.theme = 'dark'; } else if (root.dataset.theme !== 'light') root.dataset.theme = 'light'; };
+  const root = document.documentElement, lock = () => { if (o.tone === 'dark') { if (root.dataset.theme !== 'dark') root.dataset.theme = 'dark'; } };   // 홈페이지는 다크만 — 밝은 영상이어도 라이트로 바꾸지 않는다
   v.addEventListener('playing', () => { document.body.classList.add('hero-on'); lock(); new MutationObserver(lock).observe(root, { attributes: true, attributeFilter: ['data-theme'] }); if (o.watch) watchButton(); }, { once: true });
   v.addEventListener('error', () => { document.body.classList.remove('hero-on'); layer.remove(); }, { once: true });
   v.src = src;

@@ -291,3 +291,6 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: inset 0 0 
 @media (prefers-reduced-motion: reduce) {
   .segment-highlight { transition: none; }
 }
+
+/* 홈페이지는 다크만(2026-10, 라이트 보류) — 테마 전환 버튼을 숨긴다. 요소는 남겨 스크립트가 깨지지 않게 */
+#geoTheme, #themeToggle, [data-st-theme-toggle] { display: none !important; }

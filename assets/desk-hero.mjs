@@ -1,5 +1,5 @@
 // Desk 대시보드 「홈페이지 홍보 영상」 — 정한 기간 동안 홈페이지 첫 화면에 영상을 팝업(소리)으로 띄우거나 지구 대신 배경(무음)으로 까는 설정. 저장 즉시 반영(notices/_hero)
-import { HERO_KEY, DEFAULT_SRC, normalize, heroState, safeSrc, youTubeId } from './site-hero.mjs?v=ba828de2';
+import { HERO_KEY, DEFAULT_SRC, normalize, heroState, safeSrc, youTubeId } from './site-hero.mjs?v=a06001e7';
 
 const CSS = `
 .p-hero .hr-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; font-size: 13.5px; color: var(--st-label); }

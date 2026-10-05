@@ -979,3 +979,6 @@ body[data-renderer="2d"] #label-layer {
     overflow: visible;
   }
 }
+
+/* 홈페이지는 다크만(2026-10, 라이트 보류) — 테마 전환 버튼을 숨긴다 */
+#themeToggle { display: none !important; }

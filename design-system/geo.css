@@ -527,3 +527,6 @@ select.form-input { cursor: pointer; }
 .learning-route__links a { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: var(--st-r-full); border: 1px solid var(--st-border-control); color: var(--st-label-2); font-size: 12.5px; font-weight: 600; text-decoration: none; transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease); }
 .learning-route__links a:hover { background: var(--st-fill-3); color: var(--st-label); border-color: var(--st-label-3); }
 @media (max-width: 640px) { .learning-route { padding-inline: var(--st-sp-4); font-size: 13.5px; } }
+
+/* 홈페이지는 다크만(2026-10, 라이트 보류) — 테마 전환 버튼을 숨긴다. 요소는 남겨 스크립트가 깨지지 않게 */
+#geoTheme, #themeToggle, [data-st-theme-toggle] { display: none !important; }
