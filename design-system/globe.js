@@ -36,6 +36,8 @@ const LAND=[
 "174.6,-36.2 178.5,-37.7 175.2,-41.7 173.8,-39.5 174.7,-37.4 172.6,-34.5 174.6,-36.2"
 ];
 
+const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위성 영상 주소를 이 파일 기준으로 찾는다
+
 (function globe(){
   const cv = document.getElementById('globe');
   if (!cv) return;
@@ -45,8 +47,8 @@ const LAND=[
   const rings = LAND.map(s => s.split(' ').map(p => { const c = p.split(','); return [+c[0], +c[1]]; }));
 
   /* ── ① 등장방형 텍스처 ─────────────────────────────────────────────── */
-  const TW = 1024, TH = 512;
-  const tex = (function buildTexture(){
+  let TW = 1024, TH = 512;            // ④에서 위성 영상을 받으면 그 크기로 바뀐다
+  let tex = (function buildTexture(){
     const c = document.createElement('canvas'); c.width = TW; c.height = TH;
     const g = c.getContext('2d');
     const X = lon => (lon + 180) / 360 * TW;
@@ -233,7 +235,8 @@ const LAND=[
   setup();
 
   /* ── ③ 매 프레임: 경도만 밀어서 샘플링 ───────────────────────────── */
-  const RIM = [130, 185, 245];         // 대기 산란 색
+  const RIM = [126, 170, 200];         // 대기 산란 색 — 사이트 색(팔레트 「지도」)에 맞춰 채도를 낮춤
+  let cloudMix = 1;                    // 위성 영상으로 바뀌면 구름을 옅게(영상 자체가 실제 지표라 구름이 덮으면 아깝다)
   let lon0 = 128;                      // 처음엔 한반도가 정면에
   let cloudLon = 128;                  // 구름은 지표보다 아주 조금 빠르게 흐른다
 
@@ -247,7 +250,7 @@ const LAND=[
 
       let cc = cCol[i] + cShift;
       cc %= CW; if (cc < 0) cc += CW;
-      const a = cloudTex[cRow[i] + (cc | 0)] * 0.00392;   // 0~1
+      const a = cloudTex[cRow[i] + (cc | 0)] * 0.00392 * cloudMix;   // 0~1
 
       const sh = shade[i], rm = rim[i], o = idx[i];
       // 지표색 위에 구름을 얹고, 그 결과에 음영과 대기광을 입힌다
@@ -261,8 +264,8 @@ const LAND=[
     // 바깥 대기 헤일로 — 구가 상단바에 닿지 않으므로, 유리가 굴절할 대상은
     // 이 헤일로다. 그래서 조금 진하게 잡는다.
     const halo = ctx.createRadialGradient(CX, CY, R, CX, CY, R * 1.15);
-    halo.addColorStop(0, 'rgba(122,176,235,0.46)');
-    halo.addColorStop(1, 'rgba(122,176,235,0)');
+    halo.addColorStop(0, 'rgba(126,170,200,0.40)');
+    halo.addColorStop(1, 'rgba(126,170,200,0)');
     ctx.beginPath(); ctx.arc(CX, CY, R * 1.15, 0, Math.PI * 2);
     ctx.fillStyle = halo; ctx.fill();
   }
@@ -283,6 +286,23 @@ const LAND=[
 
   draw();
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(frame);
+
+  /* ── ④ 실제 위성 영상 — NASA Blue Marble Next Generation(2004년 달별 합성), 접속한 달 ──
+     위 그림 지구를 먼저 보여 주고, 이번 달 영상을 받으면 텍스처만 바꿔 끼운다(자전·음영은 그대로).
+     1월엔 북반구가 눈에 덮이고 7월엔 녹는다. 사이트 색에 맞춰 채도·밝기를 낮춘 사본: assets/earth/earth-MM.jpg(2048×1024). */
+  (function loadMonth(){
+    const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+    const im = new Image();
+    im.decoding = 'async';
+    im.onload = () => {
+      const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+      const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+      let data; try { data = g.getImageData(0, 0, c.width, c.height).data; } catch (e) { return; }   // 못 읽으면 그림 지구 그대로
+      tex = data; TW = c.width; TH = c.height; cloudMix = 0.35;
+      setup(); draw();
+    };
+    im.src = new URL('../assets/earth/earth-' + mm + '.jpg', GLOBE_SRC || location.href).href;
+  })();
 
   // 화면 회전·창 크기 변경으로 표시 크기가 크게 달라지면 해상도를 다시 잡는다
   let rt;
