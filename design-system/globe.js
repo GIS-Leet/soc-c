@@ -47,8 +47,10 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
   const rings = LAND.map(s => s.split(' ').map(p => { const c = p.split(','); return [+c[0], +c[1]]; }));
 
   /* ── ① 등장방형 텍스처 ─────────────────────────────────────────────── */
-  let TW = 1024, TH = 512;            // ④에서 위성 영상을 받으면 그 크기로 바뀐다
-  let tex = (function buildTexture(){
+  let TW = 1024, TH = 512;            // 위성 영상(④)을 받으면 그 크기로 바뀐다
+  let tex = null;                      // 처음부터 위성 영상 — 이 그림 텍스처는 영상을 못 받을 때만 쓴다
+  function drawnTexture(){
+    TW = 1024; TH = 512;
     const c = document.createElement('canvas'); c.width = TW; c.height = TH;
     const g = c.getContext('2d');
     const X = lon => (lon + 180) / 360 * TW;
@@ -134,7 +136,7 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
     g.fillStyle = cap2; g.fillRect(0, Y(-68), TW, TH - Y(-68));
 
     return g.getImageData(0, 0, TW, TH).data;
-  })();
+  }
 
   /* ── ①-2 구름층 ────────────────────────────────────────────────────
      우주에서 찍은 지구가 '사진처럼' 보이는 결정적 차이는 구름이다.
@@ -241,6 +243,7 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
   let cloudLon = 128;                  // 구름은 지표보다 아주 조금 빠르게 흐른다
 
   function draw(){
+    if (!tex) return;
     const shift = lon0 / 360 * TW;
     const cShift = cloudLon / 360 * CW;
     for (let i = 0; i < N; i++){
@@ -284,23 +287,37 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
     requestAnimationFrame(frame);
   }
 
-  draw();
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(frame);
+  /* 텍스처가 준비되면 시작 — 그 전에는 빈 캔버스를 숨겨 두고, 준비되면 페이지의 등장 효과(globeIn)를 처음부터 다시 튼다 */
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let started = false;
+  function start(){
+    if (started) { setup(); draw(); return; }      // 이미 돌고 있으면(늦게 온 위성 영상) 텍스처만 바꿔 그린다
+    started = true;
+    setup(); draw();
+    cv.style.visibility = ''; cv.style.animation = 'none'; void cv.offsetWidth; cv.style.animation = '';
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  cv.style.visibility = 'hidden';
 
-  /* ── ④ 실제 위성 영상 — NASA Blue Marble Next Generation(2004년 달별 합성), 접속한 달 ──
-     위 그림 지구를 먼저 보여 주고, 이번 달 영상을 받으면 텍스처만 바꿔 끼운다(자전·음영은 그대로).
-     1월엔 북반구가 눈에 덮이고 7월엔 녹는다. 사이트 색에 맞춰 채도·밝기를 낮춘 사본: assets/earth/earth-MM.jpg(2048×1024). */
+  /* ── ④ 위성 영상 — NASA Blue Marble Next Generation(2004년 달별 합성), 접속한 달 ──
+     처음부터 이 영상으로 그린다(페이지 머리에서 미리 받기 시작함). 1월엔 북반구가 눈에 덮이고 7월엔 녹는다.
+     사이트 색에 맞춰 채도·밝기를 낮춘 사본: assets/earth/earth-MM.jpg(2048×1024).
+     못 받으면 그림 지구로 대신하고, 6초 넘게 걸리면 그림 지구를 먼저 보여 주다가 영상이 오면 바꾼다. */
   (function loadMonth(){
     const mm = String(new Date().getMonth() + 1).padStart(2, '0');
+    const fallback = () => { if (!tex) { tex = drawnTexture(); cloudMix = 1; start(); } };
+    const late = setTimeout(fallback, 6000);
     const im = new Image();
     im.decoding = 'async';
     im.onload = () => {
+      clearTimeout(late);
       const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
       const g = c.getContext('2d'); g.drawImage(im, 0, 0);
-      let data; try { data = g.getImageData(0, 0, c.width, c.height).data; } catch (e) { return; }   // 못 읽으면 그림 지구 그대로
+      let data; try { data = g.getImageData(0, 0, c.width, c.height).data; } catch (e) { fallback(); return; }
       tex = data; TW = c.width; TH = c.height; cloudMix = 0.35;
-      setup(); draw();
+      start();
     };
+    im.onerror = () => { clearTimeout(late); fallback(); };
     im.src = new URL('../assets/earth/earth-' + mm + '.jpg', GLOBE_SRC || location.href).href;
   })();
 
