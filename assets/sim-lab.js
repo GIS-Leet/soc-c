@@ -222,7 +222,7 @@
         if (!card.hidden) count++;
       });
       $("#filterCount").textContent =
-        `${String(count).padStart(2, "0")} experiments`;
+        `실험 ${count}개`;
     }),
   );
   window.Lab = {

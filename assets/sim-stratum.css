@@ -982,3 +982,133 @@ body[data-renderer="2d"] #label-layer {
 
 /* 홈페이지는 다크만(2026-10, 라이트 보류) — 테마 전환 버튼을 숨긴다 */
 #themeToggle { display: none !important; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   조작부 다듬기 (2026-10) — 홈페이지 본문(geo.css · STRATUM)과 같은 문법으로.
+   칸마다 테두리를 두른 상자 버튼 · 폭을 꽉 채운 색 버튼 · 색 바탕 상자 · 장식 번호와 영어 꼬리표를 걷어 낸다.
+   실험 화면(캔버스·지도)과 동작은 건드리지 않는다.
+   이 파일(sim-stratum.css) 맨 끝에 둔다 — @import 한 controls 보다 뒤라야 이 파일 본문의 옛 규칙을 이긴다.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 하나만 고르는 버튼 묶음 → 한 줄 선택 막대(자료실 종류 선택과 같은 모양) */
+.preset-row,
+.segmented,
+.scene-views,
+.tool-grid,
+.scenario-grid,
+.filter-list {
+  gap: 2px;
+  padding: 3px;
+  background: var(--st-fill-2);
+  border-radius: calc(var(--st-r-element) + 3px);
+}
+.preset-row button,
+.segmented button,
+.scene-view-btn,
+.tool-btn,
+.scenario-btn,
+.filter-list button {
+  border: 0;
+  border-radius: var(--st-r-element);
+  background: transparent;
+  color: var(--st-label-3);
+  min-height: var(--st-h-lg);
+  padding: var(--st-sp-1) var(--st-sp-3);
+  font-weight: 600;
+  line-height: 1.3;
+  box-shadow: none;
+}
+.preset-row button:hover,
+.segmented button:hover,
+.scene-view-btn:hover,
+.tool-btn:hover,
+.scenario-btn:hover,
+.filter-list button:hover {
+  color: var(--st-label);
+  background: transparent;
+}
+.preset-row [aria-pressed="true"],
+.segmented [aria-pressed="true"],
+.scene-view-btn[aria-pressed="true"],
+.tool-btn.active,
+.scenario-btn.active-ice,
+.scenario-btn.active-warm,
+.filter-list [aria-pressed="true"] {
+  background: var(--st-surface-raised);
+  color: var(--st-label);
+  border: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+}
+.filter-list button {
+  min-height: var(--st-h-md);
+  padding-inline: var(--st-sp-4);
+}
+
+/* 재생 버튼 → 폭을 채우지 않는 둥근 주 버튼(홈페이지 .btn-solid 크기) */
+.play-btn {
+  width: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--st-sp-2);
+  min-height: 38px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--st-r-full);
+  font-weight: 600;
+}
+.play-btn:hover {
+  background: var(--st-accent-hover);
+}
+
+/* 보조 버튼(이전·다음·지형 복원 등)은 한 높이로 — 넓은 화면만. 좁은 화면은 아래에서 손가락 크기(44px) */
+@media (min-width: 861px) {
+  .step-btn,
+  .secondary-btn {
+    min-height: 34px;
+    padding: 0 var(--st-sp-4);
+  }
+}
+
+/* 장식 번호(01·02)와 영어 대문자 꼬리표(MONTH 등)는 숨긴다 — 제목과 슬라이더 값으로 충분하다 */
+.panel-no,
+.field-label > span {
+  display: none;
+}
+
+/* 고른 단계 줄: 색 바탕 대신 옅은 회색 + 제목만 강조색 */
+.scenario-card.active {
+  background: var(--st-fill-2);
+}
+.scenario-card.active b {
+  color: var(--st-accent-ink);
+}
+
+/* 관찰 결과 · 모형 설명: 테두리 상자 대신 위쪽 가는 선 하나 */
+.insight-panel,
+.model-details {
+  background: none;
+  border: 0;
+  border-top: var(--sim-border) solid var(--st-separator);
+  border-radius: 0;
+  padding: var(--st-sp-4) 0 0;
+}
+.insight-panel h2 {
+  font-size: var(--sim-font-eyebrow);
+  font-weight: 700;
+  letter-spacing: 0.055em;
+}
+
+/* 좁은 화면(터치): 선택 막대의 칸도 손가락 크기로 */
+@media (max-width: 860px) {
+  .preset-row button,
+  .segmented button,
+  .scene-view-btn,
+  .tool-btn,
+  .scenario-btn,
+  .filter-list button,
+  .play-btn {
+    min-height: var(--st-h-xl);
+  }
+}
