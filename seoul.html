@@ -33,7 +33,7 @@
     <script>
       try {
         document.documentElement.dataset.theme =
-          localStorage.getItem("geo-theme") || "light";
+          localStorage.getItem("geo-theme") === "light" ? "light" : "dark";
       } catch (e) {}
     </script>
     <meta
@@ -56,7 +56,7 @@
     />
     <meta content="https://nyuheatgis.com/seoul.html" property="og:url" />
     <meta content="website" property="og:type" />
-    <meta content="#f2f2f7" name="theme-color" />
+    <meta content="#121815" name="theme-color" />
     <link href="manifest.json" rel="manifest" />
     <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />

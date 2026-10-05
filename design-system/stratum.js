@@ -304,7 +304,7 @@
      theme — 기존 사이트의 'geo-theme' 키를 그대로 쓴다(호환).
      ────────────────────────────────────────────────────────────────────── */
   const theme = {
-    get() { return document.documentElement.dataset.theme || (global.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); },
+    get() { return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'; },   // 기본은 다크(팔레트 「지도」)
     set(mode) {
       const root = document.documentElement;
       if (mode === 'dark') root.dataset.theme = 'dark';
@@ -317,7 +317,7 @@
     restore() {
       try {
         const saved = localStorage.getItem('geo-theme');
-        if (saved) document.documentElement.dataset.theme = saved;
+        document.documentElement.dataset.theme = saved === 'light' ? 'light' : 'dark';
       } catch (e) {}
     }
   };

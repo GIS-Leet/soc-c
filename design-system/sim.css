@@ -181,7 +181,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: inset 0 0 
 .play-btn, .action-btn, .btn-run, .btn-random, .btn-reset {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; height: 42px; padding: 0 18px; border-radius: var(--st-r-full);
-  background: var(--st-accent-solid); color: #fff;
+  background: var(--st-accent-solid); color: var(--st-on-accent, #fff);
   font-size: 13px; font-weight: 600; letter-spacing: var(--track-ko); white-space: nowrap;
   transition: background var(--st-dur-fast) var(--st-ease), transform var(--st-dur-instant) var(--st-ease);
 }

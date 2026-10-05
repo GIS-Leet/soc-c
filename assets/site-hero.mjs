@@ -170,7 +170,7 @@ function background(o, src) {
   document.body.style.setProperty('--hero-dim', String(o.dim));
   document.body.style.setProperty('--hero-tone', o.tone === 'light' ? '255,255,255' : '0,0,0');
   // 영상이 깔려 있는 동안 첫 화면 테마를 영상 색조에 고정 — 테마 버튼을 눌러도 글자가 영상에 묻히지 않게(저장된 테마 설정은 건드리지 않음)
-  const root = document.documentElement, lock = () => { if (o.tone === 'dark') { if (root.dataset.theme !== 'dark') root.dataset.theme = 'dark'; } else if (root.dataset.theme) delete root.dataset.theme; };
+  const root = document.documentElement, lock = () => { if (o.tone === 'dark') { if (root.dataset.theme !== 'dark') root.dataset.theme = 'dark'; } else if (root.dataset.theme !== 'light') root.dataset.theme = 'light'; };
   v.addEventListener('playing', () => { document.body.classList.add('hero-on'); lock(); new MutationObserver(lock).observe(root, { attributes: true, attributeFilter: ['data-theme'] }); if (o.watch) watchButton(); }, { once: true });
   v.addEventListener('error', () => { document.body.classList.remove('hero-on'); layer.remove(); }, { once: true });
   v.src = src;

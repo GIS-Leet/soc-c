@@ -48,6 +48,19 @@
     --lg-glow: 0 0 0 0.5px rgba(150,196,255,0.22), 0 0 24px rgba(96,158,255,0.34);
   }
 }
+/* 팔레트 「지도」 — 호버 알약·딤 (stratum.css 팔레트와 같은 규칙: 기본 다크) */
+:root:not([data-theme="light"]) {
+  --scrim: 18,24,21;
+  --lg-bg: rgba(236,232,221,0.10); --lg-rim: rgba(143,195,169,0.40); --lg-specular: rgba(236,232,221,0.30);
+  --lg-shadow: 0 1px 3px rgba(0,0,0,0.45), 0 6px 14px rgba(0,0,0,0.45), 0 16px 38px rgba(0,0,0,0.60);
+  --lg-glow: 0 0 0 0.5px rgba(143,195,169,0.22), 0 0 18px rgba(143,195,169,0.14);
+}
+:root[data-theme="light"] {
+  --scrim: 242,239,230;
+  --lg-bg: rgba(251,250,246,0.95); --lg-rim: rgba(46,94,78,0.35); --lg-specular: rgba(255,255,255,0.96);
+  --lg-shadow: 0 1px 3px rgba(31,38,34,0.10), 0 6px 14px rgba(31,38,34,0.08), 0 16px 38px rgba(31,38,34,0.12);
+  --lg-glow: 0 0 0 0.5px rgba(46,94,78,0.22), 0 0 16px rgba(46,94,78,0.12);
+}
 @media (min-width: 640px) { :root { --pad-x: 32px; } }
 @media (min-width: 768px) { :root { --pad-x: 48px; } }
 
@@ -245,9 +258,9 @@ body.is-launching .geo-page { transform: scale(0.965); opacity: 0.5; transform-o
   position: absolute; inset: -34% -6% auto -18%; height: 640px; z-index: -2;
   pointer-events: none;
   background:
-    radial-gradient(42% 56% at 14% 34%, rgba(0,136,255,0.17), transparent 68%),
-    radial-gradient(38% 50% at 70% 6%,  rgba(97,85,245,0.13), transparent 70%),
-    radial-gradient(32% 46% at 48% 66%, rgba(52,199,89,0.09), transparent 72%);
+    radial-gradient(42% 56% at 14% 34%, var(--pal-aura-1, rgba(0,136,255,0.17)), transparent 68%),
+    radial-gradient(38% 50% at 70% 6%,  var(--pal-aura-2, rgba(97,85,245,0.13)), transparent 70%),
+    radial-gradient(32% 46% at 48% 66%, var(--pal-aura-3, rgba(52,199,89,0.09)), transparent 72%);
   filter: blur(10px);
 }
 .head-seal {
@@ -373,12 +386,12 @@ body.is-launching .geo-page { transform: scale(0.965); opacity: 0.5; transform-o
   transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease),
               border-color var(--st-dur-fast) var(--st-ease), transform var(--st-dur-instant) var(--st-ease);
 }
-.btn-solid, .submit-btn-small { background: var(--st-accent-solid); color: #fff; }
+.btn-solid, .submit-btn-small { background: var(--st-accent-solid); color: var(--st-on-accent, #fff); }
 .btn-solid:hover, .submit-btn-small:hover { background: var(--st-accent-hover); }
 .btn-outline { background: transparent; color: var(--st-label);
                border: 1px solid var(--st-border-control); height: 34px; padding: 0 14px; font-size: 12px; }
 .btn-outline:hover { border-color: var(--accent); color: var(--accent-ink); }
-.btn-outline.active { background: var(--st-accent-solid); color: #fff; border-color: transparent; }
+.btn-outline.active { background: var(--st-accent-solid); color: var(--st-on-accent, #fff); border-color: transparent; }
 .btn-sub { background: var(--st-fill-2); color: var(--st-label-2); }
 .btn-sub:hover { background: var(--st-fill); color: var(--st-label); }
 .btn-solid:active, .btn-outline:active, .btn-sub:active, .submit-btn-small:active { transform: scale(0.97); }
@@ -439,7 +452,7 @@ select.form-input { cursor: pointer; }
 }
 .custom-modal-actions .cancel { background: var(--st-fill-2); color: var(--st-label-2); }
 .custom-modal-actions .cancel:hover { background: var(--st-fill); color: var(--st-label); }
-.custom-modal-actions .confirm { background: var(--st-accent-solid); color: #fff; }
+.custom-modal-actions .confirm { background: var(--st-accent-solid); color: var(--st-on-accent, #fff); }
 .custom-modal-actions .confirm:hover { background: var(--st-accent-hover); }
 
 .ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
@@ -468,8 +481,8 @@ select.form-input { cursor: pointer; }
   /* 좌우로 삐져나가면 가로 스크롤을 만든다. 위로만 번지게 두고 폭은 가둔다. */
   position: absolute; inset: -20% 0 auto 0; height: 560px; z-index: -1; pointer-events: none;
   background:
-    radial-gradient(46% 60% at 18% 30%, rgba(0,136,255,0.13), transparent 70%),
-    radial-gradient(40% 55% at 78% 12%, rgba(97,85,245,0.10), transparent 70%);
+    radial-gradient(46% 60% at 18% 30%, var(--pal-aura-1, rgba(0,136,255,0.13)), transparent 70%),
+    radial-gradient(40% 55% at 78% 12%, var(--pal-aura-2, rgba(97,85,245,0.10)), transparent 70%);
   filter: blur(6px);
 }
 

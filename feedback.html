@@ -9,7 +9,7 @@
   gtag('config', 'G-E1W226W5M4');
 </script>
 <meta charset="UTF-8">
-<script>(function(){try{var t=localStorage.getItem('geo-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}})();</script>
+<script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme=t==='light'?'light':'dark';}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>학생 건의사항 — Geographia Archive</title>
 
@@ -20,8 +20,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
 <!-- 디자인 시스템 -->
-<link rel="stylesheet" href="design-system/stratum.css?v=18a16beb">
-<link rel="stylesheet" href="design-system/geo.css?v=1309406e">
+<link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
+<link rel="stylesheet" href="design-system/geo.css?v=a5af6a4c">
 
 <style>
 /* ============================================================================
@@ -57,7 +57,7 @@
 .admin-login-box input:focus { outline: none; border-color: var(--accent); box-shadow: var(--st-ring); }
 .admin-login-box button {
   height: 34px; padding: 0 14px; border-radius: var(--st-r-full);
-  background: var(--st-accent-solid); color: #fff; font-size: 12px; font-weight: 600;
+  background: var(--st-accent-solid); color: var(--st-on-accent, #fff); font-size: 12px; font-weight: 600;
   letter-spacing: var(--track-ko);
 }
 
@@ -274,7 +274,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Geographia">
-<meta name="theme-color" content="#f2f2f7">
+<meta name="theme-color" content="#121815">
 </head>
 <body>
 
@@ -641,7 +641,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
   </div>
 </div>
 
-<script src="design-system/stratum.js?v=133fd953"></script>
+<script src="design-system/stratum.js?v=93847da0"></script>
 <script src="design-system/geo.js?v=d2966f98"></script>
 </body>
 </html>

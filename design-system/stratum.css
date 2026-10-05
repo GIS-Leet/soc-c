@@ -295,6 +295,44 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   팔레트 「지도」 (2026-10) — 지형도 종이 · 먹 · 등고선 녹색. 위의 Apple 값을 덮어쓴다.
+   기본은 다크. 사용자가 라이트를 고르면(data-theme="light") 라이트.
+   :not([data-theme="light"]) 이라 저장된 선택이 없거나 스크립트가 늦어도 다크가 먼저 나온다.
+   글자 대비(배경 기준): 라이트 본문 13.4 · 보조 4.5+ · 강조 6.5 / 다크 본문 14.7 · 보조 6.2 · 강조 8.1
+   ══════════════════════════════════════════════════════════════════════════ */
+:root:not([data-theme="light"]) {
+  color-scheme: dark;
+  --st-bedrock:#121815; --st-bedrock-sunken:#0D110F; --st-surface:#1B231F; --st-surface-raised:#232C27;
+  --st-fill:rgba(236,232,221,0.14); --st-fill-2:rgba(236,232,221,0.09); --st-fill-3:rgba(236,232,221,0.05);
+  --st-label:#ECE8DD; --st-label-2:#C6C4BB; --st-label-3:#A3A39B; --st-label-4:#73756F;
+  --st-separator:rgba(236,232,221,0.13); --st-separator-strong:rgba(236,232,221,0.20); --st-border-control:#73756F;
+  --st-accent:#8FC3A9; --st-accent-ink:#8FC3A9; --st-accent-solid:#8FC3A9; --st-accent-hover:#A5D0BA;
+  --st-accent-soft:rgba(143,195,169,0.14); --st-accent-line:rgba(143,195,169,0.42); --st-accent-tint:#25352D; --st-on-accent:#121815;
+  --st-ink:#1B231F; --st-on-ink:#ECE8DD; --st-on-ink-2:rgba(236,232,221,0.66); --st-on-ink-3:rgba(236,232,221,0.40); --st-on-ink-line:rgba(236,232,221,0.14);
+  --st-mat-clear-bg:rgba(27,35,31,0.30); --st-mat-thin-bg:rgba(27,35,31,0.62); --st-mat-regular-bg:rgba(27,35,31,0.80); --st-mat-thick-bg:rgba(27,35,31,0.95);
+  --st-glass-specular:rgba(236,232,221,0.22); --st-glass-rim:rgba(236,232,221,0.12); --st-glass-under:rgba(236,232,221,0.05);
+  --pal-aura-1:rgba(143,195,169,0.13); --pal-aura-2:rgba(236,232,221,0.05); --pal-aura-3:rgba(143,195,169,0.06);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --st-bedrock:#F2EFE6; --st-bedrock-sunken:#E7E4DA; --st-surface:#FBFAF6; --st-surface-raised:#FFFFFF;
+  --st-fill:rgba(31,38,34,0.10); --st-fill-2:rgba(31,38,34,0.065); --st-fill-3:rgba(31,38,34,0.04);
+  --st-label:#1F2622; --st-label-2:#4A504B; --st-label-3:#5F645F; --st-label-4:#8A8D86;
+  --st-separator:rgba(31,38,34,0.13); --st-separator-strong:rgba(31,38,34,0.20); --st-border-control:#8A8D86;
+  --st-accent:#2E5E4E; --st-accent-ink:#2E5E4E; --st-accent-solid:#2E5E4E; --st-accent-hover:#2A4C40;
+  --st-accent-soft:rgba(46,94,78,0.10); --st-accent-line:rgba(46,94,78,0.32); --st-accent-tint:#E1E9E3; --st-on-accent:#FFFFFF;
+  --st-ink:#1F2622; --st-on-ink:#F2EFE6; --st-on-ink-2:rgba(242,239,230,0.66); --st-on-ink-3:rgba(242,239,230,0.40); --st-on-ink-line:rgba(242,239,230,0.14);
+  --st-mat-clear-bg:rgba(242,239,230,0.20); --st-mat-thin-bg:rgba(242,239,230,0.62); --st-mat-regular-bg:rgba(242,239,230,0.82); --st-mat-thick-bg:rgba(242,239,230,0.95);
+  --pal-aura-1:rgba(46,94,78,0.14); --pal-aura-2:rgba(31,38,34,0.06); --pal-aura-3:rgba(46,94,78,0.06);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root:not([data-theme="light"]), :root[data-theme="light"] {
+    --st-mat-clear-bg: var(--st-bedrock); --st-mat-thin-bg: var(--st-bedrock);
+    --st-mat-regular-bg: var(--st-bedrock); --st-mat-thick-bg: var(--st-surface);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
    4. ACCESSIBILITY OVERRIDES
    Apple은 색을 3종(기본/증가대비/투명도감소)으로 정의한다. 우리도 그렇게.
    ══════════════════════════════════════════════════════════════════════════ */
