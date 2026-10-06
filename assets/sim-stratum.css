@@ -1112,3 +1112,51 @@ body[data-renderer="2d"] #label-layer {
     min-height: var(--st-h-xl);
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   홈페이지 공통 틀 (2026-10) — 상단바(.st-bar) · 전체 메뉴(.geo-menu) · 바닥글(.geo-foot) · 머리(.sheet-head)는
+   geo.css 의 것을 그대로 쓴다. 이 파일의 전역 규칙(a 색·밑줄, svg 크기)이 그 안으로 새지 않게 막는다.
+   ══════════════════════════════════════════════════════════════════════════ */
+.st-bar a, .geo-menu a, .geo-foot a, .sheet-head a { color: inherit; text-decoration: none; }
+.st-bar a:hover, .geo-menu a:hover, .geo-foot a:hover { text-decoration: none; }
+.geo-foot a:hover { color: var(--accent-ink); }
+.st-bar .geo-seal, .geo-menu .geo-seal { width: 32px; height: 32px; }
+.geo-menu .geo-close svg { width: 18px; height: 18px; }
+.geo-logo { color: var(--st-label); }
+.geo-foot { margin-top: var(--st-sp-12); }
+.presentation-mode .geo-foot { display: none; }
+
+/* 실험 목록 — 다른 목록 페이지(Archive · Q&A)와 같은 폭(1180px)·좌우 여백. 실험 화면이 있는 개별 페이지는 넓게 둔다 */
+.directory { max-width: 1180px; padding: 0 var(--pad-x, 20px) var(--st-sp-8); }
+.directory > .sheet-head { padding-top: clamp(38px, 6.5vw, 82px); }
+
+/* 실험 머리 — 경로는 꼬리표(.sheet-num)처럼, 제목과 설명은 홈페이지 머리처럼 위아래로 */
+.breadcrumb {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--track-wide, 0.1em);
+  text-transform: uppercase;
+  color: var(--st-accent-ink);
+  margin-bottom: var(--st-sp-3);
+}
+.breadcrumb a { color: inherit; text-decoration: none; }
+.breadcrumb a:hover { color: var(--st-label); text-decoration: none; }
+.lab-intro {
+  display: block;
+  margin-bottom: clamp(20px, 2.6vw, 32px);
+}
+.lab-intro h1 {
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  line-height: 1.08;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+.intro-copy {
+  max-width: 52ch;
+  margin-top: 14px;
+  font-size: clamp(0.875rem, 1.3vw, 1rem);
+  line-height: 1.65;
+  color: var(--st-label-2);
+  letter-spacing: var(--track-ko, 0.055em);
+}
+@media (max-width: 860px) { .intro-copy { max-width: 100%; } }
