@@ -55,7 +55,7 @@ export function installBoardControls({db,board,ref,update,remove,setAdmin,enable
   body.dataset.text=locked?'':String(data.text||'');body.dataset.title=title;body.dataset.time=String(data.time||'');body.dataset.image=locked?'':String(data.imageUrl||'');
   if(locked||!body.querySelector('textarea')){
    body.replaceChildren(document.createTextNode(locked?'비밀글입니다. 작성자 확인 후 열람할 수 있습니다.':String(data.text||'')));
-   if(!locked&&data.imageUrl){const image=document.createElement('img');image.src=data.imageUrl;image.alt='첨부 이미지';image.className='post-image';image.loading='lazy';body.append(image);}
+   if(!locked&&data.imageUrl){const image=document.createElement('img');image.dataset.src=data.imageUrl;image.alt='첨부 이미지';image.className='post-image';body.append(image);/* 접힌 글의 그림은 펼칠 때 받는다 — 각 게시판 화면의 showPostImages 가 data-src → src */}
    if(!locked&&data._imageUnavailable){const message=document.createElement('p');message.textContent='첨부 이미지를 불러오지 못했습니다. 다시 열어 주세요.';body.append(message);}
    const date=document.createElement('p');date.className='post-meta-foot';date.textContent='작성 '+String(data.time||'');body.append(date);
   }
