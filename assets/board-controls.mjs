@@ -1,5 +1,5 @@
 // 기존 게시판 화면에 서버 인증·비밀글 접근·폼 저장 상태를 연결함.
-import {ensureAccess,loginTeacher,logoutTeacher,onSessionChanged,onBoardState,refreshBoard} from './board-client.mjs?v=a90eca83';
+import {ensureAccess,loginTeacher,logoutTeacher,onSessionChanged,onBoardState,refreshBoard} from './board-client.mjs?v=70eaa954';
 import {guardPending} from './pending-write.mjs?v=8cfe1cd0';
 export function installBoardControls({db,board,ref,update,remove,setAdmin,enableEditMode,onPostChange}){
  const $=id=>document.getElementById(id);const target=id=>ref(db,board+'/'+id);

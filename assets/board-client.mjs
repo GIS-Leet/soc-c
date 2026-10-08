@@ -1,8 +1,9 @@
 // 학생 게시판은 인증된 서버 API만 사용함. 공개 DB로 우회하지 않음.
 import {getAuth,onAuthStateChanged,signInAnonymously,GoogleAuthProvider,signInWithPopup,signOut} from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js';
 import {BoardStore} from './board-store.mjs?v=77c7de8d';
-const API='https://us-central1-soc-c-qna.cloudfunctions.net/boardApi';
-const IMAGE='https://us-central1-soc-c-qna.cloudfunctions.net/boardAttachment';
+// 게시판 서버 — Cloudflare Workers(worker/). 되돌리려면 두 주소를 https://us-central1-soc-c-qna.cloudfunctions.net/… 로
+const API='https://soc-c-api.nyuheatgis.workers.dev/boardApi';
+const IMAGE='https://soc-c-api.nyuheatgis.workers.dev/boardAttachment';
 const BOARDS=new Set(['questions','feedback','support']);
 const handles=new WeakMap();
 const keyOK=key=>/^[A-Za-z0-9_-]+$/.test(key);

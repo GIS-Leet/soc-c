@@ -20,7 +20,7 @@ test('인증 헤더는 고정 첨부 서버에만 전달하고 외부 이미지 
 });
 test('첨부 다운로드 중 계정이 바뀌면 이전 계정의 본문을 다시 채우지 않는다',async()=>{
  let resolveImage,started;const imageStarted=new Promise(r=>started=r);
- const f=fixture(async(url)=>{if(url.includes('boardAttachment')){started();return new Promise(r=>resolveImage=()=>r({ok:true,blob:async()=>new Blob(['x'])}))}return {ok:true,json:async()=>({result:{item:{id:'private',text:'이전 계정 비밀',imageUrl:'https://us-central1-soc-c-qna.cloudfunctions.net/boardAttachment?board=questions&id=private'}}})}});
+ const f=fixture(async(url)=>{if(url.includes('boardAttachment')){started();return new Promise(r=>resolveImage=()=>r({ok:true,blob:async()=>new Blob(['x'])}))}return {ok:true,json:async()=>({result:{item:{id:'private',text:'이전 계정 비밀',imageUrl:'https://soc-c-api.nyuheatgis.workers.dev/boardAttachment?board=questions&id=private'}}})}});
  await new Promise(r=>queueMicrotask(r));const pending=f.api.readPost(f.api.ref(f.db,'questions/private'));await imageStarted;f.changeUser();resolveImage();await assert.rejects(pending,/로그인 상태/);assert.equal(f.db.stores.size,0);
 });
 

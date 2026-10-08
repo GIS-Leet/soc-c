@@ -393,14 +393,14 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
     </div>
 
     <script type="module">
-        import {installBoardControls} from "./assets/board-controls.mjs?v=b61aefdc";
-    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs?v=a90eca83";
+        import {installBoardControls} from "./assets/board-controls.mjs?v=259d0818";
+    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs?v=70eaa954";
     // 접힌 글의 첨부 그림은 글을 펼칠 때 받는다 — 목록만 열어도 모든 글의 그림을 받아 함수 전송 요금이 나가던 것을 막음(2026-10-08).
     // 글 본문 틀은 <img data-src>, 여기서 펼쳐진 글의 것만 src 로 옮긴다
     const showPostImages = () => { for (const img of document.querySelectorAll('img[data-src]')) { const item = img.closest('.q-item'); if (item ? item.classList.contains('is-open') : img.offsetParent !== null) { img.src = img.dataset.src; img.removeAttribute('data-src'); } } };
     new MutationObserver(showPostImages).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=a90eca83";
+        import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=70eaa954";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
