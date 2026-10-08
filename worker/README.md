@@ -11,6 +11,7 @@ Firebase 함수(`functions/`)가 하던 일을 Cloudflare Workers 무료 요금�
 | `boardVersion*` (DB 쓰기 트리거) | 글을 바꾸는 호출 직후에 올림. DB 에 직접 쓰는 쪽은 `POST /boardTouch` (교사만) |
 | `deskQuestionPush` · `deskStudentFollowupPush` (DB 생성 트리거) | 질문 · 이어진 질문이 만들어진 직후에 보냄 |
 | `deskPushRetry` (매분) · `boardScheduledMaintenance` (10분) | Cron `* * * * *` 하나 |
+| (Storage 의 비공개 설치 폴더) | `GET /ota/<비밀 폴더>/<파일>` — 수업 자료 앱 설치 파일 |
 
 ## 지금 상태 (2026-10-08)
 
@@ -58,5 +59,5 @@ npx wrangler deploy
 ## Spark 로 내리기 전에 남는 것
 
 - `desk.html` 의 노트 그림 올리기가 Storage 를 직접 쓴다(`desk-images/`, 지금 3개). Worker 로 올리게 바꾸거나 그림을 다른 곳에 둔다.
-- 수업 자료 앱의 설치 파일(`private-ota/`, 585MB)이 Storage 에 있다. 파일 하나가 60MB 라 KV(25MB)에 못 넣는다. 비공개 GitHub 릴리스 + Worker 중계나 TestFlight 로 옮긴다.
+- 수업 자료 앱의 설치 파일 — 옮김(2026-10-08, 3.9.1 빌드 387부터). `GET /ota/<비밀 폴더>/<파일>` 이 KV 에서 내준다(`src/ota.mjs`, 60MB 설치 파일은 20MB 조각으로 나눠 두고 이어 붙임, 이어받기 지원). 올리기는 수업 자료 앱 저장소의 `tools/publish_private_ota.py`. Storage 의 `private-ota/`(585MB)는 옛 버전이라 그대로 두면 Spark 로 내릴 때 사라진다.
 - Storage 의 `images/` 30개(26MB)는 어느 글에서도 쓰이지 않는다. 옮기지 않았다.

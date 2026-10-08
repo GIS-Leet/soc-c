@@ -6,6 +6,7 @@ import { createCredential, verifyIdToken } from "../worker/src/google.mjs";
 import { createRestStore, createKVStorage, withGrantSnapshot } from "../worker/src/store.mjs";
 import { createWorkerApnsSender, requestApns } from "../worker/src/apns.mjs";
 import worker, { mutates } from "../worker/src/index.mjs";
+import { byteRange, serveOta } from "../worker/src/ota.mjs";
 
 const b64u = (v) => Buffer.from(v).toString("base64url");
 const rsa = generateKeyPairSync("rsa", { modulusLength: 2048 });
@@ -133,4 +134,38 @@ test("APNs 응답 — 성공은 사유 없음, 실패는 애플이 준 사유, �
   assert.deepEqual(await ask(new Response(null, { status: 200 })), { status: 200, reason: "" });
   assert.deepEqual(await ask(new Response('{"reason":"BadDeviceToken"}', { status: 400 })), { status: 400, reason: "BadDeviceToken" });
   assert.deepEqual(await ask(new Response("<html>", { status: 502 })), { status: 502, reason: "InvalidResponse" });
+});
+
+test("설치 파일 — 조각을 이어 붙이고, 이어받기 구간 · 머리만 · 없는 파일 · 벗어난 구간", async () => {
+  assert.deepEqual(byteRange("bytes=0-9", 100), { start: 0, end: 9 });
+  assert.deepEqual(byteRange("bytes=90-", 100), { start: 90, end: 99 });
+  assert.deepEqual(byteRange("bytes=-10", 100), { start: 90, end: 99 });
+  assert.deepEqual(byteRange("bytes=50-500", 100), { start: 50, end: 99 });
+  assert.equal(byteRange("bytes=100-", 100), "unsatisfiable");
+  assert.equal(byteRange(null, 100), null); assert.equal(byteRange("bytes=0-1,5-6", 100), null);
+
+  const whole = Uint8Array.from({ length: 25 }, (_, i) => i), folder = "a".repeat(32), map = new Map();
+  const put = (key, bytes, metadata) => map.set(key, [bytes, metadata]);
+  put(`ota/${folder}/app.ipa`, new Uint8Array(0), { mime: "application/octet-stream", size: 25, part: 10, parts: 3 });
+  for (let i = 0; i < 3; i++) put(`ota/${folder}/app.ipa.part${i}`, whole.slice(i * 10, i * 10 + 10));
+  put(`ota/${folder}/latest.json`, new TextEncoder().encode('{"build":1}'), { mime: "application/json" });
+  const copy = (bytes) => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+  const kv = { getWithMetadata: async (key) => { const e = map.get(key); return { value: e ? copy(e[0]) : null, metadata: e?.[1] ?? null }; }, get: async (key) => { const e = map.get(key); return e ? copy(e[0]) : null; } };
+  const ask = (name, headers = {}, method = "GET") => serveOta(new Request(`https://w.example/ota/${folder}/${name}`, { method, headers }), kv, `/ota/${folder}/${name}`);
+  const bytes = async (response) => [...new Uint8Array(await response.arrayBuffer())];
+
+  const full = await ask("app.ipa");
+  assert.equal(full.status, 200); assert.equal(full.headers.get("content-length"), "25"); assert.deepEqual(await bytes(full), [...whole]);
+  const across = await ask("app.ipa", { Range: "bytes=8-21" });
+  assert.equal(across.status, 206); assert.equal(across.headers.get("content-range"), "bytes 8-21/25"); assert.deepEqual(await bytes(across), [...whole.slice(8, 22)]);
+  assert.deepEqual(await bytes(await ask("app.ipa", { Range: "bytes=-3" })), [22, 23, 24]);
+  assert.deepEqual(await bytes(await ask("app.ipa", { Range: "bytes=10-19" })), [...whole.slice(10, 20)]);
+  const head = await ask("app.ipa", {}, "HEAD");
+  assert.equal(head.status, 200); assert.equal(head.headers.get("content-length"), "25"); assert.equal(head.headers.get("accept-ranges"), "bytes");
+  assert.equal((await ask("app.ipa", { Range: "bytes=25-" })).status, 416);
+  const feed = await ask("latest.json");
+  assert.equal(feed.headers.get("content-type"), "application/json"); assert.equal(await feed.text(), '{"build":1}'); assert.equal(feed.headers.get("cache-control"), "private, no-store");
+  assert.equal((await ask("none.ipa")).status, 404);
+  assert.equal((await serveOta(new Request("https://w.example/ota/short/app.ipa"), kv, "/ota/short/app.ipa")).status, 404);
+  assert.equal((await ask("app.ipa", {}, "POST")).status, 404);
 });

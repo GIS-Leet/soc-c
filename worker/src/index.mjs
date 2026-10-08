@@ -9,6 +9,7 @@ import { createDeskPushService } from "../../functions/desk-push.mjs";
 import { createCredential, verifyIdToken } from "./google.mjs";
 import { createRestStore, createKVStorage, withGrantSnapshot } from "./store.mjs";
 import { createWorkerApnsSender } from "./apns.mjs";
+import { serveOta } from "./ota.mjs";
 
 // firebase-functions 의 onCall 이 쓰는 상태 이름 · HTTP 코드(클라이언트가 body.error.status 를 읽는다)
 const HTTP = { "invalid-argument": 400, "failed-precondition": 400, "out-of-range": 400, unauthenticated: 401, "permission-denied": 403, "not-found": 404,
@@ -69,6 +70,7 @@ async function pushAfter(data, auth, result, app) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.pathname.startsWith("/ota/")) return serveOta(request, env.FILES, url.pathname);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
     const app = build(env, url.origin);
     if (url.pathname === "/boardTouch") {
