@@ -14,7 +14,7 @@ Firebase 함수(`functions/`)가 하던 일을 Cloudflare Workers 무료 요금�
 
 ## 지금 상태 (2026-10-08)
 
-`https://soc-c-api.nyuheatgis.workers.dev` 에 올라가 있다. 학생 화면 · Desk 는 아직 함수를 쓴다(갈아타기 2번부터가 남음).
+`https://soc-c-api.nyuheatgis.workers.dev` 에 올라가 있고, 학생 게시판(24907b4) · Desk 웹(8086100) · Desk 앱(1.2 빌드 331)이 모두 이쪽을 쓴다. 함수는 되돌릴 때를 위해 아직 살아 있다. 남은 것은 갈아타기 6번과 맨 아래 두 가지.
 
 배포된 Worker 로 확인한 것.
 
@@ -29,7 +29,7 @@ Firebase 함수(`functions/`)가 하던 일을 Cloudflare Workers 무료 요금�
 - Worker 를 기본값대로 두면 한국에서 돌아 DB(미국 중부)를 여러 번 오가느라 목록 한 번에 5.8초가 걸린다. `[placement]` 로 DB 옆에서 돌린다.
 - 무료 요금제는 요청 하나가 밖으로 부르는 횟수가 50번까지다. 목록이 글마다 열람 허가를 하나씩 읽어 50개 목록이 실패했다 → `withGrantSnapshot`.
 
-아직 못 본 것은 학교망에서 `workers.dev` 주소가 열리는지.
+학교망에서 `workers.dev` 주소가 열리는 것, 시험 푸시가 기기에 뜨는 것은 사용자가 확인했다.
 
 ## 올리기
 
@@ -49,12 +49,11 @@ npx wrangler deploy
 
 1. 첨부 옮기기 — 2026-10-08 에 함. 그 뒤 함수로 올라온 그림이 있으면 2번 직전에 한 번 더 한다.
    `node worker/tools/migrate-attachments.mjs <키.json> --out <임시 폴더>` 로 묶음을 만들고, 묶음마다 `npx wrangler kv bulk put <묶음> --binding FILES --remote`. 끝나면 임시 폴더를 지운다(학생이 올린 그림).
-2. 학생 화면 전환. `assets/board-client.mjs` 의 `API` · `IMAGE` 두 줄을 Worker 주소로 바꾸고 `node scripts/stamp-assets.mjs`.
-3. Desk 앱. `Study/Data/BoardAttachmentPolicy.swift` 가 Worker 주소도 받게 하고 배포.
-4. 저장된 그림 주소 바꾸기. `desk.html` 과 Desk 앱은 글에 저장된 주소를 그대로 읽는다(31개).
-   `node worker/tools/rewrite-stored-urls.mjs <키.json> https://soc-c-api.nyuheatgis.workers.dev` 로 세어 보고 `--apply`. 3번의 앱이 깔린 뒤에 한다.
-5. Desk 가 DB 에 직접 쓴 뒤(답변 · 삭제) `/boardTouch` 를 부르게 한다 — `desk.html` 과 Desk 앱. 안 하면 학생 화면에 답변이 최대 10분 늦게 뜬다.
-6. 며칠 같이 돌려 본 뒤 함수를 지우고 Spark 로 내린다.
+2. 학생 화면 전환 — 함. `assets/board-client.mjs` 의 `API` · `IMAGE` 두 줄을 Worker 주소로 바꾸고 `node scripts/stamp-assets.mjs`. 되돌릴 때도 이 두 줄.
+3. Desk 앱 — 함(1.2 빌드 331). `Study/Data/BoardAttachmentPolicy.swift` 가 Worker 주소를 받고, 글에 저장된 옛 함수 주소는 호스트만 바꿔 읽는다.
+4. 저장된 그림 주소 바꾸기 — 하지 않아도 된다. Desk 앱과 `desk.html` 이 옛 주소를 읽을 때 바꿔 읽기 때문이다. DB 를 깨끗이 하고 싶으면 `node worker/tools/rewrite-stored-urls.mjs <키.json> https://soc-c-api.nyuheatgis.workers.dev` 로 세어 보고 `--apply`(31개). 331보다 오래된 Desk 앱은 바꾼 주소를 받지 않는다.
+5. Desk 가 DB 에 직접 쓴 뒤 `/boardTouch` 부르기 — 함(`desk.html` 의 `touchBoard`, 앱의 `BoardTouch`).
+6. 며칠 같이 돌려 본 뒤 함수를 지우고 Spark 로 내린다. 지우기 전에 Cloudflare 대시보드에서 오류 · 하루 요청 수(무료 10만)를 본다.
 
 ## Spark 로 내리기 전에 남는 것
 
