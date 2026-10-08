@@ -11,7 +11,7 @@
 					<key>kind</key>
 					<string>software-package</string>
 					<key>url</key>
-					<string>https://nyuheatgis.com/apps/Desk-7837217f.ipa</string>
+					<string>https://nyuheatgis.com/apps/Desk-410888b4.ipa</string>
 				</dict>
 			</array>
 			<key>metadata</key>
@@ -19,7 +19,7 @@
 				<key>bundle-identifier</key>
 				<string>nyuheatgis</string>
 				<key>bundle-version</key>
-				<string>329</string>
+				<string>331</string>
 				<key>kind</key>
 				<string>software</string>
 				<key>title</key>
