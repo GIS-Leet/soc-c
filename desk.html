@@ -2586,24 +2586,34 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       const ts = Object.values(todos);
       $('stTodo').textContent = ts.length ? `${ts.filter(t => t.done).length}/${ts.length}` : '0';
     }
+    // 게시판 서버(Cloudflare Worker, worker/) — 2026-10-08 에 Firebase 함수에서 옮김
+    const BOARD_SERVER = 'https://soc-c-api.nyuheatgis.workers.dev';
+    // 옮기기 전에 쓴 글에는 함수 주소가 저장돼 있다. 경로 · 질의가 같아 앞부분만 바꿔 읽는다
+    const boardImage = url => String(url || '').replace(/^https:\/\/us-central1-soc-c-qna\.cloudfunctions\.net\/boardAttachment\?/, BOARD_SERVER + '/boardAttachment?');
+    // 여기서는 글을 DB 에 직접 고친다. 고친 뒤 서버에 알려 판 번호를 올려야 학생 화면의 1분 폴링이 새 답을 받는다(실패해도 저장에는 영향 없음)
+    async function touchBoard(board = 'questions') {
+      try {
+        await fetch(BOARD_SERVER + '/boardTouch', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await auth.currentUser.getIdToken() }, body: JSON.stringify({ data: { board } }) });
+      } catch {}
+    }
     function renderQaDetail() {
       const q = questions[currentQ]; if (!q) return;
       $('qaHead').textContent = q.title || '제목 없음';
       $('qaMeta').innerHTML = `<b>${escapeHTML(q.author||'익명')}</b> · ${escapeHTML(q.time||'')}${q.isSecret ? ' · 🔒 비밀글' : ''}`;
-      $('qaBody').innerHTML = escapeHTML(q.text||'') + (q.imageUrl ? `<img src="${escapeHTML(q.imageUrl)}" loading="lazy">` : '');
+      $('qaBody').innerHTML = escapeHTML(q.text||'') + (q.imageUrl ? `<img src="${escapeHTML(boardImage(q.imageUrl))}" loading="lazy">` : '');
       const reps = Object.entries(q.replies || {});
       const subHTML = (rid, r) => {
         const ss = subsOf(r); const pend = replyNeedsFollowUp(r, q);
         const list = ss.length ? `<div class="qa-subs">` + ss.map(([sid, x], i) =>
           `<div class="qa-sub${x.isTeacher ? ' t' : ''}${pend && i === ss.length - 1 ? ' pending' : ''}"><div class="av">${x.isTeacher ? 'T' : escapeHTML((x.author||'익명').slice(0, 1))}</div>` +
           `<div class="sb"><div class="sm"><b>${x.isTeacher ? '선생님' : escapeHTML(x.author||'익명')}</b> · ${escapeHTML(x.time||'')}</div><div class="st">${escapeHTML(x.text||'')}</div>` +
-          (x.imageUrl ? `<img src="${escapeHTML(x.imageUrl)}" loading="lazy" style="max-width:100%;border-radius:8px;margin-top:4px;">` : '') + `</div>` +
+          (x.imageUrl ? `<img src="${escapeHTML(boardImage(x.imageUrl))}" loading="lazy" style="max-width:100%;border-radius:8px;margin-top:4px;">` : '') + `</div>` +
           `<button class="x" data-rid="${rid}" data-sid="${sid}" title="대댓글 삭제">×</button></div>`).join('') + `</div>` : '';
         return list + `<form class="qa-subcompose" data-rid="${rid}"><input type="text" placeholder="이 답변에 이어서 답하기…" maxlength="1000"><button type="submit">등록</button></form>`;
       };
       $('qaReplies').innerHTML = reps.length ? reps.map(([rid, r]) =>
         `<div class="qa-reply"><div class="rb"><div class="rt">${escapeHTML(r.text||'')}</div>` +
-        (r.imageUrl ? `<img src="${escapeHTML(r.imageUrl)}" loading="lazy" style="max-width:100%;border-radius:8px;margin-top:6px;">` : '') +
+        (r.imageUrl ? `<img src="${escapeHTML(boardImage(r.imageUrl))}" loading="lazy" style="max-width:100%;border-radius:8px;margin-top:6px;">` : '') +
         `<div class="rd">${r.isTeacher ? '교사 답변' : '댓글'} · ${escapeHTML(r.time||'')}${replyNeedsFollowUp(r, q) ? '<span class="fu">학생이 이어서 물었습니다</span> <button type="button" class="fu-ok" title="답할 게 없으면(예: 확인했습니다) 미답변에서 뺍니다">확인함</button>' : ''}</div>` +
         subHTML(rid, r) + `</div>` +
         `<button class="x" data-rid="${rid}" title="답변 삭제">×</button></div>`).join('')
@@ -2643,15 +2653,15 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       if (!confirm(`「${t}」 질문을 삭제할까요?\n답변까지 함께 삭제됩니다.`)) return;
       const id = currentQ, saved = questions[id];
       closeQa();
-      await remove(ref(db, 'questions/' + id));
-      if (saved) showUndo('질문을 삭제했습니다', () => set(ref(db, 'questions/' + id), saved));
+      await remove(ref(db, 'questions/' + id)); touchBoard();
+      if (saved) showUndo('질문을 삭제했습니다', () => set(ref(db, 'questions/' + id), saved).then(() => touchBoard()));
     });
     async function submitQaReply() {
       if (!currentQ) return;
       const text = $('qaReplyText').value.trim(); if (!text) return;
       $('qaReplyBtn').disabled = true;
       try {
-        await push(ref(db, `questions/${currentQ}/replies`), { text, imageUrl: '', time: qTimeStr(), isTeacher: true });
+        await push(ref(db, `questions/${currentQ}/replies`), { text, imageUrl: '', time: qTimeStr(), isTeacher: true }); touchBoard();
         $('qaReplyText').value = '';
         delete qaDrafts[currentQ];
       } catch { alert('답변 등록에 실패했습니다. 연결을 확인하세요.'); }
@@ -2661,18 +2671,18 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     $('qaReplyText').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitQaReply(); });
     $('qaReplies').addEventListener('click', async e => {
       const ok = e.target.closest('button.fu-ok');
-      if (ok && currentQ) { await update(ref(db, `questions/${currentQ}`), { followUpResolvedAt: Date.now() }); return; }
+      if (ok && currentQ) { await update(ref(db, `questions/${currentQ}`), { followUpResolvedAt: Date.now() }); touchBoard(); return; }
       const x = e.target.closest('button.x[data-rid]'); if (!x || !currentQ) return;
       const qid = currentQ, rid = x.dataset.rid, sid = x.dataset.sid;
       if (sid) {   // 대댓글 삭제
         const saved = questions[qid]?.replies?.[rid]?.subReplies?.[sid];
-        await remove(ref(db, `questions/${qid}/replies/${rid}/subReplies/${sid}`));
-        if (saved) showUndo('대댓글을 삭제했습니다', () => set(ref(db, `questions/${qid}/replies/${rid}/subReplies/${sid}`), saved));
+        await remove(ref(db, `questions/${qid}/replies/${rid}/subReplies/${sid}`)); touchBoard();
+        if (saved) showUndo('대댓글을 삭제했습니다', () => set(ref(db, `questions/${qid}/replies/${rid}/subReplies/${sid}`), saved).then(() => touchBoard()));
         return;
       }
       const saved = questions[qid]?.replies?.[rid];
-      await remove(ref(db, `questions/${qid}/replies/${rid}`));
-      if (saved) showUndo('답변을 삭제했습니다', () => set(ref(db, `questions/${qid}/replies/${rid}`), saved));
+      await remove(ref(db, `questions/${qid}/replies/${rid}`)); touchBoard();
+      if (saved) showUndo('답변을 삭제했습니다', () => set(ref(db, `questions/${qid}/replies/${rid}`), saved).then(() => touchBoard()));
     });
     // 답변 아래 이어서 답하기(대댓글) — 학생 페이지 qna.html·앱과 같은 필드
     $('qaReplies').addEventListener('submit', async e => {
@@ -2681,7 +2691,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       const input = form.querySelector('input'); const text = input.value.trim(); if (!text) return;
       const btn = form.querySelector('button'); btn.disabled = true;
       try {
-        await push(ref(db, `questions/${currentQ}/replies/${form.dataset.rid}/subReplies`), { author: '관리자', text, imageUrl: '', isTeacher: true, time: qTimeStr() });
+        await push(ref(db, `questions/${currentQ}/replies/${form.dataset.rid}/subReplies`), { author: '관리자', text, imageUrl: '', isTeacher: true, time: qTimeStr() }); touchBoard();
         input.value = '';
       } catch { alert('대댓글 등록에 실패했습니다. 연결을 확인하세요.'); }
       btn.disabled = false;
