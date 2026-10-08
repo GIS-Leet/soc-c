@@ -1,0 +1,23 @@
+# 게시판 API · 첨부 · Desk 푸시를 Cloudflare Workers(무료)에서 돌린다 — Firebase 함수(전송료가 붙음)를 대신한다.
+# 비밀값은 여기 적지 않는다: wrangler secret put GOOGLE_SERVICE_ACCOUNT / DESK_APNS_CREDENTIAL / (선택) BOARD_NOTIFICATION_WEBHOOK
+name = "soc-c-api"
+main = "src/index.mjs"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+PROJECT_ID = "soc-c-qna"
+DATABASE_URL = "https://soc-c-qna-default-rtdb.firebaseio.com"
+
+# 첨부 그림 저장(무료 1GB · 값 하나 25MB 이하). 계정에서 만든 뒤 id 를 넣는다: wrangler kv namespace create FILES
+[[kv_namespaces]]
+binding = "FILES"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# 매분: Desk 푸시 재시도 / 10분마다(분이 0으로 끝날 때): 게시판 정리
+[triggers]
+crons = ["* * * * *"]
+
+# functions/desk-push.mjs 가 맨 위에서 node:http2 를 부른다 — Workers 에는 없어 빈 모듈로 바꿔 끼운다(전송은 fetch 로 대체)
+[alias]
+"node:http2" = "./src/no-http2.mjs"

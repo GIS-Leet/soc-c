@@ -1,0 +1,6 @@
+# 로컬 실험용 비밀 · 로컬 상태 — 커밋하지 않는다
+.dev.vars
+.wrangler/
+node_modules/
+# 저장소 맨 위 .gitignore 가 src/ 를 통째로 빼므로 여기서는 되살린다
+!src/
