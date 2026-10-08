@@ -7,7 +7,7 @@ import { scheduledMaintenance } from "../../functions/board-schedule.mjs";
 import { BoardError, isTeacher, fields } from "../../functions/board-security.mjs";
 import { createDeskPushService } from "../../functions/desk-push.mjs";
 import { createCredential, verifyIdToken } from "./google.mjs";
-import { createRestStore, createKVStorage } from "./store.mjs";
+import { createRestStore, createKVStorage, withGrantSnapshot } from "./store.mjs";
 import { createWorkerApnsSender } from "./apns.mjs";
 
 // firebase-functions 의 onCall 이 쓰는 상태 이름 · HTTP 코드(클라이언트가 body.error.status 를 읽는다)
@@ -25,9 +25,9 @@ function build(env, origin) {
   const credential = createCredential(env.GOOGLE_SERVICE_ACCOUNT);
   const store = createRestStore({ credential, databaseURL: env.DATABASE_URL });
   const storage = createKVStorage(env.FILES);
-  const service = createBoardService({ store, storage, attachmentBase: `${origin}/boardAttachment` });
+  const service = createBoardService({ store: withGrantSnapshot(store), storage, attachmentBase: `${origin}/boardAttachment` });
   const maintenance = createMaintenance({ store, storage, containsAttachment: service.containsAttachment });
-  const push = async () => createDeskPushService({ store, send: await createWorkerApnsSender(env.DESK_APNS_CREDENTIAL) });
+  const push = async () => createDeskPushService({ store, send: await createWorkerApnsSender(env.DESK_APNS_CREDENTIAL), owner: () => `worker-${crypto.randomUUID()}` })   // 전송 기록의 owner 로 누가 보냈는지 구분;
   return { credential, store, service, maintenance, push };
 }
 async function authenticate(request, env, credential, required) {
@@ -37,7 +37,7 @@ async function authenticate(request, env, credential, required) {
   try {
     const token = await verifyIdToken(bearer.slice(7), { projectId: env.PROJECT_ID, credential });
     return { uid: token.uid, token };
-  } catch { throw new BoardError("unauthenticated"); }
+  } catch (error) { console.error("auth:", error?.message); throw new BoardError("unauthenticated"); }   // 사유만 기록(토큰은 남기지 않음)
 }
 /** 정리 결과 알림(Discord 웹훅) — 비밀이 없으면 끔. functions 의 notificationSender 와 같은 주소 검사 */
 function notificationSender(env) {

@@ -3,8 +3,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { generateKeyPairSync, createSign, verify as nodeVerify } from "node:crypto";
 import { createCredential, verifyIdToken } from "../worker/src/google.mjs";
-import { createRestStore, createKVStorage } from "../worker/src/store.mjs";
-import { createWorkerApnsSender } from "../worker/src/apns.mjs";
+import { createRestStore, createKVStorage, withGrantSnapshot } from "../worker/src/store.mjs";
+import { createWorkerApnsSender, requestApns } from "../worker/src/apns.mjs";
 import worker, { mutates } from "../worker/src/index.mjs";
 
 const b64u = (v) => Buffer.from(v).toString("base64url");
@@ -109,4 +109,28 @@ test("판 번호 — 글을 바꾸는 호출만 올리고, /boardTouch 는 교�
   const env = { GOOGLE_SERVICE_ACCOUNT: "{}", DATABASE_URL: "https://db.example", PROJECT_ID: PROJECT, FILES: {} };
   const anon = await worker.fetch(new Request("https://w.example/boardTouch", { method: "POST", body: JSON.stringify({ data: { board: "questions" } }) }), env, { waitUntil() {} });
   assert.equal(anon.status, 403);
+});
+
+test("열람 허가 — 요청 안에서 한 번만 통째로 받고, 그쪽에 쓰면 다시 받는다", async () => {
+  const data = { boardGrants: { a: { expiresAt: 9 } }, questions: { q: 1 } }, reads = [];
+  const base = { get: async (path) => { reads.push(path); return path.split("/").reduce((node, part) => node?.[part], data) ?? null; },
+    set: async (path, value) => { const [root, key] = path.split("/"); data[root][key] = value; }, update: async () => {}, transaction: async (path) => ({ committed: true }), page: async () => [] };
+  const store = withGrantSnapshot(base);
+  assert.deepEqual(await store.get("boardGrants/a"), { expiresAt: 9 });
+  assert.equal(await store.get("boardGrants/none"), null);
+  assert.equal(await store.get("questions/q"), 1);
+  assert.deepEqual(reads, ["boardGrants", "questions/q"]);
+  await store.set("boardGrants/b", { expiresAt: 5 });
+  assert.deepEqual(await store.get("boardGrants/b"), { expiresAt: 5 });
+  assert.equal(reads.filter((path) => path === "boardGrants").length, 2);
+  await store.transaction("boardGrants/a", () => null);
+  await store.get("boardGrants/a");
+  assert.equal(reads.filter((path) => path === "boardGrants").length, 3);
+});
+
+test("APNs 응답 — 성공은 사유 없음, 실패는 애플이 준 사유, 읽을 수 없으면 InvalidResponse", async () => {
+  const ask = (response) => requestApns({ origin: "https://a", path: "/3/device/x", headers: {}, payload: {}, fetcher: async () => response });
+  assert.deepEqual(await ask(new Response(null, { status: 200 })), { status: 200, reason: "" });
+  assert.deepEqual(await ask(new Response('{"reason":"BadDeviceToken"}', { status: 400 })), { status: 400, reason: "BadDeviceToken" });
+  assert.deepEqual(await ask(new Response("<html>", { status: 502 })), { status: 502, reason: "InvalidResponse" });
 });

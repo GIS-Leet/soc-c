@@ -12,29 +12,33 @@ Firebase 함수(`functions/`)가 하던 일을 Cloudflare Workers 무료 요금�
 | `deskQuestionPush` · `deskStudentFollowupPush` (DB 생성 트리거) | 질문 · 이어진 질문이 만들어진 직후에 보냄 |
 | `deskPushRetry` (매분) · `boardScheduledMaintenance` (10분) | Cron `* * * * *` 하나 |
 
-## 확인된 것 (2026-10-08, 로컬 workerd)
+## 지금 상태 (2026-10-08)
 
-- 운영 함수와 같은 요청을 보내 응답 비교 — 목록 3개 판 · 잘못된 요청 · 없는 글 · 같은 판 번호 · 글 읽기 · 로그인 없음, 9개 모두 같음.
-- Storage 의 첨부 31개(25.1MB)를 로컬 KV 로 옮긴 뒤, 공개 글의 그림 22개가 함수와 같은 바이트로 나옴.
-- `npm test` 의 `tests/worker.test.mjs` 7개 통과.
+`https://soc-c-api.nyuheatgis.workers.dev` 에 올라가 있다. 학생 화면 · Desk 는 아직 함수를 쓴다(갈아타기 2번부터가 남음).
 
-## 아직 확인하지 못한 것
+배포된 Worker 로 확인한 것.
 
-- **APNs.** 로컬 workerd 에서는 애플 서버 연결이 끊긴다(HTTP/2). Cloudflare 에 올린 뒤 실제 푸시로 확인해야 한다. 안 되면 푸시만 FCM 으로 돌린다.
-- **비밀글 암호(scrypt).** 한 번에 CPU 약 25ms 로 무료 요금제 기준(10ms)을 넘는다. 올린 뒤 비밀글 쓰기 · 열기가 오류 없이 되는지 본다.
-- 학교망에서 `workers.dev` 주소가 열리는지.
+- 운영 함수와 응답 비교 — 학생 화면이 실제로 쓰는 50개짜리 목록 전 쪽(질문 8쪽 · 건의 · 지원), 잘못된 요청, 없는 글, 같은 판 번호, 글 읽기, 로그인 없음. 모두 같음.
+- 첨부 31개(25.1MB)를 KV 로 옮김. 공개 글의 그림 22개가 함수와 같은 바이트.
+- 비밀글 — 쓰기, 다른 사람이 암호로 열기, 틀린 암호 거부, 남에게 본문 가려짐, 지우기. CPU 는 55~80ms 로 무료 기준(10ms)을 넘지만 거절되지 않았다. 비밀글이 몰리면 다시 볼 것.
+- Desk 푸시 — 시험 질문을 만들자 Worker 가 등록된 기기 3대에 보냈고 애플이 받았다(200). 판 번호도 올라감.
+- 응답 시간(한국에서, 가운데값) — 50개 목록 약 0.75초(함수 0.6초), 변화 없음 폴링 0.45초(0.3초), 글 읽기 0.6초(0.3초).
+
+겪은 것 두 가지.
+
+- Worker 를 기본값대로 두면 한국에서 돌아 DB(미국 중부)를 여러 번 오가느라 목록 한 번에 5.8초가 걸린다. `[placement]` 로 DB 옆에서 돌린다.
+- 무료 요금제는 요청 하나가 밖으로 부르는 횟수가 50번까지다. 목록이 글마다 열람 허가를 하나씩 읽어 50개 목록이 실패했다 → `withGrantSnapshot`.
+
+아직 못 본 것은 학교망에서 `workers.dev` 주소가 열리는지.
 
 ## 올리기
 
-Cloudflare 계정(무료, 카드 없음)이 있어야 한다.
+KV 와 비밀값 두 개(`GOOGLE_SERVICE_ACCOUNT` · `DESK_APNS_CREDENTIAL`)는 계정에 들어 있다. 코드를 고친 뒤에는 이것만 하면 된다.
 
 ```sh
 cd worker
-npx wrangler login
-npx wrangler kv namespace create FILES          # 나온 id 를 wrangler.toml 에
-npx wrangler secret put GOOGLE_SERVICE_ACCOUNT  # 서비스 계정 키 JSON 전체를 붙여 넣음
-npx wrangler secret put DESK_APNS_CREDENTIAL    # 함수의 같은 이름 비밀값
-npx wrangler deploy                             # https://soc-c-api.<계정>.workers.dev
+npx wrangler login     # 처음 한 번
+npx wrangler deploy
 ```
 
 비밀값은 파일 · 로그 · 커밋에 남기지 않는다. 로컬 실행용 `.dev.vars` 는 `.gitignore` 에 있다.
@@ -43,12 +47,12 @@ npx wrangler deploy                             # https://soc-c-api.<계정>.wor
 
 함수는 지우기 전까지 그대로 돌므로 언제든 2번을 되돌리면 원래대로다.
 
-1. 첨부 옮기기.
+1. 첨부 옮기기 — 2026-10-08 에 함. 그 뒤 함수로 올라온 그림이 있으면 2번 직전에 한 번 더 한다.
    `node worker/tools/migrate-attachments.mjs <키.json> --out <임시 폴더>` 로 묶음을 만들고, 묶음마다 `npx wrangler kv bulk put <묶음> --binding FILES --remote`. 끝나면 임시 폴더를 지운다(학생이 올린 그림).
 2. 학생 화면 전환. `assets/board-client.mjs` 의 `API` · `IMAGE` 두 줄을 Worker 주소로 바꾸고 `node scripts/stamp-assets.mjs`.
 3. Desk 앱. `Study/Data/BoardAttachmentPolicy.swift` 가 Worker 주소도 받게 하고 배포.
 4. 저장된 그림 주소 바꾸기. `desk.html` 과 Desk 앱은 글에 저장된 주소를 그대로 읽는다(31개).
-   `node worker/tools/rewrite-stored-urls.mjs <키.json> https://soc-c-api.<계정>.workers.dev` 로 세어 보고 `--apply`. 3번의 앱이 깔린 뒤에 한다.
+   `node worker/tools/rewrite-stored-urls.mjs <키.json> https://soc-c-api.nyuheatgis.workers.dev` 로 세어 보고 `--apply`. 3번의 앱이 깔린 뒤에 한다.
 5. Desk 가 DB 에 직접 쓴 뒤(답변 · 삭제) `/boardTouch` 를 부르게 한다 — `desk.html` 과 Desk 앱. 안 하면 학생 화면에 답변이 최대 10분 늦게 뜬다.
 6. 며칠 같이 돌려 본 뒤 함수를 지우고 Spark 로 내린다.
 

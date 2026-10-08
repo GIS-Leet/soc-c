@@ -31,6 +31,25 @@ export function createRestStore({ credential, databaseURL, fetcher = fetch }) {
   };
 }
 
+/** 목록은 글마다 boardGrants/<키> 를 하나씩 읽는다 — 50개짜리 목록이면 무료 요금제의 요청당 외부 호출 50번을 넘어 실패한다.
+ *  요청 하나 안에서는 boardGrants 를 통째로 한 번만 받아 거기서 답한다(만료되면 정리되는 작은 노드). 그쪽에 쓰면 받아 둔 것을 버린다 */
+export function withGrantSnapshot(store) {
+  let grants;
+  const touched = (path) => { if (String(path).startsWith("boardGrants")) grants = undefined; };
+  return {
+    ...store,
+    async get(path) {
+      const match = /^boardGrants\/([^/]+)$/.exec(path);
+      if (!match) return store.get(path);
+      grants ??= store.get("boardGrants").then((all) => all || {});
+      return (await grants)[match[1]] ?? null;
+    },
+    async set(path, value) { touched(path); return store.set(path, value); },
+    async update(changes) { grants = undefined; return store.update(changes); },
+    async transaction(path, transform) { touched(path); return store.transaction(path, transform); },
+  };
+}
+
 /** 첨부 그림 — KV 값은 바이트, mime 은 metadata 에 */
 export function createKVStorage(kv) {
   return {

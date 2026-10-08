@@ -12,7 +12,13 @@ DATABASE_URL = "https://soc-c-qna-default-rtdb.firebaseio.com"
 # 첨부 그림 저장(무료 1GB · 값 하나 25MB 이하). 계정에서 만든 뒤 id 를 넣는다: wrangler kv namespace create FILES
 [[kv_namespaces]]
 binding = "FILES"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "7143875fff8648ee87155f858986f72f"
+
+# DB(RTDB)가 미국 중부에 있다 — 요청 하나가 DB 를 여러 번 차례로 읽으므로 Worker 를 DB 옆에서 돌린다.
+# (기본값대로 한국에서 돌리면 목록 한 번에 5.8초, 함수는 0.6초였음)
+[placement]
+mode = "targeted"
+region = "gcp:us-central1"
 
 # 매분: Desk 푸시 재시도 / 10분마다(분이 0으로 끝날 때): 게시판 정리
 [triggers]

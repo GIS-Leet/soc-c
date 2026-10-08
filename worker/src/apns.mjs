@@ -5,8 +5,9 @@ import { pemBytes } from "./google.mjs";
 
 export async function requestApns({ origin, path, headers, payload, timeoutMs = 25000, fetcher = fetch }) {
   const response = await fetcher(origin + path, { method: "POST", headers, body: JSON.stringify(payload), signal: AbortSignal.timeout(timeoutMs) });
-  let reason = "";
-  try { const text = await response.text(); reason = text ? JSON.parse(text).reason || "" : ""; } catch { reason = "InvalidResponse"; }
+  let reason = "";   // 성공(200)은 본문이 없다 — 실패일 때만 사유를 읽는다
+  if (!response.ok) try { const text = await response.text(); reason = text ? JSON.parse(text).reason || "" : ""; } catch { reason = "InvalidResponse"; }
+  else await response.body?.cancel().catch(() => {});
   return { status: response.status, reason };
 }
 
