@@ -640,14 +640,15 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, var(--pal-aura
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); }
 .study .panel { padding: 20px 22px; }
 .study .dash-h { font-size: 12px; }
-.p-timer { grid-column: 1 / 3; grid-row: 5; display: flex; flex-direction: column; }
-.p-goal  { grid-column: 3; grid-row: 5; }
-.p-heat  { grid-column: 1 / 4; grid-row: 6; }
-.p-week  { grid-column: 1; grid-row: 7; }
-.p-log   { grid-column: 2 / 4; grid-row: 7; }
+.p-timer { grid-column: 1 / 3; grid-row: 6; display: flex; flex-direction: column; }
+.p-goal  { grid-column: 3; grid-row: 6; }
+.p-heat  { grid-column: 1 / 4; grid-row: 7; }
+.p-week  { grid-column: 1; grid-row: 8; }
+.p-log   { grid-column: 2 / 4; grid-row: 8; }
 
 /* ── 아침 루틴 — 잠 깨기 + 얼굴 붓기 빼기 (약 9분) ── */
 .p-routine { grid-column: 1 / 4; grid-row: 1; }
+.p-apps { grid-column: 1 / 4; grid-row: 2; }   /* 암기장 — assets/desk-apps.mjs */
 .rt-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 18px; }
 .rt-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: var(--st-r-element); cursor: pointer; transition: background 150ms; }
 .rt-row:hover { background: var(--st-fill-2); }
@@ -685,7 +686,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, var(--pal-aura
 .study.boot .panel:nth-child(n+7) { animation-delay: 240ms; }
 /* ── 오늘의 일본어 배너 ── */
 [lang="ja"] { font-family: 'Noto Sans JP', 'Yu Gothic', 'Hiragino Sans', 'Pretendard Variable', sans-serif; }
-.p-jp { grid-column: 1 / 4; grid-row: 2; }
+.p-jp { grid-column: 1 / 4; grid-row: 3; }
 .jp-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 12px 32px; align-items: start; }
 .jp-s { font-size: clamp(26px, 3vw, 36px); font-weight: 700; line-height: 1.45; letter-spacing: 0.01em; color: var(--st-label); word-break: keep-all; }
 .jp-p { font-size: 15.5px; color: var(--st-label-2); margin-top: 6px; letter-spacing: 0.01em; }
@@ -710,7 +711,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, var(--pal-aura
 .jp-left { margin-left: auto; font-size: 13px; color: var(--st-label-3); font-feature-settings: 'tnum' 1; }
 .jp-left.warn { color: var(--st-warning-ink); font-weight: 700; }
 /* ── 지리 교사의 한 걸음 배너 ── */
-.p-geo { grid-column: 1 / 4; grid-row: 3; }
+.p-geo { grid-column: 1 / 4; grid-row: 4; }
 .geo-wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
 .geo-cap { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-accent-ink); margin-bottom: 5px; }
 .geo-cat { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--st-label-3); margin-bottom: 8px; }
@@ -739,7 +740,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, var(--pal-aura
 .hide-r .jp-p, .hide-r .r { filter: blur(6px); cursor: pointer; user-select: none; transition: filter .15s; }
 .hide-r .jp-p.reveal, .hide-r .r.reveal { filter: none; }
 /* ── 오늘의 영어 회화 배너 ── */
-.p-en { grid-column: 1 / 4; grid-row: 4; }
+.p-en { grid-column: 1 / 4; grid-row: 5; }
 .en-wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 12px 32px; align-items: start; }
 .en-s { letter-spacing: -0.01em; font-size: clamp(24px, 2.6vw, 32px); line-height: 1.4; }
 .en-p::before { content: '표현'; }
@@ -964,7 +965,7 @@ html[data-theme="dark"] .a2 { background: radial-gradient(circle, var(--pal-aura
 
 @media (max-width: 860px) {
   .study { grid-template-columns: minmax(0, 1fr); overflow: visible; }
-  .p-timer, .p-goal, .p-heat, .p-week, .p-log, .p-routine { grid-column: 1; grid-row: auto; }
+  .p-timer, .p-goal, .p-heat, .p-week, .p-log, .p-routine, .p-apps { grid-column: 1; grid-row: auto; }
   .rt-list { grid-template-columns: minmax(0, 1fr); }
   .heat-wrap { flex-direction: column; gap: 14px; }
   .heat-stats { grid-template-columns: repeat(3, 1fr); width: 100%; }
@@ -1474,6 +1475,9 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
         <div class="rt-tip" id="rtTip"></div>
       </div>
 
+      <!-- 암기장 — 비공개 저장소의 desk-apps.json 에 적힌 학습 앱을 연다(없으면 칸이 보이지 않음) -->
+      <div class="panel p-apps" id="appsPanel" hidden></div>
+
       <!-- 오늘의 일본어 — data/japanese-daily.json 을 날짜순으로 한 장씩 -->
       <div class="panel p-daily p-jp" id="jpPanel">
         <div class="dash-h">오늘의 일본어 <b id="jpCap">불러오는 중…</b><button class="r-toggle" id="rToggle" type="button">발음 숨기기</button></div>
@@ -1896,6 +1900,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {mountMini} from './assets/desk-mini.mjs';
     import {mountAssist} from './assets/desk-assist.mjs';
     import {mountHeroAdmin} from './assets/desk-hero.mjs';
+    import {mountApps} from './assets/desk-apps.mjs';
     import {renderGrammar} from './assets/grammar-format.mjs';
     import {renderConcept} from './assets/concept-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1940,6 +1945,11 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       github: async () => { await loadGhSettings(); return ghToken ? { token: ghToken, repo: matRepo } : null; },
       hasGithub: () => matInited ? !!ghToken : undefined,
       completeLesson: (id, cur) => update(ref(db, `progress/classes/${id}`), { done: Math.min(progLessons.length, cur + 1) })
+    });
+    // 공부 탭 「암기장」 — 비공개 저장소의 학습 앱. 기록은 desk/apps/{id}
+    const apps = mountApps($('appsPanel'), {
+      db, ref, get, set, escapeHTML: s => escapeHTML(String(s ?? '')), active: () => !!sessionUid,
+      github: async () => { await loadGhSettings(); return ghToken ? { token: ghToken, repo: matRepo } : null; }
     });
     const weekly = mountWeekly($('weekReport'), { escapeHTML: s => escapeHTML(String(s ?? '')), study: () => study });   // 공부 탭 주간 리포트
     // 브라우저 알림(수업·일정·주간) — 상단 바 종 버튼에서 켜고 끔
@@ -2901,7 +2911,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
         ghToken = token; matRepo = repo;
         await set(ref(db, 'desk/settings/github'), { token, repo, savedAt: Date.now() });
         $('ghTokenInput').value = '';
-        showMatPanel(); loadMatList(); prep.refreshFiles();
+        showMatPanel(); loadMatList(); prep.refreshFiles(); apps.refresh();
       } catch (e) { warn.textContent = e.message; warn.style.display = ''; }
       $('ghTokenSaveBtn').disabled = false;
     });
@@ -4082,6 +4092,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
         if (!editor) makeEditor();
         closePane();
         renderToday(); renderTable(); renderCal();
+        if (!apps.loaded()) apps.refresh();
         if (!attached) {
           attached = true;
           const guard = err => { showGate(); showWarn('데이터 접근이 거부되었습니다. DB 보안 규칙을 확인하세요.'); };
