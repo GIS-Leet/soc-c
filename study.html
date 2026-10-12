@@ -180,7 +180,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
 <body>
 <header class="st-glass st-bar study-bar">
   <div class="geo-bar__in">
-    <a class="geo-logo" href="desk.html#study" aria-label="Desk 공부 탭">
+    <a class="geo-logo" href="desk.html#study" aria-label="교무수첩 공부 탭">
       <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <circle cx="24" cy="24" r="20"/><circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/><path d="M24 4v40M4 24h40"/>
         <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/><path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
@@ -273,7 +273,7 @@ textarea.lock-in { height: auto; padding: 10px 14px; resize: none; line-height: 
   </section>
 
   <div class="foot-row" id="footRow" hidden>
-    <span class="note" id="footNote">두 단계를 마치면 desk 공부 기록에 「복습」으로 남습니다. 시험은 주관식 3 + 4지선다 2, 틀린 문제는 다시 나옵니다.</span>
+    <span class="note" id="footNote">두 단계를 마치면 교무수첩 공부 기록에 「복습」으로 남습니다. 시험은 주관식 3 + 4지선다 2, 틀린 문제는 다시 나옵니다.</span>
     <button class="btn-solid" id="finish" disabled>오늘 복습 완료</button>
   </div>
 
@@ -628,7 +628,7 @@ function kanaToHangul(text, opt = {}) {
     $('done').hidden = false; $('footRow').hidden = true;
     $('doneCap').textContent = `통사 Day ${rec.geo?.day ?? '–'} · 일본어 Day ${rec.jp?.day ?? '–'}` + (rec.en ? ` · 영어 Day ${rec.en.day}` : '');
     const t = rec.finishedAt ? new Date(rec.finishedAt) : null;
-    $('doneP').textContent = t ? `${pad(t.getHours())}:${pad(t.getMinutes())}에 마쳤습니다. desk 공부 기록에 「복습」으로 남았습니다.` : 'desk 공부 기록에 「복습」으로 남았습니다.';
+    $('doneP').textContent = t ? `${pad(t.getHours())}:${pad(t.getMinutes())}에 마쳤습니다. 교무수첩 공부 기록에 「복습」으로 남았습니다.` : '교무수첩 공부 기록에 「복습」으로 남았습니다.';
     $('doneAns').innerHTML = rec.geo ? `<span class="geo-cap">${escapeHTML(rec.geo.t || '')}</span>${escapeHTML(rec.geo.m || rec.geo.q || '')}<span class="geo-cap">시험</span>통사 ${scoreOf(rec.geo)} · 일본어 ${scoreOf(rec.jp)}` : '';
   }
 

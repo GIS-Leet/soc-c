@@ -52,7 +52,7 @@ export function mountMini(dash, ctx) {
   if (!isMini()) return { render() {}, active: false };
   if (!document.getElementById('mn-style')) { const st = document.createElement('style'); st.id = 'mn-style'; st.textContent = CSS; document.head.appendChild(st); }
   document.body.classList.add('mini');
-  document.title = 'Desk 미니';
+  document.title = '교무수첩 미니';
   const esc = ctx.escapeHTML;
   const panel = document.createElement('div');
   panel.className = 'panel p-mini';
@@ -68,7 +68,7 @@ export function mountMini(dash, ctx) {
       : c.kind === 'done' ? `<div class="mn-when">수업</div><div class="mn-cls">오늘 수업 끝</div>`
       : `<div class="mn-when">수업</div><div class="mn-cls">오늘은 수업이 없습니다</div>`;
     const open = ctx.openQuestions();
-    html += `<div class="mn-row"><span>미답변 질문 <b>${open}</b></span><button class="mn-open" data-a="qa">Desk에서 열기 ↗</button></div>`;
+    html += `<div class="mn-row"><span>미답변 질문 <b>${open}</b></span><button class="mn-open" data-a="qa">교무수첩에서 열기 ↗</button></div>`;
     const w = wordAt(words);
     if (w) html += `<div class="mn-row"><span class="mn-jp" lang="ja">${esc(w[0])}</span><span class="mn-jpk">${esc(w[1])}</span></div>`;
     panel.innerHTML = html;

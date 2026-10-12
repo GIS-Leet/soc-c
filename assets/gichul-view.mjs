@@ -111,7 +111,7 @@ export function mountGichul(root, fb) {
   function render() {
     const body = $('#gcBody');
     if (!S.data.exams.length) {
-      body.innerHTML = `<div class="gc-empty"><b>기출 PDF 를 넣으면 시작합니다</b><p>평가원·교육청 문제지 PDF 를 고르거나 이 화면에 끌어다 놓으면 학년도·시행·과목을 읽고 문항을 잘라 목록에 올립니다. iPad·Mac 의 Desk 앱과 같은 목록입니다.</p><button class="btn-solid">+ PDF 추가</button></div>`;
+      body.innerHTML = `<div class="gc-empty"><b>기출 PDF 를 넣으면 시작합니다</b><p>평가원·교육청 문제지 PDF 를 고르거나 이 화면에 끌어다 놓으면 학년도·시행·과목을 읽고 문항을 잘라 목록에 올립니다. iPad·Mac 의 교무수첩 앱과 같은 목록입니다.</p><button class="btn-solid">+ PDF 추가</button></div>`;
       body.querySelector('button').onclick = () => $('#gcFile').click(); return;
     }
     ({ tag: renderTag, units: renderUnits, exams: renderExams, search: renderSearch, stats: renderStats })[S.sub]();
@@ -324,7 +324,7 @@ export function mountGichul(root, fb) {
     try {
       await remove(ref(db, 'desk/gichul/items/' + id)); await remove(ref(db, 'desk/gichul/exams/' + id));
       docs.delete(id); try { (await caches.open(PDF_CACHE)).delete(location.origin + '/__gichul/' + encodeURIComponent(id) + '.pdf'); } catch {}
-      if (S.gh) { const sha = await ghSha(e.pdf).catch(() => null); if (sha) await fetch(ghUrl(e.pdf), { method: 'DELETE', headers: ghHead(), body: JSON.stringify({ message: `삭제: ${e.pdf} (Desk 웹)`, sha }) }); }
+      if (S.gh) { const sha = await ghSha(e.pdf).catch(() => null); if (sha) await fetch(ghUrl(e.pdf), { method: 'DELETE', headers: ghHead(), body: JSON.stringify({ message: `삭제: ${e.pdf} (교무수첩 웹)`, sha }) }); }
       status('지웠습니다: ' + e.title);
     } catch (err) { status('지우지 못했습니다: ' + err.message, true); }
   }
@@ -449,7 +449,7 @@ export function mountGichul(root, fb) {
         const id = G.metaId(meta), path = `${FOLDER}/${id}.pdf`;
         // PDF 를 GitHub 에 올린 뒤에만 RTDB 에 씀 — PDF 없는 시험이 생기지 않게
         const sha = await ghSha(path);
-        const r = await fetch(ghUrl(path), { method: 'PUT', headers: ghHead(), body: JSON.stringify({ message: `업로드: ${id}.pdf (Desk 웹)`, content: await b64(d.bytes), ...(sha ? { sha } : {}) }) });
+        const r = await fetch(ghUrl(path), { method: 'PUT', headers: ghHead(), body: JSON.stringify({ message: `업로드: ${id}.pdf (교무수첩 웹)`, content: await b64(d.bytes), ...(sha ? { sha } : {}) }) });
         if (!r.ok) throw new Error('GitHub ' + r.status + ' ' + (await r.text()).slice(0, 120));
         try { const c = await caches.open(PDF_CACHE); await c.put(new Request(location.origin + '/__gichul/' + encodeURIComponent(id) + '.pdf'), new Response(d.bytes.slice(0))); } catch {}
         docs.set(id, Promise.resolve(d.pdf));
