@@ -1,8 +1,8 @@
 {
   "version": 1,
   "source": "GIS-Leet/kgghs-soc-c",
-  "sourceSha": "1e3e11c8bc61a592f42cf87aa25a27c1e262afa7",
-  "generatedAt": "2026-09-30T05:21:43.509Z",
+  "sourceSha": "fdbb2a98aad15b4814a04d4907cd85e724efae7b",
+  "generatedAt": "2026-10-13T03:34:44.537Z",
   "items": [
     {
       "name": "2026-1학기 통사C",
@@ -187,6 +187,12 @@
       "path": "2026-2학기 통사2C/학습지/통사2C_세계화_학습지2.pdf",
       "type": "file",
       "size": 820567
+    },
+    {
+      "name": "통사2c_5단원 학습지.pdf",
+      "path": "2026-2학기 통사2C/학습지/통사2c_5단원 학습지.pdf",
+      "type": "file",
+      "size": 5085693
     },
     {
       "name": "통사2C_세계화_학습지1.pdf",
