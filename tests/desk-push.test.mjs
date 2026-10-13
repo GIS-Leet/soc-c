@@ -90,7 +90,7 @@ test("학생 추가 질문만 알리고 교사 답변은 알리지 않는다", a
     now: 100,
   });
   assert.equal(event.title, "학생의 추가 질문");
-  assert.equal(event.body, "Desk에서 이어진 질문을 확인하세요.");
+  assert.equal(event.body, "교무수첩에서 이어진 질문을 확인하세요.");
   assert.doesNotMatch(JSON.stringify(event), /알림 본문에 포함/);
 });
 
@@ -144,7 +144,7 @@ test("APNs 환경별 호스트에 즉시 알림 payload와 서명 헤더를 보�
       return { status: 200, reason: "" };
     },
   });
-  const event = { title: "새 학생 질문", body: "Desk에서 질문을 확인하세요.", badge: 1 };
+  const event = { title: "새 학생 질문", body: "교무수첩에서 질문을 확인하세요.", badge: 1 };
 
   assert.deepEqual(await sender("aabb", event, { env: "development" }), {
     status: 200,
@@ -164,7 +164,7 @@ test("APNs 환경별 호스트에 즉시 알림 payload와 서명 헤더를 보�
     aps: {
       alert: {
         title: "새 학생 질문",
-        body: "Desk에서 질문을 확인하세요.",
+        body: "교무수첩에서 질문을 확인하세요.",
       },
       sound: "default",
       badge: 1,
@@ -274,7 +274,7 @@ function treeStore(root = {}) {
 const HOUR = 3600_000;
 const pushEvent = (createdAt, devices) => ({
   title: "새 학생 질문",
-  body: "Desk에서 질문을 확인하세요.",
+  body: "교무수첩에서 질문을 확인하세요.",
   badge: 1,
   createdAt,
   devices,

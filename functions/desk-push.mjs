@@ -161,8 +161,8 @@ export function createPushEvent({ kind, params, value, tokens, now }) {
   return {
     title: question ? "새 학생 질문" : "학생의 추가 질문",
     body: question
-      ? "Desk에서 질문을 확인하세요."
-      : "Desk에서 이어진 질문을 확인하세요.",
+      ? "교무수첩에서 질문을 확인하세요."
+      : "교무수첩에서 이어진 질문을 확인하세요.",
     badge: 1,
     createdAt: now,
     devices: deviceRecords(tokens),

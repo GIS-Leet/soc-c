@@ -1,7 +1,7 @@
 /* Desk 앱 셸 오프라인 캐시.
    같은 출처의 셸 파일과 CDN 정적 자원만 다루고, 나머지(Firebase 등)는 건드리지 않는다. */
 const CACHE_PREFIX = 'desk-shell-';
-const CACHE = CACHE_PREFIX + 'v8';   // v8: 게시판 서버를 Cloudflare Worker 로(그림 주소 · 판 번호 알림)
+const CACHE = CACHE_PREFIX + 'v9';   // v9: 이름을 Desk → 교무수첩으로(화면 글자만. 주소 · 데이터는 그대로)
 const SHELL = [
   'desk.html',
   'assets/preview.mjs',

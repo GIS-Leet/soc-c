@@ -84,7 +84,7 @@ export function mountAlerts(host, ctx) {
     state.classList.toggle('bad', perm === 'denied' || perm === 'unsupported');
     state.textContent = perm === 'unsupported' ? '이 브라우저는 알림을 지원하지 않습니다.'
       : perm === 'denied' ? '브라우저가 알림을 막았습니다. 주소창 왼쪽 자물쇠 → 알림 → 허용으로 바꾼 뒤 다시 켜세요.'
-      : perm === 'granted' ? 'Desk 탭이나 미니 창이 열려 있을 때 울립니다. 창을 모두 닫으면 울리지 않습니다.'
+      : perm === 'granted' ? '교무수첩 탭이나 미니 창이 열려 있을 때 울립니다. 창을 모두 닫으면 울리지 않습니다.'
       : '켜면 브라우저가 알림 허용을 물어봅니다.';
   }
   function notify(it) {
@@ -124,7 +124,7 @@ export function mountAlerts(host, ctx) {
       if (!supported) return;
       if (Notification.permission === 'default') { try { await Notification.requestPermission(); } catch {} }
       paint();
-      if (Notification.permission === 'granted') notify({ id: 'test-' + Date.now(), title: 'Desk 알림', body: '알림이 이렇게 보입니다.' });
+      if (Notification.permission === 'granted') notify({ id: 'test-' + Date.now(), title: '교무수첩 알림', body: '알림이 이렇게 보입니다.' });
     }
   });
   window.addEventListener('storage', e => { if (e.key === PREFS_KEY) { prefs = ls.get(PREFS_KEY, {}); paint(); } });

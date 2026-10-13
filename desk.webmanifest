@@ -1,6 +1,6 @@
 {
-  "name": "Desk — Geographia",
-  "short_name": "Desk",
+  "name": "교무수첩 — Geographia",
+  "short_name": "교무수첩",
   "description": "교사 전용 작업 공간 — 노트, 일정, 학급 관리",
   "lang": "ko",
   "start_url": "./desk.html",

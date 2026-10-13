@@ -147,7 +147,7 @@ export function mountLectures(root, fb) {
       return `<div class="lv-w-row"><span class="sid">${esc(x.sid)}</span><span class="nm">${esc(x.name)}</span>` +
         `<span class="lv-bar"><i class="${x.rec.done ? 'done' : ''}" style="width:${p}%"></i></span>` +
         `<span class="pc" title="${legacy ? '재생 위치로 계산한 이전 기록' : '실제로 재생한 구간'}">${p}%${legacy ? '*' : ''}</span><span class="at">${x.rec.at ? shortDay(x.rec.at) : ''}</span></div>`;
-    }).join('') : '<div class="ev-empty">홈페이지 명단이 비어 있습니다. Desk 앱 「홈페이지 명단」에서 학번·이름을 게시하면 시청 현황이 여기 나옵니다.</div>';
+    }).join('') : '<div class="ev-empty">홈페이지 명단이 비어 있습니다. 교무수첩 앱 「홈페이지 명단」에서 학번·이름을 게시하면 시청 현황이 여기 나옵니다.</div>';
     body.querySelector('#lvMeta').innerHTML =
       `<div class="lv-info"><h2>${esc(v.title || v.yt)}</h2><div class="lv-sub">${esc([v.unit, v.date].filter(Boolean).join(' · '))}</div>${v.note ? `<div class="lv-note">${esc(v.note)}</div>` : ''}</div>` +
       `<div class="lv-w"><div class="dash-h">${w.length ? `시청 ${seen} / 명단 ${w.length} · 완료 ${done}` : '시청 현황'}</div>${rows}</div>` +

@@ -5,5 +5,5 @@
 import {allowedBlobURL} from './assets/preview.mjs';
 const url=allowedBlobURL(location.hash,location.origin);
 if(url){const frame=document.getElementById('document');frame.src=url;frame.hidden=false;document.getElementById('status').hidden=true;}
-else document.getElementById('status').textContent='자료를 열 수 없습니다. Desk에서 다시 열어 주세요.';
+else document.getElementById('status').textContent='자료를 열 수 없습니다. 교무수첩에서 다시 열어 주세요.';
 </script></body></html>
