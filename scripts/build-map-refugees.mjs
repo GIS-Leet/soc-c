@@ -1,4 +1,4 @@
-// 「난민은 어디서 어디로」(map-refugees.html) 자료를 만든다 → data/maps/refugees/flows.json
+// 「난민의 출신국과 비호국」(map-refugees.html) 자료를 만든다 → data/maps/refugees/flows.json
 // 실행: node scripts/build-map-refugees.mjs   (인터넷 필요, 의존성 없음. 받은 원자료는 운영체제 임시 폴더 map-src/ 에 둔다)
 //
 // 원자료: UNHCR Refugee Population Statistics Database — Refugee Data Finder API(로그인 · 인증키 없음)

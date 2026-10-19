@@ -1,7 +1,7 @@
-// 이동권 지도 — 서울교통공사 1~8호선 역마다 엘리베이터 · 휠체어 리프트를 모아, 휠체어로 다니기 어려운 자리를 지도에 찍는다(접근성).
+// 서울 지하철역의 승강기와 이동권 — 서울교통공사 1~8호선 역마다 엘리베이터 · 휠체어 리프트를 모아, 휠체어로 다니기 어려운 자리를 지도에 찍는다(접근성).
 // 자료: data/maps/mobility/mobility.json — scripts/build-map-mobility.py 가 서울 열린데이터광장 자료로 만든다.
 // 역을 네 갈래로 나눈다: 갈아타는 길에 리프트가 있는 역 · 리프트가 남은 역 · 엘리베이터만 있는 역 · 이 자료에 엘리베이터가 없는 역.
-import { $, $$, esc, fmt, tips, params, setParams, shareButton, loadLeaflet, darkBase, initPage } from './map-kit.mjs?v=d3b6045c';
+import { $, $$, esc, fmt, tips, params, setParams, shareButton, loadLeaflet, darkBase, initPage } from './map-kit.mjs?v=6473793e';
 
 // 갈래 — 색(--s*)과 모양을 함께 쓴다
 const CATS = [
@@ -137,12 +137,12 @@ export async function main() {
             <b>${esc(s.n)}</b><span>${s.l.split('').join('·')}호선 · 리프트 ${s.wl.length}대</span></button></li>`).join('')}</ul>
         </section>
         <section class="mk-panel mk-tiphost">
-          <h2>버스는 어떨까요? <small class="mb-sub">노선별 저상 버스 비율</small></h2>
+          <h2>저상 버스 <small class="mb-sub">노선별 보유 비율</small></h2>
           ${busChart()}
         </section>
       </div>
       <section class="mk-panel mb-why">
-        <h2>왜 리프트를 따로 보나요?</h2>
+        <h2>휠체어 리프트를 따로 센 까닭</h2>
         <div class="mk-why">
           <p>휠체어 리프트는 계단 옆 난간에 붙어 오르내리는 판입니다. 대개 직원을 불러야 움직이고, 엘리베이터보다 느립니다. 그래서 리프트가 남은 자리는 「엘리베이터로 이어진 길이 끊긴 자리」로 읽을 수 있습니다.</p>
           <p>이 자료로 센 서울교통공사 1~8호선 ${fmt(S.length)}개 역에는 엘리베이터 ${fmt(D.count.ev)}대, 휠체어 리프트 ${fmt(D.count.wl)}대가 있습니다. 리프트가 남은 역은 ${liftSt.length}곳이고, 그 가운데 <b>${nT}곳</b>은 다른 호선으로 갈아타는 길에 리프트가 있습니다. 엘리베이터가 있어도 갈아타는 길에서 리프트를 타야 한다면, 그 환승역은 휠체어로 갈아타기 어려운 역입니다.</p>
@@ -157,7 +157,7 @@ export async function main() {
         <li>주황 세모로 표시된 역을 눌러 보세요. 리프트는 몇 호선과 몇 호선 사이에 있나요? 휠체어를 탄 사람은 그 역에서 갈아타는 대신 어떤 길을 고를까요?</li>
         <li>계단 · 에스컬레이터만 있는 길은 휠체어뿐 아니라 누구에게 어려울까요? 큰 짐을 든 사람, 유아차를 미는 사람, 다리를 다친 사람을 떠올려 보세요.</li>
         <li>지하철은 엘리베이터가 거의 모든 역에 있지만, 버스는 노선마다 저상 버스 비율이 다릅니다. 같은 동네라도 어떤 노선을 타느냐에 따라 이동권이 달라진다면 무엇을 먼저 바꿔야 할까요?</li>
-        <li>「보수 중이던 승강기가 있는 역만」을 눌러 보세요. 엘리베이터가 한 대뿐인 역에서 그 한 대가 멈추면 어떤 일이 생길까요? 「있다」와 「쓸 수 있다」는 어떻게 다른가요?</li>
+        <li>「보수 중이던 승강기가 있는 역만」을 눌러 보세요. 엘리베이터가 한 대뿐인 역에서 그 한 대가 멈추면 휠체어를 탄 사람은 어떻게 이동해야 할까요?</li>
       </ol>
     </section>`;
   $('#mkSource').innerHTML = `<p><b>자료</b> 서울 열린데이터광장(공공누리 제1유형) — 서울교통공사 「교통약자 이용시설 승강기 가동현황」(OA-15994, 매시 갱신, ${esc(D.made)} 내려받음) ·

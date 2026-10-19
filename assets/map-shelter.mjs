@@ -1,8 +1,8 @@
-// 대피소까지 몇 분? — 서울의 지진 옥외 대피 장소마다 「걸음 속도 × 시간」 반지름의 원(버퍼)을 그리고,
+// 서울 지진 대피 장소까지의 거리 — 서울의 지진 옥외 대피 장소마다 「걸음 속도 × 시간」 반지름의 원(버퍼)을 그리고,
 // 원 밖에 남는 곳(사각지대)과 그곳에 사는 사람 수를 인구 격자와 겹쳐(중첩) 센다.
 // 자료: data/maps/shelter/ — scripts/build-map-shelter.py 가 만든다(서울 열린데이터광장 OA-21063 · WorldPop 2025 100m 격자).
 // 칸마다 가장 가까운 대피 장소까지의 직선 거리를 미리 재 두었으므로, 반지름 r 만 정하면 r 보다 먼 칸이 곧 사각지대다.
-import { $, $$, esc, fmt, tips, params, setParams, shareButton, loadLeaflet, darkBase, initPage } from './map-kit.mjs?v=d3b6045c';
+import { $, $$, esc, fmt, tips, params, setParams, shareButton, loadLeaflet, darkBase, initPage } from './map-kit.mjs?v=6473793e';
 
 const SPEEDS = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6]; // 시속 km
 const st = { v: 4, t: 5, ring: false, g: null };
@@ -135,7 +135,7 @@ export async function main() {
     <div class="mk-stage mk-stage--left">
       <figure class="mk-map mk-map--tall mk-tiphost sh-map" id="shMap" role="img" aria-label="서울 지진 옥외 대피 장소와 걸어서 닿지 못하는 곳 지도"></figure>
       <aside class="mk-panel sh-panel mk-tiphost" aria-label="걸음과 시간 고르기">
-        <h2>얼마나 빨리, 몇 분 동안 걷나요?</h2>
+        <h2>걷는 속도와 시간</h2>
         <div class="mk-field">
           <label for="shVin"><span>걷는 속도</span><output id="shV"></output></label>
           <input type="range" id="shVin" min="0" max="${SPEEDS.length - 1}" step="1" aria-describedby="shVhelp">

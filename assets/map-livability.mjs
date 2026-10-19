@@ -1,7 +1,7 @@
-// 어디가 살기 좋은가 — 시·도 지표 여덟 개에 가중치를 주어 합친 점수로 지도를 칠한다(다기준 평가).
+// 살기 좋은 곳의 기준과 시·도 순위 — 시·도 지표 여덟 개에 가중치를 주어 합친 점수로 지도를 칠한다(다기준 평가).
 // 자료: data/stats/korea.json(국가데이터처 KOSIS). 지표마다 0~1로 맞춘 뒤(최솟값 0 · 최댓값 1) 가중 평균한다.
 // 핵심은 「기준이 바뀌면 순위가 바뀐다」 — 같은 자료로도 무엇을 중요하게 보느냐에 따라 답이 달라진다.
-import { $, $$, esc, fmt, tips, quantileClasses, SEQ, legendBar, params, setParams, shareButton, initPage } from './map-kit.mjs?v=d3b6045c';
+import { $, $$, esc, fmt, tips, quantileClasses, SEQ, legendBar, params, setParams, shareButton, initPage } from './map-kit.mjs?v=6473793e';
 
 // 기준 — dir: +1 클수록 좋음, -1 작을수록 좋음, 0 학생이 고름(density: 북적임/한적함)
 const CRIT = [
@@ -9,16 +9,16 @@ const CRIT = [
   { id: 'culture', label: '문화', hint: '인구 10만 명당 문화 기반 시설', dir: 1 },
   { id: 'income', label: '소득', hint: '1인당 개인 소득', dir: 1 },
   { id: 'fiscal', label: '지방 재정', hint: '재정 자립도', dir: 1 },
-  { id: 'vacant', label: '빈집 적음', hint: '빈집 비율(낮을수록 좋음)', dir: -1 },
-  { id: 'waste', label: '쓰레기 적음', hint: '1인당 생활 폐기물(적을수록 좋음)', dir: -1 },
-  { id: 'density', label: '북적임', hint: '인구 밀도 — 방향을 고르세요', dir: 0, log: true },
-  { id: 'temp', label: '따뜻함', hint: '연평균 기온', dir: 1 },
+  { id: 'vacant', label: '빈집 비율', hint: '빈집 비율(낮을수록 좋음)', dir: -1 },
+  { id: 'waste', label: '생활 폐기물', hint: '1인당 생활 폐기물(적을수록 좋음)', dir: -1 },
+  { id: 'density', label: '인구 밀도', hint: '높은 쪽과 낮은 쪽 가운데 고름', dir: 0, log: true },
+  { id: 'temp', label: '기온', hint: '연평균 기온', dir: 1 },
 ];
 const PRESETS = [
   { id: 'equal', name: '모두 같게', w: { doctor: 1, culture: 1, income: 1, fiscal: 1, vacant: 1, waste: 1, density: 1, temp: 1 }, dense: 1 },
-  { id: 'care', name: '병원이 가까워야', w: { doctor: 3, culture: 0, income: 1, fiscal: 0, vacant: 1, waste: 0, density: 1, temp: 1 }, dense: 1 },
-  { id: 'young', name: '문화와 일자리', w: { doctor: 1, culture: 2, income: 3, fiscal: 2, vacant: 0, waste: 0, density: 2, temp: 0 }, dense: 1 },
-  { id: 'quiet', name: '한적하고 쾌적하게', w: { doctor: 0, culture: 2, income: 0, fiscal: 0, vacant: 0, waste: 2, density: 3, temp: 2 }, dense: -1 },
+  { id: 'care', name: '의료 중시', w: { doctor: 3, culture: 0, income: 1, fiscal: 0, vacant: 1, waste: 0, density: 1, temp: 1 }, dense: 1 },
+  { id: 'young', name: '문화 · 소득 중시', w: { doctor: 1, culture: 2, income: 3, fiscal: 2, vacant: 0, waste: 0, density: 2, temp: 0 }, dense: 1 },
+  { id: 'quiet', name: '쾌적한 환경 중시', w: { doctor: 0, culture: 2, income: 0, fiscal: 0, vacant: 0, waste: 2, density: 3, temp: 2 }, dense: -1 },
 ];
 const st = { w: { ...PRESETS[0].w }, dense: 1, u: null, preset: 'equal' };
 let K;
@@ -83,7 +83,7 @@ function draw() {
   const bot = sorted[sorted.length - 1].short;
   const moved = sorted.filter((r) => Math.abs(base[r.code] - rank[r.code]) >= 3).length;
   $('#lvSay').innerHTML = `<p>지금 기준으로는 <b>${esc(top3)}</b>이 위, <b>${esc(bot)}</b>이 맨 아래입니다.</p>
-    <p>${st.preset === 'equal' && st.dense === 1 ? '기준을 바꿔 보세요. 같은 자료인데도 순위가 크게 움직입니다.' : `모두 같게 놓았을 때보다 세 계단 넘게 움직인 곳이 <b>${moved}곳</b>입니다.`}</p>`;
+    <p>${st.preset === 'equal' && st.dense === 1 ? '기준의 무게를 바꾸면 같은 자료로 순위를 다시 계산합니다.' : `모두 같게 놓았을 때보다 세 계단 넘게 움직인 곳이 <b>${moved}곳</b>입니다.`}</p>`;
   setParams({ p: st.preset !== 'custom' ? st.preset : null, w: st.preset === 'custom' ? CRIT.map((c) => st.w[c.id]).join('') : null, d: st.dense === -1 ? 'quiet' : null, u: st.u });
 }
 
@@ -104,11 +104,11 @@ export async function main() {
         <section class="mk-panel lv-rankbox mk-tiphost"><h2>순위 <small>괄호 안 화살표는 「모두 같게」와 견준 오르내림</small></h2><ol class="lv-rank" id="lvRank"></ol></section>
       </div>
       <aside class="mk-panel" aria-label="기준 고르기">
-        <h2>무엇이 중요한가요?</h2>
+        <h2>기준과 무게</h2>
         <div class="mk-tools" id="lvPresets">${PRESETS.map((x) => `<button type="button" class="opt" data-p="${x.id}">${esc(x.name)}</button>`).join('')}</div>
         ${CRIT.map((c) => `<div class="mk-field">
           <label for="w-${c.id}"><span>${esc(c.label)} <small class="lv-hint">${esc(c.hint)} · ${esc(ind(c.id).year)}</small></span><output id="o-${c.id}"></output></label>
-          ${c.dir === 0 ? `<div class="st-segmented lv-dense" id="lvDense"><button type="button" class="st-segmented__item" data-v="1">북적여야 좋다</button><button type="button" class="st-segmented__item" data-v="-1">한적해야 좋다</button></div>` : ''}
+          ${c.dir === 0 ? `<div class="st-segmented lv-dense" id="lvDense"><button type="button" class="st-segmented__item" data-v="1">높을수록 좋음</button><button type="button" class="st-segmented__item" data-v="-1">낮을수록 좋음</button></div>` : ''}
           <input type="range" id="w-${c.id}" min="0" max="3" step="1" data-c="${c.id}" aria-describedby="lvHelp"></div>`).join('')}
         <p class="mk-note" id="lvHelp">0이면 그 기준을 보지 않고, 3이면 가장 무겁게 봅니다.</p>
         <div class="mk-why" id="lvSay"></div>
@@ -119,7 +119,7 @@ export async function main() {
       <h2>생각해 볼 것</h2>
       <ol class="mk-steps">
         <li>「모두 같게」에서 1위인 곳은 어떤 기준 덕분일까요? 순위 줄에 마우스를 올려 보세요.</li>
-        <li>「병원이 가까워야」와 「한적하고 쾌적하게」를 번갈아 눌러 보세요. 서울과 제주 · 강원의 자리가 어떻게 바뀌나요?</li>
+        <li>「의료 중시」와 「쾌적한 환경 중시」를 번갈아 눌러 보세요. 서울과 제주 · 강원의 자리가 어떻게 바뀌나요?</li>
         <li>점수에 들어가지 않은 것(일자리의 종류, 집값, 가족과 친구, 학교)은 무엇일까요? 행복의 기준이 사람마다 다르다는 것은 지도에서 어떻게 드러나나요?</li>
       </ol>
     </section>`;

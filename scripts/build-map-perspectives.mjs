@@ -1,4 +1,4 @@
-// 「한 장소, 네 관점 — 새만금」(map-perspectives) 자료를 만든다 → data/maps/perspectives/places.json
+// 「새만금 간척과 통합적 관점」(map-perspectives) 자료를 만든다 → data/maps/perspectives/places.json
 // 실행: node scripts/build-map-perspectives.mjs   (인터넷 필요, 의존성 없음)
 //
 // 원자료: OpenStreetMap(© OpenStreetMap 기여자, ODbL 1.0) — Overpass API(https://overpass-api.de, 로그인 없음)로 한 번 받는다.

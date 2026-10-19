@@ -1,8 +1,8 @@
-// 우리 동네 조사 도구 — 지도 위에 점 · 선 · 면을 그리고, 거리 · 넓이를 재고, 이름 · 메모 · 범주를 붙여 나만의 조사 지도를 만든다.
+// 지역 조사 지도 도구 — 지도 위에 점 · 선 · 면을 그리고, 거리 · 넓이를 재고, 이름 · 메모 · 범주를 붙여 나만의 조사 지도를 만든다.
 // 그리기 · 재기는 외부 라이브러리 없이 직접 한다. 길이는 하버사인 식, 넓이는 구면 다각형 넓이 식(지구 반지름 6,378,137m).
 // 작업은 이 브라우저의 localStorage 에만 저장한다(서버로 보내지 않는다). GeoJSON 내보내기 · 불러오기, 지도 그림(PNG) 내보내기.
 // 주소 검색은 OpenStreetMap Nominatim — 사용 정책에 따라 단추를 눌렀을 때만, 1초에 한 번 넘게 묻지 않는다(자동 완성 없음).
-import { $, $$, esc, fmt, params, setParams, shareButton, initPage, loadLeaflet, darkBase } from './map-kit.mjs?v=9af662e6';
+import { $, $$, esc, fmt, params, setParams, shareButton, initPage, loadLeaflet, darkBase } from './map-kit.mjs?v=affb9c7a';
 
 const KEY = 'mapFieldwork.v1';
 // 범주 — 색(--s1~s6)과 모양 · 선 무늬를 함께 바꿔 색만으로 구분하지 않는다

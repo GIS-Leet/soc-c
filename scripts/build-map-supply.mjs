@@ -1,4 +1,4 @@
-// 「스마트폰 한 대의 지도」(map-supply.html) 자료를 만든다 → data/maps/supply/trade.json
+// 「스마트폰 부품과 완성품의 무역 흐름」(map-supply.html) 자료를 만든다 → data/maps/supply/trade.json
 // 실행: node scripts/build-map-supply.mjs   (인터넷 필요, 의존성 없음. 호출 사이에 쉬어 4~6분 걸린다.
 //        받은 원자료는 운영체제 임시 폴더 map-src/comtrade-*.json 에 둔다)
 //

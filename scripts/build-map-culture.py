@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""지도로 읽는 통합사회 · 「문화권은 왜 거기서 갈리나」 자료 만들기 → data/maps/culture/culture.json
+"""통합사회 GIS 지도 · 「종교 · 언어 분포와 기후」 자료 만들기 → data/maps/culture/culture.json
 
 실행(내려받은 원자료를 다루므로 -I):
   C:/Users/user/anaconda3/python.exe -I scripts/build-map-culture.py <원자료 폴더>

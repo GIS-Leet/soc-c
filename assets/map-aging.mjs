@@ -1,7 +1,7 @@
-// 사라지는 마을 — 시·군·구의 고령 인구 비율과 인구 증가율을 따로, 또 겹쳐서 본다(단계 구분도 · 이변량 중첩).
+// 시·군·구별 고령화와 인구 감소 — 시·군·구의 고령 인구 비율과 인구 증가율을 따로, 또 겹쳐서 본다(단계 구분도 · 이변량 중첩).
 // 자료: data/maps/aging/aging.json (scripts/build-map-aging.mjs, 국가데이터처 KOSIS). 「겹쳐 보기」는 학생이 정한 두 기준으로
 // 시·군·구를 네 무리로 나눈다: 고령 · 감소 / 고령 · 증가 / 젊음 · 감소 / 젊음 · 증가.
-import { $, $$, esc, fmt, tips, quantileClasses, divergingClasses, SEQ, DIV, legendBar, params, setParams, shareButton, initPage } from './map-kit.mjs?v=9af662e6';
+import { $, $$, esc, fmt, tips, quantileClasses, divergingClasses, SEQ, DIV, legendBar, params, setParams, shareButton, initPage } from './map-kit.mjs?v=affb9c7a';
 
 const VIEWS = { aged: '고령 인구 비율', growth: '인구 증가율', both: '겹쳐 보기' };
 // 네 무리 — 색은 기준이 있는 값의 색(주황 = 늙고 줄어드는 쪽, 파랑 = 젊고 느는 쪽), 진하기는 두 기준을 모두 넘었는지
@@ -121,7 +121,7 @@ async function main() {
       <div class="ag-right">
         <figure class="mk-map mk-tiphost ag-mapbox" id="agMap"></figure>
         <div class="ag-under">
-          <figure class="mk-panel mk-tiphost ag-scat"><h2>두 값을 한 그림에</h2><div id="agScatter"></div><p class="mk-note">점 하나가 시·군·구 하나입니다. 세로선과 가로선이 지금 고른 두 기준입니다.</p></figure>
+          <figure class="mk-panel mk-tiphost ag-scat"><h2>고령 인구 비율과 인구 증가율</h2><div id="agScatter"></div><p class="mk-note">점 하나가 시·군·구 하나입니다. 세로선과 가로선이 지금 고른 두 기준입니다.</p></figure>
           <div class="mk-panel" id="agLists"></div>
         </div>
       </div>

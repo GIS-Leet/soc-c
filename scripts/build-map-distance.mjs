@@ -1,4 +1,4 @@
-// 「줄어드는 거리」(map-distance) 자료를 만든다 → data/maps/distance/cities.json
+// 「도시 사이의 거리와 이동 시간」(map-distance) 자료를 만든다 → data/maps/distance/cities.json
 // 실행: node scripts/build-map-distance.mjs   (인터넷 필요, 의존성 없음)
 //
 // 1) 도시 위치 — OpenStreetMap Nominatim(https://nominatim.openstreetmap.org, 자료 © OpenStreetMap 기여자, ODbL).

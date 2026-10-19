@@ -15,7 +15,7 @@ const header = lib.slice(166, 191).join('\n').replace('<a class="lg on" href="li
 const menu = lib.slice(228, 277).join('\n');
 const desc = `${COURSES[m.course]} ${m.unit} — ${m.q}`;
 const html = `<!DOCTYPE html>
-<!-- 지도로 읽는 통합사회 · ${m.title}. 껍데기는 scripts/new-map-page.mjs 로 만들었고, 본문은 assets/map-${id}.mjs 가 그린다. -->
+<!-- 통합사회 GIS 지도 · ${m.title}. 껍데기는 scripts/new-map-page.mjs 로 만들었고, 본문은 assets/map-${id}.mjs 가 그린다. -->
 <html lang="ko">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
@@ -28,7 +28,7 @@ const html = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${m.title} — 지도로 읽는 통합사회</title>
+    <title>${m.title} — 통합사회 GIS 지도</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -44,7 +44,7 @@ const html = `<!DOCTYPE html>
 <meta name="theme-color" content="#121815">
 <meta name="description" content="${desc.replace(/"/g, '&quot;')}">
 <link rel="canonical" href="https://nyuheatgis.com/map-${id}.html">
-<meta property="og:title" content="${m.title} · 지도로 읽는 통합사회">
+<meta property="og:title" content="${m.title} · 통합사회 GIS 지도">
 <meta property="og:description" content="${m.q.replace(/"/g, '&quot;')}">
 <meta property="og:url" content="https://nyuheatgis.com/map-${id}.html">
 <meta property="og:type" content="website">

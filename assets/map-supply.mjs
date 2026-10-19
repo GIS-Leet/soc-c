@@ -1,8 +1,8 @@
-// 스마트폰 한 대의 지도 — 부품 → 조립 → 소비의 무역 흐름(OD) 지도.
+// 스마트폰 부품과 완성품의 무역 흐름 — 부품 → 조립 → 소비의 무역 흐름(OD) 지도.
 // 자료: data/maps/supply/trade.json(UN Comtrade Database, scripts/build-map-supply.mjs).
 // 흐름 A → B = B 나라가 신고한 「A에서 들여온 액수」(달러). 원 = 단계마다 그 나라의 수출(상대국이 신고한 합) 또는 수입.
 // 핵심은 「한 물건이 여러 나라를 거친다」 — 부품을 만드는 나라와 조립하는 나라, 사는 나라가 다르다는 것을 자료로 확인한다.
-import { $, $$, esc, fmt, tips, params, setParams, shareButton, initPage } from './map-kit.mjs?v=d3b6045c';
+import { $, $$, esc, fmt, tips, params, setParams, shareButton, initPage } from './map-kit.mjs?v=6473793e';
 
 const STAGES = [
   { id: 'parts', name: '부품', long: '① 부품을 만드는 나라' },

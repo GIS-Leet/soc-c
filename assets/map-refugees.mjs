@@ -1,8 +1,8 @@
-// 난민은 어디서 어디로 — 출신국 → 비호국 흐름 지도.
+// 난민의 출신국과 비호국 — 출신국 → 비호국 흐름 지도.
 // 자료: data/maps/refugees/flows.json(UNHCR Refugee Population Statistics Database, scripts/build-map-refugees.mjs).
 // 흐름 = 그해 말 남의 나라에 있는 난민 · 비호 신청자 · 그 밖의 국제 보호가 필요한 사람(출신국 × 비호국 쌍).
 // 핵심은 「대부분은 멀리 가지 못한다」 — 국경을 맞댄 이웃 나라로 간 비율과 거리를 자료에서 계산해 보여 준다.
-import { $, $$, esc, fmt, tips, params, setParams, shareButton, initPage } from './map-kit.mjs?v=d3b6045c';
+import { $, $$, esc, fmt, tips, params, setParams, shareButton, initPage } from './map-kit.mjs?v=6473793e';
 
 const st = { m: 'out', c: null };
 let D, C, W, T;
@@ -207,7 +207,7 @@ export async function main() {
       <section class="mk-panel rf-rankbox"><h2 id="rfRankH"></h2><ol class="rf-rank" id="rfRank"></ol><p class="mk-note" id="rfRankNote"></p></section>
       </div>
       <aside class="mk-panel rf-side" aria-label="흐름 고르기">
-        <h2>누구의 길을 볼까요?</h2>
+        <h2>보는 쪽과 나라</h2>
         <div class="st-segmented rf-mode" id="rfMode" role="tablist" aria-label="보는 쪽">
           <button type="button" class="st-segmented__item" role="tab" data-value="out">떠난 나라(출신국)</button>
           <button type="button" class="st-segmented__item" role="tab" data-value="in">받은 나라(비호국)</button>
@@ -297,7 +297,7 @@ export async function main() {
   const onMode = (v) => { if (v === st.m) return; st.m = v; if (st.c && !(C[st.c][v === 'out' ? 'out' : 'in'] > 0)) st.c = null; draw(); };
   if (window.Stratum?.segmented) window.Stratum.segmented(seg, onMode);
   else seg.addEventListener('click', (e) => { const b = e.target.closest('[data-value]'); if (b) onMode(b.dataset.value); });
-  shareButton($('#rfShare'), () => location.href, () => (st.c ? `${ko(st.c)} — ${st.m === 'out' ? '떠난 사람이 간 곳' : '온 사람의 출신'}` : '난민은 어디서 어디로'));
+  shareButton($('#rfShare'), () => location.href, () => (st.c ? `${ko(st.c)} — ${st.m === 'out' ? '떠난 사람이 간 곳' : '온 사람의 출신'}` : '난민의 출신국과 비호국'));
   let rt;
   addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 150); });
   draw();

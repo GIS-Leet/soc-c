@@ -1,8 +1,8 @@
-// 햇빛과 바람의 지도 — 태양광 · 풍력 발전기를 세울 곳을 조건으로 찾는다(적지 분석: 이진 중첩 · 가중 중첩).
+// 태양광 · 풍력 발전 적지 — 태양광 · 풍력 발전기를 세울 곳을 조건으로 찾는다(적지 분석: 이진 중첩 · 가중 중첩).
 // 자료: data/maps/energy/(scripts/build-map-energy.py 가 Global Solar Atlas · Global Wind Atlas · Copernicus DEM · WorldPop ·
 // OpenStreetMap 국립공원에서 만든 2km 격자). a.png = 햇빛 · 바람 · 경사, b.png = 높이 · 인구 밀도 · 국립공원 비율, c.png = 땅/바다 · 해안 거리.
 // 핵심은 「자원이 많은 곳이 곧 좋은 곳은 아니다」 — 바람이 센 땅은 높은 산 능선이라 가파르고 국립공원과 겹친다.
-import { $, $$, esc, fmt, SEQ, legendBar, params, setParams, shareButton, loadLeaflet, darkBase, initPage } from './map-kit.mjs?v=9af662e6';
+import { $, $$, esc, fmt, SEQ, legendBar, params, setParams, shareButton, loadLeaflet, darkBase, initPage } from './map-kit.mjs?v=affb9c7a';
 
 const POP = [10, 30, 100, 300, 1000, 3000, Infinity];
 const popTxt = (i) => (POP[i] === Infinity ? '따지지 않음' : `${fmt(POP[i])}명 이하`);
@@ -332,7 +332,7 @@ export async function main() {
       <p class="mk-note en-pick" id="enPick" aria-live="polite"></p>
       <div class="en-panels">
         <section class="mk-panel" aria-label="보기 고르기">
-          <h2>무엇을 볼까요?</h2>
+          <h2>보기</h2>
           <div class="st-segmented en-seg" id="enView" role="tablist" aria-label="보기">
             <button type="button" class="st-segmented__item" role="tab" data-v="ghi">햇빛 자원</button>
             <button type="button" class="st-segmented__item" role="tab" data-v="ws">바람 자원</button>
@@ -358,10 +358,10 @@ export async function main() {
             <p class="en-sub">조건 하나만 못 넘어 빠진 곳 <small>눌러서 지도에 표시</small></p>
             <ul class="en-onlylist" id="enOnlyList"></ul>
           </div>
-          <p class="mk-note">처음 값은 정해진 기준이 아니라 실험의 출발점입니다.</p>
+          <p class="mk-note">처음 값은 법이나 지침의 기준이 아니라 임의로 정한 값입니다.</p>
         </section>
         <section class="mk-panel" aria-label="자원이 많은 곳과 견주기">
-          <h2>자원이 많은 곳이 곧 좋은 곳일까요?</h2>
+          <h2>자원이 풍부한 곳의 지형 · 인구</h2>
           <div id="enCompare"></div>
         </section>
       </div>

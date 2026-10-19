@@ -1,7 +1,7 @@
-// 선 하나의 의미 — 바다 위의 선(영해 · 배타적 경제 수역 · 경계선)을 한 층씩 쌓아 보고, 두 해안 사이 거리를 직접 재 본다.
+// 동아시아 바다의 경계 — 바다 위의 선(영해 · 배타적 경제 수역 · 경계선)을 한 층씩 쌓아 보고, 두 해안 사이 거리를 직접 재 본다.
 // 자료: data/maps/boundaries/boundaries.json (scripts/build-map-boundaries.py — Marine Regions(VLIZ) CC BY 4.0 · Natural Earth).
 // 핵심은 「바다가 좁아 200해리가 서로 겹친다」 — 그래서 바다의 경계는 협상으로 정해야 하고, 정해지지 않은 곳이 남는다.
-import { $, $$, esc, fmt, tips, params, setParams, shareButton, initPage } from './map-kit.mjs?v=9af662e6';
+import { $, $$, esc, fmt, tips, params, setParams, shareButton, initPage } from './map-kit.mjs?v=affb9c7a';
 
 const NM = 1.852; // 1해리 = 1.852 km
 const LAYERS = [
@@ -312,7 +312,7 @@ export async function main() {
   $('#mkBody').innerHTML = `
     <div class="mk-stage mk-stage--left">
       <aside class="mk-panel bd-side" aria-label="층과 거리 재기">
-        <h2>한 층씩 쌓아 보세요</h2>
+        <h2>층 고르기</h2>
         <div class="bd-layers" id="bdLayers">${LAYERS.map((l) => `<button type="button" class="bd-layer" data-l="${l.id}" aria-pressed="false"><span class="bd-n">${l.n}</span><span><b>${esc(l.name)}</b><small>${esc(l.sub)}</small></span></button>`).join('')}</div>
         <div class="mk-tools"><button type="button" class="opt" id="bdNext">다음 층 더하기</button><button type="button" class="opt" id="bdReset">처음부터</button></div>
         <div class="mk-field"><span class="mk-l">보기</span><div class="mk-tools" id="bdViews"><button type="button" class="opt" data-v="kr">한반도 주변</button><button type="button" class="opt" data-v="ea">동아시아 전체</button></div></div>
@@ -332,7 +332,7 @@ export async function main() {
     </div>
     <div class="bd-below">
       <section class="mk-panel">
-        <h2>왜 겹칠까요</h2>
+        <h2>바다의 경계를 정하는 방법</h2>
         <div class="mk-why">
           <p>바다의 선은 해안의 기준선(기선)에서 잰 거리로 긋습니다. 유엔 해양법 협약은 기선에서 12해리까지를 영해, 200해리까지를 배타적 경제 수역으로 정합니다. 1해리는 1.852 km입니다.</p>
           <p>두 나라 해안이 400해리(${fmt(400 * NM)} km)보다 가까우면 200해리가 서로 겹칩니다. 이 지도 자료로 재면 우리나라와 일본 땅 사이 가장 가까운 곳은 <b>${km(krjp.km)} km</b>, 중국 땅과는 <b>${km(krcn.km)} km</b>입니다.</p>

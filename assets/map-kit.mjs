@@ -1,4 +1,4 @@
-// 지도로 읽는 통합사회(maps.html · map-*.html) 공용 도구.
+// 통합사회 GIS 지도(maps.html · map-*.html) 공용 도구.
 // 지도 페이지마다 같은 일을 다시 짜지 않도록: 수 쓰기, 말풍선, 색 단계, 범례, 주소 상태, 공유, Leaflet 불러오기,
 // 세계(Equal Earth) · 한반도 투영. 스타일은 design-system/geo.css 「지도 실험실 공용」.
 import { openShare, SHARE_ICON } from './share-link.mjs?v=53919a56';

@@ -1,4 +1,4 @@
-// 「사라지는 마을」 자료 → data/maps/aging/aging.json
+// 「시·군·구별 고령화와 인구 감소」 자료 → data/maps/aging/aging.json
 // 실행: node scripts/build-map-aging.mjs   (지도 경계를 받으려고 인터넷 필요)
 // 값: data/maps/aging/kosis-aged-2026-06.txt  — 국가데이터처 KOSIS DT_1YL20631 고령인구비율, 2026년 6월
 //     data/maps/aging/kosis-growth-2025.txt   — 국가데이터처 KOSIS DT_1YL20621 인구증가율, 2025년(외국인 포함 총인구)

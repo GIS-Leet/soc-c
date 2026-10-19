@@ -1,4 +1,4 @@
-# 바닷물이 1m 오르면(map-sealevel) 자료 만들기.
+# 해수면 상승과 해안 침수(map-sealevel) 자료 만들기.
 #
 # 원자료: Copernicus DEM GLO-30 Public (30m, 1초 격자), AWS 공개 버킷 — 로그인 없이 받는다.
 #   https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N37_00_E126_00_DEM/Copernicus_DSM_COG_10_N37_00_E126_00_DEM.tif

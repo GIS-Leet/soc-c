@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""지도로 읽는 통합사회 · 「선 하나의 의미」 자료 만들기 → data/maps/boundaries/boundaries.json
+"""통합사회 GIS 지도 · 「동아시아 바다의 경계」 자료 만들기 → data/maps/boundaries/boundaries.json
 
 실행(내려받은 원자료를 다루므로 -I):
   C:/Users/user/anaconda3/python.exe -I scripts/build-map-boundaries.py <원자료 폴더>

@@ -1,4 +1,4 @@
-# 몇 분 안에 닿는가 — 사람이 사는 곳(약 3km 격자)마다 가장 가까운 응급실까지 「자동차로 걸리는 시간」을 미리 계산한다.
+# 응급실까지 걸리는 시간 — 사람이 사는 곳(약 3km 격자)마다 가장 가까운 응급실까지 「자동차로 걸리는 시간」을 미리 계산한다.
 # 실행: C:/Users/user/anaconda3/python.exe -I scripts/build-map-access.py   (인터넷 필요, 원자료는 운영체제 임시 폴더에)
 # 결과: data/maps/access/access.json
 #

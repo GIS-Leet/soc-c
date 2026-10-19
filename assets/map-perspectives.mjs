@@ -1,10 +1,10 @@
-// 한 장소, 네 관점 — 새만금. 같은 지도 위에 관점 네 개를 레이어로 겹친다(레이어 중첩).
+// 새만금 간척과 통합적 관점. 같은 지도 위에 관점 네 개를 레이어로 겹친다(레이어 중첩).
 //  · 시간 — Sentinel-2 cloudless(EOX) 해마다의 위성 영상을 왼쪽 · 오른쪽으로 밀어 견준다(위성 영상 시계열)
 //  · 공간 — 하천 · 방조제 위 도로 · 시·군(OpenStreetMap, data/maps/perspectives/places.json)
 //  · 사회 — 이해관계마다 다른 모양 · 색의 표시와 짧은 카드
 //  · 윤리 — 인간 중심 · 생태 중심 두 쪽에서 묻는 질문 카드
 // 카드에 쓴 사실은 모두 출처(정부 · 공공 기관 · 백과)에서 확인한 것만 쓰고, 판단이 갈리는 것은 질문으로 남긴다.
-import { $, $$, esc, fmt, params, setParams, shareButton, initPage, loadLeaflet, darkBase, satellite } from './map-kit.mjs?v=d3b6045c';
+import { $, $$, esc, fmt, params, setParams, shareButton, initPage, loadLeaflet, darkBase, satellite } from './map-kit.mjs?v=6473793e';
 
 
 // 2017년 층은 이 지역 확대 단계(11 이상)에서 영상이 비어 있어 뺐다(EOX 타일이 빈 그림을 돌려준다).
@@ -17,17 +17,17 @@ const SRC = {
   osm: 'OpenStreetMap',
 };
 const LENS = [
-  { id: 't', name: '시간', sub: '언제, 어떻게 바뀌었나' },
-  { id: 's', name: '공간', sub: '어디에, 왜 거기에' },
-  { id: 'c', name: '사회', sub: '누가 얻고, 누가 잃나' },
-  { id: 'e', name: '윤리', sub: '무엇이 옳은가' },
+  { id: 't', name: '시간', sub: '시대에 따른 변화' },
+  { id: 's', name: '공간', sub: '위치와 자연환경' },
+  { id: 'c', name: '사회', sub: '이해관계와 제도' },
+  { id: 'e', name: '윤리', sub: '옳고 그름의 판단' },
 ];
 const EVENTS = [
   { y: 1991, t: '방조제 공사를 시작했습니다(11월). 처음 목적은 농지를 만드는 것이었습니다.', s: ['mpva', 'molit'] },
   { y: 2006, t: '사업 계획을 취소해 달라는 소송에서 대법원이 정부 쪽 판단을 확정했습니다(3월).', s: ['court'] },
   { y: 2008, t: '새로 생길 땅의 쓰임을 농지 위주에서 산업 · 관광 등 여러 용도로 바꾸었습니다.', s: ['molit'] },
   { y: 2010, t: '19년 만에 방조제 33.9km를 다 지었습니다(4월). 공사 중 환경 논란으로 두 차례 멈추기도 했습니다.', s: ['mpva'] },
-  { y: 2011, t: '종합개발계획 — 땅의 30%는 첨단 농업 용지, 70%는 산업 · 관광 · 물류 · 신재생 에너지 용지 등으로.', s: ['molit'] },
+  { y: 2011, t: '종합개발계획에서 땅의 30%는 첨단 농업 용지, 70%는 산업 · 관광 · 물류 · 신재생 에너지 용지 등으로 정했습니다.', s: ['molit'] },
   { y: 2013, t: '새만금 특별법이 시행되고 새만금개발청이 생겼습니다(9월).', s: ['molit'] },
   { y: 2023, t: '제25회 세계스카우트잼버리가 부안 쪽 매립지에서 열렸습니다(8월).', s: ['bai'] },
 ];
@@ -71,7 +71,7 @@ const ETHICS = [
     eco: '바닷물을 더 자주 드나들게 하면 갯벌 생물에게는 무엇이 달라질까요? 그 대신 포기해야 하는 것은 무엇일까요?' },
   { id: 'museum', at: '국립새만금간척박물관', title: '무엇을 기억할까',
     fact: '방조제 남쪽 끝 가까이에 「국립새만금간척박물관」이 있습니다.', s: ['osm'],
-    human: '바다를 땅으로 바꾼 일은 사람의 기술과 노력의 역사입니다. 무엇을 자랑스럽게 기억해야 할까요?',
+    human: '박물관은 간척 공사의 기술과 과정을 기록합니다. 사람의 입장에서 남겨야 할 기록은 무엇일까요?',
     eco: '사라진 갯벌과 그곳의 생물도 기억해야 할 역사일까요? 박물관이라면 그것을 어떻게 보여 줄 수 있을까요?' },
 ];
 
@@ -221,7 +221,7 @@ function detail() {
     const d2 = gs && gj ? hav([gs.lat, gs.lon], [gj.lat, gj.lon]) : null;
     return `<p class="pv-lead">새만금은 <b>군산 · 김제 · 부안</b> 세 시·군의 바다에 걸쳐 있습니다. 북쪽 끝은 금강 하구, 안쪽으로는 만경강과 동진강이 흘러듭니다.</p>
       <div class="mk-keys"><span><i style="background:var(--kr-s4)"></i>하천(금강 · 만경강 · 동진강)</span><span><i class="pv-key-dot"></i>방조제 위 도로(새만금로)</span><span><i class="pv-key-town"></i>시청 · 군청 자리</span></div>
-      <div class="mk-why"><p>왜 하필 여기였을까요? 서해안은 바다가 얕고 밀물과 썰물의 차이가 커서 갯벌이 넓게 생깁니다. 여기에 큰 강 두 개가 흙을 실어 와 하구에 쌓았습니다.</p>
+      <div class="mk-why"><p>서해안은 바다가 얕고 밀물과 썰물의 차이가 커서 갯벌이 넓게 생깁니다. 여기에 큰 강 두 개가 흙을 실어 와 하구에 쌓았습니다.</p>
       <p>얕고 넓은 바다는 둑을 쌓아 막기 쉽고, 막으면 넓은 땅을 얻을 수 있습니다. 같은 까닭으로 이곳은 물고기와 조개가 많은 갯벌이기도 했습니다.</p></div>
       <p class="mk-note">지도 위 거리 — 군산시청에서 부안군청까지 직선으로 <b>${fmt(d1, 1)}km</b>, 김제시청까지 <b>${fmt(d2, 1)}km</b>입니다(OSM 위치로 계산). 방조제는 이 바다를 바깥쪽으로 크게 둘러 33.9km입니다.</p>`;
   }
@@ -229,9 +229,9 @@ function detail() {
     return `<p class="pv-lead">같은 땅을 두고 기대하는 것이 사람마다 다릅니다. 표시를 누르면 지도 위에 카드가 열립니다.</p>
       <div class="mk-keys">${Object.values(GROUPS).map((g) => `<span>${keyShape(g.shape, g.c)}${esc(g.name)}</span>`).join('')}</div>
       <ol class="pv-list">${SOCIAL.map((c, i) => `<li><button type="button" data-k="${c.id}" aria-pressed="${st.k === c.id}"><span class="pv-n">${i + 1}</span>${keyShape(GROUPS[c.g].shape, GROUPS[c.g].c)}<span>${esc(c.title)}</span></button></li>`).join('')}</ol>
-      <p class="mk-note">카드의 사실은 출처에서 확인한 것만 적었습니다. 판단은 질문으로 남겼습니다. 어느 쪽이 옳다고 정해 둔 답은 없습니다.</p>`;
+      <p class="mk-note">카드의 사실은 출처에서 확인한 것만 적었고, 판단이 필요한 부분은 질문으로 남겼습니다.</p>`;
   }
-  return `<p class="pv-lead">윤리의 눈은 「무엇이 있는가」가 아니라 「무엇이 옳은가」를 묻습니다. 같은 자리에서 두 가지 물음을 견주어 보세요.</p>
+  return `<p class="pv-lead">윤리적 관점에서는 어떤 선택이 옳은지를 따집니다. 표시마다 두 입장의 질문을 견주어 보세요.</p>
     <dl class="pv-two"><dt>인간 중심</dt><dd>자연은 사람에게 쓸모가 있어서 소중하다고 봅니다.</dd><dt>생태 중심</dt><dd>사람을 포함한 생태계 전체가 그 자체로 소중하다고 봅니다.</dd></dl>
     <ol class="pv-list">${ETHICS.map((c) => `<li><button type="button" data-k="${c.id}" aria-pressed="${st.k === c.id}"><span class="pv-n">?</span><span>${esc(c.title)}</span></button></li>`).join('')}</ol>`;
 }
@@ -243,12 +243,12 @@ function sync() {
     b.classList.toggle('is-focus', st.f === id);
     b.querySelector('.pv-focus').setAttribute('aria-pressed', String(st.f === id));
   });
-  $('#pvDetail').innerHTML = `<h2>${esc(LENS.find((l) => l.id === st.f).name)}의 눈</h2>${detail()}`;
+  $('#pvDetail').innerHTML = `<h2>${esc(LENS.find((l) => l.id === st.f).name)}적 관점</h2>${detail()}`;
   $('#pvSwipe').hidden = !st.on.has('t');
   $('#pvYears').hidden = !st.on.has('t');
   const n = st.on.size;
-  $('#pvSay').innerHTML = n === 0 ? '<p>관점을 하나도 켜지 않으면 어두운 바탕 지도만 남습니다. 관점이 없으면 아무것도 보이지 않는다는 뜻이기도 합니다.</p>'
-    : `<p>지금 켠 관점: <b>${[...st.on].map((id) => LENS.find((l) => l.id === id).name).join(' · ')}</b>. ${n === 4 ? '네 관점을 모두 겹치면 같은 바다가 시간의 변화이자, 자리의 까닭이자, 이해관계의 현장이자, 옳고 그름의 물음이 됩니다.' : '하나씩 끄고 켜며 무엇이 보이고 무엇이 사라지는지 견주어 보세요.'}</p>`;
+  $('#pvSay').innerHTML = n === 0 ? '<p>켠 관점이 없어 바탕 지도만 보입니다.</p>'
+    : `<p>지금 켠 관점: <b>${[...st.on].map((id) => LENS.find((l) => l.id === id).name).join(' · ')}</b>. 하나씩 끄고 켜며 지도에서 달라지는 것을 견주어 보세요.</p>`;
   setParams({ on: [...st.on].join('') === 'tsce' ? null : [...st.on].join('') || '0', f: st.f === 't' ? null : st.f, a: st.a === 2016 ? null : st.a, b: st.b === 2025 ? null : st.b, k: st.k });
 }
 

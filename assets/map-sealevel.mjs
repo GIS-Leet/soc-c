@@ -1,8 +1,8 @@
-// 바닷물이 1m 오르면 — 수치 표고 모델(DEM)로 해수면이 오를 때 바다와 이어져 잠기는 땅을 찾는다.
+// 해수면 상승과 해안 침수 — 수치 표고 모델(DEM)로 해수면이 오를 때 바다와 이어져 잠기는 땅을 찾는다.
 // 자료: data/maps/sealevel/(scripts/build-map-sealevel.py 가 Copernicus DEM GLO-30 에서 만든 겹침 그림과 넓이).
 // 겹침 그림의 회색 값 v = 40f + 6d — f: 처음 바다와 이어져 잠기는 단계(1~5), d: 처음 그 높이 아래가 되는 단계.
 // 핵심은 「높이만이 아니라 이어짐」 — 낮아도 바다와 떨어진 땅은 잠기지 않고, 막고 있던 둑을 넘으면 한꺼번에 잠긴다.
-import { $, $$, esc, fmt, params, setParams, shareButton, loadLeaflet, darkBase, initPage } from './map-kit.mjs?v=d3b6045c';
+import { $, $$, esc, fmt, params, setParams, shareButton, loadLeaflet, darkBase, initPage } from './map-kit.mjs?v=6473793e';
 
 // 단계 색 — 먼저 잠길수록(위험이 클수록) 밝게. 낮지만 떨어진 땅은 기준 아래 색(--kr-n2) 빗금
 const LV_COL = ['--kr-s5', '--kr-s4', '--kr-s3', '--kr-s2', '--kr-s1'];
@@ -176,7 +176,7 @@ export async function main() {
         <p class="mk-note sl-pick" id="slPick" aria-live="polite"></p>
       </div>
       <aside class="mk-panel sl-panel" aria-label="곳과 높이 고르기">
-        <h2>어느 해안을 볼까요?</h2>
+        <h2>해안 고르기</h2>
         <div class="mk-tools" id="slSites">${D.sites.map((s) => `<button type="button" class="opt" data-s="${s.id}" title="${esc(s.towns)}">${esc(s.name)}</button>`).join('')}</div>
         <div class="mk-field">
           <label for="slLevel"><span>해수면이 오른 높이</span><output id="slLevelOut"></output></label>

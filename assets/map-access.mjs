@@ -1,7 +1,7 @@
-// 몇 분 안에 닿는가 — 사람이 사는 곳(약 3km 격자)마다 가장 가까운 응급실까지 자동차 시간을 미리 재 두고,
+// 응급실까지 걸리는 시간 — 사람이 사는 곳(약 3km 격자)마다 가장 가까운 응급실까지 자동차 시간을 미리 재 두고,
 // 「T분 안에 닿는 곳」(서비스 권역)과 시·군·구별 평균 시간을 지도로 본다(네트워크 분석).
 // 자료: data/maps/access/access.json — scripts/build-map-access.py(건강보험심사평가원 2026.6 · WorldPop 2025 · OSRM/OpenStreetMap 도로).
-import { $, $$, esc, fmt, tips, quantileClasses, SEQ, legendBar, params, setParams, shareButton, initPage } from './map-kit.mjs?v=9af662e6';
+import { $, $$, esc, fmt, tips, quantileClasses, SEQ, legendBar, params, setParams, shareButton, initPage } from './map-kit.mjs?v=affb9c7a';
 
 const TIERS = [
   { id: 1, name: '응급실이 있는 병원', hint: '상급종합 · 종합병원 · 병원 · 보건의료원 가운데 응급실 병상이 있는 곳' },
@@ -104,7 +104,7 @@ function draw() {
   const avg = (list) => { const p = list.reduce((a, u) => a + (u.pop - u.none), 0); return list.reduce((a, u) => a + u.mean * (u.pop - u.none), 0) / (p || 1); };
   $('#acWhy').innerHTML = `<p>평균이 가장 짧은 곳은 ${esc(fast.sido)} ${esc(fast.name)}(${fmt(fast.mean, 0)}분), 가장 긴 곳은 ${esc(slow.sido)} ${esc(slow.name)}(${fmt(slow.mean, 0)}분)입니다.
       특별시 · 광역시의 구 · 군에 사는 사람은 평균 ${fmt(avg(metro), 0)}분, 이름이 「군」인 곳에 사는 사람은 평균 ${fmt(avg(gun), 0)}분이 걸립니다.</p>
-    <p>큰 병원이 문을 열고 유지되려면 일정한 수 이상의 환자가 있어야 합니다(최소 요구치). 그래서 큰 병원은 사람이 많이 사는 도시에 모이고, 사람이 적은 곳일수록 응급실이 멀어집니다. 이 차이를 그대로 둘지, 누가 어떻게 메울지가 사회 정의의 질문입니다.</p>`;
+    <p>큰 병원이 문을 열고 유지되려면 일정한 수 이상의 환자가 있어야 합니다(최소 요구치). 그래서 큰 병원은 사람이 많이 사는 도시에 모이고, 사람이 적은 곳일수록 응급실이 멀어집니다. 이 차이를 줄이려면 병원을 새로 세우거나 헬기 이송 · 원격 진료를 늘려야 하고, 그 비용을 누가 부담할지도 정해야 합니다.</p>`;
   setParams({ tier: st.tier !== 1 ? st.tier : null, T: st.T !== 30 ? st.T : null, view: st.view !== 'unit' ? st.view : null, u: st.u });
 }
 
@@ -123,11 +123,11 @@ export async function main() {
     <div class="mk-stage mk-stage--right">
       <figure class="mk-map mk-tiphost ac-mapbox" id="acMap"></figure>
       <aside class="mk-panel mk-tiphost" aria-label="조건 고르기">
-        <h2>어느 응급실까지?</h2>
+        <h2>응급실 종류</h2>
         <div class="st-segmented ac-seg" id="acTier" role="tablist">${TIERS.map((t) => `<button type="button" class="st-segmented__item" role="tab" data-t="${t.id}" data-tip="${esc(`${t.name}|${t.hint} · ${nTier(t.id)}곳`)}">${esc(t.name)}</button>`).join('')}</div>
         <p class="mk-note">지금 고른 응급실 <b id="acTierN"></b> — 응급실 병상을 신고한 의료 기관(건강보험심사평가원, 2026년 6월)입니다.</p>
         <div class="mk-field">
-          <label for="acT"><span>몇 분 안에 닿아야 할까요?</span><output id="acTout"></output></label>
+          <label for="acT"><span>기준 시간</span><output id="acTout"></output></label>
           <input type="range" id="acT" min="10" max="120" step="5">
         </div>
         <div class="mk-why" id="acSum"></div>
@@ -142,7 +142,7 @@ export async function main() {
       </aside>
     </div>
     <div class="ac-below">
-      <section class="mk-panel"><h2>왜 이렇게 다를까요?</h2><div class="mk-why" id="acWhy"></div></section>
+      <section class="mk-panel"><h2>지역 차이의 까닭</h2><div class="mk-why" id="acWhy"></div></section>
       <section class="mk-panel">
         <h2>생각해 볼 것</h2>
         <ol class="mk-steps">

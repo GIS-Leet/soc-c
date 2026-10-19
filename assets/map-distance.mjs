@@ -1,9 +1,9 @@
-// 줄어드는 거리 — 지도 위의 거리(직선)와 자동차로 걸리는 시간을 견준다. 「시간 지도」에서는 출발 도시를 가운데 두고
+// 도시 사이의 거리와 이동 시간 — 지도 위의 거리(직선)와 자동차로 걸리는 시간을 견준다. 「시간 지도」에서는 출발 도시를 가운데 두고
 // 각 도시를 방향은 그대로, 거리는 걸리는 시간에 비례하게 옮긴다(방사형 시간 거리 지도).
 // 자료: data/maps/distance/cities.json — OSRM(OpenStreetMap 도로망)으로 미리 계산한 30개 도시 사이 자동차 시간 · 도로 거리
 //       (scripts/build-map-distance.mjs). 바탕: data/stats/korea.json 의 시·도 경계(같은 정거 원통 도법).
 // 땅 모양은 도시들이 옮겨 간 만큼 둘레의 점을 거리 가중 평균(역거리 가중, IDW)으로 함께 밀어 「고무판」처럼 늘인다.
-import { $, $$, esc, fmt, tips, DIV, legendBar, params, setParams, shareButton, initPage } from './map-kit.mjs?v=9af662e6';
+import { $, $$, esc, fmt, tips, DIV, legendBar, params, setParams, shareButton, initPage } from './map-kit.mjs?v=affb9c7a';
 
 // korea.json 지도와 같은 투영(scripts/build-korea-stats.mjs 의 BOX · P)
 const BOX = { lon0: 124.55, lat0: 38.65, lon1: 132.0, w: 560 };

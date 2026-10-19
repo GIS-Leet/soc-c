@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 지도로 읽는 통합사회 — 통합사회1 · 2 단원마다 GIS 분석 하나를 지도로 해 보는 판들의 목록. 목록 자료는 assets/maps-list.mjs -->
+<!-- 통합사회 GIS 지도 — 통합사회1 · 2 통합사회1 · 2 단원별 지도를 지도로 해 보는 판들의 목록. 목록 자료는 assets/maps-list.mjs -->
 <html lang="ko">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
@@ -12,7 +12,7 @@
     <meta charset="UTF-8">
     <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지도로 읽는 통합사회 — Leet's Geographia</title>
+    <title>통합사회 GIS 지도 — Leet's Geographia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -45,8 +45,8 @@
 <meta name="theme-color" content="#121815">
 <meta name="description" content="통합사회1 · 2의 단원마다 지리 정보 시스템(GIS)의 분석 하나를 지도 위에서 직접 해 봅니다.">
 <link rel="canonical" href="https://nyuheatgis.com/maps.html">
-<meta property="og:title" content="지도로 읽는 통합사회 · Geographia">
-<meta property="og:description" content="단원마다 GIS 분석 하나 — 중첩 · 버퍼 · 흐름 · 접근성 · 수치 표고.">
+<meta property="og:title" content="통합사회 GIS 지도 · Geographia">
+<meta property="og:description" content="통합사회1 · 2 단원별 지도 — 중첩 · 버퍼 · 흐름 · 접근성 · 수치 표고.">
 <meta property="og:url" content="https://nyuheatgis.com/maps.html">
 <meta property="og:type" content="website">
 </head>
@@ -79,8 +79,8 @@
 
     <section class="wrap sheet-head">
         <div class="sheet-num reveal">지리 정보 시스템(GIS)</div>
-        <h1 class="sheet-title reveal">지도로 읽는 통합사회</h1>
-        <p class="sheet-meta reveal">단원마다 지도 위에서 분석 하나를 해 봅니다.<br>겹치고, 재고, 잇고, 흐름을 그리며 까닭을 찾습니다.</p>
+        <h1 class="sheet-title reveal">통합사회 GIS 지도</h1>
+        <p class="sheet-meta reveal">통합사회1 · 2 단원별 지도 14개입니다.<br>지도마다 GIS 분석(중첩 · 버퍼 · 흐름 · 접근성 · 수치 표고 모델) 하나를 직접 해 봅니다.</p>
     </section>
     <hr class="rule">
 
@@ -92,7 +92,7 @@
     </footer>
 
 <script type="module">
-import { MAPS, COURSES } from './assets/maps-list.mjs?v=537c6422';
+import { MAPS, COURSES } from './assets/maps-list.mjs?v=318daa89';
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 document.getElementById('mh').innerHTML = [1, 2].map((c) => `<section class="mh-course"><h2>${COURSES[c]}</h2><ol class="mh-list">${MAPS.filter((m) => m.course === c).map((m) => `
   <li><a class="mh-row" href="map-${m.id}.html"><span class="mh-u">${esc(m.unit)}</span><span><span class="mh-t">${esc(m.title)}</span><span class="mh-q">${esc(m.q)}</span></span><span class="mh-c">${esc(m.concept)}</span></a></li>`).join('')}</ol></section>`).join('');
@@ -134,7 +134,7 @@ document.getElementById('mh').innerHTML = [1, 2].map((c) => `<section class="mh-
     <h3>관측 · 통계 자료</h3>
     <a href="climate.html">기후 그래프 <small>관측소 평년값 · 쾨펜 기후</small></a>
     <a href="stats.html">통계로 보는 세계 <small>세계 217개국 · 우리나라 시·도</small></a>
-    <a href="maps.html">지도로 읽는 통합사회 <small>단원마다 GIS 분석 하나</small></a>
+    <a href="maps.html">통합사회 GIS 지도 <small>통합사회1 · 2 단원별 지도</small></a>
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
@@ -148,6 +148,6 @@ document.getElementById('mh').innerHTML = [1, 2].map((c) => `<section class="mh-
     <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
       <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=607c78d3"></script>
+<script src="design-system/geo.js?v=6bc17095"></script>
 </body>
 </html>
