@@ -619,3 +619,66 @@ select.form-input { cursor: pointer; }
 .cg-hit.cg-on { fill: var(--st-fill-3); }
 .cmp { fill: var(--sc); stroke: var(--st-surface); stroke-width: 1.5; }
 .cmp-line, .cmp-key line { fill: none; stroke: var(--sc); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+
+/* 단계 구분 색 — 크기: 파랑 밝기 다섯 칸(어두움 = 낮음) · 기준이 있는 값: 주황(작음) · 회색(기준 근처) · 파랑(큼). 통계 · 지도 공용 */
+:root, :root:not([data-theme="light"]) {
+  --kr-s1: #22416a; --kr-s2: #2a5f9e; --kr-s3: #3987e5; --kr-s4: #6da7ec; --kr-s5: #b7d3f6;
+  --kr-n2: #e0703a; --kr-n1: #9c5a38; --kr-mid: #5d625e; --kr-p1: #2f5f99; --kr-p2: #5598e7;
+}
+:root[data-theme="light"] {
+  --kr-s1: #daf0fc; --kr-s2: #9ec5f4; --kr-s3: #5598e7; --kr-s4: #256abf; --kr-s5: #104281;
+  --kr-n2: #c4561e; --kr-n1: #f0b28c; --kr-mid: #d6d8d3; --kr-p1: #9ec5f4; --kr-p2: #256abf;
+}
+
+/* ══════════ 지도 실험실 공용 — maps.html · map-*.html (assets/map-kit.mjs) ══════════
+   판 하나 = 머리(단원 · 제목 · 질문 · GIS 개념) + 무대(지도) + 곁판(조작 · 범례 · 까닭) + 출처.
+   곁판 자리는 판마다 달리한다(.mk-stage--left · --right · --below) — 같은 배치를 되풀이하지 않기 위해. */
+.mk { padding-block: clamp(20px, 3vw, 36px) clamp(48px, 7vw, 96px); }
+.mk-head { max-width: 80ch; margin-bottom: 18px; }
+.mk-unit { font-size: 12px; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.mk-title { margin-top: 6px; font-size: clamp(1.6rem, 3.4vw, 2.4rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: var(--st-label); }
+.mk-q { margin-top: 10px; font-size: clamp(1rem, 1.6vw, 1.15rem); line-height: 1.6; color: var(--st-label); letter-spacing: var(--track-ko); }
+.mk-concept { margin-top: 8px; font-size: 13px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.mk-concept span { display: inline-block; margin-right: 8px; font-size: 11px; font-weight: 700; color: var(--accent-ink); letter-spacing: 0.06em; }
+.mk-stage { display: grid; gap: 16px; align-items: start; }
+.mk-stage--right { grid-template-columns: minmax(0, 1fr) 340px; }
+.mk-stage--left { grid-template-columns: 340px minmax(0, 1fr); }
+.mk-stage--left > .mk-panel { order: -1; }
+.mk-stage--below { grid-template-columns: 1fr; }
+@media (max-width: 900px) { .mk-stage--right, .mk-stage--left { grid-template-columns: 1fr; } .mk-stage--left > .mk-panel { order: 0; } }
+.mk-map { position: relative; margin: 0; border-radius: var(--st-r-container); overflow: hidden; background: var(--st-surface); min-height: 320px; }
+.mk-map--tall { height: min(78vh, 760px); }
+.mk-map .leaflet-container { background: var(--st-bedrock-sunken); font-family: var(--sans); }
+/* OSM 표준 타일을 사이트의 어두운 바탕에 맞춘다 — 밝기를 뒤집고 색을 거의 빼서 자료 층이 주인공이 되게 */
+.mk-osm-dark { filter: invert(1) hue-rotate(180deg) brightness(0.82) contrast(0.92) saturate(0.25); }
+.mk-map .leaflet-control-attribution { background: rgba(18,24,21,0.72); color: var(--st-label-3); font-size: 10px; }
+.mk-map .leaflet-control-attribution a { color: var(--st-label-2); }
+.mk-map .leaflet-bar a { background: var(--st-surface-raised); color: var(--st-label); border-color: var(--st-separator); }
+.mk-map svg.mk-svg { display: block; width: 100%; height: auto; }
+.mk-panel { display: grid; gap: 14px; padding: 16px; border-radius: var(--st-r-container); background: var(--st-surface); }
+.mk-panel h2 { font-size: 14px; font-weight: 700; color: var(--st-label); letter-spacing: -0.005em; }
+.mk-field { display: grid; gap: 6px; }
+.mk-field label, .mk-field .mk-l { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.mk-field output { color: var(--st-label); font-weight: 600; font-variant-numeric: tabular-nums; }
+.mk-field input[type=range] { width: 100%; accent-color: var(--st-accent); }
+.mk-legend { display: flex; gap: 0; font-size: 11px; color: var(--st-label-3); font-variant-numeric: tabular-nums; }
+.mk-legend span { display: grid; justify-items: center; gap: 4px; flex: 1; }
+.mk-legend i { display: block; width: 100%; height: 10px; }
+.mk-legend span:first-child i { border-radius: 5px 0 0 5px; } .mk-legend span:last-child i { border-radius: 0 5px 5px 0; }
+.mk-keys { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.mk-keys span { display: inline-flex; align-items: center; gap: 6px; }
+.mk-keys i { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.mk-why { font-size: 13.5px; line-height: 1.75; color: var(--st-label); letter-spacing: var(--track-ko); }
+.mk-why b { font-weight: 700; }
+.mk-why p + p { margin-top: 8px; }
+.mk-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: s; }
+.mk-steps li { position: relative; padding-left: 26px; font-size: 13px; line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); counter-increment: s; }
+.mk-steps li::before { content: counter(s); position: absolute; left: 0; top: 1px; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: var(--st-fill-2); font-size: 11px; font-weight: 700; color: var(--st-label); }
+.mk-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.mk-note { font-size: 12px; line-height: 1.6; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.mk-source { margin-top: 36px; display: grid; gap: 6px; max-width: 86ch; font-size: 12px; line-height: 1.7; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.mk-source b { color: var(--st-label-2); font-weight: 600; }
+.mk-source a { color: var(--st-label-2); text-decoration: underline; text-underline-offset: 2px; }
+.mk-wait { padding: 80px 0; text-align: center; font-size: 13.5px; color: var(--st-label-3); }
+.mk-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; font-size: 13px; letter-spacing: var(--track-ko); }
+.mk-nav a { color: var(--st-label-2); } .mk-nav a:hover { color: var(--accent-ink); }

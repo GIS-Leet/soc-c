@@ -129,7 +129,8 @@
         ]},
         { title: '관측 · 통계 자료', items: [
           { label: '기후 그래프',     href: 'climate.html', desc: '관측소 223곳 · 쾨펜 기후' },
-          { label: '통계로 보는 세계', href: 'stats.html', desc: '세계 217개국 · 우리나라 시·도' }
+          { label: '통계로 보는 세계', href: 'stats.html', desc: '세계 217개국 · 우리나라 시·도' },
+          { label: '지도로 읽는 통합사회', href: 'maps.html', desc: '단원마다 GIS 분석 하나' }
         ]}
       ],
       foot: { text: '단원별로 정리된 전체 목록', link: { label: '시뮬레이터 전체 보기', href: 'simulators.html' } }

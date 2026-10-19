@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!-- 지도로 읽는 통합사회 · 대피소까지 몇 분?. 껍데기는 scripts/new-map-page.mjs 로 만들었고, 본문은 assets/map-shelter.mjs 가 그린다. -->
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E1W226W5M4');
+    </script>
+    <meta charset="UTF-8">
+    <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대피소까지 몇 분? — 지도로 읽는 통합사회</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
+<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
+<style>
+/* 대피소까지 몇 분? — 이 판에만 있는 것. 공용은 geo.css 「지도 실험실 공용」 */
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#121815">
+<meta name="description" content="통합사회1 Ⅲ 자연환경과 인간 · 자연재해와 안전권 — 지진이 나면 걸어서 몇 분 안에 대피 장소에 닿을 수 있을까? 닿지 못하는 곳은 어디일까?">
+<link rel="canonical" href="https://nyuheatgis.com/map-shelter.html">
+<meta property="og:title" content="대피소까지 몇 분? · 지도로 읽는 통합사회">
+<meta property="og:description" content="지진이 나면 걸어서 몇 분 안에 대피 장소에 닿을 수 있을까? 닿지 못하는 곳은 어디일까?">
+<meta property="og:url" content="https://nyuheatgis.com/map-shelter.html">
+<meta property="og:type" content="website">
+</head>
+<body>
+    <!-- ══════════ MASTHEAD ══════════ -->
+    <header class="st-glass st-bar">
+    <div class="geo-bar__in">
+      <a class="geo-logo lg" href="index.html" aria-label="Geographia 홈">
+        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+        <b>Geographia</b>
+      </a>
+      <nav class="geo-nav">
+        <a class="lg" href="library.html">자료실</a>
+        <a class="lg" href="progress.html">진도표</a>
+        <a class="lg" href="qna.html">Q&amp;A</a>
+        <a class="lg" href="simulators.html">시뮬레이터</a>
+        <a class="lg" href="feedback.html">건의</a>
+      </nav>
+      <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+    <main class="wrap mk" id="mk" data-map="shelter">
+      <header class="mk-head" id="mkHead"></header>
+      <div id="mkBody"><p class="mk-wait">지도를 불러오는 중…</p></div>
+      <footer class="mk-source" id="mkSource"></footer>
+      <nav class="mk-nav" id="mkNav" aria-label="다른 지도"></nav>
+    </main>
+
+    <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
+      <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
+      <a class="lg" href="maps.html">← 지도 목록</a>
+    </footer>
+
+<script type="module" src="assets/map-shelter.mjs?v=8f5654f5"></script>
+<div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
+  <div class="geo-menu__top">
+    <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
+      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+      <b>Geographia</b>
+    </a>
+    <button class="geo-close" id="geoClose" aria-label="메뉴 닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="geo-menu__links">
+    <a class="lg" href="library.html">자료실</a>
+    <a class="lg" href="progress.html">진도표</a>
+    <a class="lg" href="qna.html">Q&amp;A</a>
+    <a class="lg" href="simulators.html">시뮬레이터</a>
+    <a class="lg" href="feedback.html">건의</a>
+  </div>
+  <div class="geo-group">
+    <h3>공간 시뮬레이터</h3>
+    <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
+    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
+    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+  </div>
+  <div class="geo-group">
+    <h3>관측 · 통계 자료</h3>
+    <a href="climate.html">기후 그래프 <small>관측소 평년값 · 쾨펜 기후</small></a>
+    <a href="stats.html">통계로 보는 세계 <small>세계 217개국 · 우리나라 시·도</small></a>
+    <a href="maps.html">지도로 읽는 통합사회 <small>단원마다 GIS 분석 하나</small></a>
+  </div>
+  <div class="geo-group">
+    <h3>수업 · 지원</h3>
+    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
+    <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
+  </div>
+  <div class="geo-menu__foot">
+    <a class="geo-menu__cta lg" href="index.html">홈으로 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+    <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
+      <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+<script src="design-system/stratum.js?v=ccfe0bf1"></script>
+<script src="design-system/geo.js?v=607c78d3"></script>
+</body>
+</html>

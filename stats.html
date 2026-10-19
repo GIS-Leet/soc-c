@@ -22,7 +22,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=6dc19953">
+<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
 
 <style>
 /* ============================================================================
@@ -128,14 +128,6 @@
 
 /* ── 우리나라 시·도 ──
    크기 지표: 파랑 한 가지의 밝기 다섯 칸(어두움 = 낮음). 기준이 있는 지표(증가율 · 성비): 주황(작음) · 회색(기준 근처) · 파랑(큼) */
-:root, :root:not([data-theme="light"]) {
-  --kr-s1: #22416a; --kr-s2: #2a5f9e; --kr-s3: #3987e5; --kr-s4: #6da7ec; --kr-s5: #b7d3f6;
-  --kr-n2: #e0703a; --kr-n1: #9c5a38; --kr-mid: #5d625e; --kr-p1: #2f5f99; --kr-p2: #5598e7;
-}
-:root[data-theme="light"] {
-  --kr-s1: #daf0fc; --kr-s2: #9ec5f4; --kr-s3: #5598e7; --kr-s4: #256abf; --kr-s5: #104281;
-  --kr-n2: #c4561e; --kr-n1: #f0b28c; --kr-mid: #d6d8d3; --kr-p1: #9ec5f4; --kr-p2: #256abf;
-}
 .wd-scope { margin-bottom: 18px; }
 .kr-hint { font-size: 12px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
 .kr-body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: start; }
@@ -338,6 +330,7 @@
     <h3>관측 · 통계 자료</h3>
     <a href="climate.html">기후 그래프 <small>관측소 평년값 · 쾨펜 기후</small></a>
     <a href="stats.html">통계로 보는 세계 <small>세계 217개국 · 우리나라 시·도</small></a>
+    <a href="maps.html">지도로 읽는 통합사회 <small>단원마다 GIS 분석 하나</small></a>
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
@@ -356,6 +349,6 @@
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=08e5ef42"></script>
+<script src="design-system/geo.js?v=607c78d3"></script>
 </body>
 </html>
