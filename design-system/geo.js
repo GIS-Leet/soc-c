@@ -126,6 +126,10 @@
         { title: '3.3 도시 공간', items: [
           { label: '서울 대도시권 팽창', href: 'seoul.html' },
           { label: 'AI 분석 대시보드',   href: 'ai_dashboard.html', desc: '식생 · 열섬 · 인구' }
+        ]},
+        { title: '관측 · 통계 자료', items: [
+          { label: '기후 그래프',     href: 'climate.html', desc: '관측소 223곳 · 쾨펜 기후' },
+          { label: '통계로 보는 세계', href: 'stats.html', desc: '세계은행 지표 34개' }
         ]}
       ],
       foot: { text: '단원별로 정리된 전체 목록', link: { label: '시뮬레이터 전체 보기', href: 'simulators.html' } }

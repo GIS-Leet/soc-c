@@ -252,4 +252,128 @@
     },
   };
   if (page === "simulators") Lab.ready();
+
+  // ── 지금 조건을 주소에 담기 ──
+  // 슬라이더 · 켜고 끄기 · 탐구 주제 · 단계를 주소(?month=7&lat=15)에 적어 두고, 그 주소로 열면 같은 조건으로 시작한다.
+  // 수업에서 "이 링크 열어 보세요" 한 줄로 모두가 같은 화면을 본다. 직접 깎은 지형(terrain)은 담지 않는다.
+  if (page && page !== "simulators") {
+    const RANGES = {
+      monthSlider: "month",
+      latitudeSlider: "lat",
+      sunSlider: "sun",
+      seaLevel: "sea",
+      sunElevation: "light",
+      stageSlider: "stage",
+    };
+    const TOGGLES = {
+      townToggle: "town",
+      transportToggle: "transit",
+      labelToggle: "labels",
+      gridToggle: "grid",
+    };
+    const ranges = Object.entries(RANGES)
+      .map(([id, key]) => [document.getElementById(id), key])
+      .filter(([el]) => el);
+    const toggles = Object.entries(TOGGLES)
+      .map(([id, key]) => [document.getElementById(id), key])
+      .filter(([el]) => el);
+    const pressed = (sel) =>
+      $$(sel).find((b) => b.getAttribute("aria-pressed") === "true");
+    let restoring = true;
+    let firstScene = null;
+    const read = () => {
+      const q = new URLSearchParams();
+      const scene = pressed("[data-scenario]")?.dataset.scenario;
+      if (scene && scene !== firstScene) q.set("scene", scene);
+      const step = pressed("#capDots [data-step]")?.dataset.step;
+      if (step && step !== "0") q.set("step", String(Number(step) + 1));
+      const tilt = pressed("[data-tilt]")?.dataset.tilt;
+      if (tilt && tilt !== "23.5") q.set("tilt", tilt);
+      for (const [el, key] of ranges)
+        if (Number(el.value) !== Number(el.defaultValue))
+          q.set(key, String(Math.round(Number(el.value) * 100) / 100));
+      for (const [el, key] of toggles)
+        if (el.checked !== el.defaultChecked) q.set(key, el.checked ? "1" : "0");
+      return q;
+    };
+    const urlOf = (q) =>
+      location.pathname.split("/").pop() +
+      (q.toString() ? "?" + q.toString() : "") +
+      location.hash;
+    let pending = 0;
+    const write = () => {
+      if (restoring || pending) return;
+      pending = requestAnimationFrame(() => {
+        pending = 0;
+        try {
+          history.replaceState(history.state, "", urlOf(read()));
+        } catch {}
+      });
+    };
+    const apply = () => {
+      firstScene = pressed("[data-scenario]")?.dataset.scenario || null;
+      const q = new URLSearchParams(location.search);
+      const scene = q.get("scene");
+      if (scene)
+        $$("[data-scenario]")
+          .find((b) => b.dataset.scenario === scene)
+          ?.click();
+      const tilt = q.get("tilt");
+      if (tilt) $$("[data-tilt]").find((b) => b.dataset.tilt === tilt)?.click();
+      const step = Number(q.get("step"));
+      if (step > 1)
+        document
+          .querySelector(`#capDots [data-step="${step - 1}"]`)
+          ?.click();
+      for (const [el, key] of ranges) {
+        if (!q.has(key)) continue;
+        const v = Number(q.get(key));
+        if (!Number.isFinite(v)) continue;
+        el.value = String(Math.min(Number(el.max), Math.max(Number(el.min), v)));
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      for (const [el, key] of toggles) {
+        if (!q.has(key)) continue;
+        const on = q.get(key) === "1";
+        if (el.checked !== on) {
+          el.checked = on;
+          el.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      }
+      restoring = false;
+    };
+    document.addEventListener("lab:ready", () => setTimeout(apply, 0), {
+      once: true,
+    });
+    for (const type of ["input", "change", "click"])
+      document.addEventListener(type, write, { passive: true });
+
+    // 공유 단추 — 실험 화면 위 도구 줄(전체 화면 단추 왼쪽)
+    const tools = $(".stage-tools");
+    if (tools) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.title = "이 조건 그대로 공유";
+      btn.setAttribute("aria-label", "이 조건 그대로 여는 주소와 QR");
+      btn.innerHTML =
+        '<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg>';
+      tools.prepend(btn);
+      btn.addEventListener("click", async () => {
+        const names = [
+          ...ranges.filter(([, key]) => read().has(key)).map(([el]) =>
+            document.querySelector(`label[for="${el.id}"]`)?.textContent.trim(),
+          ),
+          read().has("scene") || read().has("step") ? "탐구 주제" : "",
+        ].filter(Boolean);
+        const note =
+          (names.length
+            ? `지금 고른 조건(${[...new Set(names)].join(" · ")})이 주소에 들어 있습니다.`
+            : "처음 조건 그대로입니다. 조건을 바꾸면 그 상태가 주소에 담깁니다.") +
+          (page === "terrain" ? " 직접 깎고 쌓은 지형은 담기지 않습니다." : "");
+        const { openShare } = await import("./share-link.mjs");
+        openShare(new URL(urlOf(read()), location.href).href, note);
+      });
+    }
+  }
 })();

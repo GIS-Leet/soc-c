@@ -530,3 +530,92 @@ select.form-input { cursor: pointer; }
 
 /* 홈페이지는 다크만(2026-10, 라이트 보류) — 테마 전환 버튼을 숨긴다. 요소는 남겨 스크립트가 깨지지 않게 */
 #geoTheme, #themeToggle, [data-st-theme-toggle] { display: none !important; }
+
+/* ── 이 화면 그대로 열기(주소 · QR) — assets/share-link.mjs. 기후 그래프 · 통계 · 시뮬레이터 공용 ── */
+.share-sheet { width: min(420px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: var(--st-r-page);
+  color: var(--st-label); background: var(--st-glass-sheen), var(--st-mat-thick-bg);
+  -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur);
+  box-shadow: inset 0 0.5px 0 0 var(--st-glass-specular), inset 0 0 0 0.5px var(--st-glass-rim), var(--st-shadow-high); }
+.share-sheet[open] { animation: modalIn var(--st-spring-snappy-dur) var(--st-spring-snappy) both; }
+.share-sheet::backdrop { background: rgba(0,0,0,0.46); backdrop-filter: blur(3px); }
+.share-sheet__in { display: grid; gap: 14px; padding: 22px; }
+.share-sheet__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.share-sheet__head h2 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.share-x { width: 32px; height: 32px; display: grid; place-items: center; border-radius: var(--st-r-full);
+  color: var(--st-label-2); background: var(--st-fill-2); }
+.share-x:hover { background: var(--st-fill); color: var(--st-label); }
+.share-x svg { width: 16px; height: 16px; }
+.share-sheet__note { font-size: 13px; line-height: 1.6; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.share-url { display: flex; gap: 8px; }
+.share-url .form-input { font-size: 12.5px; padding: 9px 12px; min-width: 0; }
+.share-qr { margin: 0; display: block; position: relative; aspect-ratio: 1; width: 100%; max-width: 240px;
+  justify-self: center; border-radius: var(--st-r-container); overflow: hidden; }
+.share-sheet .share-qr svg { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
+.share-qr__bg { fill: #fff; }
+.share-qr__fg { fill: #121815; }
+.share-qr__wait { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12.5px; color: var(--st-label-3); text-align: center; padding: 16px; }
+.share-big { justify-self: center; }
+.share-status { min-height: 1.2em; font-size: 12.5px; color: var(--st-label-3); text-align: center; }
+/* 교실 화면에 띄울 때 — 화면 높이를 거의 다 쓰는 QR */
+.share-sheet.is-big { width: min(92vmin, 760px); }
+.share-sheet.is-big .share-qr { max-width: none; width: min(80vmin, 640px); }
+.share-sheet.is-big .share-sheet__note, .share-sheet.is-big .share-url { display: none; }
+/* 공유 단추(각 페이지 도구 줄에 놓는 작은 알약) */
+.share-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 13px;
+  border-radius: var(--st-r-full); border: 1px solid var(--st-border-control); color: var(--st-label-2);
+  font-size: 12.5px; font-weight: 600; letter-spacing: var(--track-ko); white-space: nowrap;
+  transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease); }
+.share-btn:hover { background: var(--st-fill-3); color: var(--st-label); }
+.share-btn svg { width: 15px; height: 15px; }
+@media (prefers-reduced-motion: reduce) { .share-sheet[open] { animation: none; } }
+
+/* ══════════ 자료 그래프 공용 — 기후 그래프(climate.html) · 통계(stats.html) ══════════
+   색은 전부 범례가 있는 '자료의 색'. dataviz 검사기(validate_palette.js)로 고른 값:
+   기온 · 강수량 한 쌍, 기후 무리 다섯(모든 쌍), 강조 곳 여섯(이웃 쌍). 다크(기본)와 라이트를 따로 골랐다. */
+:root, :root:not([data-theme="light"]) {
+  --clim-temp: #e0603a; --clim-rain: #3987e5;
+  --gA: #256abf; --gB: #c98500; --gC: #008300; --gD: #d55181; --gE: #9085e9;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+  --map-sea: var(--st-bedrock-sunken); --map-land: rgba(236,232,221,0.15); --map-line: rgba(236,232,221,0.10);
+}
+:root[data-theme="light"] {
+  --clim-temp: #d9542c; --clim-rain: #2a78d6;
+  --gA: #1c5cab; --gB: #eda100; --gC: #008300; --gD: #d55181; --gE: #9085e9;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300;
+  --map-sea: #e4e8e3; --map-land: #cfd2c9; --map-line: rgba(31,38,34,0.12);
+}
+.q-list { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 6px); margin: 0; padding: 6px; list-style: none;
+  background: var(--st-surface-raised); border-radius: var(--st-r-container); box-shadow: var(--st-shadow-high); max-height: 360px; overflow: auto; }
+.q-list li { display: grid; grid-template-columns: 16px auto 1fr auto auto; align-items: center; gap: 8px; padding: 8px 10px;
+  border-radius: var(--st-r-element); cursor: pointer; font-size: 13.5px; letter-spacing: var(--track-ko); }
+.q-list li[aria-selected="true"], .q-list li:hover { background: var(--st-fill-2); }
+.q-list li svg { width: 12px; height: 12px; }
+.q-list li b { font-weight: 600; color: var(--st-label); }
+.q-list li span { color: var(--st-label-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.q-list li em { font-style: normal; font-weight: 700; font-size: 12px; color: var(--st-label-2); font-variant-numeric: tabular-nums; }
+.q-list li i { font-style: normal; font-size: 11px; color: var(--st-label-3); }
+.opt { height: 34px; padding: 0 13px; border-radius: var(--st-r-full); font-size: 12.5px; font-weight: 600; letter-spacing: var(--track-ko);
+  color: var(--st-label-2); background: var(--st-fill-2); transition: background var(--st-dur-fast) var(--st-ease), color var(--st-dur-fast) var(--st-ease); }
+.opt:hover { background: var(--st-fill); color: var(--st-label); }
+.opt[aria-pressed="true"] { background: var(--st-accent-soft); color: var(--accent-ink); }
+.clim-tip { position: absolute; left: 0; top: 0; z-index: 20; display: none; gap: 2px; padding: 9px 12px; max-width: 260px; pointer-events: none;
+  background: var(--st-surface-raised); border-radius: var(--st-r-element); box-shadow: var(--st-shadow-med);
+  font-size: 12.5px; line-height: 1.45; letter-spacing: var(--track-ko); color: var(--st-label-2); font-variant-numeric: tabular-nums; }
+.clim-tip b { color: var(--st-label); font-weight: 700; }
+.lg-chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px 0 9px; border-radius: var(--st-r-full);
+  font-size: 12.5px; color: var(--st-label-2); letter-spacing: var(--track-ko); background: transparent; transition: background var(--st-dur-fast) var(--st-ease); }
+.lg-chip:hover { background: var(--st-fill-3); }
+.lg-chip[aria-pressed="true"] { background: var(--st-fill); color: var(--st-label); }
+.lg-chip svg { width: 13px; height: 13px; stroke: var(--st-bedrock); stroke-width: 1.5; paint-order: stroke; }
+.lg-chip b { color: var(--st-label); font-weight: 700; }
+.lg-chip small { font-size: 11px; color: var(--st-label-3); font-variant-numeric: tabular-nums; }
+.s1 { --sc: var(--s1); } .s2 { --sc: var(--s2); } .s3 { --sc: var(--s3); } .s4 { --sc: var(--s4); } .s5 { --sc: var(--s5); } .s6 { --sc: var(--s6); }
+.cg { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--sans); }
+.cg-grid { stroke: var(--st-separator); stroke-width: 1; shape-rendering: crispEdges; }
+.cg-zero { stroke: var(--st-separator-strong); }
+.cg-tick, .cg-month, .cg-unit, .cg-flag { fill: var(--st-label-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+.cg-unit { font-size: 11px; }
+.cg-hit, .cg-hitdot { fill: transparent; }
+.cg-hit.cg-on { fill: var(--st-fill-3); }
+.cmp { fill: var(--sc); stroke: var(--st-surface); stroke-width: 1.5; }
+.cmp-line, .cmp-key line { fill: none; stroke: var(--sc); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }

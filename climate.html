@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<!-- 기후 그래프: 세계와 한반도 관측소의 1991–2020 평년값으로 기후 그래프를 그리고, 쾨펜 기호를 정한 까닭을 단계별로 보여 줌.
+     자료는 data/climate/ (scripts/build-climate-data.mjs · build-climate-map.mjs 로 만든다). 화면 논리는 assets/climate.mjs -->
+<html lang="ko">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E1W226W5M4');
+    </script>
+    <meta charset="UTF-8">
+    <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기후 그래프 — Leet's Geographia</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+
+<!-- 디자인 시스템 -->
+<link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
+<link rel="stylesheet" href="design-system/geo.css?v=6dc19953">
+
+<style>
+/* ============================================================================
+   기후 그래프 — 페이지 전용. 골격 · 색 · 재질은 stratum.css + geo.css.
+   여기의 색은 전부 '자료의 색'이다(범례가 있는 색): 기온 · 강수량 · 기후 무리 다섯 · 비교 곳 여섯.
+   팔레트는 dataviz 검사기로 확인했다 — 기후 무리 다섯은 모든 쌍 기준(다크는 색약 6.9로 모양을 함께 씀),
+   비교 여섯은 이웃 쌍 기준. 다크(기본)와 라이트(인쇄)를 따로 골랐다.
+   ========================================================================== */
+
+.rule { height: 1px; background: var(--st-separator); border: 0; margin: 0; max-width: 1180px; margin-inline: auto; }
+.clim { padding-block: clamp(20px, 3vw, 36px) clamp(48px, 7vw, 96px); }
+.clim-h { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--st-label); margin: 0 0 12px; }
+
+/* ── 도구 줄 ── */
+.clim-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 16px; }
+.clim-search { position: relative; flex: 1 1 280px; min-width: 220px; }
+.clim-search svg.ico-s { position: absolute; left: 13px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--st-label-3); pointer-events: none; }
+.clim-search input { height: 40px; padding-left: 38px; border-radius: var(--st-r-full); font-size: 14px; letter-spacing: var(--track-ko); }
+.clim-search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.clim-opts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.opt-cd { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.clim-status { min-height: 1.3em; margin: -6px 0 8px; font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+
+/* ── 지도와 질문: 세계는 지도가 위에 넓게, 한반도는 지도가 왼쪽에 길게 ── */
+.clim-body { display: grid; gap: 18px 28px; grid-template-columns: 1fr; }
+.clim[data-view="korea"] .clim-body { grid-template-columns: minmax(280px, 430px) 1fr; align-items: start; }
+.clim[data-view="korea"] .clim-map { position: sticky; top: calc(var(--bar-h) + 12px); }
+@media (max-width: 760px) { .clim[data-view="korea"] .clim-body { grid-template-columns: 1fr; } .clim[data-view="korea"] .clim-map { position: relative; top: 0; max-width: 460px; justify-self: center; width: 100%; } }
+
+.clim-map { position: relative; margin: 0; border-radius: var(--st-r-container); overflow: hidden; background: var(--map-sea); touch-action: pan-y; }
+.clim-map[data-zoomed="1"] { touch-action: none; }
+.clim-map svg { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
+.clim[data-view="world"] .clim-map svg { aspect-ratio: 1000 / 489; }
+.clim[data-view="korea"] .clim-map svg { aspect-ratio: 600 / 876; }
+.mp-sea { fill: var(--map-sea); }
+.clim[data-view="world"] .clim-map { background: var(--st-bedrock); }
+.mp-land { fill: var(--map-land); }
+.mp-border { fill: none; stroke: var(--st-bedrock); stroke-width: 0.6; vector-effect: non-scaling-stroke; }
+.mp-grid { fill: none; stroke: var(--map-line); stroke-width: 0.6; vector-effect: non-scaling-stroke; }
+.mp-line { fill: none; stroke: var(--st-separator-strong); stroke-width: 0.8; vector-effect: non-scaling-stroke; }
+.mp-eq { stroke: var(--st-label-4); }
+.mp-latlab { fill: var(--st-label-4); font-size: 8px; letter-spacing: 0.04em; }
+.mp-dokdo circle { fill: var(--st-label-2); }
+.mp-dokdo text { fill: var(--st-label-2); font-size: 13px; font-weight: 600; }
+.mk { transform: translate(var(--x), var(--y)) scale(var(--k, 1)); cursor: pointer; stroke: var(--st-bedrock); stroke-width: 2; paint-order: stroke;
+  transition: opacity var(--st-dur-fast) var(--st-ease); }
+.mk-hit { fill: transparent; stroke: none; }
+.g-A { fill: var(--gA); color: var(--gA); } .g-B { fill: var(--gB); color: var(--gB); } .g-C { fill: var(--gC); color: var(--gC); }
+.g-D { fill: var(--gD); color: var(--gD); } .g-E { fill: var(--gE); color: var(--gE); }
+.mk.is-dim { opacity: 0.16; }
+.mk:hover > :not(.mk-hit) { transform: scale(1.35); }
+.mk.is-sel > :not(.mk-hit):not(.mk-no) { transform: scale(1.5); stroke: var(--st-label); stroke-width: 1.4; }
+.mk-no { fill: var(--st-label); stroke: var(--st-bedrock); stroke-width: 3; font-size: 12px; font-weight: 700; transform: translateY(-3px); }
+.clim[data-view="korea"] .mk { --k-base: 1.4; }
+.map-zoom { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 2px; padding: 3px; border-radius: var(--st-r-full); }
+.map-zoom button { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: var(--st-label); font-size: 18px; line-height: 1; }
+.map-zoom button:hover { background: var(--st-fill-2); }
+.clim-map[data-zoomed="0"] #zoomReset { display: none; }
+@media (max-width: 600px) { .map-cap { display: none; } .map-zoom { right: 6px; top: 6px; } .map-zoom button { width: 28px; height: 28px; } }
+.map-cap { position: absolute; left: 12px; bottom: 9px; font-size: 11px; color: var(--st-label-4); letter-spacing: var(--track-ko); pointer-events: none; }
+
+/* 말풍선 — 지도와 그래프 공용 */
+
+/* 기후 무리 범례 — 누르면 그 무리만 또렷하게 */
+.legend-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.lg-note { margin-left: auto; font-size: 11.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+
+/* ── 질문 목록 ── */
+.sets { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); counter-reset: q; }
+.clim[data-view="korea"] .sets { grid-template-columns: 1fr; }
+.set { display: grid; gap: 4px; width: 100%; text-align: left; padding: 11px 14px 12px 40px; border-radius: var(--st-r-element); position: relative;
+  transition: background var(--st-dur-fast) var(--st-ease); counter-increment: q; }
+.set::before { content: counter(q, decimal-leading-zero); position: absolute; left: 13px; top: 12px; font-size: 11px; font-weight: 700;
+  color: var(--st-label-4); font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+.set--quiz::before { content: '?'; }
+.set:hover { background: var(--st-fill-3); }
+.set.is-on { background: var(--st-accent-soft); }
+.set.is-on::before { color: var(--accent-ink); }
+.set__q { font-size: 14px; font-weight: 600; line-height: 1.5; color: var(--st-label); letter-spacing: var(--track-ko); }
+.set__who { font-size: 12px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.clim-sets { margin-top: 26px; }
+.clim[data-view="korea"] .clim-sets { margin-top: 0; }
+
+/* ── 지금 보는 질문 ── */
+.focus { margin-top: 30px; padding: 20px 22px; border-radius: var(--st-r-container); background: var(--st-surface); scroll-margin-top: calc(var(--bar-h) + 16px); }
+.focus__q { font-size: clamp(1.05rem, 1.9vw, 1.3rem); font-weight: 700; line-height: 1.45; letter-spacing: -0.01em; color: var(--st-label); }
+.focus__look { margin-top: 8px; font-size: 13.5px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.focus__look span { display: inline-block; width: 46px; font-size: 11.5px; font-weight: 700; color: var(--st-label-3); }
+.focus__why { margin-top: 12px; }
+.focus__why summary { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: var(--st-r-full);
+  background: var(--st-fill-2); font-size: 12.5px; font-weight: 600; color: var(--st-label-2); cursor: pointer; list-style: none; letter-spacing: var(--track-ko); }
+.focus__why summary::-webkit-details-marker { display: none; }
+.focus__why[open] summary { background: var(--st-accent-soft); color: var(--accent-ink); }
+.focus__why p { margin-top: 12px; max-width: 70ch; font-size: 14.5px; line-height: 1.8; color: var(--st-label); letter-spacing: var(--track-ko); }
+.focus__sim { display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--accent-ink); letter-spacing: var(--track-ko); }
+
+/* ── 고른 곳 ── */
+.picked-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 34px 0 12px; }
+.picked-bar h2 { margin: 0; }
+.picked-bar .count { font-size: 12px; color: var(--st-label-3); font-variant-numeric: tabular-nums; }
+.picked-bar .sp { flex: 1; }
+.cards { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 470px), 1fr)); }
+.clim-empty { padding: 40px 0; text-align: center; color: var(--st-label-3); font-size: 14px; letter-spacing: var(--track-ko); grid-column: 1 / -1; }
+.cc { display: flex; flex-direction: column; gap: 14px; padding: 18px 18px 16px; border-radius: var(--st-r-container); background: var(--st-surface); min-width: 0; }
+.cc-head { display: flex; align-items: flex-start; gap: 12px; }
+.cc-id { display: flex; align-items: flex-start; gap: 10px; flex: 1; min-width: 0; }
+.cc-id h3 { font-size: 19px; font-weight: 700; letter-spacing: -0.015em; color: var(--st-label); line-height: 1.25; }
+.cc-id p { margin-top: 3px; font-size: 12px; color: var(--st-label-3); letter-spacing: var(--track-ko); font-variant-numeric: tabular-nums; }
+.cc-no { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px 0 6px; margin-top: 1px; border-radius: var(--st-r-full);
+  background: var(--st-fill-2); font-size: 12px; font-weight: 700; color: var(--st-label); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+.cc-no svg { width: 12px; height: 12px; fill: var(--sc); }
+.cc-code { text-align: right; flex-shrink: 0; color: var(--st-label); fill: currentColor; }
+.cc-code b { display: block; font-size: 24px; font-weight: 700; letter-spacing: 0.01em; line-height: 1; color: var(--st-label); }
+.cc-code span { display: block; margin-top: 5px; font-size: 11.5px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.cc-code b::before { content: ''; display: inline-block; width: 9px; height: 9px; margin-right: 7px; vertical-align: 4px; border-radius: 2px; background: currentColor; }
+.cc-code.g-A b::before { background: var(--gA); } .cc-code.g-B b::before { background: var(--gB); } .cc-code.g-C b::before { background: var(--gC); }
+.cc-code.g-D b::before { background: var(--gD); } .cc-code.g-E b::before { background: var(--gE); }
+.cc-x { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: var(--st-label-3); flex-shrink: 0; margin: -4px -6px 0 0; }
+.cc-x:hover { background: var(--st-fill-2); color: var(--st-label); }
+.cc-x svg { width: 15px; height: 15px; }
+.cc-reveal { height: 32px; font-size: 12px; }
+.cc-nums { display: grid; grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 8px 14px; margin: 0; }
+.cc-nums dt { font-size: 11px; color: var(--st-label-3); letter-spacing: var(--track-ko); white-space: nowrap; }
+.cc-nums dd { margin: 3px 0 0; font-size: 18px; font-weight: 600; color: var(--st-label); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; white-space: nowrap; }
+.cc-nums dd small { font-size: 11px; font-weight: 500; color: var(--st-label-3); margin-left: 2px; }
+.cc-nums .cc-mo { font-size: 15px; }
+@media (max-width: 520px) { .cc-nums { grid-template-columns: repeat(2, auto); justify-content: start; gap: 10px 28px; } }
+
+.cg-wrap { position: relative; margin: 0; min-width: 0; }
+.cg-flag { fill: var(--st-label-2); font-weight: 600; }
+.cg-rain { fill: var(--clim-rain); }
+.cg-band { fill: var(--clim-temp); opacity: 0.14; }
+.cg-temp { fill: none; stroke: var(--clim-temp); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.cg-dot { fill: var(--clim-temp); stroke: var(--st-surface); stroke-width: 2; }
+.cg-key { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 14px; margin-top: 4px; font-size: 11.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.cg-key span { display: inline-block; margin-right: 5px; vertical-align: middle; }
+.key-t { width: 16px; height: 2px; background: var(--clim-temp); border-radius: 1px; }
+.key-band { width: 12px; height: 10px; background: var(--clim-temp); opacity: 0.3; border-radius: 2px; }
+.key-p { width: 9px; height: 11px; background: var(--clim-rain); border-radius: 2px 2px 0 0; }
+
+/* 기호를 정한 까닭 — 결과는 고정폭 칸에, 까닭은 그 오른쪽에 */
+.cc-why { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.cc-why li { display: grid; grid-template-columns: 104px 1fr; gap: 12px; align-items: baseline; }
+.why-r { font-size: 12.5px; font-weight: 700; color: var(--st-label); letter-spacing: var(--track-ko); }
+.why-t { font-size: 13px; line-height: 1.6; color: var(--st-label-2); letter-spacing: var(--track-ko); font-variant-numeric: tabular-nums; }
+.why-t small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--st-label-3); }
+.cc-near { font-size: 12.5px; line-height: 1.6; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.cc-near::before { content: '경계 가까이 '; font-weight: 700; color: var(--st-label); }
+.cc-data summary { cursor: pointer; font-size: 12px; color: var(--st-label-3); letter-spacing: var(--track-ko); width: fit-content; }
+.cc-data summary:hover { color: var(--st-label-2); }
+.cc-data[open] summary { margin-bottom: 10px; }
+.cc-table-wrap { overflow-x: auto; }
+.cc-table th, .cc-table td { padding: 6px 5px; font-size: 11.5px; }
+.cc-table thead th { font-size: 10px; text-align: right; }
+.cc-table tbody th { text-align: left; font-weight: 600; color: var(--st-label-2); white-space: nowrap; font-size: 11px; letter-spacing: var(--track-ko); }
+.cc-sims { display: flex; flex-wrap: wrap; gap: 6px; }
+.cc-sims a { display: inline-flex; align-items: center; height: 28px; padding: 0 11px; border-radius: var(--st-r-full); background: var(--st-fill-2);
+  font-size: 12px; font-weight: 600; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.cc-sims a:hover { background: var(--st-fill); color: var(--st-label); }
+.cc.is-hidden .cc-id h3 { color: var(--st-label-2); }
+
+/* ── 겹쳐 보기 ── */
+.compare { margin-top: 40px; }
+.cmp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; margin-bottom: 12px; }
+.cmp-head h2 { margin: 0; }
+.cmp-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--st-label); letter-spacing: var(--track-ko); }
+.cmp-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.cmp-key { width: 22px; height: 12px; }
+.cmp-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+.cmp-grid > figure { padding: 16px 16px 12px; border-radius: var(--st-r-container); background: var(--st-surface); }
+.cmp-grid figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-bottom: 10px; font-size: 13px; font-weight: 700; color: var(--st-label); letter-spacing: var(--track-ko); }
+.cmp-grid figcaption small { flex-basis: 100%; font-size: 12px; font-weight: 500; color: var(--st-label-3); }
+.cmp-hy { grid-column: 1 / -1; }
+.cmp-hy svg { max-width: 620px; margin: 0 auto; }
+.cmp-seg { margin-left: auto; }
+.cmp-key { fill: var(--sc); stroke: none; }
+.hy .cmp-line { fill: var(--sc); fill-opacity: 0.06; }
+.hy-month { fill: var(--st-label-2); stroke: var(--st-surface); stroke-width: 3; paint-order: stroke; font-size: 11px; font-weight: 600; }
+
+/* ── 출처 ── */
+.clim-source { margin-top: 44px; display: grid; gap: 6px; max-width: 86ch; font-size: 12px; line-height: 1.7; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.clim-source b { color: var(--st-label-2); font-weight: 600; }
+.clim-source a { color: var(--st-label-2); text-decoration: underline; text-underline-offset: 2px; }
+
+.reveal { opacity: 0; transform: translateY(12px); animation: rise 520ms var(--ease) both; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } .mk { transition: none; } }
+
+/* 인쇄 — 고른 곳의 카드와 비교 그래프만, 밝은 바탕에 */
+@media print {
+  :root { --clim-temp: #d9542c; --clim-rain: #2a78d6; --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300;
+    --st-surface: #fff; --st-bedrock: #fff; --st-label: #111; --st-label-2: #333; --st-label-3: #555; --st-separator: #ccc; --st-separator-strong: #999; --st-fill-2: #eee; }
+  body { background: #fff !important; }
+  .st-bar, .geo-menu, .clim-tools, .clim-status, .clim-body, .cc-x, .cc-sims, .cc-reveal, .geo-foot, .cmp-seg, .focus__sim, #clearSel, #csv, #copy { display: none !important; }
+  .cc, .cmp-grid > figure { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+  .cc-data { display: none; }
+  .focus__why[open] p, .focus__why p { display: block; }
+}
+</style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Geographia">
+<meta name="theme-color" content="#121815">
+<meta name="description" content="세계와 한반도 관측소 223곳의 1991–2020 평년값으로 기후 그래프를 그리고, 쾨펜 기후 기호가 왜 그렇게 정해지는지 단계별로 확인하세요.">
+<link rel="canonical" href="https://nyuheatgis.com/climate.html">
+<meta property="og:title" content="기후 그래프 · Geographia">
+<meta property="og:description" content="관측소 평년값으로 그린 기후 그래프와 쾨펜 기후 구분의 까닭.">
+<meta property="og:url" content="https://nyuheatgis.com/climate.html">
+<meta property="og:type" content="website">
+</head>
+<body>
+    <!-- ══════════ MASTHEAD ══════════ -->
+    <header class="st-glass st-bar">
+    <div class="geo-bar__in">
+      <a class="geo-logo lg" href="index.html" aria-label="Geographia 홈">
+        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+        <b>Geographia</b>
+      </a>
+      <nav class="geo-nav">
+        <a class="lg" href="library.html">자료실</a>
+        <a class="lg" href="progress.html">진도표</a>
+        <a class="lg" href="qna.html">Q&amp;A</a>
+        <a class="lg" href="simulators.html">시뮬레이터</a>
+        <a class="lg" href="feedback.html">건의</a>
+      </nav>
+      <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+    <section class="wrap sheet-head">
+        <div class="sheet-num reveal">관측 자료 · 1991–2020 평년값</div>
+        <h1 class="sheet-title reveal">기후 그래프</h1>
+        <p class="sheet-meta reveal">세계와 한반도의 관측소 기록으로 기후 그래프를 그립니다.<br>곳을 고르면 그 곳의 기후 기호가 어떤 숫자에서 나왔는지 함께 보입니다.</p>
+    </section>
+    <hr class="rule">
+
+    <main class="wrap clim" id="clim" data-view="world">
+      <div class="clim-tools">
+        <div class="st-segmented" id="viewSeg" role="tablist" aria-label="지도">
+          <button type="button" class="st-segmented__item is-on" role="tab" data-value="world">세계</button>
+          <button type="button" class="st-segmented__item" role="tab" data-value="korea">한반도</button>
+        </div>
+        <div class="clim-search">
+          <svg class="ico-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input class="st-field" id="q" type="search" placeholder="도시 · 나라 · 기후로 찾기 (예: 사바나, Cfa, 칠레)" autocomplete="off"
+                 role="combobox" aria-expanded="false" aria-controls="qList" aria-autocomplete="list" aria-label="관측소 찾기">
+          <ul class="q-list" id="qList" role="listbox" aria-label="찾은 곳" hidden></ul>
+        </div>
+        <div class="clim-opts">
+          <button type="button" class="opt" id="optHide" aria-pressed="false" title="고른 곳의 이름 · 위치 · 기호를 가립니다">이름 가리기</button>
+          <button type="button" class="opt" id="optSouth" aria-pressed="false" title="남반구 자료를 6개월 밀어 같은 계절끼리 겹칩니다">남반구 계절 맞추기</button>
+          <span class="opt-cd">온대·냉대 경계
+            <span class="st-segmented" id="cdSeg" role="tablist" aria-label="온대와 냉대를 가르는 최한월 기온">
+              <button type="button" class="st-segmented__item is-on" role="tab" data-value="-3">-3℃</button>
+              <button type="button" class="st-segmented__item" role="tab" data-value="0">0℃</button>
+            </span>
+          </span>
+          <button type="button" class="share-btn" id="share" aria-label="이 화면 그대로 여는 주소와 QR">공유</button>
+        </div>
+      </div>
+      <p class="clim-status" id="climStatus" role="status" aria-live="polite"></p>
+
+      <div class="clim-body">
+        <div class="clim-mapcol">
+          <figure class="clim-map" id="map" data-zoomed="0">
+            <svg id="mapSvg" viewBox="0 0 1000 489" role="img" aria-label="세계 관측소 지도">
+              <g id="mapBase"></g>
+              <g id="mapMarks"></g>
+            </svg>
+            <div class="map-zoom st-glass">
+              <button type="button" id="zoomIn" aria-label="지도 확대">+</button>
+              <button type="button" id="zoomOut" aria-label="지도 축소">−</button>
+              <button type="button" id="zoomReset" aria-label="지도 처음 크기로"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></button>
+            </div>
+            <figcaption class="map-cap">점을 누르면 고르고, 다시 누르면 뺍니다</figcaption>
+          </figure>
+          <div class="legend-row" id="legend" aria-label="기후 무리 — 누르면 그 무리만 또렷하게"></div>
+        </div>
+        <section class="clim-sets" id="sets" aria-label="질문으로 고르기"></section>
+      </div>
+
+      <section class="focus" id="focus" aria-live="polite" hidden></section>
+
+      <div class="picked-bar">
+        <h2 class="clim-h">고른 곳</h2>
+        <span class="count" id="pickedCount"></span>
+        <span class="sp"></span>
+        <button type="button" class="opt" id="copy">표 복사</button>
+        <button type="button" class="opt" id="csv">CSV 받기</button>
+        <button type="button" class="opt" id="clearSel">모두 빼기</button>
+      </div>
+      <section class="cards" id="cards" aria-label="고른 곳의 기후 그래프"></section>
+
+      <section class="compare" id="compare" aria-label="고른 곳 겹쳐 보기" hidden></section>
+
+      <footer class="clim-source">
+        <p><b>자료</b> 각국 기상청이 세계기상기구(WMO)에 낸 1991–2020 기후 평년값(미국 해양대기청 NCEI 보관, <a href="https://www.ncei.noaa.gov/products/wmo-climate-normals" target="_blank" rel="noopener">WMO Climate Normals</a>). 우리나라 관측소는 기상청 평년값과 같습니다. 이 자료가 비어 있는 곳(북한, 베트남, 케냐 등)은 <a href="https://meteostat.net" target="_blank" rel="noopener">Meteostat</a> 평년값 1991–2020으로 채웠고, 카드의 「월별 값」에 어느 쪽인지 적었습니다.</p>
+        <p><b>계산</b> 쾨펜 기후 구분은 Peel 외(2007)의 기준을 따르며, 온대와 냉대의 경계만 -3℃와 0℃ 가운데 고를 수 있습니다. 평균 기온을 따로 내지 않은 관측소는 평균 최고 기온과 평균 최저 기온의 가운데 값을 썼습니다.</p>
+        <p><b>지도</b> Natural Earth. 세계 지도는 넓이가 바르게 보이는 Equal Earth 도법입니다.</p>
+      </footer>
+    </main>
+
+    <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
+      <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
+      <a class="lg" href="index.html">← 메인으로</a>
+    </footer>
+
+<script type="module" src="assets/climate.mjs?v=eb92cfaa"></script>
+<div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
+  <div class="geo-menu__top">
+    <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
+      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="24" cy="24" r="20"/>
+          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
+          <path d="M24 4v40M4 24h40"/>
+          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
+          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
+        </svg>
+      <b>Geographia</b>
+    </a>
+    <button class="geo-close" id="geoClose" aria-label="메뉴 닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+  <div class="geo-menu__links">
+    <a class="lg" href="library.html">자료실</a>
+    <a class="lg" href="progress.html">진도표</a>
+    <a class="lg" href="qna.html">Q&amp;A</a>
+    <a class="lg" href="simulators.html">시뮬레이터</a>
+    <a class="lg" href="feedback.html">건의</a>
+  </div>
+  <div class="geo-group">
+    <h3>공간 시뮬레이터</h3>
+    <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
+    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
+    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+  </div>
+  <div class="geo-group">
+    <h3>관측 · 통계 자료</h3>
+    <a href="climate.html">기후 그래프 <small>관측소 평년값 · 쾨펜 기후</small></a>
+    <a href="stats.html">통계로 보는 세계 <small>인구 · 산업 · 자원 · 삶의 질</small></a>
+  </div>
+  <div class="geo-group">
+    <h3>수업 · 지원</h3>
+    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
+    <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
+  </div>
+  <div class="geo-menu__foot">
+    <a class="geo-menu__cta lg" href="index.html">홈으로 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+    <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
+      <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</div>
+
+<script src="design-system/stratum.js?v=ccfe0bf1"></script>
+<script src="design-system/geo.js?v=03384b60"></script>
+</body>
+</html>
