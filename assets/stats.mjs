@@ -4,6 +4,7 @@
 // 고른 지표 · 보기 · 함께 볼 나라는 주소에 담긴다.
 import { TOPICS, INDICATORS, BY_CODE } from './stats-indicators.mjs?v=6646ba79';
 import { openShare, SHARE_ICON } from './share-link.mjs?v=53919a56';
+import { initKorea } from './stats-korea.mjs?v=aaf8d06d';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -15,7 +16,7 @@ const VIEWS = { dist: '지역별 분포', trend: '추이', xy: '관계', table: 
 let D = null;           // latest.json
 let C = new Map();      // 나라 id → 나라
 const seriesCache = new Map();
-const state = { i: 'SP.DYN.TFRT.IN', v: 'dist', x: 'NY.GNP.PCAP.PP.CD', pins: [], region: null, sort: 'desc' };
+const state = { scope: 'world', i: 'SP.DYN.TFRT.IN', v: 'dist', x: 'NY.GNP.PCAP.PP.CD', pins: [], region: null, sort: 'desc' };
 
 // ── 수 쓰기 ──
 function num(v, ind, { unit = true } = {}) {
@@ -269,8 +270,8 @@ function drawTopics() {
   const L = (code) => D.latest[code];
   $('#indList').innerHTML = INDICATORS.filter((i) => i.topic === ind.topic).map((i) => `
     <li><button type="button" class="wd-ind${i.code === state.i ? ' is-on' : ''}" data-i="${i.code}" aria-current="${i.code === state.i}">
-      <span class="st-ind__n">${esc(i.name)}</span>
-      <span class="st-ind__v"><b>${L(i.code).KOR ? num(L(i.code).KOR[0], i) : '—'}</b><small>세계 ${L(i.code).WLD ? num(L(i.code).WLD[0], i) : '—'}</small></span>
+      <span class="wd-ind__n">${esc(i.name)}</span>
+      <span class="wd-ind__v"><b>${L(i.code).KOR ? num(L(i.code).KOR[0], i) : '—'}</b><small>세계 ${L(i.code).WLD ? num(L(i.code).WLD[0], i) : '—'}</small></span>
     </button></li>`).join('');
 }
 function drawPins() {
@@ -414,6 +415,18 @@ function events() {
   addEventListener('resize', () => segThumb($('#viewSeg')));
 }
 
+// ── 세계 ↔ 우리나라 시·도 ──
+async function setScope(scope) {
+  state.scope = scope;
+  $$('#scopeSeg .st-segmented__item').forEach((b) => { const on = b.dataset.value === scope; b.classList.toggle('is-on', on); b.setAttribute('aria-selected', String(on)); });
+  segThumb($('#scopeSeg'));
+  $('#worldView').hidden = scope !== 'world';
+  $('#krView').hidden = scope !== 'kr';
+  if (scope === 'kr') {
+    try { await initKorea(say); } catch { $('#krBody').innerHTML = '<p class="wd-wait">시·도 자료를 불러오지 못했습니다.</p>'; }
+  } else { render(); }
+}
+
 (async function init() {
   try {
     D = await fetch('data/stats/latest.json').then((r) => r.json());
@@ -425,7 +438,9 @@ function events() {
   fromUrl();
   events();
   searchEvents();
-  render();
+  $('#scopeSeg').addEventListener('click', (e) => { const b = e.target.closest('[data-value]'); if (b && b.dataset.value !== state.scope) setScope(b.dataset.value); });
+  addEventListener('resize', () => segThumb($('#scopeSeg')));
+  await setScope(new URLSearchParams(location.search).get('scope') === 'kr' ? 'kr' : 'world');
   $('#builtAt').textContent = D.meta.built;
   document.body.dataset.ready = 'true';
 })();

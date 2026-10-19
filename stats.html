@@ -49,11 +49,11 @@
   transition: background var(--st-dur-fast) var(--st-ease); }
 .wd-ind:hover { background: var(--st-fill-3); }
 .wd-ind.is-on { background: var(--st-fill-2); }
-.st-ind__n { font-size: 13.5px; font-weight: 600; line-height: 1.4; color: var(--st-label-2); letter-spacing: var(--track-ko); }
-.wd-ind.is-on .st-ind__n { color: var(--st-label); }
-.st-ind__v { display: grid; justify-items: end; gap: 1px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.st-ind__v b { font-size: 13px; font-weight: 600; color: var(--st-label); }
-.st-ind__v small { font-size: 11px; color: var(--st-label-3); }
+.wd-ind__n { font-size: 13.5px; font-weight: 600; line-height: 1.4; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.wd-ind.is-on .wd-ind__n { color: var(--st-label); }
+.wd-ind__v { display: grid; justify-items: end; gap: 1px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wd-ind__v b { font-size: 13px; font-weight: 600; color: var(--st-label); }
+.wd-ind__v small { font-size: 11px; color: var(--st-label-3); }
 .wd-listcap { margin: 10px 12px 0; font-size: 11.5px; line-height: 1.6; color: var(--st-label-3); letter-spacing: var(--track-ko); }
 
 /* 고른 지표 */
@@ -126,6 +126,48 @@
 .wd-source b { color: var(--st-label-2); font-weight: 600; }
 .wd-source a { color: var(--st-label-2); text-decoration: underline; text-underline-offset: 2px; }
 
+/* ── 우리나라 시·도 ──
+   크기 지표: 파랑 한 가지의 밝기 다섯 칸(어두움 = 낮음). 기준이 있는 지표(증가율 · 성비): 주황(작음) · 회색(기준 근처) · 파랑(큼) */
+:root, :root:not([data-theme="light"]) {
+  --kr-s1: #22416a; --kr-s2: #2a5f9e; --kr-s3: #3987e5; --kr-s4: #6da7ec; --kr-s5: #b7d3f6;
+  --kr-n2: #e0703a; --kr-n1: #9c5a38; --kr-mid: #5d625e; --kr-p1: #2f5f99; --kr-p2: #5598e7;
+}
+:root[data-theme="light"] {
+  --kr-s1: #daf0fc; --kr-s2: #9ec5f4; --kr-s3: #5598e7; --kr-s4: #256abf; --kr-s5: #104281;
+  --kr-n2: #c4561e; --kr-n1: #f0b28c; --kr-mid: #d6d8d3; --kr-p1: #9ec5f4; --kr-p2: #256abf;
+}
+.wd-scope { margin-bottom: 18px; }
+.kr-hint { font-size: 12px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.kr-body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 760px) { .kr-body { grid-template-columns: 1fr; } }
+.kr-mapbox, .kr-barbox { margin: 0; padding: 14px; border-radius: var(--st-r-container); background: var(--st-surface); }
+.kr-map { display: block; width: 100%; height: auto; }
+.kr-shape { stroke: var(--st-surface); stroke-width: 1.2; stroke-linejoin: round; cursor: pointer; transition: opacity var(--st-dur-fast) var(--st-ease); }
+.kr-shape.is-hover { stroke: var(--st-label-2); stroke-width: 1.6; }
+.kr-shape.is-sel { stroke: var(--st-label); stroke-width: 2.4; }
+.kr-lab { fill: var(--st-label); stroke: var(--st-bedrock); stroke-width: 3; paint-order: stroke; font-size: 12px; font-weight: 600; pointer-events: none; }
+.kr-dokdo circle { fill: var(--st-label-2); }
+.kr-dokdo text { fill: var(--st-label-2); font-size: 11px; font-weight: 600; }
+.kr-legend { display: flex; justify-content: center; gap: 0; margin-top: 8px; font-size: 11.5px; color: var(--st-label-3); font-variant-numeric: tabular-nums; }
+.kr-legend span { display: grid; justify-items: center; gap: 4px; width: 20%; max-width: 72px; }
+.kr-legend i { display: block; width: 100%; height: 10px; }
+.kr-legend span:first-child i { border-radius: 5px 0 0 5px; } .kr-legend span:last-child i { border-radius: 0 5px 5px 0; }
+.kr-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+.kr-bars li { display: grid; grid-template-columns: 56px 1fr 70px; align-items: center; gap: 10px; padding: 3px 6px; border-radius: var(--st-r-inner); cursor: pointer; }
+.kr-bars li.is-hover { background: var(--st-fill-3); }
+.kr-bars li.is-sel { background: var(--st-fill-2); }
+.kr-bars__n { font-size: 12.5px; font-weight: 600; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.kr-bars li.is-sel .kr-bars__n { color: var(--st-label); }
+.kr-bars__t { position: relative; height: 14px; }
+.kr-bars__t i { position: absolute; top: 0; bottom: 0; border-radius: 0 4px 4px 0; }
+.kr-bars__t b { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--st-label-3); }
+.kr-bars__v { text-align: right; font-size: 12.5px; color: var(--st-label); font-variant-numeric: tabular-nums; }
+.kr-note { margin-top: 10px; min-height: 1.2em; font-size: 12.5px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.kr-calc { color: var(--st-label-3); font-size: 12.5px; }
+.kr-tablebox { margin-top: 12px; }
+.kr-tablebox summary { cursor: pointer; font-size: 12.5px; color: var(--st-label-3); width: fit-content; letter-spacing: var(--track-ko); }
+.kr-tablebox[open] summary { margin-bottom: 10px; }
+
 .reveal { opacity: 0; transform: translateY(12px); animation: rise 520ms var(--ease) both; }
 @keyframes rise { to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } }
@@ -139,7 +181,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Geographia">
 <meta name="theme-color" content="#121815">
-<meta name="description" content="세계은행 자료로 우리나라와 217개 나라의 인구 · 도시 · 산업 · 세계화 · 자원 · 삶의 질 지표를 견주어 보세요.">
+<meta name="description" content="세계은행 자료로 우리나라와 217개 나라를, 국가데이터처 자료로 우리나라 시·도를 견주어 보세요.">
 <link rel="canonical" href="https://nyuheatgis.com/stats.html">
 <meta property="og:title" content="통계로 보는 세계 · Geographia">
 <meta property="og:description" content="우리나라와 세계를 숫자로 견주기 — 분포 · 추이 · 관계 · 표.">
@@ -174,13 +216,18 @@
   </header>
 
     <section class="wrap sheet-head">
-        <div class="sheet-num reveal">세계은행 세계 개발 지표</div>
+        <div class="sheet-num reveal">세계은행 · 국가데이터처</div>
         <h1 class="sheet-title reveal">통계로 보는 세계</h1>
-        <p class="sheet-meta reveal">우리나라를 217개 나라 사이에 놓고 봅니다.<br>숫자마다 무엇을 센 것인지와 함께 생각할 거리를 적었습니다.</p>
+        <p class="sheet-meta reveal">우리나라를 217개 나라 사이에, 시·도를 서로 나란히 놓고 봅니다.<br>숫자마다 무엇을 센 것인지와 함께 생각할 거리를 적었습니다.</p>
     </section>
     <hr class="rule">
 
     <main class="wrap wd" id="wd">
+      <div class="st-segmented wd-scope" id="scopeSeg" role="tablist" aria-label="범위">
+        <button type="button" class="st-segmented__item is-on" role="tab" data-value="world">세계</button>
+        <button type="button" class="st-segmented__item" role="tab" data-value="kr">우리나라 시·도</button>
+      </div>
+      <div id="worldView">
       <nav class="wd-topics" id="topics" aria-label="주제"></nav>
       <div class="wd-grid">
         <div>
@@ -218,6 +265,34 @@
         <p><b>자료</b> 세계은행 <a href="https://data.worldbank.org" target="_blank" rel="noopener">세계 개발 지표(World Development Indicators)</a>, CC BY 4.0. 세계은행이 각국 통계청 · 국제 연합 · 국제 노동 기구 · 국제 에너지 기구 등의 자료를 모아 같은 기준으로 맞춘 값입니다. <span id="builtAt"></span>에 받았습니다.</p>
         <p><b>읽을 때</b> 나라마다 가장 최근 값의 해가 다릅니다(10년보다 오래된 값은 싣지 않았습니다). 우리 정부가 발표한 값과 기준 · 시점이 달라 조금 다를 수 있습니다. 지역 구분은 세계은행의 구분이며, 「중동 · 북아프리카」에는 아프가니스탄과 파키스탄이 들어 있습니다.</p>
       </footer>
+      </div>
+
+      <div id="krView" hidden>
+        <nav class="wd-topics" id="krTopics" aria-label="주제"></nav>
+        <div class="wd-grid">
+          <div>
+            <ul class="wd-list" id="krList" aria-label="지표"></ul>
+            <p class="wd-listcap">굵은 숫자는 전국 값, 아래는 시점입니다.</p>
+          </div>
+          <section class="wd-main" aria-live="polite">
+            <div id="krHead"></div>
+            <div class="wd-bar">
+              <span class="kr-hint">지도나 막대를 누르면 그 시·도를 강조합니다</span>
+              <span class="sp"></span>
+              <button type="button" class="opt" id="krCopy">표 복사</button>
+              <button type="button" class="opt" id="krCsv">CSV 받기</button>
+              <button type="button" class="share-btn" id="krShare" aria-label="이 화면 그대로 여는 주소와 QR">공유</button>
+            </div>
+            <div class="kr-body" id="krBody"></div>
+            <p class="kr-note" id="krNote"></p>
+            <div id="krTable"></div>
+          </section>
+        </div>
+        <footer class="wd-source">
+          <p><b>자료</b> 국가데이터처(옛 통계청) <a href="https://kosis.kr" target="_blank" rel="noopener">국가통계포털(KOSIS)</a>의 e-지방지표 · 주민등록인구현황 · 인구동향조사 · 지역소득 통계표에서 시·도 값을 옮겼습니다(<span id="krSrc"></span>). <span id="krBuilt"></span>에 옮겼습니다.</p>
+          <p><b>읽을 때</b> 2026년 7월 1일 광주광역시와 전라남도가 전남광주통합특별시로 합쳐졌습니다. 2026년 월별 통계는 통합특별시 하나로, 2025년까지의 연간 통계는 광주와 전남을 따로 보여 줍니다. 지표마다 시점이 다르니 제목 옆의 해를 함께 보세요. 지도 경계는 통계청 센서스용 행정구역경계(2018)입니다.</p>
+        </footer>
+      </div>
     </main>
 
     <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
@@ -225,7 +300,7 @@
       <a class="lg" href="index.html">← 메인으로</a>
     </footer>
 
-<script type="module" src="assets/stats.mjs?v=1e44c1ee"></script>
+<script type="module" src="assets/stats.mjs?v=7dfde742"></script>
 <div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="geo-menu__top">
     <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
@@ -262,7 +337,7 @@
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
     <a href="climate.html">기후 그래프 <small>관측소 평년값 · 쾨펜 기후</small></a>
-    <a href="stats.html">통계로 보는 세계 <small>인구 · 산업 · 자원 · 삶의 질</small></a>
+    <a href="stats.html">통계로 보는 세계 <small>세계 217개국 · 우리나라 시·도</small></a>
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
@@ -281,6 +356,6 @@
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=03384b60"></script>
+<script src="design-system/geo.js?v=08e5ef42"></script>
 </body>
 </html>
