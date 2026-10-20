@@ -2,6 +2,7 @@
 import * as G from './gichul.mjs?v=79235d16';
 import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=c8039730';
 import { sheetHtml, openSheetDialog } from './gichul-sheet.mjs?v=bfeed7aa';
+import { buildPublic, publish } from './gichul-publish.mjs?v=69c7f18e';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -27,6 +28,7 @@ export function mountGichul(root, fb) {
         </nav>
         <div class="mat-actions">
           <button class="btn-sub" id="gcNext" title="다음 미분류 문항">이어서 분류</button>
+          <button class="btn-sub" id="gcPublish" title="검증한 통합사회 문항을 학생 사이트(gichul.html)에 올림">학생용 공개</button>
           <button class="btn-solid" id="gcAdd">+ PDF 추가</button>
           <input type="file" id="gcFile" multiple accept=".pdf,application/pdf" hidden>
         </div>
@@ -54,7 +56,7 @@ export function mountGichul(root, fb) {
     if (S.started) return; S.started = true;
     try { S.tax = G.parseTaxonomy(await (await fetch('data/gichul-taxonomy.json', { cache: 'no-cache' })).json()); }
     catch { S.tax = { concepts: [], data: [], errors: [] }; status('분류표를 불러오지 못했습니다 — 새로 고침해 주세요.', true); }
-    try { const g = (await get(ref(db, 'desk/settings/github'))).val() || {}; if (g.token) S.gh = { token: g.token, repo: g.repo || 'GIS-Leet/soc-c-private' }; } catch {}
+    try { const g = (await get(ref(db, 'desk/settings/github'))).val() || {}; if (g.token) S.gh = { token: g.token, repo: g.repo || 'GIS-Leet/soc-c-private', publicRepo: g.publicRepo || 'GIS-Leet/soc-c' }; } catch {}
     onValue(ref(db, 'desk/gichul'), snap => {
       S.data = G.parseData(snap.val());
       if (S.cur && !S.data.items.some(i => i.id === S.cur)) S.cur = null;
@@ -389,6 +391,20 @@ export function mountGichul(root, fb) {
       ${units.length && types.length ? `<section class="gc-stat-sec"><h3>단원 × 자료 유형</h3><div class="gc-cross"><table><tr><th></th>${types.map(t => `<th>${esc(t)}</th>`).join('')}</tr>${units.map(u => `<tr><th>${esc(u)}</th>${types.map(t => `<td class="${c[u][t] ? 'on' : ''}">${c[u][t] || '·'}</td>`).join('')}</tr>`).join('')}</table></div><p class="gc-hint">어느 단원이 어떤 자료로 자주 나오는지 — 수업 예시와 자체 문항 만들 때 참고.</p></section>` : ''}
     </div>`;
   }
+
+  // ── 학생용 공개 — 검증한 통합사회 문항을 공개 저장소에 그림 · 목록으로(assets/gichul-publish.mjs) ──
+  $('#gcPublish').onclick = async () => {
+    if (!S.gh) return status('자료 탭에서 GitHub 토큰을 먼저 연결해 주세요.', true);
+    const n = buildPublic(S.data).items.length;
+    if (!n) return status('공개할 문항이 없습니다 — 통합사회 시험에서 개념 분류까지 확인(저장)한 문항만 올라갑니다.', true);
+    if (!confirm(`통합사회 ${n}문항을 학생 사이트의 「통합사회 기출 문항」에 올립니다.\n문항 그림 · 정답 · 분류와 메모의 「핵심」「함정」 줄이 공개되고, 그 밖의 메모와 기타 태그는 올라가지 않습니다.`)) return;
+    const btn = $('#gcPublish'); btn.disabled = true;
+    try {
+      const r = await publish({ data: S.data, token: S.gh.token, repo: S.gh.publicRepo, pdfOf, renderParts, onProgress: m => status(m) });
+      status(`올렸습니다 · ${r.items}문항(새 그림 ${r.rendered} · 그대로 ${r.reused} · 지움 ${r.removed}). 사이트에는 1~10분 뒤에 보입니다.`);
+    } catch (e) { status('올리지 못했습니다: ' + e.message, true); }
+    finally { btn.disabled = false; }
+  };
 
   // ── PDF 추가 ──
   $('#gcAdd').onclick = () => $('#gcFile').click();
