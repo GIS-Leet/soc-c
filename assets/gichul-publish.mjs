@@ -2,7 +2,7 @@
 // 공개 저장소(soc-c)의 data/gichul/ 에 커밋 하나로 올린다. 학생 화면은 gichul.html(assets/gichul-student.mjs).
 // 학생에게 가는 것: 문항 그림 · 시험 이름 · 번호 · 배점 · 정답 · 분류(개념 · 자료 · 오답) · 메모 가운데 「핵심」「함정」 줄.
 // 가지 않는 것: 기타 태그(x), 이름표 없는 메모(수업용 메모), PDF 원본, 비공개 저장소 경로.
-import * as G from './gichul.mjs?v=d99a0f38';
+import * as G from './gichul.mjs?v=7adfbb60';
 
 export const SUBJECT = '통합사회';
 export const DIR = 'data/gichul';

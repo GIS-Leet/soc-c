@@ -1,8 +1,8 @@
 // Desk 「기출」 뷰 — 진도·이어서 분류·PDF 추가(선택·끌어다 놓기)·분류(문항 + 3축 태그)·단원별 보기(풀이 화면)·시험·검색(인쇄)·통계. 데이터는 앱과 같은 desk/gichul · GitHub 기출/
-import * as G from './gichul.mjs?v=d99a0f38';
-import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=3d8d7b2f';
+import * as G from './gichul.mjs?v=7adfbb60';
+import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=39264993';
 import { sheetHtml, openSheetDialog } from './gichul-sheet.mjs?v=bfeed7aa';
-import { summary, publish } from './gichul-publish.mjs?v=59c7ebbe';
+import { summary, publish } from './gichul-publish.mjs?v=ada1f9ee';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -404,7 +404,9 @@ export function mountGichul(root, fb) {
       const lost = plans.filter(p => !p.exam);
       if (lost.length) return status('시험을 찾지 못했습니다: ' + lost.map(p => p.want).join(', ') + ' — PDF 를 먼저 넣어 주세요.', true);
       const lines = plans.map(p => `  · ${p.exam.title} — 넣을 문항 ${p.done}${p.skipped ? ` · 이미 분류함(그대로 둠) ${p.skipped}` : ''}${p.missing ? ` · 없는 번호 ${p.missing}` : ''}`).join('\n');
-      if (!confirm(`분류를 넣습니다. 넣은 문항에는 「검증 전」이 붙고, 분류 화면에서 확인 · 저장하면 떼어집니다.\n\n${lines}`)) return;
+      const fin = seeds.some(s => s.final);
+      if (!confirm(fin ? `검증한 분류로 확정합니다. 「검증 전」 문항의 분류 · 메모를 바꿔 넣고 표시를 뗍니다(이미 검증한 문항은 그대로).\n\n${lines.replace(/넣을 문항/g, '확정할 문항').replace(/이미 분류함/g, '이미 검증함')}`
+        : `분류를 넣습니다. 넣은 문항에는 「검증 전」이 붙고, 분류 화면에서 확인 · 저장하면 떼어집니다.\n\n${lines}`)) return;
       let n = 0;
       for (const p of plans) for (const w of p.writes) { await set(ref(db, w.path), w.record); n++; status(`분류 넣는 중 ${n}`); }
       status(`분류를 넣었습니다 · ${n}문항. 「이어서 분류」로 하나씩 확인해 주세요.`);

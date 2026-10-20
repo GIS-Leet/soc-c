@@ -197,3 +197,27 @@ test('1차 분류 넣기 — 시험 찾기(id 또는 메타), 이미 분류한 �
   assert.equal(p.writes.find(w => w.path.endsWith('/03')).record.ans, 2);
   assert.equal(G.planSeed(d, { exam: 'nope', items: { 1: {} } }).exam, null);
 });
+
+test('1차 분류 확정(final) — 검증 전만 바꿔 넣고 표시를 뗌, 사용자가 검증한 문항은 그대로, at 없음', () => {
+  const part = [{ p: 0, x: 0, y: 0, w: 10, h: 10 }];
+  const meta = { year: 2026, exam: '10월 학평', grade: '고2', subject: '통합사회' };
+  const id = G.metaId(meta);
+  const d = G.parseData({
+    exams: { [id]: { title: 't', ...meta, pdf: 'p', createdAt: 1 } },
+    items: { [id]: {
+      '01': { parts: part, c: ['통사1 Ⅲ 자연환경과 인간'], x: [G.PENDING], ans: 1, memo: '핵심: 옛 / 함정: 옛' },
+      '02': { parts: part, c: ['통사1 Ⅳ 문화와 다양성'], ans: 4, at: 5 },          // 사용자가 검증함
+      '03': { parts: part },                                                          // 아직 비어 있음
+    } },
+  });
+  const p = G.planSeed(d, { final: true, meta, items: {
+    1: { c: ['통사1 Ⅲ 자연환경과 인간 > 자연환경과 인간 생활(기후·지형)'], d: ['기후 그래프'], ans: 1, memo: '핵심: 새 / 함정: 새' },
+    2: { c: ['통사2 Ⅰ 인권 보장과 헌법'], ans: 1 },
+    3: { c: ['통사2 Ⅴ 미래와 지속가능한 삶'], ans: 3 },
+  } });
+  assert.deepEqual([p.done, p.skipped], [2, 1]);
+  const r1 = p.writes.find(w => w.path.endsWith('/01')).record;
+  assert.equal(r1.x, undefined); assert.equal(r1.memo, '핵심: 새 / 함정: 새'); assert.deepEqual(r1.d, ['기후 그래프']); assert.equal(r1.at, undefined);
+  assert.equal(p.writes.find(w => w.path.endsWith('/03')).record.x, undefined);
+  assert.ok(!p.writes.some(w => w.path.endsWith('/02')));
+});

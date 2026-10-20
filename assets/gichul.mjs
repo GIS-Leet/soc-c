@@ -341,13 +341,15 @@ export function planSeed(d, seed) {
   for (const [no, a] of Object.entries(seed.items || {})) {
     const it = d.items.find(i => i.examId === ex.id && i.number === Number(no));
     if (!it) { missing++; continue; }
-    if (tagged(it)) { skipped++; continue; }
+    // 확정(final) — seed.py final 과 같은 규칙: 검증 전 문항의 분류 · 메모를 바꿔 넣고 「검증 전」을 뗌. 사용자가 이미 검증한 문항은 그대로. at 은 넣지 않음(오늘 수에 안 잡힘)
+    if (seed.final ? verified(it) : tagged(it)) { skipped++; continue; }
     const x = { ...it, tags: {} };
     for (const k of ['c', 'd', 'o']) if (a[k]?.length) x.tags[k] = a[k].filter(t => typeof t === 'string');
-    x.tags.x = [...(a.x || []).filter(t => typeof t === 'string' && t !== PENDING), PENDING];
-    if (a.ans != null && it.ans == null) x.ans = Number(a.ans);
+    const extra = (a.x || []).filter(t => typeof t === 'string' && t !== PENDING);
+    if (seed.final) { if (extra.length) x.tags.x = extra; } else x.tags.x = [...extra, PENDING];
+    if (a.ans != null && (seed.final || it.ans == null)) x.ans = Number(a.ans);
     if (a.pts != null && it.pts == null) x.pts = Number(a.pts);
-    if (a.memo && !it.memo) x.memo = String(a.memo);
+    if (a.memo && (seed.final || !it.memo)) x.memo = String(a.memo);
     writes.push({ path: `desk/gichul/items/${ex.id}/${itemKey(it.number)}`, record: itemRecord(x) });
   }
   return { exam: ex, writes, done: writes.length, skipped, missing };
