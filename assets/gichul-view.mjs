@@ -2,7 +2,7 @@
 import * as G from './gichul.mjs?v=79235d16';
 import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=c8039730';
 import { sheetHtml, openSheetDialog } from './gichul-sheet.mjs?v=bfeed7aa';
-import { buildPublic, publish } from './gichul-publish.mjs?v=d49ed47b';
+import { summary, publish } from './gichul-publish.mjs?v=edd081b9';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -395,9 +395,10 @@ export function mountGichul(root, fb) {
   // ── 학생용 공개 — 검증한 통합사회 문항을 공개 저장소에 그림 · 목록으로(assets/gichul-publish.mjs) ──
   $('#gcPublish').onclick = async () => {
     if (!S.gh) return status('자료 탭에서 GitHub 토큰을 먼저 연결해 주세요.', true);
-    const n = buildPublic(S.data).items.length;
+    const s = summary(S.data), n = s.n;
     if (!n) return status('공개할 문항이 없습니다 — 통합사회 시험의 지리 단원(통사1 Ⅲ·Ⅳ·Ⅴ, 통사2 Ⅳ·Ⅴ)에서 개념 분류까지 확인(저장)한 문항만 올라갑니다.', true);
-    if (!confirm(`통합사회 지리 단원 ${n}문항을 학생 사이트의 「통합사회 기출 문항」에 올립니다.\n문항 그림 · 정답 · 분류와 메모의 「핵심」「함정」 줄이 공개되고, 그 밖의 메모와 기타 태그는 올라가지 않습니다.`)) return;
+    const lines = s.byUnit.map(([u, k]) => `  · ${u.replace(/^통사/, '통합사회')} — ${k}문항`).join('\n');
+    if (!confirm(`학생 사이트의 「통합사회 기출 문항」에 지리 단원 ${n}문항을 올립니다.\n\n${lines}\n  (개념이 두 단원에 걸친 문항은 두 단원에 모두 셉니다)\n\n빠지는 문항: 지리 단원이 아님 ${s.notGeo} · 통합사회 범위 밖 ${s.outOfScope} · 분류 확인 전 ${s.unchecked} (통합사회 시험 전체 ${s.total}문항)\n\n문항 그림 · 정답 · 분류와 메모의 「핵심」「함정」 줄이 공개되고, 그 밖의 메모와 기타 태그는 올라가지 않습니다.\n처음 올릴 때는 문항마다 그림을 만드느라 몇 분 걸립니다. 진행 상황은 단추 아래에 나옵니다.`)) return;
     const btn = $('#gcPublish'); btn.disabled = true;
     try {
       const r = await publish({ data: S.data, token: S.gh.token, repo: S.gh.publicRepo, pdfOf, renderParts, onProgress: m => status(m) });

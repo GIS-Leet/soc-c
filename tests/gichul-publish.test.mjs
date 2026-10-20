@@ -73,3 +73,14 @@ test('지리 단원(통사1 Ⅲ·Ⅳ·Ⅴ, 통사2 Ⅳ·Ⅴ) 문항만 — 단�
   assert.deepEqual(buildPublic(d).items.map((i) => i.n), [2, 3]);
   assert.equal(isGeo({ c: ['통사2 Ⅴ 미래와 지속가능한 삶 > 인구 문제'] }), true);
 });
+
+test('확인 창 내역 — 단원별 수와 빠지는 까닭', async () => {
+  const { summary } = await import('../assets/gichul-publish.mjs');
+  const s = summary(data);
+  assert.equal(s.n, 3);
+  assert.equal(s.total, 6);                 // a 시험 5 + c 시험 1 (한국지리 시험은 셈에 없음)
+  assert.equal(s.outOfScope, 1);            // a/04
+  assert.equal(s.unchecked, 2);             // a/02(검증 전) · a/03(태그 없음)
+  assert.equal(s.notGeo, 0);
+  assert.deepEqual(Object.fromEntries(s.byUnit), { '통사1 Ⅲ 자연환경과 인간': 1, '통사1 Ⅳ 문화와 다양성': 0, '통사1 Ⅴ 생활공간과 사회': 0, '통사2 Ⅳ 세계화와 평화': 1, '통사2 Ⅴ 미래와 지속가능한 삶': 1 });
+});

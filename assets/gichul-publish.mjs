@@ -62,6 +62,21 @@ export function buildPublic(data) {
   };
 }
 
+/** 확인 창에 보일 내역 — 무엇이 몇 문항 올라가고, 왜 빠지는지 */
+export function summary(data) {
+  const exams = new Set(data.exams.filter((e) => e.meta.subject === SUBJECT).map((e) => e.id));
+  const all = data.items.filter((it) => exams.has(it.examId));
+  const pub = buildPublic(data).items;
+  const byUnit = GEO_UNITS.map((u) => [u, pub.filter((it) => it.c.some((t) => G.unitOf(t) === u)).length]);
+  const checked = all.filter((it) => G.verified(it) && (it.tags.c || []).length);
+  return {
+    total: all.length, unchecked: all.length - checked.length,
+    outOfScope: checked.filter((it) => it.tags.c.includes(G.OUT_OF_SCOPE)).length,
+    notGeo: checked.filter((it) => !it.tags.c.includes(G.OUT_OF_SCOPE) && !isGeo(it)).length,
+    n: pub.length, byUnit,
+  };
+}
+
 // ── GitHub 에 올리기(Git Data API — 그림 여러 장과 목록을 커밋 하나로) ──
 const api = (repo, path) => `https://api.github.com/repos/${repo}/${path}`;
 async function gh(token, url, opt = {}) {
