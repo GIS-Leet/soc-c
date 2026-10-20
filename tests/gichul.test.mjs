@@ -174,3 +174,26 @@ test('분류표 — 앱과 같은 JSON', async () => {
   assert.equal(G.conceptOrder(tax, '한국지리')[0].short, '한지');
   assert.ok(tax.concepts[0].units[0].subs[0].startsWith('통사1 Ⅰ 통합적 관점 > '));
 });
+
+test('1차 분류 넣기 — 시험 찾기(id 또는 메타), 이미 분류한 문항은 그대로, 검증 전 표시', () => {
+  const part = [{ p: 0, x: 0, y: 0, w: 10, h: 10 }];
+  const meta = { year: 2026, exam: '10월 학평', grade: '고1', subject: '통합사회' };
+  const id = G.metaId(meta);
+  const d = G.parseData({
+    exams: { [id]: { title: '2026학년도 10월 고1 학평 통합사회', ...meta, pdf: '기출/x.pdf', createdAt: 1 } },
+    items: { [id]: { '01': { parts: part }, '02': { parts: part, c: ['통사1 Ⅲ 자연환경과 인간'], ans: 4 }, '03': { parts: part, ans: 2 } } },
+  });
+  const p = G.planSeed(d, { meta, items: {
+    1: { c: ['통사1 Ⅴ 생활공간과 사회'], d: ['지도(위치)'], o: ['개념 혼동'], x: ['킬러'], ans: 3, memo: '핵심: 가 / 함정: 나' },
+    2: { c: ['통사2 Ⅳ 세계화와 평화'], ans: 1 },          // 이미 분류함 — 건너뜀
+    3: { c: ['통사2 Ⅴ 미래와 지속가능한 삶'], ans: 5 },     // 정답은 있던 값 유지
+    9: { c: ['통사1 Ⅰ 통합적 관점'] },                     // 없는 번호
+  } });
+  assert.equal(p.exam.id, id);
+  assert.deepEqual([p.done, p.skipped, p.missing], [2, 1, 1]);
+  const r1 = p.writes.find(w => w.path.endsWith('/01')).record;
+  assert.deepEqual(r1.x, ['킬러', G.PENDING]); assert.equal(r1.ans, 3); assert.equal(r1.memo, '핵심: 가 / 함정: 나'); assert.deepEqual(r1.parts, part);
+  assert.equal(r1.at, undefined);
+  assert.equal(p.writes.find(w => w.path.endsWith('/03')).record.ans, 2);
+  assert.equal(G.planSeed(d, { exam: 'nope', items: { 1: {} } }).exam, null);
+});

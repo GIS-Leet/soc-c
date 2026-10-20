@@ -328,3 +328,27 @@ export function conceptOrder(tax, subject) {
   const first = tax.concepts.filter(c => subject === '통합사회' ? c.name.startsWith('통합사회') : c.name === subject);
   return [...first, ...tax.concepts.filter(c => !first.includes(c))];
 }
+
+// ── 1차 분류 넣기 — 다른 곳(Claude 등)에서 만든 분류 JSON 을 문항에 반영. 앱 tools/gichul-seed/seed.py 의 tags 와 같은 규칙 ──
+// JSON: { exam: <시험 id>, meta?: { year, exam, grade, subject }, items: { "1": { c, d, o, x, ans, pts, memo }, … } } 또는 그 배열.
+// 이미 태그가 있는 문항(사용자 작업)은 건드리지 않는다. 넣은 문항에는 「검증 전」을 붙여, 사용자가 확인 · 저장하면 떼어진다.
+export function planSeed(d, seed) {
+  const want = seed.exam, byMeta = seed.meta ? metaId({ year: seed.meta.year, exam: seed.meta.exam, grade: seed.meta.grade || '', subject: seed.meta.subject }) : null;
+  const ex = d.exams.find(e => e.id === want) || (byMeta && d.exams.find(e => e.id === byMeta))
+    || (seed.meta && d.exams.find(e => e.meta.year === seed.meta.year && e.meta.exam === seed.meta.exam && e.meta.grade === (seed.meta.grade || '') && e.meta.subject === seed.meta.subject));
+  if (!ex) return { exam: null, want: want || byMeta, writes: [], done: 0, skipped: 0, missing: Object.keys(seed.items || {}).length };
+  const writes = []; let skipped = 0, missing = 0;
+  for (const [no, a] of Object.entries(seed.items || {})) {
+    const it = d.items.find(i => i.examId === ex.id && i.number === Number(no));
+    if (!it) { missing++; continue; }
+    if (tagged(it)) { skipped++; continue; }
+    const x = { ...it, tags: {} };
+    for (const k of ['c', 'd', 'o']) if (a[k]?.length) x.tags[k] = a[k].filter(t => typeof t === 'string');
+    x.tags.x = [...(a.x || []).filter(t => typeof t === 'string' && t !== PENDING), PENDING];
+    if (a.ans != null && it.ans == null) x.ans = Number(a.ans);
+    if (a.pts != null && it.pts == null) x.pts = Number(a.pts);
+    if (a.memo && !it.memo) x.memo = String(a.memo);
+    writes.push({ path: `desk/gichul/items/${ex.id}/${itemKey(it.number)}`, record: itemRecord(x) });
+  }
+  return { exam: ex, writes, done: writes.length, skipped, missing };
+}

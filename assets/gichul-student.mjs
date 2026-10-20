@@ -1,7 +1,7 @@
 // 통합사회 기출 문항(gichul.html) — Desk 「학생용 공개」가 올린 data/gichul/index.json 과 문항 그림을 단원별로 보여 준다.
 // 목록에서 풀어 보기(번호 고르기 → 정답 · 풀이), 한 문항씩 풀기(전체 화면, 키보드 1~5 · ← →). 분류표는 data/gichul-taxonomy.json(Desk 와 같은 것).
-import * as G from './gichul.mjs?v=79235d16';
-import { GEO_UNITS } from './gichul-publish.mjs?v=edd081b9';
+import * as G from './gichul.mjs?v=d99a0f38';
+import { GEO_UNITS } from './gichul-publish.mjs?v=59c7ebbe';
 import { $, esc, params, setParams, shareButton } from './map-kit.mjs?v=affb9c7a';
 
 

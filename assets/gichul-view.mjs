@@ -1,8 +1,8 @@
 // Desk 「기출」 뷰 — 진도·이어서 분류·PDF 추가(선택·끌어다 놓기)·분류(문항 + 3축 태그)·단원별 보기(풀이 화면)·시험·검색(인쇄)·통계. 데이터는 앱과 같은 desk/gichul · GitHub 기출/
-import * as G from './gichul.mjs?v=79235d16';
-import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=c8039730';
+import * as G from './gichul.mjs?v=d99a0f38';
+import { openPdf, prepare, renderParts } from './gichul-pdf.mjs?v=3d8d7b2f';
 import { sheetHtml, openSheetDialog } from './gichul-sheet.mjs?v=bfeed7aa';
-import { summary, publish } from './gichul-publish.mjs?v=edd081b9';
+import { summary, publish } from './gichul-publish.mjs?v=59c7ebbe';
 
 const FOLDER = '기출', PDF_CACHE = 'gichul-pdf-v1';
 const AX = Object.fromEntries(G.AXES);
@@ -31,6 +31,8 @@ export function mountGichul(root, fb) {
           <button class="btn-sub" id="gcPublish" title="검증한 통합사회 문항을 학생 사이트(gichul.html)에 올림">학생용 공개</button>
           <button class="btn-solid" id="gcAdd">+ PDF 추가</button>
           <input type="file" id="gcFile" multiple accept=".pdf,application/pdf" hidden>
+          <button class="btn-sub" id="gcSeed" title="미리 만든 분류 JSON 을 문항에 반영(검증 전 표시)">1차 분류 넣기</button>
+          <input type="file" id="gcSeedFile" multiple accept=".json,application/json" hidden>
         </div>
       </div>
       <p class="mat-status" id="gcStatus" hidden></p>
@@ -392,7 +394,24 @@ export function mountGichul(root, fb) {
     </div>`;
   }
 
-  // ── 학생용 공개 — 검증한 통합사회 문항을 공개 저장소에 그림 · 목록으로(assets/gichul-publish.mjs) ──
+  // ── 1차 분류 넣기 — 분류 JSON(G.planSeed 형식)을 문항에 반영. 이미 분류한 문항은 그대로, 넣은 문항은 「검증 전」 ──
+  $('#gcSeed').onclick = () => $('#gcSeedFile').click();
+  $('#gcSeedFile').onchange = async e => {
+    const files = [...e.target.files]; e.target.value = '';
+    try {
+      const seeds = (await Promise.all(files.map(async f => JSON.parse(await f.text())))).flat();
+      const plans = seeds.map(s => G.planSeed(S.data, s));
+      const lost = plans.filter(p => !p.exam);
+      if (lost.length) return status('시험을 찾지 못했습니다: ' + lost.map(p => p.want).join(', ') + ' — PDF 를 먼저 넣어 주세요.', true);
+      const lines = plans.map(p => `  · ${p.exam.title} — 넣을 문항 ${p.done}${p.skipped ? ` · 이미 분류함(그대로 둠) ${p.skipped}` : ''}${p.missing ? ` · 없는 번호 ${p.missing}` : ''}`).join('\n');
+      if (!confirm(`분류를 넣습니다. 넣은 문항에는 「검증 전」이 붙고, 분류 화면에서 확인 · 저장하면 떼어집니다.\n\n${lines}`)) return;
+      let n = 0;
+      for (const p of plans) for (const w of p.writes) { await set(ref(db, w.path), w.record); n++; status(`분류 넣는 중 ${n}`); }
+      status(`분류를 넣었습니다 · ${n}문항. 「이어서 분류」로 하나씩 확인해 주세요.`);
+    } catch (err) { status('분류를 넣지 못했습니다: ' + err.message, true); }
+  };
+
+  // ── 학생용 공개 —검증한 통합사회 문항을 공개 저장소에 그림 · 목록으로(assets/gichul-publish.mjs) ──
   $('#gcPublish').onclick = async () => {
     if (!S.gh) return status('자료 탭에서 GitHub 토큰을 먼저 연결해 주세요.', true);
     const s = summary(S.data), n = s.n;
