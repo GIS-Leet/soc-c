@@ -1,5 +1,5 @@
-// 수업 자료 앱의 비공개 설치 파일 — KV 의 ota/<비밀 폴더>/<파일>. 폴더 이름을 아는 사람만 받는다(이름은 이 저장소에 없다).
-// KV 값은 25MB 까지라 그보다 큰 설치 파일은 조각(<파일>.part0, .part1 …)으로 나눠 두고 이어 붙여 내보낸다. 올리는 쪽은 수업 자료 앱 저장소의 게시 도구
+// 앱(수업 자료 · 교무수첩 · 사탐 조커)의 비공개 설치 파일 — KV 의 ota/<비밀 폴더>/<파일>. 폴더 이름을 아는 사람만 받는다(이름은 이 저장소에 없다).
+// KV 값은 25MB 까지라 그보다 큰 설치 파일은 조각(<파일>.part0, .part1 …)으로 나눠 두고 이어 붙여 내보낸다. 올리는 쪽은 각 앱 저장소의 게시 도구
 const PATH = /^\/ota\/([A-Za-z0-9_-]{20,64})\/([A-Za-z0-9._-]{1,80})$/;
 const HEADERS = { "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "X-Robots-Tag": "noindex, nofollow", "Accept-Ranges": "bytes" };
 

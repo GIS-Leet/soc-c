@@ -41,3 +41,6 @@ CLAUDE.md
 # 공개하지 않는 로컬 자료 (2026-10-20 점검 뒤)
 docs/previews/
 추가 업로드 예정 자료/
+
+# 앱 설치 파일은 공개 저장소에 올리지 않는다 — 게시판 서버(Worker)의 비밀 폴더에서만 내준다(worker/README.md)
+apps/*.ipa
