@@ -66,7 +66,7 @@
           { label: 'PPT',        href: 'library.html#PPT' },
           { label: '참고자료',   href: 'library.html#참고자료' },
           { label: '강의 영상', href: 'lecture.html', desc: '학번·이름 확인 후 시청' },
-          { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별로 풀고 풀이 확인' }
+          { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별 · 시험별로 풀고 풀이 확인' }
         ]},
         { title: '수행평가', items: [
           { label: '지역 탐구 프로젝트', href: 'project_guide.html', desc: '주제 선정부터 발표까지' },
