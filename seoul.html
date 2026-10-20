@@ -40,18 +40,20 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
       name="viewport"
     />
-    <title>서울 너머로, 넓어지는 생활권 — Geographia Lab</title>
+    <title>서울 대도시권의 확장 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
     <meta
-      content="집과 일터 사이를 잇는 교통망. 신도시와 광역 교통의 확장이 대도시권을 어떻게 바꾸는지 지도 위에서 읽습니다."
+      content="신도시 개발과 광역 교통망 확장이 서울 대도시권의 범위를 어떻게 바꾸었는지 지도에서 봅니다."
       name="description"
     />
     <link href="https://nyuheatgis.com/seoul.html" rel="canonical" />
+    <meta property="og:title" content="서울 대도시권의 확장 — Geographia">
     <meta
-      content="서울 너머로, 넓어지는 생활권 · Geographia Lab"
-      property="og:title"
-    />
-    <meta
-      content="집과 일터 사이를 잇는 교통망. 신도시와 광역 교통의 확장이 대도시권을 어떻게 바꾸는지 지도 위에서 읽습니다."
+      content="신도시 개발과 광역 교통망 확장이 서울 대도시권의 범위를 어떻게 바꾸었는지 지도에서 봅니다."
       property="og:description"
     />
     <meta content="https://nyuheatgis.com/seoul.html" property="og:url" />
@@ -61,14 +63,11 @@
     <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
     <link href="assets/sim-vendor/leaflet.css?v=340720ef" rel="stylesheet" />
     <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-    <link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
-    <link href="assets/sim-stratum.css?v=86ccf0c0" rel="stylesheet" />
+    <link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
+    <link href="assets/sim-stratum.css?v=41cbdabd" rel="stylesheet" />
   </head>
   <body data-design="stratum" data-lab="seoul">
     <a class="skip-link" href="#main">본문으로 이동</a>
@@ -113,15 +112,15 @@
     <main class="lab-main" id="main">
       <nav aria-label="현재 위치" class="breadcrumb">
         <a href="simulators.html">모든 실험</a><span>/</span
-        ><span>도시 실험실</span><span>/</span><span>07</span>
+        ><span>도시 실험실</span><span>/</span><span>서울 대도시권의 확장</span>
       </nav>
       <section class="lab-intro">
         <div>
-          <h1>서울 너머로, 넓어지는 생활권</h1>
+          <h1>서울 대도시권의 확장</h1>
         </div>
         <p class="intro-copy">
-          집과 일터 사이를 잇는 교통망. 신도시와 광역 교통의 확장이 대도시권을
-          어떻게 바꾸는지 지도 위에서 읽습니다.
+          신도시 개발과 광역 교통망 확충에 따라 서울 대도시권이 넓어지는 과정을
+          시기별 지도로 비교합니다.
         </p>
       </section>
       <div class="lab-workspace">
@@ -206,9 +205,9 @@
             <div>
               <h2>관찰 결과</h2>
               <p id="infoText">
-                도시의 경계와 생활권의 경계는 다릅니다.
-                <b>교통망이 연결하는 장소</b>를 따라 수도권의 확장을 읽어
-                보세요.
+                행정 구역의 경계와 생활권의 경계는 다릅니다.
+                <b>교통망으로 연결된 곳</b>을 따라 수도권이 넓어진 과정을
+                확인해 보세요.
               </p>
             </div>
           </section>
@@ -221,7 +220,7 @@
         <aside aria-label="실험 조작" class="lab-controls">
           <section class="control-panel">
             <div class="panel-heading">
-              <h2>도시의 시간을 이동하세요</h2>
+              <h2>시기별 변화</h2>
               <span class="panel-no">01</span>
             </div>
             <div class="field-label">
@@ -289,7 +288,7 @@
           </section>
           <section class="control-panel">
             <div class="panel-heading">
-              <h2>지도에서 읽는 변화</h2>
+              <h2>단계별 설명</h2>
               <span class="panel-no">02</span>
             </div>
             <h3 style="font-size: 11px; margin-bottom: 8px">주거 공간</h3>
@@ -300,7 +299,7 @@
           </section>
           <section class="control-panel">
             <div class="panel-heading">
-              <h2>겹쳐서 살펴보기</h2>
+              <h2>지도 레이어</h2>
               <span class="panel-no">03</span>
             </div>
             <div class="layer-switch">
@@ -326,7 +325,7 @@
     <script src="assets/sim-lab.js?v=8bedcd4b"></script>
     <script src="assets/sim-runtime.js?v=2ba6f1b6"></script>
     <script src="assets/sim-vendor/leaflet.js?v=5a640ff8"></script>
-    <script src="assets/sim-seoul.js?v=18eb2600" type="module"></script>
+    <script src="assets/sim-seoul.js?v=899bcdbe" type="module"></script>
     <script src="assets/sim-viewer.mjs?v=532709f9" type="module"></script>
   <div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="geo-menu__top">
@@ -354,12 +353,12 @@
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -369,7 +368,7 @@
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -383,6 +382,6 @@
   </div>
 </div>
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

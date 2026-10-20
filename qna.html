@@ -11,18 +11,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
-<title>Q&amp;A — 통합사회 C</title>
+<title>Q&amp;A — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="경기여자고등학교 통합사회 C · 질문과 답변 게시판">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
+
 
 <!-- 디자인 시스템 -->
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
+<link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
 
 <style>
 /* ============================================================================
@@ -101,10 +106,12 @@
 .chart__rule--base { bottom: 0; background: var(--st-separator-strong); }
 .chart__rule b {
   position: absolute; left: -32px; top: -7px; width: 26px; text-align: right;
-  font-size: 10px; font-weight: 500; color: var(--st-label-4);
+  font-size: 10px; font-weight: 500; color: var(--st-label-3);   /* label-4는 3.4:1 — 글자에는 label-3 */
   font-variant-numeric: tabular-nums;
 }
-.chart__plot { display: flex; align-items: flex-end; gap: 2px; }
+/* 기둥(140) + 달 이름 두 줄만큼 자리를 미리 잡는다 — 목록을 받은 뒤 그래프가 생기며 아래를 밀어내지 않게.
+   기둥 머리를 위로 맞춘다(아래 맞춤이면 연도 줄이 붙은 달만 기둥이 떠오른다). */
+.chart__plot { display: flex; align-items: flex-start; gap: 2px; min-height: 184px; }
 .chart__band {
   position: relative; flex: 1 1 0; min-width: 0;
   border-radius: var(--st-r-inner) var(--st-r-inner) 0 0;
@@ -135,6 +142,8 @@
 }
 .chart__x { margin-top: 10px; text-align: center; font-size: 10.5px; color: var(--st-label-3);
             letter-spacing: 0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* 해가 바뀌는 달과 첫 달에만 연도를 아랫줄에 — 한 줄에 '25.11월'을 쓰면 좁은 기둥 폭을 넘어 옆 달과 겹쳤다 */
+.chart__y { display: block; font-size: 10px; color: var(--st-label-3); }
 
 .chart__tip {
   position: absolute; bottom: 100%; left: 50%; margin-bottom: 8px;
@@ -151,13 +160,14 @@
 .chart__band:hover .chart__tip, .chart__band:focus-visible .chart__tip {
   opacity: 1; transform: translate(-50%, 0);
 }
-/* 양 끝 기둥의 말풍선은 패널 밖으로 삐져나가지 않게 붙여 세운다 */
-.chart__band:first-child .chart__tip { left: 0; transform: translate(0, 4px); }
-.chart__band:first-child:hover .chart__tip,
-.chart__band:first-child:focus-visible .chart__tip { transform: translate(0, 0); }
-.chart__band:last-child .chart__tip { left: auto; right: 0; transform: translate(0, 4px); }
-.chart__band:last-child:hover .chart__tip,
-.chart__band:last-child:focus-visible .chart__tip { transform: translate(0, 0); }
+/* 양 끝 세 기둥의 말풍선은 패널 밖으로 삐져나가지 않게 붙여 세운다
+   (말풍선 폭이 기둥 여러 개 폭이라, 끝에서 둘째 · 셋째도 가운데 맞춤이면 좁은 화면 밖으로 나갔다) */
+.chart__band:nth-child(-n+3) .chart__tip { left: 0; transform: translate(0, 4px); }
+.chart__band:nth-child(-n+3):hover .chart__tip,
+.chart__band:nth-child(-n+3):focus-visible .chart__tip { transform: translate(0, 0); }
+.chart__band:nth-last-child(-n+3) .chart__tip { left: auto; right: 0; transform: translate(0, 4px); }
+.chart__band:nth-last-child(-n+3):hover .chart__tip,
+.chart__band:nth-last-child(-n+3):focus-visible .chart__tip { transform: translate(0, 0); }
 
 /* ── 표로 보기 — 색에만 기대지 않기 위한 같은 값의 텍스트판.
       그래프 자리에서만 갈아 끼운다. 답변률과 안내는 그대로 남는다. ── */
@@ -177,9 +187,12 @@
   display: flex; gap: 12px; overflow-x: auto; padding: 2px 0 8px;
   scroll-snap-type: x proximity; scrollbar-width: thin;
   margin-inline: calc(-1 * var(--pad-x)); padding-inline: var(--pad-x);
+  scroll-padding-inline: var(--pad-x);   /* 없으면 첫 카드에 맞춰 붙으며 판 왼쪽 끝보다 튀어나간다 */
 }
+/* 카드 높이를 미리 정해 둔다 — 목록을 받기 전에는 빈 카드 자리(--ghost)가 같은 높이로
+   서 있다가 그대로 채워진다. 받은 뒤에 구역이 새로 끼어들어 아래를 밀어내지 않는다. */
 .recent__card {
-  flex: 0 0 clamp(228px, 64vw, 292px); scroll-snap-align: start;
+  flex: 0 0 clamp(228px, 64vw, 292px); scroll-snap-align: start; min-height: 208px;
   display: flex; flex-direction: column; align-items: flex-start; gap: 9px;
   padding: 16px 17px 15px; text-align: left; cursor: pointer;
   border-radius: var(--st-r-container);
@@ -192,6 +205,10 @@
 .recent__card:hover, .recent__card:focus-visible {
   transform: translateY(-3px); box-shadow: var(--st-shadow-med);
   border-color: var(--accent); outline: none;
+}
+.recent__card--ghost, .recent__card--ghost:hover {
+  cursor: default; transform: none; box-shadow: none;
+  background: var(--st-fill-3); border-color: transparent;
 }
 .recent__top { display: flex; align-items: center; gap: 8px; width: 100%; }
 .recent__date { margin-left: auto; font-size: 10.5px; color: var(--st-label-3);
@@ -730,12 +747,19 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     </section>
 
     <!-- 최근 답변 -->
-    <section class="recent st-reveal" id="recent" hidden aria-labelledby="recentCap">
+    <!-- 스크롤 진입 연출(st-reveal)을 걸지 않는다 — 첫 화면 아래에서 받아 그려지는 구역이라
+         연출이 걸리면 투명한 채로 자리만 차지해 현황과 글쓰기 사이가 비어 보였다(2026-10-20) -->
+    <section class="recent" id="recent" aria-labelledby="recentCap">
       <div class="recent__head">
         <h2 id="recentCap">최근 답변</h2>
         <span>최근 답이 달린 질문부터</span>
       </div>
-      <div class="recent__rail" id="recentRail"></div>
+      <div class="recent__rail" id="recentRail" aria-busy="true">
+        <div class="recent__card recent__card--ghost" aria-hidden="true"></div>
+        <div class="recent__card recent__card--ghost" aria-hidden="true"></div>
+        <div class="recent__card recent__card--ghost" aria-hidden="true"></div>
+        <div class="recent__card recent__card--ghost" aria-hidden="true"></div>
+      </div>
     </section>
 
     <!-- 글쓰기 -->
@@ -851,12 +875,12 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -866,7 +890,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -880,18 +904,21 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
   </div>
 </div>
 
-<script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/stratum.js?v=ccfe0bf1" defer></script>
+<script src="design-system/geo.js?v=fac9e662" defer></script>
 
 <script type="module">
-    import {installBoardControls} from "./assets/board-controls.mjs?v=259d0818";
-    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs?v=70eaa954";
+    import {installBoardControls} from "./assets/board-controls.mjs?v=94f70103";
+    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs?v=93c9417a";
     // 접힌 글의 첨부 그림은 글을 펼칠 때 받는다 — 목록만 열어도 모든 글의 그림을 받아 함수 전송 요금이 나가던 것을 막음(2026-10-08).
     // 글 본문 틀은 <img data-src>, 여기서 펼쳐진 글의 것만 src 로 옮긴다
-    const showPostImages = () => { for (const img of document.querySelectorAll('img[data-src]')) { const item = img.closest('.q-item'); if (item ? item.classList.contains('is-open') : img.offsetParent !== null) { img.src = img.dataset.src; img.removeAttribute('data-src'); } } };
-    new MutationObserver(showPostImages).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
+    // 글 본문은 펼칠 때 처음 만든다(아래 ensureBody). 그림이 있는 곳은 게시판 안뿐이므로 게시판만 지켜본다 —
+    // 문서 전체의 style 변화까지 보면 목록을 거를 때마다(글 수백 개의 display) 이 함수가 돌았다(2026-10-20)
+    const boardRoot = document.getElementById('board');
+    const showPostImages = () => { for (const img of boardRoot.querySelectorAll('img[data-src]')) { const item = img.closest('.q-item'); if (item && item.classList.contains('is-open')) { img.src = img.dataset.src; img.removeAttribute('data-src'); } } };
+    new MutationObserver(showPostImages).observe(boardRoot, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=70eaa954";
+    import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=93c9417a";
 
     /* ========================================================================
        ★★★ 학기가 바뀌면 여기 맨 위에 한 줄만 추가하면 됩니다 ★★★
@@ -981,9 +1008,42 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     document.getElementById('modalCancelBtn').onclick = () => window.AppModal.cancel();
     document.getElementById('modalInput').onkeypress = (e) => { if(e.key === 'Enter') window.AppModal.submit(); };
 
+    // 교사 답변 칸은 펼쳐 본 글에만, 교사로 로그인했을 때 처음 만든다. 로그아웃하면 숨기기만 한다(쓰던 글 보존).
     function refreshAdminUI() {
+        if (isAdmin) document.querySelectorAll('.q-body__pad[data-built]').forEach(pad => {
+            const id = pad.dataset.built;
+            if (!document.getElementById(`reply-group-${id}`)) pad.querySelector('.comment-section').insertAdjacentHTML('beforeend', replyGroupHTML(id));
+        });
         document.querySelectorAll('.reply-input-group').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
         document.querySelectorAll('.reply-actions').forEach(g => g.style.display = isAdmin ? 'flex' : 'none');
+    }
+
+    // 사진 첨부 칸(input[type=file])은 '사진' 단추를 처음 누를 때 만든다
+    window.pickImage = function(inputId, previewImgId, containerId, button) {
+        let input = document.getElementById(inputId);
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'file'; input.id = inputId; input.accept = 'image/*'; input.style.display = 'none';
+            input.addEventListener('change', () => window.previewDynamicImage(input, previewImgId, containerId));
+            button.after(input);
+        }
+        input.click();
+    };
+    const SVG_CAMERA = `<svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>`;
+    function replyGroupHTML(id) {
+        return `<div class="reply-input-group" id="reply-group-${id}">
+                        <div style="display:flex; flex-direction:column; flex:1; gap:6px;">
+                            <textarea aria-label="교사 답변" id="reply-input-${id}" placeholder="답변을 입력하세요"></textarea>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" class="btn-sub" style="height:30px; padding:0 12px; font-size:12px;" onclick="window.pickImage('reply-image-${id}', 'reply-preview-img-${id}', 'reply-preview-container-${id}', this)">${SVG_CAMERA} 사진</button>
+                            </div>
+                            <div id="reply-preview-container-${id}" class="mini-preview-container" style="display:none;">
+                                <img id="reply-preview-img-${id}" alt="답변에 첨부한 사진">
+                                <button type="button" class="remove-btn" onclick="window.removeDynamicImage('reply-image-${id}', 'reply-preview-img-${id}', 'reply-preview-container-${id}')">제거</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-solid" id="reply-btn-${id}" style="align-self:flex-start;" onclick="window.addReply('${id}')">답변 등록</button>
+                    </div>`;
     }
 
     // ==========================================
@@ -1023,6 +1083,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     };
 
     function enableEditMode(id) {
+        ensureBody(id);
         const bodyDiv = document.getElementById(`post-body-${id}`); const currentText = bodyDiv.dataset.text; const currentTitle = bodyDiv.dataset.title;
         bodyDiv.innerHTML = `<input type="text" id="edit-title-${id}" class="edit-input-title" value="${escapeHTML(currentTitle)}"><textarea id="edit-textarea-${id}" class="edit-textarea-body">${escapeHTML(currentText)}</textarea><div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;"><button onclick="window.cancelEdit('${id}')" class="btn-sub">취소</button><button onclick="window.saveEdit('${id}')" class="btn-solid">저장</button></div>`;
     }
@@ -1078,7 +1139,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             <div class="sem__body" id="sem-body-${s.id}"><div class="sem__in">
                 <ul class="board-list" id="sem-list-${s.id}"></ul>
                 <div class="sem-empty" id="sem-empty-${s.id}" hidden>아직 이번 학기에 등록된 질문이 없습니다. 첫 질문을 남겨 보세요.</div>
-                <button class="load-more" id="sem-more-${s.id}" hidden></button>
+                <button class="load-more" type="button" id="sem-more-${s.id}" hidden>이전 질문 더 보기</button>
             </div></div>`;
         board.appendChild(sec);
         sec.querySelector('.sem__head').addEventListener('click', () => {
@@ -1178,39 +1239,51 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     }
 
 
+    /* 답변 · 이어서 묻기는 여기(threads)에 모아 둔다. 화면에는 글을 펼칠 때(ensureBody) 처음 그리고,
+       그 뒤로는 바뀔 때마다 바로 고친다. 접힌 글 수백 개의 본문 · 답변 · 입력 칸을 미리 만들어 두던 것을
+       바꿈 — 그 탓에 문서 요소가 2만 5천 개를 넘었다(2026-10-20). */
+    const threads = new Map();     // qId -> Map(replyId -> { data, subs: Map(subId -> data) })
+    const postSnaps = new Map();   // qId -> 가장 최근 글 스냅샷
+
     onChildAdded(questionsRef, (snapshot) => {
-        const id = snapshot.key; if (!isSafeFirebaseKey(id)) return; renderPost(id, snapshot.val()); applyPostSnapshot(id, snapshot.val());
+        const id = snapshot.key; if (!isSafeFirebaseKey(id)) return; const post = snapshot.val(); renderPost(id, post); applyPostSnapshot(id, post);
+        const replies = new Map(); threads.set(id, replies);
         const repliesRef = dbRef(db, `questions/${id}/replies`);
 
         onChildAdded(repliesRef, (rep) => {
             if (!isSafeFirebaseKey(rep.key)) return;
-            renderComment(id, rep.key, rep.val());
+            const repData = rep.val(), subs = new Map();
+            replies.set(rep.key, { data: repData, subs });
+            renderComment(id, rep.key, repData);
             updateReplyCount(id, 1);
             noteAnswer(id, rep.key, true);
-            noteAnswerText(id, rep.key, rep.val());
+            noteAnswerText(id, rep.key, repData);
 
             const subRepliesRef = dbRef(db, `questions/${id}/replies/${rep.key}/subReplies`);
             onChildAdded(subRepliesRef, (sub) => {
                 if (!isSafeFirebaseKey(sub.key)) return;
-                renderSubComment(id, rep.key, sub.key, sub.val());
+                const subData = sub.val(); subs.set(sub.key, subData);
+                renderSubComment(id, rep.key, sub.key, subData);
                 updateReplyCount(id, 1);
             });
-            onChildChanged(subRepliesRef, (sub) => { const node=document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`); if(node) { node.remove(); renderSubComment(id,rep.key,sub.key,sub.val()); } });
+            onChildChanged(subRepliesRef, (sub) => { const subData = sub.val(); subs.set(sub.key, subData); const node=document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`); if(node) { node.remove(); renderSubComment(id,rep.key,sub.key,subData); } });
             onChildRemoved(subRepliesRef, (sub) => {
+                subs.delete(sub.key);
                 document.getElementById(`sub-reply-${id}-${rep.key}-${sub.key}`)?.remove();
                 updateReplyCount(id, -1);
             });
         });
         onChildRemoved(repliesRef, (rep) => {
+            replies.delete(rep.key);
             document.getElementById(`reply-${id}-${rep.key}`)?.remove();
             updateReplyCount(id, -1);
             noteAnswer(id, rep.key, false);
             noteAnswerText(id, rep.key, null);
         });
-        onChildChanged(repliesRef, (rep) => { const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`); if (textContainer && !textContainer.querySelector('textarea')) { textContainer.textContent = rep.val().text; document.getElementById(`reply-${id}-${rep.key}`).dataset.text = rep.val().text; } noteAnswerText(id, rep.key, rep.val()); scheduleRefresh(); });
+        onChildChanged(repliesRef, (rep) => { const repData = rep.val(); const entry = replies.get(rep.key); if (entry) entry.data = repData; const textContainer = document.getElementById(`reply-text-${id}-${rep.key}`); if (textContainer && !textContainer.querySelector('textarea')) { textContainer.textContent = repData.text; document.getElementById(`reply-${id}-${rep.key}`).dataset.text = repData.text; } noteAnswerText(id, rep.key, repData); scheduleRefresh(); });
     }, handleBoardError);
 
-    onChildRemoved(questionsRef, (snapshot) => { document.getElementById(`post-${snapshot.key}`)?.remove(); answerKeys.delete(snapshot.key); answerTexts.delete(snapshot.key); scheduleRefresh(); });
+    onChildRemoved(questionsRef, (snapshot) => { document.getElementById(`post-${snapshot.key}`)?.remove(); answerKeys.delete(snapshot.key); answerTexts.delete(snapshot.key); threads.delete(snapshot.key); postSnaps.delete(snapshot.key); scheduleRefresh(); });
     onChildChanged(questionsRef, (snapshot) => applyPostSnapshot(snapshot.key, snapshot.val()));
 
     // ==========================================
@@ -1234,21 +1307,15 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         // 검색용 데이터 (비밀글 본문은 검색 대상에서 제외)
         li.dataset.sTitle = rawTitle; li.dataset.sAuthor = author; li.dataset.sBody = data.isSecret ? '' : (data.text || '');
 
-        let displayTitleHtml = '';
-        if (data.isSecret) displayTitleHtml += SVG_LOCK + ' ';
-        displayTitleHtml += escapeHTML(rawTitle);
-        if (data.imageUrl) displayTitleHtml += ' ' + SVG_IMAGE;
-
         const parts = String(data.time || '').split(' ');
         const listTime = parts[0] ? parts[0].substring(5).replace('/', '.') : '';
 
-        let bodyContentHtml = escapeHTML(data.text); if (data.imageUrl) bodyContentHtml += `<img data-src="${escapeHTML(data.imageUrl)}" class="post-image" alt="첨부 이미지">`; bodyContentHtml += `<div class="post-meta-foot">작성 ${escapeHTML(data.time || '')}</div>`;
-
+        // 목록에는 줄만 둔다. 본문 · 답변 · 입력 칸은 펼칠 때 ensureBody 가 채운다.
         li.innerHTML = `
             <button type="button" class="q-row" aria-expanded="false" aria-controls="content-${id}" onclick="window.togglePost('${id}', this)">
                 <span class="q-state q-state--wait">답변 전</span>
                 <div class="q-main">
-                    <span class="q-title" id="title-text-${id}">${displayTitleHtml}</span>
+                    <span class="q-title" id="title-text-${id}">${escapeHTML(rawTitle)}</span>
                     <span class="q-meta">
                         <span class="q-author">${escapeHTML(author)}</span>
                         <span aria-hidden="true">·</span>
@@ -1258,9 +1325,34 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
                 </div>
                 ${SVG_CHEV}
             </button>
-            <div class="q-body" id="content-${id}" inert><div class="q-body__in"><div class="q-body__pad">
-                <div class="post-actions-inline"><button class="action-txt" onclick="window.handleEdit('${id}')">수정</button><button class="action-txt delete" onclick="window.handleDelete('${id}')">삭제</button></div>
-                <div id="post-body-${id}" class="post-body" data-text="${escapeHTML(data.text)}" data-title="${escapeHTML(rawTitle)}" data-image="${escapeHTML(data.imageUrl || '')}" data-time="${escapeHTML(data.time || '')}">${bodyContentHtml}</div>
+            <div class="q-body" id="content-${id}" inert><div class="q-body__in"><div class="q-body__pad"></div></div></div>`;
+
+        list.prepend(li);
+        // 스냅샷에 이미 답변이 들어 있으면 첫 그림부터 '답변 완료'로 칠한다
+        const replyKeys = data.replies ? Object.keys(data.replies) : [];
+        if (replyKeys.length) replyKeys.forEach(k => { noteAnswerText(id, k, data.replies[k]); noteAnswer(id, k, true); });
+        else paintAnswerState(id, answerKeys.get(id) ? answerKeys.get(id).size : 0);
+        scheduleRefresh();
+    }
+
+    // 제목 — 비밀글 자물쇠 · 사진 표시는 그림 글자 대신 선 아이콘으로
+    function paintTitle(id, data) {
+        const el = document.getElementById(`title-text-${id}`), li = document.getElementById(`post-${id}`);
+        if (!el || !li) return;
+        el.innerHTML = (data.isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(li.dataset.sTitle || '')
+            + (data.imageUrl && li.dataset.locked !== 'true' ? ' ' + SVG_IMAGE : '');
+    }
+
+    /* 글 본문 — 처음 펼칠 때(또는 수정 · 이어서 볼 때) 한 번 만든다.
+       본문 글자는 board-controls 의 applyPostSnapshot 이, 답변은 threads 에 모아 둔 것으로 그린다. */
+    function ensureBody(id) {
+        const content = document.getElementById(`content-${id}`);
+        const pad = content && content.querySelector('.q-body__pad');
+        if (!pad || pad.dataset.built) return;
+        pad.dataset.built = id;
+        pad.innerHTML = `
+                <div class="post-actions-inline"><button type="button" class="action-txt" onclick="window.handleEdit('${id}')">수정</button><button type="button" class="action-txt delete" onclick="window.handleDelete('${id}')">삭제</button></div>
+                <div id="post-body-${id}" class="post-body"></div>
 
                 <div class="comment-section">
                     <div class="comment-header">선생님 답변</div>
@@ -1271,38 +1363,22 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
                     <ul class="comment-list" id="comment-list-${id}"></ul>
 
                     <div class="receipt" id="receipt-${id}" hidden></div>
-
-                    <div class="reply-input-group" id="reply-group-${id}">
-                        <div style="display:flex; flex-direction:column; flex:1; gap:6px;">
-                            <textarea aria-label="교사 답변" id="reply-input-${id}" placeholder="답변을 입력하세요"></textarea>
-                            <div style="display:flex; gap:8px;">
-                                <button class="btn-sub" style="height:30px; padding:0 12px; font-size:12px;" onclick="document.getElementById('reply-image-${id}').click()">
-                                    <svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> 사진
-                                </button>
-                                <input type="file" id="reply-image-${id}" style="display:none;" accept="image/*" onchange="window.previewDynamicImage(this, 'reply-preview-img-${id}', 'reply-preview-container-${id}')">
-                            </div>
-                            <div id="reply-preview-container-${id}" class="mini-preview-container" style="display:none;">
-                                <img id="reply-preview-img-${id}" alt="답변에 첨부한 사진">
-                                <button class="remove-btn" onclick="window.removeDynamicImage('reply-image-${id}', 'reply-preview-img-${id}', 'reply-preview-container-${id}')">제거</button>
-                            </div>
-                        </div>
-                        <button class="btn-solid" id="reply-btn-${id}" style="align-self:flex-start;" onclick="window.addReply('${id}')">답변 등록</button>
-                    </div>
-                </div>
-            </div></div></div>`;
-
-        list.prepend(li);
+                </div>`;
+        const snap = postSnaps.get(id);
+        if (snap) controls.applyPostSnapshot(id, snap);
+        const replies = threads.get(id);
+        if (replies) replies.forEach((entry, rid) => {
+            renderComment(id, rid, entry.data);
+            entry.subs.forEach((subData, sid) => renderSubComment(id, rid, sid, subData));
+        });
+        paintAnswerState(id, answerKeys.get(id) ? answerKeys.get(id).size : 0);
         refreshAdminUI();
-        // 스냅샷에 이미 답변이 들어 있으면 첫 그림부터 '답변 완료'로 칠한다
-        if (data.replies) Object.keys(data.replies).forEach(k => { noteAnswerText(id, k, data.replies[k]); noteAnswer(id, k, true); });
-        else paintAnswerState(id, answerKeys.get(id) ? answerKeys.get(id).size : 0);
-        scheduleRefresh();
     }
 
     // ==========================================
     // ★ 목록 정리 — 검색 · 상태 필터 · 학기 · 더 보기 ★
     // ==========================================
-    let boardLoadState='loading';
+    let boardLoadState='loading', boardComplete=false, lockedDirty=false;
     let currentQuery = new URLSearchParams(window.location.search).get('q') || '';
     let statusFilter = 'all';
     const searchInput = document.getElementById('searchInput');
@@ -1343,6 +1419,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     }
 
     function refreshBoard() {
+        if (lockedDirty) { lockedDirty = false; for (const li of document.querySelectorAll('.q-item[data-locked="true"]')) paintAnswerState(li.id.replace('post-',''), +li.dataset.summaryAnswers||0); clearTimeout(refreshTimer); }
         const filtering = !!currentQuery || statusFilter !== 'all';
         let all = 0, done = 0, matchedTotal = 0;
         const rows = [];   // 그래프용 — 검색·필터와 무관하게 전체를 담는다
@@ -1509,7 +1586,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             const topIsWait = w > 0;
             // 최댓값 하나만 직접 라벨한다 — 모든 기둥에 숫자를 붙이면 아무도 안 읽는다
             const showPeak = !peakUsed && b.all === peak && peak > 0 && (peakUsed = true);
-            const label = (b.m === 1 || b === months[0]) ? `${String(b.y).slice(2)}.${b.m}월` : `${b.m}월`;
+            const label = (b.m === 1 || b === months[0]) ? `${b.m}월<span class="chart__y">${b.y}</span>` : `${b.m}월`;
             return `<div class="chart__band" style="--i:${i}" tabindex="0" role="group"
                  aria-label="${b.y}년 ${b.m}월 — 질문 ${b.all}건, 답변 완료 ${b.done}건, 답변 전 ${w}건">
                 <div class="chart__stack">
@@ -1593,15 +1670,19 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
         rows.sort((x, y) => y.ts - x.ts);
         const top = rows.slice(0, 6);
 
+        const sec = document.getElementById('recent'), rail = document.getElementById('recentRail');
+        /* 목록을 받는 동안에는 빈 카드 자리를 그대로 둔다. 다 받고도 답변이 둘 미만일 때만 구역을 접는다. */
+        if (top.length < 2) {
+            if (boardComplete || boardLoadState === 'error') { sec.hidden = true; recentSig = ''; rail.removeAttribute('aria-busy'); }
+            return;
+        }
         const sig = top.map(r => r.qId + r.ts).join('|');
         if (sig === recentSig) return;
         recentSig = sig;
+        sec.hidden = false;
+        rail.removeAttribute('aria-busy');
 
-        const sec = document.getElementById('recent');
-        sec.hidden = top.length < 2;
-        if (sec.hidden) return;
-
-        document.getElementById('recentRail').innerHTML = top.map(r => {
+        rail.innerHTML = top.map(r => {
             const d = (String(r.time || '').split(' ')[0] || '').substring(5).replace('/', '.');
             return `<button class="recent__card" type="button" onclick="window.jumpToPost('${r.qId}')">
                 <span class="recent__top">
@@ -1613,8 +1694,6 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
                 <span class="recent__go">답변 보기 →</span>
             </button>`;
         }).join('');
-        // 이 구역만 다시 관찰한다 — 전체를 다시 걸면 관찰자가 계속 쌓인다
-        if (window.Stratum) Stratum.reveal('#recent.st-reveal');
     }
 
     // 카드에서 그 질문으로 — 걸려 있던 검색·필터·접힘·페이지네이션을 모두 풀어 준다
@@ -1705,25 +1784,6 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
                 </div>
             </div>
 
-            <div class="sub-reply-input-box" id="sub-input-box-${qId}-${replyId}">
-                <input type="text" id="sub-author-${qId}-${replyId}" class="author-in" placeholder="닉네임 (선택)" maxlength="10">
-                <textarea id="sub-text-${qId}-${replyId}" placeholder="추가로 궁금한 점을 남겨 주세요."></textarea>
-
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:8px; gap:10px;">
-                    <div style="display:flex; flex-direction:column; gap:6px;">
-                        <button class="btn-sub" style="height:30px; padding:0 12px; font-size:12px;" onclick="document.getElementById('sub-image-${qId}-${replyId}').click()">
-                            <svg class="ico" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg> 사진
-                        </button>
-                        <input type="file" id="sub-image-${qId}-${replyId}" style="display:none;" accept="image/*" onchange="window.previewDynamicImage(this, 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}')">
-                        <div id="sub-preview-container-${qId}-${replyId}" class="mini-preview-container" style="display:none;">
-                            <img id="sub-preview-img-${qId}-${replyId}" alt="첨부한 사진">
-                            <button class="remove-btn" onclick="window.removeDynamicImage('sub-image-${qId}-${replyId}', 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}')">제거</button>
-                        </div>
-                    </div>
-                    <button id="sub-btn-${qId}-${replyId}" class="btn-solid submit-btn-small" onclick="window.addSubReply('${qId}', '${replyId}')">등록</button>
-                </div>
-            </div>
-
             <ul class="sub-comment-list" id="sub-list-${qId}-${replyId}"></ul>
         `;
         list.appendChild(li);
@@ -1737,7 +1797,34 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     // ==========================================
     // ★ 2차 댓글 (대댓글 + 사진) 로직 ★
     // ==========================================
-    window.toggleSubInput = (qId, replyId) => { const box = document.getElementById(`sub-input-box-${qId}-${replyId}`); box.style.display = box.style.display === 'block' ? 'none' : 'block'; };
+    // 이어서 묻기 칸은 단추를 처음 누를 때 만든다(답변마다 미리 만들어 두지 않는다)
+    function subInputHTML(qId, replyId) {
+        return `<div class="sub-reply-input-box" id="sub-input-box-${qId}-${replyId}">
+                <input type="text" id="sub-author-${qId}-${replyId}" class="author-in" placeholder="닉네임 (선택)" maxlength="10" aria-label="닉네임">
+                <textarea id="sub-text-${qId}-${replyId}" placeholder="추가로 궁금한 점을 남겨 주세요." aria-label="이어서 묻기"></textarea>
+
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:8px; gap:10px;">
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <button type="button" class="btn-sub" style="height:30px; padding:0 12px; font-size:12px;" onclick="window.pickImage('sub-image-${qId}-${replyId}', 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}', this)">${SVG_CAMERA} 사진</button>
+                        <div id="sub-preview-container-${qId}-${replyId}" class="mini-preview-container" style="display:none;">
+                            <img id="sub-preview-img-${qId}-${replyId}" alt="첨부한 사진">
+                            <button type="button" class="remove-btn" onclick="window.removeDynamicImage('sub-image-${qId}-${replyId}', 'sub-preview-img-${qId}-${replyId}', 'sub-preview-container-${qId}-${replyId}')">제거</button>
+                        </div>
+                    </div>
+                    <button type="button" id="sub-btn-${qId}-${replyId}" class="btn-solid submit-btn-small" onclick="window.addSubReply('${qId}', '${replyId}')">등록</button>
+                </div>
+            </div>`;
+    }
+    window.toggleSubInput = (qId, replyId) => {
+        let box = document.getElementById(`sub-input-box-${qId}-${replyId}`);
+        if (!box) {
+            const list = document.getElementById(`sub-list-${qId}-${replyId}`);
+            if (!list) return;
+            list.insertAdjacentHTML('beforebegin', subInputHTML(qId, replyId));
+            box = document.getElementById(`sub-input-box-${qId}-${replyId}`);
+        }
+        box.style.display = box.style.display === 'block' ? 'none' : 'block';
+    };
 
     window.addSubReply = async (qId, replyId) => {
         const authorInput = document.getElementById(`sub-author-${qId}-${replyId}`).value.trim();
@@ -1805,12 +1892,18 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 
     const controls = installBoardControls({db,board:'questions',ref:dbRef,update,remove,
       setAdmin: value => { isAdmin=value; refreshAdminUI(); },
-      enableEditMode, onPostChange: () => { for (const li of document.querySelectorAll('.q-item[data-locked="true"]')) paintAnswerState(li.id.replace('post-',''), +li.dataset.summaryAnswers||0); scheduleRefresh(); }
+      // 글 하나가 바뀔 때마다 잠긴 글 전체를 다시 칠하던 것을 다음 목록 정리 때 한 번으로 모은다
+      enableEditMode, paintTitle, onPostChange: () => { lockedDirty = true; scheduleRefresh(); }
     });
-    function applyPostSnapshot(id,data) { controls.applyPostSnapshot(id,data); }
+    function applyPostSnapshot(id,data) { postSnaps.set(id, data); controls.applyPostSnapshot(id,data); }
+    // 글을 펼치거나 수정하기 전에 본문을 만든다(board-controls 의 togglePost · handleEdit 앞에 끼운다)
+    for (const name of ['togglePost', 'handleEdit']) {
+      const original = window[name];
+      window[name] = (id, ...rest) => { ensureBody(id); return original(id, ...rest); };
+    }
     onBoardState(questionsRef, state => {
-      boardLoadState=state.status;
-      if(state.status==='error') handleBoardError();
+      boardLoadState=state.status; boardComplete=!!state.complete;
+      if(state.status==='error') { handleBoardError(); scheduleRefresh(); }
       else if(state.status==='loading') { boardEmpty.hidden=false; boardEmpty.textContent='질문을 불러오는 중…'; }
       else { boardEmpty.textContent='아직 등록된 질문이 없습니다.'; scheduleRefresh(); }
     });
@@ -1821,21 +1914,6 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     // 기한이 지난 공지 자동 숨김 (data-expires="YYYY-MM-DD")
     document.querySelectorAll('[data-expires]').forEach(el => {
         if (new Date() >= new Date(el.dataset.expires + 'T00:00:00')) el.style.display = 'none';
-    });
-    // 1. 마우스 우클릭 차단
-    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-    // 2. 텍스트 드래그 및 선택 차단 — 단, 입력란에서는 풀어 준다
-    document.addEventListener('selectstart', function(e) {
-        if (e.target.closest('input, textarea')) return;
-        e.preventDefault();
-    });
-    // 3. F12 및 주요 개발자 도구 단축키 차단
-    document.addEventListener('keydown', function(e) {
-        if (e.keyCode === 123) { e.preventDefault(); }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
-        if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
     });
 </script>
 </body>

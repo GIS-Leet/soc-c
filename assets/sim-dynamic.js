@@ -309,7 +309,7 @@
   const scenarios = {
     uplift: {
       kind: "block",
-      cat: "§ 내적 작용 · 융기",
+      cat: "내적 작용 · 융기",
       title: "융기 — 솟아오름",
       force: "in",
       forceLabel: "내적 작용",
@@ -344,7 +344,7 @@
     },
     subside: {
       kind: "block",
-      cat: "§ 내적 작용 · 침강",
+      cat: "내적 작용 · 침강",
       title: "침강 — 가라앉음",
       force: "in",
       forceLabel: "내적 작용",
@@ -386,7 +386,7 @@
     },
     fold: {
       kind: "block",
-      cat: "§ 내적 작용 · 습곡",
+      cat: "내적 작용 · 습곡",
       title: "습곡 — 휘어짐",
       force: "in",
       forceLabel: "내적 작용",
@@ -427,7 +427,7 @@
     },
     fault: {
       kind: "block",
-      cat: "§ 내적 작용 · 단층",
+      cat: "내적 작용 · 단층",
       title: "단층 — 끊어짐",
       force: "in",
       forceLabel: "내적 작용",
@@ -465,7 +465,7 @@
     },
     river: {
       kind: "terrain",
-      cat: "§ 외적 작용 · 하천의 일생",
+      cat: "외적 작용 · 하천의 일생",
       title: "풍화·침식·운반·퇴적",
       force: "ex",
       forceLabel: "외적 작용",

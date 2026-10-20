@@ -12,14 +12,19 @@
     <meta charset="UTF-8">
     <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>응급실까지 걸리는 시간 — 통합사회 GIS 지도</title>
+    <title>응급실까지 걸리는 시간 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
+
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
+<link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
 <style>
 /* 응급실까지 걸리는 시간 — 이 판에만 있는 것. 공용은 geo.css 「지도 실험실 공용」 */
 </style>
@@ -28,7 +33,7 @@
 <meta name="theme-color" content="#121815">
 <meta name="description" content="통합사회2 Ⅱ 사회정의와 불평등 — 가장 가까운 응급실까지 걸리는 시간은 사는 곳에 따라 얼마나 다른가?">
 <link rel="canonical" href="https://nyuheatgis.com/map-access.html">
-<meta property="og:title" content="응급실까지 걸리는 시간 · 통합사회 GIS 지도">
+<meta property="og:title" content="응급실까지 걸리는 시간 — Geographia">
 <meta property="og:description" content="가장 가까운 응급실까지 걸리는 시간은 사는 곳에 따라 얼마나 다른가?">
 <meta property="og:url" content="https://nyuheatgis.com/map-access.html">
 <meta property="og:type" content="website">
@@ -99,12 +104,12 @@
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -114,7 +119,7 @@
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -124,6 +129,6 @@
     <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
       <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

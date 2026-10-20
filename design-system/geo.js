@@ -115,17 +115,17 @@
       cols: [
         { title: '3.1 기후 환경', items: [
           { label: '지구 공전과 계절',   href: 'climate_3d.html' },
-          { label: '적도 수렴대 이동',   href: 'climate_itcz.html' },
-          { label: '태양 고도와 입사각', href: 'climate_solar.html' }
+          { label: '적도 수렴대의 이동',   href: 'climate_itcz.html' },
+          { label: '태양 고도와 일사량', href: 'climate_solar.html' }
         ]},
         { title: '3.2 지형 변화', items: [
-          { label: '지형의 형성 과정',   href: 'terrain.html' },
+          { label: '지형 만들기 스튜디오',   href: 'terrain.html' },
           { label: '지형 형성 작용',     href: 'dynamic_earth.html' },
-          { label: '지형 탐구 시뮬레이터', href: 'world_landforms.html' }
+          { label: '세계 지형 탐구', href: 'world_landforms.html' }
         ]},
         { title: '3.3 도시 공간', items: [
-          { label: '서울 대도시권 팽창', href: 'seoul.html' },
-          { label: 'AI 분석 대시보드',   href: 'ai_dashboard.html', desc: '식생 · 열섬 · 인구' }
+          { label: '서울 대도시권의 확장', href: 'seoul.html' },
+          { label: '도시 · 인구 변화 실험',   href: 'ai_dashboard.html', desc: '녹지 · 열섬 · 인구' }
         ]},
         { title: '관측 · 통계 자료', items: [
           { label: '기후 그래프',     href: 'climate.html', desc: '관측소 223곳 · 쾨펜 기후' },

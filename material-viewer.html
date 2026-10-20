@@ -1,6 +1,11 @@
 <!doctype html>
 <!-- 비공개 문서를 불투명 출처 iframe 안에서 실행하는 새 탭 뷰어. -->
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>자료 미리보기 — Geographia</title><link rel="stylesheet" href="design-system/stratum.css"><style>html,body{height:100%;margin:0}iframe{display:block;width:100%;height:100%;border:0}p{padding:var(--st-sp-4)}</style></head>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>자료 미리보기 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><link rel="stylesheet" href="design-system/stratum.css"><style>html,body{height:100%;margin:0}iframe{display:block;width:100%;height:100%;border:0}p{padding:var(--st-sp-4)}</style></head>
 <body><p id="status">자료를 여는 중…</p><iframe id="document" title="격리된 자료 미리보기" sandbox="allow-scripts allow-downloads" referrerpolicy="no-referrer" hidden></iframe><script type="module">
 import {allowedBlobURL} from './assets/preview.mjs';
 const url=allowedBlobURL(location.hash,location.origin);

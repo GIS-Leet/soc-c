@@ -40,18 +40,20 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
       name="viewport"
     />
-    <title>지리를 직접 실험하는 공간 — Geographia Lab</title>
+    <title>공간 시뮬레이터 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
     <meta
-      content="계절, 기후, 지형, 도시. 일곱 가지 인터랙티브 실험으로 세상이 움직이는 원리를 발견하세요."
+      content="기후 · 지형 · 도시 단원의 개념을 직접 조작해 확인하는 실험 7개입니다."
       name="description"
     />
     <link href="https://nyuheatgis.com/simulators.html" rel="canonical" />
+    <meta property="og:title" content="공간 시뮬레이터 — Geographia">
     <meta
-      content="지리를 직접 실험하는 공간 · Geographia Lab"
-      property="og:title"
-    />
-    <meta
-      content="계절, 기후, 지형, 도시. 일곱 가지 인터랙티브 실험으로 세상이 움직이는 원리를 발견하세요."
+      content="기후 · 지형 · 도시 단원의 개념을 직접 조작해 확인하는 실험 7개입니다."
       property="og:description"
     />
     <meta content="https://nyuheatgis.com/simulators.html" property="og:url" />
@@ -61,13 +63,10 @@
     <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
     <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-    <link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
-    <link href="assets/sim-stratum.css?v=86ccf0c0" rel="stylesheet" />
+    <link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
+    <link href="assets/sim-stratum.css?v=41cbdabd" rel="stylesheet" />
   </head>
   <body data-design="stratum" data-lab="simulators">
     <a class="skip-link" href="#main">본문으로 이동</a>
@@ -147,8 +146,7 @@
               <div class="experiment-meta">기후</div>
               <h3>지구 공전과 계절</h3>
               <p>
-                같은 태양, 다른 계절. 자전축과 공전 위치를 바꾸며 두 반구에
-                도달하는 햇빛을 비교해 보세요.
+                자전축과 공전 위치를 바꾸며 두 반구에 닿는 햇빛과 낮의 길이를 견줍니다.
               </p>
               <div class="experiment-go">
                 <span>자전축 · 공전 · 낮의 길이</span
@@ -181,8 +179,7 @@
               <div class="experiment-meta">기후</div>
               <h3>적도 수렴대의 이동</h3>
               <p>
-                계절을 따라 움직이는 비의 띠. 한 해를 돌려 보며 열대 지역의
-                우기와 건기가 나타나는 이유를 찾습니다.
+                한 해를 돌리며 적도 수렴대가 남북으로 옮겨 가는 모습을 보고, 열대 지역에 우기와 건기가 생기는 까닭을 찾습니다.
               </p>
               <div class="experiment-go">
                 <span>무역풍 · 우기와 건기</span
@@ -215,8 +212,7 @@
               <div class="experiment-meta">기후</div>
               <h3>태양 고도와 일사량</h3>
               <p>
-                태양을 조금 더 높이 올려 보세요. 같은 빛이 닿는 면적이
-                줄어들면서 지표가 받는 에너지가 달라집니다.
+                태양 고도를 바꾸면 같은 빛이 닿는 면적이 달라지고, 그만큼 지표가 받는 에너지도 달라집니다.
               </p>
               <div class="experiment-go">
                 <span>입사각 · 에너지 밀도</span
@@ -246,8 +242,7 @@
               <div class="experiment-meta">지형</div>
               <h3>지형 만들기 스튜디오</h3>
               <p>
-                땅을 높이고, 골짜기를 깎고, 바닷물을 채웁니다. 직접 만든 지형을
-                단면으로 잘라 변화의 흔적을 살펴보세요.
+                땅을 높이거나 깎고 해수면을 바꾸며 지형을 만들고, 단면으로 잘라 높낮이를 봅니다.
               </p>
               <div class="experiment-go">
                 <span>융기 · 침식 · 해수면</span
@@ -282,8 +277,7 @@
               </div>
               <h3>지형 형성 작용</h3>
               <p>
-                솟아오르고, 휘어지고, 깎여 나갑니다. 눈에 보이지 않을 만큼 긴
-                시간의 변화를 한 단계씩 펼쳐 봅니다.
+                내적 작용과 외적 작용이 오랜 시간에 걸쳐 지형을 만드는 과정을 단계별로 봅니다.
               </p>
               <div class="experiment-go">
                 <span>내적 작용 · 외적 작용</span
@@ -318,8 +312,7 @@
               </div>
               <h3>세계 지형 탐구</h3>
               <p>
-                화산의 분화구부터 빙하가 남긴 골짜기까지. 익숙한 풍경을 되감아
-                그 풍경을 만든 과정을 관찰합니다.
+                화산 · 빙하 · 카르스트 지형이 만들어진 과정을 단계별로 되돌려 보며 관찰합니다.
               </p>
               <div class="experiment-go">
                 <span>화산 · 빙하 · 카르스트</span
@@ -349,8 +342,7 @@
               <div class="experiment-meta">도시</div>
               <h3>서울 대도시권의 확장</h3>
               <p>
-                집과 일터 사이를 잇는 교통망. 신도시와 광역 교통의 확장이
-                대도시권을 어떻게 바꾸는지 지도 위에서 읽습니다.
+                신도시 개발과 광역 교통망 확장이 서울 대도시권의 범위를 어떻게 바꾸었는지 지도에서 봅니다.
               </p>
               <div class="experiment-go">
                 <span>신도시 · 교통망 · 생활권</span
@@ -372,21 +364,21 @@
       <section class="learning-route" aria-label="관측 자료로 확인하기">
         <p><span class="learning-route__cap">관측 자료</span><span class="learning-route__q">실험에서 본 원리가 실제 관측값에도 나타나는지 확인해 보세요.</span></p>
         <p class="learning-route__hint">실험 화면 위의 공유 단추를 누르면 지금 조건 그대로 여는 주소와 QR이 나옵니다.</p>
-        <div class="learning-route__links"><a href="climate.html">기후 그래프 · 관측소 223곳</a><a href="climate.html?set=itcz&amp;c=65578,61291,61052,60680,60390">적도 수렴대를 따라 북쪽으로</a><a href="stats.html">통계로 보는 세계</a></div>
+        <div class="learning-route__links"><a href="climate.html">기후 그래프 · 관측소 223곳</a><a href="climate.html?set=itcz&amp;c=65578,61291,61052,60680,60390">적도 수렴대를 따라 북쪽으로</a><a href="stats.html">통계로 보는 세계</a><a href="maps.html">통합사회 GIS 지도</a></div>
       </section>
       <section class="directory-guide">
         <h2>사용 방법</h2>
         <div class="guide-steps">
           <div>
-            <b>01 · 예상하기</b>
+            <b>예상하기</b>
             <p>조건을 바꾸기 전에 어떤 변화가 일어날지 생각해 보세요.</p>
           </div>
           <div>
-            <b>02 · 조건 바꾸기</b>
-            <p>각도, 계절, 지형. 한 번에 하나의 조건만 바꾸어 비교하세요.</p>
+            <b>조건 바꾸기</b>
+            <p>한 번에 조건 하나(각도 · 계절 · 지형 등)만 바꾸어 견주어 보세요.</p>
           </div>
           <div>
-            <b>03 · 변화 설명하기</b>
+            <b>변화 설명하기</b>
             <p>눈으로 발견한 차이를 바탕으로 변화의 이유를 설명하세요.</p>
           </div>
         </div>
@@ -425,12 +417,12 @@
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -440,7 +432,7 @@
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -454,6 +446,6 @@
   </div>
 </div>
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

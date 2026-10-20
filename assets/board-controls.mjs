@@ -1,7 +1,9 @@
 // 기존 게시판 화면에 서버 인증·비밀글 접근·폼 저장 상태를 연결함.
-import {ensureAccess,loginTeacher,logoutTeacher,onSessionChanged,onBoardState,refreshBoard} from './board-client.mjs?v=70eaa954';
+import {ensureAccess,loginTeacher,logoutTeacher,onSessionChanged,onBoardState,refreshBoard} from './board-client.mjs?v=93c9417a';
 import {guardPending} from './pending-write.mjs?v=8cfe1cd0';
-export function installBoardControls({db,board,ref,update,remove,setAdmin,enableEditMode,onPostChange}){
+// 비밀글 표시 — 그림 글자 대신 선 아이콘(qna.html 과 같은 모양)
+const LOCK_ICON='<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="비밀글" role="img"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+export function installBoardControls({db,board,ref,update,remove,setAdmin,enableEditMode,onPostChange,paintTitle}){
  const $=id=>document.getElementById(id);const target=id=>ref(db,board+'/'+id);
  const modal=options=>new Promise(resolve=>{window.AppModal.show(options,resolve);const input=$('modalInput');if(input){input.setAttribute('aria-label','작성한 글의 비밀번호');input.placeholder='작성한 글의 비밀번호';}});
  const fail=error=>window.AppModal.show({type:'alert',msg:error.message||'처리하지 못했습니다. 입력한 내용은 유지됩니다.'});
@@ -44,16 +46,17 @@ export function installBoardControls({db,board,ref,update,remove,setAdmin,enable
   if(isAdmin){fail(Error('확인 표시는 질문을 작성한 학생이 남길 수 있습니다.'));return;}
   try{if(await access(id,'edit'))await update(target(id),{readAt:Date.now()})}catch(error){fail(error)}
  };
+ // 본문(post-body)을 펼칠 때 만드는 화면(qna)도 있다 — 본문이 아직 없으면 목록 줄의 정보만 고친다.
  function applyPostSnapshot(id,data){
-  const li=$('post-'+id),body=$('post-body-'+id);if(!li||!body)return;
+  const li=$('post-'+id),body=$('post-body-'+id);if(!li)return;
   const locked=data.isSecret&&data._access?.read!==true;
   const title=locked?'비밀글':String(data.title||'제목 없음');
   li.dataset.secret=String(!!data.isSecret);li.dataset.unlocked=String(!locked);li.dataset.sTitle=title;li.dataset.sAuthor=locked?'':String(data.author||'');li.dataset.sBody=data.isSecret?'':String(data.text||'');li.dataset.readAt=String(data.readAt||0);
   li.dataset.locked=String(locked);li.dataset.summaryAnswers=String(data._summary?.answerCount||0);li.dataset.summaryState=data._summary?.state||'open';
-  $('title-text-'+id).textContent=(data.isSecret?'🔒 ':'')+title;
+  if(paintTitle)paintTitle(id,data);else{const el=$('title-text-'+id);el.textContent=title;if(data.isSecret)el.insertAdjacentHTML('afterbegin',LOCK_ICON+' ');}
   const author=li.querySelector('.q-author,.item-author');if(author)author.textContent=locked?'비공개':String(data.author||'익명');
-  body.dataset.text=locked?'':String(data.text||'');body.dataset.title=title;body.dataset.time=String(data.time||'');body.dataset.image=locked?'':String(data.imageUrl||'');
-  if(locked||!body.querySelector('textarea')){
+  if(body){body.dataset.text=locked?'':String(data.text||'');body.dataset.title=title;body.dataset.time=String(data.time||'');body.dataset.image=locked?'':String(data.imageUrl||'');}
+  if(body&&(locked||!body.querySelector('textarea'))){
    body.replaceChildren(document.createTextNode(locked?'비밀글입니다. 작성자 확인 후 열람할 수 있습니다.':String(data.text||'')));
    if(!locked&&data.imageUrl){const image=document.createElement('img');image.dataset.src=data.imageUrl;image.alt='첨부 이미지';image.className='post-image';body.append(image);/* 접힌 글의 그림은 펼칠 때 받는다 — 각 게시판 화면의 showPostImages 가 data-src → src */}
    if(!locked&&data._imageUnavailable){const message=document.createElement('p');message.textContent='첨부 이미지를 불러오지 못했습니다. 다시 열어 주세요.';body.append(message);}

@@ -1,7 +1,7 @@
 /* Desk 앱 셸 오프라인 캐시.
    같은 출처의 셸 파일과 CDN 정적 자원만 다루고, 나머지(Firebase 등)는 건드리지 않는다. */
 const CACHE_PREFIX = 'desk-shell-';
-const CACHE = CACHE_PREFIX + 'v9';   // v9: 이름을 Desk → 교무수첩으로(화면 글자만. 주소 · 데이터는 그대로)
+const CACHE = CACHE_PREFIX + 'v10';  // v10: 판 번호 없는 셸 파일은 네트워크 먼저, 판이 바뀌면 옛 판 항목 정리(2026-10-20)
 const SHELL = [
   'desk.html',
   'assets/preview.mjs',
@@ -44,8 +44,10 @@ self.addEventListener('fetch', e => {
   const isCDN = CDN_HOSTS.has(url.hostname);
   if (!isShell && !isCDN) return;   // Firebase·API 등은 네트워크 그대로
 
-  // HTML 은 네트워크 먼저(업데이트 즉시 반영), 실패할 때만 캐시
-  if (url.pathname.endsWith('.html')) {
+  // HTML 과 판 번호(?v=) 없는 셸 파일은 네트워크 먼저(배포가 바로 보이게), 실패할 때만 캐시.
+  // 판 번호가 붙은 파일은 내용이 바뀌면 주소도 바뀌므로 캐시를 먼저 내줘도 옛 판이 나오지 않는다.
+  const versioned = url.origin === location.origin && url.searchParams.has('v');
+  if (url.pathname.endsWith('.html') || (isShell && !versioned)) {
     e.respondWith(
       caches.open(CACHE).then(async c => {
         try { const res = await fetch(e.request, { cache: 'no-cache' }); if (res && res.ok) { try { await c.put(e.request, res.clone()); } catch {} } return res; }
@@ -61,6 +63,9 @@ self.addEventListener('fetch', e => {
     const res = await fetch(e.request);
     if (res && (res.ok || res.type === 'opaque')) {
       try { await c.put(e.request, res.clone()); } catch { /* 캐시 부족은 네트워크 응답을 막지 않음. */ }
+      if (versioned) {   // 같은 파일의 다른 판 번호 항목은 지운다 — 배포마다 캐시가 쌓이지 않게
+        try { for (const k of await c.keys()) { const u = new URL(k.url); if (u.pathname === url.pathname && u.search !== url.search) await c.delete(k); } } catch { /* 정리 실패는 응답과 무관 */ }
+      }
     }
     return res;
   });

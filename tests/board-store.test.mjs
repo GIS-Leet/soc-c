@@ -50,3 +50,15 @@ test('로그인 변경 뒤와 판 번호 없는 서버에는 판 번호를 보�
  await store.refresh();store.reset();await store.refresh({light:true});assert.equal(calls[1].stamp,undefined);
  stamp=null;await store.refresh();await store.refresh({light:true});assert.equal(calls[3].stamp,undefined);
 });
+// ── 참조가 같으면 건너뛰기(2026-10-20) ──
+test('같은 내용을 새 객체로 다시 받아도 changed 이벤트가 없고, 바뀐 글만 changed 로 알린다',async()=>{
+ let text='처음';const store=new BoardStore(async()=>({items:[{id:'a',text},{id:'b',text:'그대로',replies:{r:{text:'답'}}}],hasMore:false}));
+ const changed=[],replies=[];store.listen('','changed',s=>changed.push(s.key+':'+s.val().text));store.listen('b/replies','added',s=>replies.push(s.key));
+ await store.refresh();await settle();await store.refresh();await settle();assert.deepEqual(changed,[]);
+ text='고침';await store.refresh();await settle();assert.deepEqual(changed,['a:고침']);assert.deepEqual(replies,['r']);
+});
+test('구독자에게 건넨 값을 고쳐도 저장된 값과 다음 비교가 흔들리지 않는다',async()=>{
+ const store=new BoardStore(async()=>({items:[],hasMore:false}));store.setItem({id:'a',replies:{r:{text:'old'}}});
+ const seen=[];store.listen('a/replies','added',s=>{const v=s.val();v.text='바꿈';seen.push(v.text)});store.listen('a/replies','changed',s=>seen.push('changed:'+s.val().text));await settle();
+ store.setItem({id:'a',replies:{r:{text:'old'}}});await settle();assert.deepEqual(seen,['바꿈']);assert.equal(store.data.a.replies.r.text,'old');
+});

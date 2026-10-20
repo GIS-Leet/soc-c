@@ -40,15 +40,20 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
       name="viewport"
     />
-    <title>지형 형성 — Geographia Lab</title>
+    <title>세계 지형 탐구 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
     <meta
-      content="화산의 분화구부터 빙하가 남긴 골짜기까지. 익숙한 풍경을 되감아 그 풍경을 만든 과정을 관찰합니다."
+      content="화산 · 빙하 · 카르스트 지형이 만들어진 과정을 단계별로 되돌려 보며 관찰합니다."
       name="description"
     />
     <link href="https://nyuheatgis.com/world_landforms.html" rel="canonical" />
     <meta content="지형 형성 · Geographia Lab" property="og:title" />
     <meta
-      content="화산의 분화구부터 빙하가 남긴 골짜기까지. 익숙한 풍경을 되감아 그 풍경을 만든 과정을 관찰합니다."
+      content="화산 · 빙하 · 카르스트 지형이 만들어진 과정을 단계별로 되돌려 보며 관찰합니다."
       property="og:description"
     />
     <meta
@@ -61,13 +66,10 @@
     <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
     <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-    <link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
-    <link href="assets/sim-stratum.css?v=86ccf0c0" rel="stylesheet" />
+    <link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
+    <link href="assets/sim-stratum.css?v=41cbdabd" rel="stylesheet" />
   </head>
   <body data-design="stratum" data-lab="world_landforms">
     <a class="skip-link" href="#main">본문으로 이동</a>
@@ -112,13 +114,13 @@
     <main class="lab-main" id="main">
       <nav aria-label="현재 위치" class="breadcrumb">
         <a href="simulators.html">모든 실험</a><span>/</span
-        ><span>지형 실험실</span><span>/</span><span>06</span>
+        ><span>지형 실험실</span><span>/</span><span>세계 지형 탐구</span>
       </nav>
       <section class="lab-intro">
         <div>
-          <h1>지형 형성</h1>
+          <h1>세계 지형 탐구</h1>
         </div>
-        <p class="intro-copy">화산·빙하·용식·해안 침식의 형성 단계 비교</p>
+        <p class="intro-copy">습곡 산지 · 화산 · 빙하 · 카르스트 · 해안 침식 지형이 만들어지는 단계를 비교합니다.</p>
       </section>
       <div class="lab-workspace">
         <div class="lab-visual">
@@ -183,7 +185,7 @@
                 ><span class="cap-ex" id="capEx"></span>
               </div>
               <span class="caption-category" id="capCat"
-                >FORMATION SEQUENCE</span
+                >형성 단계</span
               >
               <h2 class="caption-title" data-state-title="" id="capTitle">
                 지형을 불러오는 중
@@ -230,9 +232,9 @@
                 <span class="step-num">01</span
                 ><span class="step-info"
                   ><span class="row1"
-                    ><b>지형을 만드는 두 힘</b
+                    ><b>내적 작용과 외적 작용</b
                     ><span class="force-tag">복합</span></span
-                  ><span class="sub">솟아오르는 힘과 깎아 내리는 힘</span></span
+                  ><span class="sub">융기와 침식</span></span
                 ></button
               ><button
                 aria-pressed="false"
@@ -270,7 +272,7 @@
                   ><span class="row1"
                     ><b>용암대지와 주상절리</b
                     ><span class="force-tag">내적</span></span
-                  ><span class="sub">흐르고 식고 갈라지는 용암</span></span
+                  ><span class="sub">용암의 분출 · 냉각 · 수축</span></span
                 ></button
               ><button
                 aria-pressed="false"
@@ -280,7 +282,7 @@
                 <span class="step-num">05</span
                 ><span class="step-info"
                   ><span class="row1"
-                    ><b>빙하가 남긴 U자곡</b
+                    ><b>빙하와 U자곡</b
                     ><span class="force-tag">외적</span></span
                   ><span class="sub">V자곡에서 U자곡으로</span></span
                 ></button
@@ -294,7 +296,7 @@
                   ><span class="row1"
                     ><b>카르스트와 돌리네</b
                     ><span class="force-tag">외적</span></span
-                  ><span class="sub">빗물에 녹아드는 석회암 대지</span></span
+                  ><span class="sub">빗물에 의한 석회암의 용식</span></span
                 ></button
               ><button
                 aria-pressed="false"
@@ -304,7 +306,7 @@
                 <span class="step-num">07</span
                 ><span class="step-info"
                   ><span class="row1"
-                    ><b>파도가 만든 해안</b
+                    ><b>해안 침식 지형</b
                     ><span class="force-tag">외적</span></span
                   ><span class="sub">해식애 · 파식대 · 시스택</span></span
                 >
@@ -352,12 +354,12 @@
               ><input id="rotateToggle" type="checkbox" />
             </div>
             <p class="note-caption">
-              아래의 단계 버튼으로 시간을 이동하세요. 자동 재생 중에도 언제든
+              아래 단계 버튼으로 다음 단계로 넘어갑니다. 자동 재생 중에도
               멈춰 관찰할 수 있습니다.
             </p>
           </section>
           <div class="lab-tip">
-            <strong>시간을 천천히 펼쳐 보세요.</strong><br />각 단계는 지형
+            <strong>단계와 실제 시간</strong><br />각 단계는 지형
             형성의 대표적인 모습을 보여 줍니다. 실제 변화는 오랜 시간 동안
             이어지며 여러 작용이 함께 일어납니다.
           </div>
@@ -377,7 +379,7 @@
     <script src="assets/sim-landscape.js?v=f81f5f83"></script>
     <script src="assets/sim-landscape-materials.js?v=238f501d"></script>
     <script src="assets/sim-scene.js?v=96e537e5"></script>
-    <script src="assets/sim-landforms.js?v=83724007"></script>
+    <script src="assets/sim-landforms.js?v=0e6d8eb2"></script>
     <script src="assets/sim-viewer.mjs?v=532709f9" type="module"></script>
   <div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="geo-menu__top">
@@ -405,12 +407,12 @@
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -420,7 +422,7 @@
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -434,6 +436,6 @@
   </div>
 </div>
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

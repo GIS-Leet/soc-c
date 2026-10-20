@@ -7,27 +7,29 @@ export class BoardStore {
   publishState(value){this.state=value;for(const callback of this.states)callback(value);if(value.status==='error')for(const listener of this.listeners)listener.error?.(value.error);}
   onState(callback){this.states.add(callback);callback(this.state);return()=>this.states.delete(callback);}
   listen(path,event,callback,error,options={}) {
-    const listener={path,event,callback,error,options,previous:null,initialized:false};this.listeners.add(listener);this.schedule();return()=>this.listeners.delete(listener);
+    const listener={path,event,callback,error,options,previous:null,initialized:false,depth:path.split('/').length};this.listeners.add(listener);this.schedule();return()=>this.listeners.delete(listener);
   }
+  // 저장한 글은 제자리에서 고치지 않고 통째로 갈아 끼운다(refresh · setItem · removeItem 모두 새 객체).
+  // 그래서 구독자가 지난번에 본 값과 참조가 같으면 바뀐 것이 없다 — 복제 · JSON 비교를 건너뛴다.
+  // (글 수백 개 × 답변 구독 수백 개를 매번 통째로 복제 · 직렬화하던 것이 첫 화면 메인 스레드의 대부분이었음, 2026-10-20)
   schedule(){
     if(this.scheduled)return;this.scheduled=true;const epoch=this.epoch;
     queueMicrotask(()=>{this.scheduled=false;if(epoch!==this.epoch||!this.ready)return;
-      const listeners=[...this.listeners].sort((a,b)=>b.path.split('/').length-a.path.split('/').length);
+      const listeners=[...this.listeners].sort((a,b)=>b.depth-a.depth);
       for(const listener of listeners){
         if(!this.listeners.has(listener))continue;
         if(listener.event==='value' && listener.options.onlyOnce && !this.state.complete)continue;
         const value=at(this.data,listener.path);const previous=listener.previous;const initial=!listener.initialized;
-        listener.previous=clone(value);listener.initialized=true;
+        if(!initial&&value===previous)continue;
+        listener.previous=value;listener.initialized=true;
         if(listener.event==='value') {
           if(initial||JSON.stringify(value)!==JSON.stringify(previous))listener.callback(snapshot(listener.path.split('/').at(-1)||null,value));
           if(listener.options.onlyOnce)this.listeners.delete(listener);
         } else {
           const before=previous||{},after=value||{};
-          for(const key of new Set([...Object.keys(before),...Object.keys(after)])){
-            const added=!(key in before)&&key in after,removed=key in before&&!(key in after);
-            const changed=key in before&&key in after&&JSON.stringify(before[key])!==JSON.stringify(after[key]);
-            if((listener.event==='added'&&added)||(listener.event==='removed'&&removed)||(!initial&&listener.event==='changed'&&changed))listener.callback(snapshot(key,removed?before[key]:after[key]));
-          }
+          if(listener.event==='added'){for(const key of Object.keys(after))if(!(key in before))listener.callback(snapshot(key,after[key]));}
+          else if(listener.event==='removed'){for(const key of Object.keys(before))if(!(key in after))listener.callback(snapshot(key,before[key]));}
+          else if(!initial){for(const key of Object.keys(before))if(key in after&&before[key]!==after[key]&&JSON.stringify(before[key])!==JSON.stringify(after[key]))listener.callback(snapshot(key,after[key]));}
         }
         // 삭제된 부모의 중첩 구독은 마지막 제거 이벤트 뒤 해제함.
         if(listener.path&&previous!=null&&value==null&&at(this.data,listener.path.split('/').slice(0,-1).join('/'))==null)this.listeners.delete(listener);

@@ -11,17 +11,22 @@
 <meta charset="UTF-8">
 <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>정보화 기기 문의 — Geographia Archive</title>
+<title>정보화 기기 문의 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
+
 
 <!-- 디자인 시스템 -->
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
+<link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
 
 <style>
 /* ============================================================================
@@ -324,9 +329,9 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
             <h2>안내</h2>
             <ol>
                 <li>이곳은 <b>학교 정보화 기기(디벗, TV, PC 등) 고장 접수 및 문의</b> 페이지입니다.</li>
-                <li>학년, 반과 <b>기기 종류(예: 학급 PC, 전자칠판)</b> 및 <b>고장 증상</b>을 명확하게 작성해 주십시오.</li>
-                <li>보안을 위해 학번과 이름 외의 불필요한 개인정보 기재를 금합니다.</li>
-                <li>증상에 대한 <b>사진 자료를 첨부</b>하시면 처리가 신속합니다.</li>
+                <li>학년 · 반, <b>기기 종류(예: 학급 PC, 전자칠판)</b>, <b>고장 증상</b>을 적어 주세요.</li>
+                <li>학번과 이름 외의 개인정보는 적지 마세요.</li>
+                <li>증상을 찍은 <b>사진을 첨부</b>하면 처리가 빨라집니다.</li>
             </ol>
         </div>
 
@@ -346,7 +351,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
                 </div>
             </div>
             <label class="st-sr-only" for="questionInput">기기 상태 및 고장 증상</label>
-            <textarea id="questionInput" class="form-input" placeholder="상세한 기기 상태 및 고장 증상을 작성하세요."></textarea>
+            <textarea id="questionInput" class="form-input" placeholder="기기 상태와 고장 증상을 적어 주세요."></textarea>
 
             <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageSelection(event)">
 
@@ -393,14 +398,14 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
     </div>
 
     <script type="module">
-        import {installBoardControls} from "./assets/board-controls.mjs?v=259d0818";
-    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs?v=70eaa954";
+        import {installBoardControls} from "./assets/board-controls.mjs?v=94f70103";
+    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs?v=93c9417a";
     // 접힌 글의 첨부 그림은 글을 펼칠 때 받는다 — 목록만 열어도 모든 글의 그림을 받아 함수 전송 요금이 나가던 것을 막음(2026-10-08).
     // 글 본문 틀은 <img data-src>, 여기서 펼쳐진 글의 것만 src 로 옮긴다
     const showPostImages = () => { for (const img of document.querySelectorAll('img[data-src]')) { const item = img.closest('.q-item'); if (item ? item.classList.contains('is-open') : img.offsetParent !== null) { img.src = img.dataset.src; img.removeAttribute('data-src'); } } };
     new MutationObserver(showPostImages).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=70eaa954";
+        import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=93c9417a";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
@@ -470,7 +475,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 
         window.addQuestion = async function() {
             const title = document.getElementById('titleInput').value.trim(); const text = document.getElementById('questionInput').value.trim(); const author = document.getElementById('authorInput').value.trim() || '익명'; const password = document.getElementById('pwInput').value.trim(); const isSecret = document.getElementById('secretInput').checked;
-            if (!title || !password || !text) { window.AppModal.show({type: 'alert', msg: '제목, 비밀번호, 내용을 모두 기재해 주십시오.'}); return; }
+            if (!title || !password || !text) { window.AppModal.show({type: 'alert', msg: '제목, 비밀번호, 내용을 모두 적어 주세요.'}); return; }
             const submitBtn = document.getElementById('submitBtn'); submitBtn.innerHTML = `Processing...`; submitBtn.disabled = true;
 
             try {
@@ -480,7 +485,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 
 
                 document.getElementById('titleInput').value = ''; document.getElementById('questionInput').value = ''; document.getElementById('authorInput').value = ''; document.getElementById('pwInput').value = ''; document.getElementById('secretInput').checked = false; window.removeSelectedImage();
-            } catch (error) { window.AppModal.show({type: 'alert', msg: '네트워크 통신 중 오류가 발생했습니다.'}); }
+            } catch (error) { window.AppModal.show({type: 'alert', msg: '등록하지 못했습니다. 네트워크를 확인하고 다시 시도해 주세요.'}); }
             finally { submitBtn.innerHTML = `등록`; submitBtn.disabled = false; }
         };
 
@@ -493,7 +498,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 
         window.saveEdit = async (id) => {
             const newTitle = document.getElementById(`edit-title-${id}`).value.trim(); const newText = document.getElementById(`edit-textarea-${id}`).value.trim();
-            if (!newTitle || !newText) { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); return; }
+            if (!newTitle || !newText) { window.AppModal.show({type: 'alert', msg: '내용을 적어 주세요.'}); return; }
             try { await commitWrite(() => update(dbRef(db, `support/${id}`), { title: newTitle, text: newText }), () => { const bodyDiv = document.getElementById(`post-body-${id}`); bodyDiv.dataset.text = newText; bodyDiv.dataset.title = newTitle; const imageUrl = bodyDiv.dataset.image; let contentHtml = escapeHTML(newText); if(imageUrl) contentHtml += `<img src="${escapeHTML(imageUrl)}" class="post-image" alt="첨부 이미지">`; contentHtml += `<div class="post-meta-foot">작성 ${escapeHTML(bodyDiv.dataset.time)}</div>`; bodyDiv.innerHTML = contentHtml; const li = document.getElementById(`post-${id}`); const isSecret = li.dataset.secret === 'true'; document.getElementById(`title-text-${id}`).innerHTML = (isSecret ? SVG_LOCK + ' ' : '') + escapeHTML(newTitle); }); } catch (error) { window.AppModal.show({type: 'alert', msg: '수정 내용을 저장하지 못했습니다. 입력한 내용은 유지됩니다.'}); }
         };
 
@@ -561,9 +566,9 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 
         window.cancelEditReply = (qId, replyId) => { const li = document.getElementById(`reply-${qId}-${replyId}`); document.getElementById(`reply-text-${qId}-${replyId}`).textContent = li.dataset.text; };
 
-        window.saveEditReply = async (qId, replyId) => { const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim(); if (!newText) { window.AppModal.show({type: 'alert', msg: '내용을 기재해 주십시오.'}); return; } try { await commitWrite(() => update(dbRef(db, `support/${qId}/replies/${replyId}`), { text: newText }), () => { const li = document.getElementById(`reply-${qId}-${replyId}`); li.dataset.text = newText; document.getElementById(`reply-text-${qId}-${replyId}`).textContent = newText; }); } catch (error) { window.AppModal.show({type: 'alert', msg: '답변 수정을 저장하지 못했습니다. 입력한 내용은 유지됩니다.'}); } };
+        window.saveEditReply = async (qId, replyId) => { const newText = document.getElementById(`edit-reply-input-${qId}-${replyId}`).value.trim(); if (!newText) { window.AppModal.show({type: 'alert', msg: '내용을 적어 주세요.'}); return; } try { await commitWrite(() => update(dbRef(db, `support/${qId}/replies/${replyId}`), { text: newText }), () => { const li = document.getElementById(`reply-${qId}-${replyId}`); li.dataset.text = newText; document.getElementById(`reply-text-${qId}-${replyId}`).textContent = newText; }); } catch (error) { window.AppModal.show({type: 'alert', msg: '답변 수정을 저장하지 못했습니다. 입력한 내용은 유지됩니다.'}); } };
 
-        window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'Delete Annotation', msg: '이 기록을 말소하시겠습니까?', confirmText: '삭제'}, async (res) => { if (!res) return; try { await remove(dbRef(db, `support/${qId}/replies/${replyId}`)); } catch (error) { window.AppModal.show({type: 'alert', msg: '답변을 삭제하지 못했습니다. 다시 시도해 주세요.'}); } }); };
+        window.deleteReply = (qId, replyId) => { if (!isAdmin) return; window.AppModal.show({type: 'confirm', title:'답변 삭제', msg: '이 답변을 삭제할까요?', confirmText: '삭제'}, async (res) => { if (!res) return; try { await remove(dbRef(db, `support/${qId}/replies/${replyId}`)); } catch (error) { window.AppModal.show({type: 'alert', msg: '답변을 삭제하지 못했습니다. 다시 시도해 주세요.'}); } }); };
 
         function getCurrentTime() { const now = new Date(); const year = now.getFullYear(); const month = String(now.getMonth() + 1).padStart(2, '0'); const date = String(now.getDate()).padStart(2, '0'); const ampm = now.getHours() >= 12 ? 'PM' : 'AM'; let hour = now.getHours() % 12; hour = hour ? hour : 12; const minutes = String(now.getMinutes()).padStart(2, '0'); return `${year}/${month}/${date} ${ampm} ${hour}:${minutes}`; }
 
@@ -580,13 +585,6 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
     });
     onValue(questionsRef, snapshot => { if(controls.stateReady()) { boardStatus.style.display=Object.keys(snapshot.val()||{}).length?'none':'block'; boardStatus.textContent='아직 등록된 글이 없습니다.'; } },handleBoardError);
 </script>
-    <script>
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('selectstart', e => e.preventDefault());
-        document.addEventListener('keydown', e => {
-            if(e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 67 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) e.preventDefault();
-        });
-    </script>
 <div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="geo-menu__top">
     <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
@@ -613,12 +611,12 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -628,7 +626,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -643,6 +641,6 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

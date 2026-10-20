@@ -536,11 +536,11 @@
   // ----------------------------------------------------
   const scenarios = {
     intro: {
-      cat: "§ SECTION I · 작용의 원리",
-      title: "지형을 만드는 두 힘",
+      cat: "작용의 원리",
+      title: "내적 작용과 외적 작용",
       force: "both",
       forceLabel: "복합 작용",
-      example: "모든 지형의 출발점",
+      example: "융기한 땅이 침식으로 낮아지는 과정",
       cam: [200, 205, 280],
       color: null,
       stages: [
@@ -571,7 +571,7 @@
       ],
     },
     world: {
-      cat: "§ SECTION II · 대지형",
+      cat: "대지형",
       title: "세계의 대지형 — 습곡 산지",
       force: "in",
       forceLabel: "내적 작용",
@@ -606,7 +606,7 @@
       ],
     },
     volcano: {
-      cat: "§ SECTION III · 화산 지형",
+      cat: "화산 지형",
       title: "화산과 칼데라호",
       force: "in",
       forceLabel: "내적 작용",
@@ -650,7 +650,7 @@
       ],
     },
     lava: {
-      cat: "§ SECTION IV · 화산 지형",
+      cat: "화산 지형",
       title: "화산 지형 ② — 용암대지와 주상절리",
       force: "in",
       forceLabel: "내적 작용",
@@ -687,7 +687,7 @@
       ],
     },
     glacier: {
-      cat: "§ SECTION V · 빙하 지형",
+      cat: "빙하 지형",
       title: "빙하 지형 — U자곡",
       force: "ex",
       forceLabel: "외적 작용",
@@ -725,7 +725,7 @@
       ],
     },
     karst: {
-      cat: "§ SECTION VI · 카르스트 지형",
+      cat: "카르스트 지형",
       title: "카르스트 지형 — 돌리네",
       force: "ex",
       forceLabel: "외적 작용",
@@ -763,7 +763,7 @@
       ],
     },
     coast: {
-      cat: "§ SECTION VII · 해안 침식 지형",
+      cat: "해안 침식 지형",
       title: "해안 침식 지형",
       force: "ex",
       forceLabel: "외적 작용",

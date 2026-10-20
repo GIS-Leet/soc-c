@@ -13,17 +13,22 @@
     <meta charset="UTF-8">
     <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>기후 그래프 — Leet's Geographia</title>
+    <title>기후 그래프 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
+
 
 <!-- 디자인 시스템 -->
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
+<link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
 
 <style>
 /* ============================================================================
@@ -72,6 +77,7 @@
   transition: opacity var(--st-dur-fast) var(--st-ease); }
 .mk-hit { fill: transparent; stroke: none; }
 .g-A { fill: var(--gA); color: var(--gA); } .g-B { fill: var(--gB); color: var(--gB); } .g-C { fill: var(--gC); color: var(--gC); }
+/* 범례 칩의 글자는 글자색 — 기후 색은 기호에만(명암 4.5:1) */ .lg-chip[class*="g-"] { color: var(--st-label-2); } .lg-chip[class*="g-"][aria-pressed="true"] { color: var(--st-label); }
 .g-D { fill: var(--gD); color: var(--gD); } .g-E { fill: var(--gE); color: var(--gE); }
 .mk.is-dim { opacity: 0.16; }
 .mk:hover > :not(.mk-hit) { transform: scale(1.35); }
@@ -230,7 +236,7 @@
 <meta name="theme-color" content="#121815">
 <meta name="description" content="세계와 한반도 관측소 223곳의 1991–2020 평년값으로 기후 그래프를 그리고, 쾨펜 기후 기호가 왜 그렇게 정해지는지 단계별로 확인하세요.">
 <link rel="canonical" href="https://nyuheatgis.com/climate.html">
-<meta property="og:title" content="기후 그래프 · Geographia">
+<meta property="og:title" content="기후 그래프 — Geographia">
 <meta property="og:description" content="관측소 평년값으로 그린 기후 그래프와 쾨펜 기후 구분의 까닭.">
 <meta property="og:url" content="https://nyuheatgis.com/climate.html">
 <meta property="og:type" content="website">
@@ -367,12 +373,12 @@
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -382,7 +388,7 @@
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -397,6 +403,6 @@
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

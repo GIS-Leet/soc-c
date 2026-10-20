@@ -31,3 +31,9 @@ test('사라지는 마을: 시·군·구마다 고령 비율과 증가율이 있
   assert.ok(A.features.some((f) => f.key === '대구>군위군'));
   assert.ok(A.features.some((f) => f.key === '인천>미추홀구'));
 });
+
+test('사이트맵에 지도 목록과 판 14개가 모두 들어 있다', () => {
+  const sm = read('sitemap.xml');
+  assert.match(sm, /maps\.html/);
+  for (const { id } of MAPS) assert.match(sm, new RegExp(`map-${id}\.html`), id);
+});

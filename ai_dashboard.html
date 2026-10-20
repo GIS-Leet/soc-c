@@ -1,172 +1,68 @@
 <!DOCTYPE html>
+<!-- 도시 · 인구 변화 실험 — 위성 · 토지 피복 자료로 본 도시화와 녹지 · 지표면 온도, 유엔 인구 자료로 계산하는 미래 인구.
+     주소(ai_dashboard.html)는 여러 곳에서 링크되어 그대로 둔다. 본문은 assets/dashboard.mjs 가 그린다.
+     자료: data/dashboard/(scripts/build-dashboard-land.py · build-dashboard-pop.py) -->
 <html lang="ko">
 <head>
-<script>
-// 외부 그래픽 실패를 숨기지 않고 대체 학습 경로를 알린다.
-window.showSimulationFallback = function () { window.simulationFailed = true; const notice = document.getElementById('simulationFallback'); if (notice) notice.hidden = false; };
-window.addEventListener('error', function (event) { if (event.error || (event.target?.tagName === 'SCRIPT' && /three|chart|lucide|leaflet/i.test(event.target.src))) window.showSimulationFallback(); }, true);
-window.addEventListener('unhandledrejection', window.showSimulationFallback);
-document.addEventListener('DOMContentLoaded', function () { if (window.simulationFailed) window.showSimulationFallback(); });
-</script>
-
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-E1W226W5M4');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-E1W226W5M4');
+    </script>
     <meta charset="UTF-8">
-<script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>AI 공간·인구 분석 대시보드 - 통합사회 C</title>
-    
-    
-    <script src="https://unpkg.com/lucide@1.46.0/dist/umd/lucide.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도시 · 인구 변화 실험 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
 
-<!-- 디자인 시스템 -->
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
-<link rel="stylesheet" href="design-system/sim.css?v=7dfebf5b">
-
+<link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
 <style>
-        :root {
-            /* 사이버네틱 다크 테마 */
-            --bg-deep: #020617; 
-            --panel-bg: rgba(15, 23, 42, 0.7);
-            --panel-border: rgba(56, 189, 248, 0.2);
-            --neon-blue: #38bdf8;
-            --neon-purple: #c084fc;
-            --neon-green: #34d399;
-            --neon-red: #fb7185;
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --radius: 20px;
-        }
-
-        
-        a { text-decoration: none; color: inherit; }
-
-        /* 글래스모피즘 헤더 */
-        .header { background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--panel-border); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
-        .logo { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; color: white; }
-        .logo-icon { background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
-        .server-status { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700; color: var(--neon-green); background: rgba(52, 211, 153, 0.1); padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(52, 211, 153, 0.2); }
-        .server-status .ping { width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); animation: pulse 2s infinite; }
-
-        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.5; } }
-
-        
-        
-        /* 좌측: 컨트롤 패널 */
-        
-        
-        
-
-        /* 탭 메뉴 */
-        .tab-container { display: flex; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 16px; border: 1px solid var(--panel-border); }
-        .tab-btn { flex: 1; text-align: center; padding: 12px 0; font-size: 0.95rem; font-weight: 800; color: var(--text-sub); cursor: pointer; border-radius: 12px; transition: 0.3s; }
-        .tab-btn.active { background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(192, 132, 252, 0.2)); color: var(--neon-blue); border: 1px solid rgba(56, 189, 248, 0.3); text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
-
-        .tab-content { display: none; flex-direction: column; gap: 15px; }
-        .tab-content.active { display: flex; }
-
-        /* 컨트롤 박스 */
-        
-        
-        
-
-        /* 입력 폼 */
-        
-        
-        
-        
-
-        /* 슬라이더 */
-        .slider-row { display: flex; align-items: center; gap: 12px; }
-        .slider-row span { font-size: 0.85rem; font-weight: 700; width: 70px; color: var(--text-sub); }
-        .slider-val { width: 50px !important; text-align: right; color: var(--neon-purple) !important; font-size: 0.95rem !important; }
-        
-        
-
-        /* 실행 버튼 */
-        
-        
-        
-
-        /* 우측: 시각화 모니터 */
-        
-        .monitor { flex: 1; background: #000; border-radius: var(--radius); border: 1px solid var(--panel-border); position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
-        
-        /* ★ 추가됨: 위성 지도 베이스 컨테이너 ★ */
-        #satMapBase { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; filter: brightness(0.6) contrast(1.1); /* 다크 테마에 맞게 약간 어둡게 처리 */ }
-        
-        /* 히트맵 캔버스 (지도 위에 투명하게 겹침) */
-        #radarCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
-        
-        /* 차트 캔버스 */
-        
-
-        /* 모니터 오버레이 UI */
-        .monitor-ui { position: absolute; top: 20px; left: 20px; z-index: 10; pointer-events: none; }
-        .monitor-ui .badge { background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; color: var(--neon-blue); display: inline-flex; align-items: center; gap: 8px; }
-        .scan-line { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); opacity: 0.5; animation: scan 3s linear infinite; pointer-events: none; z-index: 5; display: none; }
-        
-        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-
-        
-        .legend-item { display: flex; align-items: center; gap: 8px; }
-        
-
-    
-    /* ── 모바일 상단 메뉴 정돈 (공통) ── */
-    @media (max-width: 640px) {
-        
-        
-        
-        
-        
-        
-        
-        
-    }
-
-
-/* ── 옛 변수 → 새 토큰 (geo.css/stratum.css 뒤에 오도록 맨 끝에 둔다) ── */
-:root{
-  --sans:'Space Grotesk','Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
-  --serif:var(--sans);
-  --ease:cubic-bezier(0.22,1,0.36,1);
-  --ink:var(--st-label); --ink-2:var(--st-label-2); --ink-3:var(--st-label-3);
-  --ink-faint:var(--st-label-3);
-  --paper:var(--st-bedrock); --paper-2:var(--st-bedrock-sunken);
-  --surface:var(--st-surface); --bg:var(--st-bedrock);
-  --line:var(--st-separator); --line-soft:var(--st-separator);
-  --terra:var(--st-accent); --terra-soft:var(--st-accent-soft);
-  --sea:var(--st-blue); --gold:var(--st-warning); --gold-soft:var(--st-warning-soft);
-  --bg-deep:var(--st-bedrock); --panel-bg:var(--st-surface); --panel-border:var(--st-separator);
-  --text-main:var(--st-label); --text-sub:var(--st-label-2);
-  --neon-blue:var(--st-blue); --neon-purple:var(--st-purple);
-  --neon-green:var(--st-green); --neon-red:var(--st-red);
-  --radius:var(--st-r-container);
-}
+/* 도시 · 인구 변화 실험 — 이 페이지에만 있는 것. 공용은 geo.css 「지도 실험실 공용」(.mk-*) · 「자료 그래프 공용」(.cg-*) */
+.rule { height: 1px; background: var(--st-separator); border: 0; margin: 0; max-width: 1180px; margin-inline: auto; }
+.db { padding-block: clamp(20px, 3vw, 32px) clamp(48px, 7vw, 96px); }
+.db-tabs { margin-bottom: 18px; }
+.db-lead { max-width: 80ch; margin-bottom: 16px; font-size: clamp(1rem, 1.6vw, 1.1rem); line-height: 1.6; color: var(--st-label); letter-spacing: var(--track-ko); }
+.db-lead small { display: block; margin-top: 4px; font-size: 13px; color: var(--st-label-3); }
+.db-row { display: grid; gap: 16px; margin-top: 16px; }
+.db-row--2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.db .mk-panel { align-content: start; grid-template-columns: minmax(0, 1fr); }
+.db .mk-stage > *, .db .db-row > * { min-width: 0; }
+@media (max-width: 900px) { .db-row--2 { grid-template-columns: 1fr; } }
+.db-links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 18px; font-size: 13px; letter-spacing: var(--track-ko); }
+.db-links span { color: var(--st-label-3); }
+.db-links a { color: var(--st-label-2); text-decoration: underline; text-underline-offset: 2px; }
+.db-links a:hover { color: var(--accent-ink); }
+/* 표 — 두 실험 공용 */
+.db-tablewrap { overflow-x: auto; }
+.db-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 13px; letter-spacing: var(--track-ko); font-variant-numeric: tabular-nums; }
+.db-table th, .db-table td { padding: 8px 10px; text-align: right; white-space: nowrap; }
+.db-table thead th { font-size: 11.5px; font-weight: 600; color: var(--st-label-3); }
+.db-table tbody th { text-align: left; font-weight: 600; color: var(--st-label); }
+.db-table td { color: var(--st-label-2); }
+.db-table td small { color: var(--st-label-3); font-size: 11px; }
+.db-table tbody tr { cursor: pointer; transition: background var(--st-dur-fast) var(--st-ease); }
+.db-table tbody tr:hover, .db-table tbody tr.is-sel { background: var(--st-fill-3); }
+.db-table tbody tr > :first-child { border-radius: var(--st-r-inner) 0 0 var(--st-r-inner); }
+.db-table tbody tr > :last-child { border-radius: 0 var(--st-r-inner) var(--st-r-inner) 0; }
+.reveal { opacity: 0; transform: translateY(12px); animation: rise 520ms var(--ease) both; }
+@keyframes rise { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } }
 </style>
-<meta name="description" content="공간·인구 모형 실험 — 다른 조건을 고정하고 출산율을 0.7명에서 1.3명으로 바꾸면 2050년 모형 결과는 어떻게 달라지나요? 이 결과는 가정에 따른 실험이며 실제 미래의 확정 예측이 아닙니다.">
+<meta name="description" content="위성 자료로 여섯 도시의 시가지 · 녹지 · 지표면 온도를 견주고, 유엔 인구 자료로 출산율 · 수명 · 이동을 바꾸며 2073년까지 인구를 계산합니다.">
 <link rel="canonical" href="https://nyuheatgis.com/ai_dashboard.html">
-<meta property="og:title" content="공간·인구 모형 실험 · Geographia">
-<meta property="og:description" content="공간·인구 모형 실험 — 다른 조건을 고정하고 출산율을 0.7명에서 1.3명으로 바꾸면 2050년 모형 결과는 어떻게 달라지나요? 이 결과는 가정에 따른 실험이며 실제 미래의 확정 예측이 아닙니다.">
+<meta property="og:title" content="도시 · 인구 변화 실험 — Geographia">
+<meta property="og:description" content="위성 자료로 여섯 도시의 시가지 · 녹지 · 지표면 온도를 견주고, 유엔 인구 자료로 출산율 · 수명 · 이동을 바꾸며 2073년까지 인구를 계산합니다.">
 <meta property="og:url" content="https://nyuheatgis.com/ai_dashboard.html">
 <meta property="og:type" content="website">
 </head>
@@ -187,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function () { if (window.simulatio
         <a class="lg" href="library.html">자료실</a>
         <a class="lg" href="progress.html">진도표</a>
         <a class="lg" href="qna.html">Q&amp;A</a>
-        <a class="lg on" href="simulators.html">시뮬레이터</a>
+        <a class="lg" href="simulators.html">시뮬레이터</a>
         <a class="lg" href="feedback.html">건의</a>
       </nav>
       <button class="geo-burger lg" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
@@ -195,359 +91,31 @@ document.addEventListener('DOMContentLoaded', function () { if (window.simulatio
       </button>
     </div>
   </header>
-<aside id="simulationFallback" class="learning-route" role="status" hidden><h2>시뮬레이션을 불러오지 못했습니다</h2><p>그래픽 기능이나 외부 라이브러리에 연결할 수 없습니다. 아래 관찰 질문의 조건을 비교하고 공개 자료실의 지도와 설명으로 원인을 정리해 보세요. 네트워크를 확인한 뒤 새로고침하면 다시 시도할 수 있습니다.</p><a href="library.html">공개 자료로 학습 계속하기</a></aside><noscript><p>이 실험에는 JavaScript가 필요합니다. <a href="library.html">공개 자료실에서 학습 계속하기</a></p></noscript>
-<aside class="learning-route" aria-label="관찰과 수업 연결">
-<p class="learning-route__q"><span class="learning-route__cap">관찰 질문</span>다른 조건을 고정하고 출산율을 0.7명에서 1.3명으로 바꾸면 2050년 모형 결과는 어떻게 달라지나요? 이 결과는 가정에 따른 실험이며 실제 미래의 확정 예측이 아닙니다.</p>
-<p class="learning-route__hint">터치 화면에서는 슬라이더 손잡이를 끌어 값을 바꾸세요. 키보드에서는 Tab으로 선택한 뒤 방향키로 조절할 수 있습니다.</p>
-<nav class="learning-route__links" aria-label="관련 학습"><a href="progress.html#class-progress">우리 반 진도</a><a href="library.html">공개 자료실</a><a href="qna.html?q=%EC%9D%B8%EA%B5%AC%20%EB%B3%80%ED%99%94">관련 질문 보기</a></nav>
-</aside>
 
+    <section class="wrap sheet-head">
+        <div class="sheet-num reveal">위성 영상 · 토지 피복 · 인구 통계</div>
+        <h1 class="sheet-title reveal" style="--sheet-title-size: clamp(2.4rem, 8vw, 5.6rem)">도시 · 인구 변화 실험</h1>
+        <p class="sheet-meta reveal">도시가 넓어지며 녹지와 땅의 온도가 어떻게 달라졌는지 실제 위성 자료로 견줍니다.<br>출산 · 수명 · 이동을 가정하면 앞으로의 인구가 어떻게 되는지 유엔 인구 자료로 계산합니다.</p>
+    </section>
+    <hr class="rule">
 
-    <div class="dashboard-container">
-        <div class="controls-wrapper">
-            <div class="tab-container">
-                <div class="tab-btn active" onclick="switchTab('space')">1. 공간 식생/도시화 분석</div>
-                <div class="tab-btn" onclick="switchTab('pop')">2. 미래 인구 예측 모델</div>
-            </div>
+    <main class="wrap mk db" id="db">
+      <div class="st-segmented db-tabs" id="dbTabs" role="tablist" aria-label="실험 고르기">
+        <button type="button" class="st-segmented__item is-on" role="tab" id="tabLand" aria-controls="landView" aria-selected="true" data-t="land">도시화와 녹지</button>
+        <button type="button" class="st-segmented__item" role="tab" id="tabPop" aria-controls="popView" aria-selected="false" data-t="pop">미래 인구 실험</button>
+      </div>
+      <section id="landView" role="tabpanel" aria-labelledby="tabLand"><p class="mk-wait">자료를 불러오는 중…</p></section>
+      <section id="popView" role="tabpanel" aria-labelledby="tabPop" hidden><p class="mk-wait">자료를 불러오는 중…</p></section>
+      <nav class="db-links" aria-label="수업 연결"><span>수업 연결</span><a href="progress.html#class-progress">우리 반 진도</a><a href="library.html">공개 자료실</a><a href="qna.html?q=%EC%9D%B8%EA%B5%AC%20%EB%B3%80%ED%99%94">관련 질문 보기</a><a href="seoul.html">서울 대도시권 팽창</a><a href="map-aging.html">시·군·구별 고령화와 인구 감소</a></nav>
+      <noscript><p class="mk-note">이 실험에는 JavaScript가 필요합니다. <a href="library.html">공개 자료실</a>에서 학습을 이어 갈 수 있습니다.</p></noscript>
+    </main>
 
-            <div class="tab-content active" id="tab-space">
-                <div class="control-box">
-                    <h3 class="box-title"><i data-lucide="satellite"></i> 위성 데이터 타임랩스 스캔</h3>
-                    <div class="input-group">
-                        <label>분석 대상 지역 (예: 서울, 화성, 제주)</label>
-                        <input type="text" id="regionInput" placeholder="도시 이름을 입력하세요" value="서울특별시">
-                    </div>
-                    <div class="slider-row" style="margin-top: 10px;">
-                        <span>관측 연도</span>
-                        <label class="st-sr-only" for="yearSlider">관측 연도 (년)</label><input type="range" id="yearSlider" min="2000" max="2050" value="2024">
-                        <span class="slider-val" id="yearVal">2024년</span>
-                    </div>
-                    <button class="btn-run" id="btnSpaceScan" onclick="runSpaceAnalysis()">
-                        <i data-lucide="scan"></i> AI 지역 스캔 시작
-                    </button>
-                </div>
-                
-                <div class="control-box" style="background: rgba(0,0,0,0.3); box-shadow: none;">
-                    <p style="margin:0; font-size:0.9rem; color:var(--text-sub); line-height:1.5;">
-                        <b>[작동 원리]</b> 하단의 연도 슬라이더를 미래로 움직이면, AI가 기존 데이터를 바탕으로 <b>열섬 현상(빨간색)</b>이 확산되고 <b>식생(초록색)</b>이 감소하는 시뮬레이션을 생성합니다.
-                    </p>
-                </div>
-            </div>
+    <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
+      <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
+      <a class="lg" href="index.html">← 메인으로</a>
+    </footer>
 
-            <div class="tab-content" id="tab-pop">
-                <div class="control-box">
-                    <h3 class="box-title"><i data-lucide="users"></i> 파라미터 기반 인구 시뮬레이터</h3>
-                    <div class="input-group">
-                        <label>현재 인구 수 (명)</label>
-                        <input type="number" id="basePop" value="51000000" step="100000">
-                    </div>
-                    
-                    <div style="border-top: 1px dashed rgba(255,255,255,0.1); margin: 10px 0;"></div>
-                    
-                    <div class="slider-row">
-                        <span>합계출산율</span>
-                        <label class="st-sr-only" for="birthSlider">합계 출산율 (명)</label><input type="range" id="birthSlider" min="0.5" max="2.5" step="0.1" value="0.7">
-                        <span class="slider-val" id="birthVal" style="color:var(--neon-blue)!important;">0.7명</span>
-                    </div>
-                    <div class="slider-row">
-                        <span>고령화 속도</span>
-                        <label class="st-sr-only" for="agingSlider">고령화 속도 (배)</label><input type="range" id="agingSlider" min="1" max="5" step="0.5" value="3.0">
-                        <span class="slider-val" id="agingVal" style="color:var(--neon-red)!important;">x3.0</span>
-                    </div>
-                    <div class="slider-row">
-                        <span>인구 유입률</span>
-                        <label class="st-sr-only" for="migSlider">인구 유입률 (퍼센트)</label><input type="range" id="migSlider" min="0" max="5" step="0.5" value="1.0">
-                        <span class="slider-val" id="migVal" style="color:var(--neon-green)!important;">1.0%</span>
-                    </div>
-
-                    <button class="btn-run" onclick="runPopulationModel()">
-                        <i data-lucide="line-chart"></i> 모델링 업데이트
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="display-wrapper">
-            <div class="monitor">
-                <div class="monitor-ui">
-                    <div class="badge" id="monitorBadge"><i data-lucide="radio" style="width:14px;"></i> SYSTEM IDLE</div>
-                </div>
-                
-                <div class="scan-line" id="scanLine"></div>
-
-                <div id="satMapBase"></div>
-                
-                <canvas id="radarCanvas"></canvas>
-                
-                <div class="legend-box" id="radarLegend">
-                    <div class="legend-item"><div class="color-dot" style="background:var(--neon-red); box-shadow: 0 0 10px var(--neon-red);"></div>도시화 / 인공열 (Urban)</div>
-                    <div class="legend-item"><div class="color-dot" style="background:var(--neon-green); box-shadow: 0 0 10px var(--neon-green);"></div>자연 식생 (Vegetation)</div>
-                </div>
-
-                <div class="chart-container" id="chartContainer">
-                    <canvas id="popChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        lucide.createIcons();
-
-        // ----------------------------------------------------
-        // ★ Leaflet 위성 지도 초기화 ★
-        // ----------------------------------------------------
-        // 초기 시점: 대한민국 서울
-        const satMap = L.map('satMapBase', { zoomControl: false, attributionControl: false }).setView([37.5665, 126.9780], 10);
-        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 18
-        }).addTo(satMap);
-
-        // ----------------------------------------------------
-        // UI 연동 (슬라이더 및 탭)
-        // -----------------------------------------
-        const tabSpace = document.getElementById('tab-space');
-        const tabPop = document.getElementById('tab-pop');
-        const satMapBase = document.getElementById('satMapBase');
-        const radarCanvas = document.getElementById('radarCanvas');
-        const chartContainer = document.getElementById('chartContainer');
-        const radarLegend = document.getElementById('radarLegend');
-        const monitorBadge = document.getElementById('monitorBadge');
-        const scanLine = document.getElementById('scanLine');
-
-        function switchTab(type) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            if(type === 'space') {
-                tabSpace.classList.add('active'); tabPop.classList.remove('active');
-                satMapBase.style.display = 'block'; radarCanvas.style.display = 'block'; 
-                chartContainer.style.display = 'none'; radarLegend.style.display = 'flex';
-                monitorBadge.innerHTML = '<i data-lucide="satellite" style="width:14px;"></i> SATELLITE VIEW';
-                setTimeout(() => satMap.invalidateSize(), 100); // 맵 크기 재계산 (버그 방지)
-            } else {
-                tabSpace.classList.remove('active'); tabPop.classList.add('active');
-                satMapBase.style.display = 'none'; radarCanvas.style.display = 'none'; 
-                chartContainer.style.display = 'block'; radarLegend.style.display = 'none';
-                monitorBadge.innerHTML = '<i data-lucide="line-chart" style="width:14px;"></i> PREDICTION CHART';
-                if(!popChart) initChart();
-            }
-            lucide.createIcons();
-        }
-
-        const yearSlider = document.getElementById('yearSlider'); const yearVal = document.getElementById('yearVal');
-        const birthSlider = document.getElementById('birthSlider'); const birthVal = document.getElementById('birthVal');
-        const agingSlider = document.getElementById('agingSlider'); const agingVal = document.getElementById('agingVal');
-        const migSlider = document.getElementById('migSlider'); const migVal = document.getElementById('migVal');
-
-        yearSlider.oninput = () => { yearVal.innerText = yearSlider.value + '년'; updateRadarHeatmap(); };
-        birthSlider.oninput = () => birthVal.innerText = birthSlider.value + '명';
-        agingSlider.oninput = () => agingVal.innerText = 'x' + agingSlider.value;
-        migSlider.oninput = () => migVal.innerText = migSlider.value + '%';
-
-        // ----------------------------------------------------
-        // 기능 1: 위성 히트맵 오버레이 시뮬레이션
-        // ----------------------------------------------------
-        const ctx = radarCanvas.getContext('2d');
-        let points = []; 
-        let isScanned = false;
-
-        function resizeCanvas() {
-            radarCanvas.width = radarCanvas.parentElement.clientWidth;
-            radarCanvas.height = radarCanvas.parentElement.clientHeight;
-            if(isScanned) updateRadarHeatmap();
-        }
-        window.addEventListener('resize', resizeCanvas);
-        setTimeout(resizeCanvas, 100);
-
-        // 지역별 데모 좌표 데이터
-        const geoInfo = {
-            "서울": [37.5665, 126.9780],
-            "화성": [37.1995, 126.8311],
-            "부산": [35.1796, 129.0756],
-            "제주": [33.3617, 126.5292],
-            "광주": [35.1595, 126.8526]
-        };
-
-        async function runSpaceAnalysis() {
-            const regionInput = document.getElementById('regionInput').value;
-            const btn = document.getElementById('btnSpaceScan');
-            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> 위성 연결 중...'; lucide.createIcons(); btn.disabled = true;
-            
-            // 입력한 지역으로 지도 스르륵 이동 (FlyTo)
-            let targetCoords = [36.5, 127.5]; // 기본값 (대한민국 중앙)
-            let zoomLevel = 7;
-            for(let key in geoInfo) {
-                if(regionInput.includes(key)) { targetCoords = geoInfo[key]; zoomLevel = 11; break; }
-            }
-            satMap.flyTo(targetCoords, zoomLevel, { duration: 1.5 });
-
-            // 스캔 이펙트
-            scanLine.style.display = 'block';
-
-            // 프론트엔드 가상 데이터 생성 (비행 애니메이션 끝날 즈음에 표시)
-            setTimeout(() => {
-                generateLocalRadarData();
-                isScanned = true;
-                updateRadarHeatmap();
-                
-                btn.innerHTML = '<i data-lucide="check"></i> 스캔 완료'; lucide.createIcons();
-                setTimeout(() => { btn.innerHTML = '<i data-lucide="scan"></i> AI 지역 스캔 시작'; btn.disabled = false; lucide.createIcons(); }, 1500);
-                scanLine.style.display = 'none';
-            }, 1800); 
-        }
-
-        function generateLocalRadarData() {
-            points = [];
-            const w = radarCanvas.width; const h = radarCanvas.height;
-            // 도심지 클러스터 (화면 중앙)
-            for(let i=0; i<60; i++) {
-                points.push({ x: w/2 + (Math.random()-0.5)*w*0.5, y: h/2 + (Math.random()-0.5)*h*0.5, type: 'urban', baseSize: Math.random()*25 + 15 });
-            }
-            // 식생 클러스터 (화면 외곽)
-            for(let i=0; i<100; i++) {
-                let px = w/2 + (Math.random()-0.5)*w; let py = h/2 + (Math.random()-0.5)*h;
-                if(Math.sqrt((px-w/2)**2 + (py-h/2)**2) < Math.min(w,h)*0.2) { px += (px > w/2 ? 150 : -150); py += (py > h/2 ? 150 : -150); }
-                points.push({ x: px, y: py, type: 'nature', baseSize: Math.random()*20 + 15 });
-            }
-        }
-
-        function updateRadarHeatmap() {
-            // 캔버스 초기화 (투명하게 유지하여 밑의 지도가 보이도록 함)
-            ctx.clearRect(0, 0, radarCanvas.width, radarCanvas.height);
-            
-            if(!isScanned) return;
-            
-            const currentYear = parseInt(yearSlider.value);
-            const factor = (currentYear - 2000) / 50; 
-
-            // 히트맵 점 렌더링
-            points.forEach(p => {
-                let size, color, glow;
-                if(p.type === 'urban') {
-                    // 도심 팽창
-                    size = p.baseSize * (1 + factor * 2.5);
-                    color = `rgba(251, 113, 133, ${0.4 + factor*0.4})`; // 빨간색
-                    glow = `rgba(251, 113, 133, 0.05)`;
-                } else {
-                    // 식생 파괴
-                    size = Math.max(p.baseSize * (1 - factor * 1.5), 0);
-                    color = `rgba(52, 211, 153, ${0.6 - factor*0.4})`; // 초록색
-                    glow = `rgba(52, 211, 153, 0.05)`;
-                }
-                
-                if(size <= 0) return;
-
-                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size);
-                grad.addColorStop(0, color);
-                grad.addColorStop(1, glow);
-
-                ctx.beginPath(); ctx.arc(p.x, p.y, size, 0, Math.PI*2);
-                ctx.fillStyle = grad; ctx.fill();
-            });
-
-            // 연도 텍스트 오버레이
-            ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.font = 'bold 28px Pretendard'; ctx.textAlign = 'right';
-            ctx.fillText(`Simulation Year: ${currentYear}`, radarCanvas.width - 20, 50);
-        }
-
-        // ----------------------------------------------------
-        // 기능 2: 인구 예측 모델 (Chart.js)
-        // ----------------------------------------------------
-        let popChart = null;
-
-        function initChart() {
-            const ctxC = document.getElementById('popChart').getContext('2d');
-            popChart = new Chart(ctxC, {
-                type: 'line',
-                data: {
-                    labels: ['2025', '2030', '2035', '2040', '2045', '2050'],
-                    datasets: [
-                        { label: '총 인구', data: [], borderColor: '#38bdf8', backgroundColor: 'transparent', borderWidth: 3, tension: 0.4 },
-                        { label: '생산가능인구(15~64)', data: [], borderColor: '#34d399', backgroundColor: 'transparent', borderWidth: 2, tension: 0.4 },
-                        { label: '노년인구(65~)', data: [], borderColor: '#fb7185', backgroundColor: 'transparent', borderWidth: 2, tension: 0.4 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#f8fafc', font: { family: 'Pretendard', size: 14 } } } },
-                    scales: {
-                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.1)' } }
-                    }
-                }
-            });
-            runPopulationModel(); 
-        }
-
-        function runPopulationModel() {
-            if(!popChart) return;
-            const basePop = parseInt(document.getElementById('basePop').value);
-            const birthRate = parseFloat(birthSlider.value);
-            const agingRate = parseFloat(agingSlider.value);
-            const migRate = parseFloat(migSlider.value);
-
-            const years = 6; 
-            let currentTotal = basePop;
-            let currentElderly = basePop * 0.18; 
-            let currentProd = basePop * 0.70;
-
-            const dataTotal = [currentTotal]; const dataProd = [currentProd]; const dataEld = [currentElderly];
-
-            for(let i=1; i<years; i++) {
-                const popChangeRate = ((birthRate - 1.2) * 0.02) + (migRate * 0.005); 
-                currentTotal = currentTotal * (1 + popChangeRate);
-
-                const agingIncrease = (agingRate * 0.015);
-                currentElderly = currentTotal * (Math.min(currentElderly/currentTotal + agingIncrease, 0.45)); 
-                currentProd = currentTotal - currentElderly - (currentTotal * (birthRate * 0.1));
-
-                dataTotal.push(Math.round(currentTotal));
-                dataProd.push(Math.round(currentProd));
-                dataEld.push(Math.round(currentElderly));
-            }
-
-            popChart.data.datasets[0].data = dataTotal;
-            popChart.data.datasets[1].data = dataProd;
-            popChart.data.datasets[2].data = dataEld;
-            popChart.update();
-        }
-    </script>
-<script>
-        // 1. 마우스 우클릭 차단
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        // 2. 텍스트 드래그 및 선택 차단
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-        });
-
-        // 3. F12 및 주요 개발자 도구 단축키 차단
-        document.addEventListener('keydown', function(e) {
-            // F12 차단
-            if (e.keyCode === 123) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + I (개발자 도구)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + C (요소 검사)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
-                e.preventDefault();
-            }
-            // Ctrl + Shift + J (콘솔)
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-            }
-            // Ctrl + U (페이지 소스 보기)
-            if (e.ctrlKey && e.keyCode === 85) {
-                e.preventDefault();
-            }
-        });
-    </script>
+<script type="module" src="assets/dashboard.mjs?v=06b775ab"></script>
 <div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="geo-menu__top">
     <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
@@ -574,12 +142,12 @@ document.addEventListener('DOMContentLoaded', function () { if (window.simulatio
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -589,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function () { if (window.simulatio
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -602,13 +170,7 @@ document.addEventListener('DOMContentLoaded', function () { if (window.simulatio
     </button>
   </div>
 </div>
-
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
-<script>
-// 범위 입력의 현재 값을 보조 기술에도 단위와 함께 제공한다.
-const sliderUnits = {"yearSlider": "년", "birthSlider": "명", "agingSlider": "배", "migSlider": "퍼센트"};
-for (const [id, unit] of Object.entries(sliderUnits)) { const input = document.getElementById(id); const sync = () => input.setAttribute('aria-valuetext', `${input.value} ${unit}`); input.addEventListener('input', sync); input.addEventListener('change', sync); sync(); }
-</script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

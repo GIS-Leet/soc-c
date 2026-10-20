@@ -29,12 +29,12 @@
     },
     "progress": {
       ".read": true,
-      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
     },
     "vault": {
       "calendar": {
         ".read": true,
-        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+        ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
       },
       "planner": {
         ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
@@ -72,34 +72,34 @@
     },
     "notices": {
       ".read": true,
-      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
     },
     "demo": {
       "keys": {
         "$key": {
           ".read": true,
-          ".write": "(auth != null && auth.token.email === 'leetae712@gmail.com') || (data.val() === true && newData.val() === false)"
+          ".write": "(auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true) || (data.val() === true && newData.val() === false)"
         }
       }
     },
     "roster": {
-      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
-      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
     },
     "members": {
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'leetae712@gmail.com')",
+        ".read": "auth != null && (auth.uid === $uid || auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true)",
         ".write": "auth != null && auth.uid === $uid && newData.child('h').isString() && root.child('roster').child(newData.child('h').val()).exists()",
         ".validate": "newData.hasChildren(['h']) && newData.child('h').val().matches(/^[0-9a-f]{64}$/)"
       },
       ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
     },
     "videos": {
-      ".read": "auth != null && (auth.token.email === 'leetae712@gmail.com' || (root.child('members').child(auth.uid).child('h').isString() && root.child('roster').child(root.child('members').child(auth.uid).child('h').val()).exists()))",
-      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com'"
+      ".read": "auth != null && (auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true || (root.child('members').child(auth.uid).child('h').isString() && root.child('roster').child(root.child('members').child(auth.uid).child('h').val()).exists()))",
+      ".write": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true"
     },
     "views": {
-      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
       "$vid": {
         "$uid": {
           ".read": "auth != null && auth.uid === $uid",
@@ -109,7 +109,7 @@
       }
     },
     "stats": {
-      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com'",
+      ".read": "auth != null && auth.token.email === 'leetae712@gmail.com' && auth.token.email_verified === true",
       "downloads": {
         "$day": {
           ".validate": "$day.matches(/^\\d{4}-\\d{2}-\\d{2}$/)",

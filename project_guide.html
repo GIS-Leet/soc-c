@@ -11,139 +11,160 @@
 <meta charset="UTF-8">
 <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>지역 탐구 프로젝트 가이드 — Geographia Archive</title>
+<title>지역 탐구 프로젝트 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
+
 
 <!-- 디자인 시스템 -->
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
+<link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
 
 <style>
 /* ============================================================================
-   지역 탐구 프로젝트 — 페이지 전용
-   골격·색·재질은 stratum.css + geo.css. 클래스 이름은 기존 마크업 그대로.
+   지역 탐구 프로젝트 — 수행평가 안내
+   내용은 교사가 학생에게 나눠 준 안내문 · 활동 가이드 · 활동지(2026학년도 1학기)를 옮긴 것.
+   카드 격자 대신 행 · 표 · 단계 번호로 짠다. 색은 STRATUM 글자색만.
    ========================================================================== */
-:root {
-  --ink: var(--st-label);
-  --line: var(--st-separator);
-  --surface: var(--st-surface);
-  --terra: var(--st-accent-ink);
-}
+.sheet-head { --sheet-title-size: clamp(2.4rem, 8.4vw, 5.6rem); }
+.sheet-title { text-transform: none; }
+.rule { height: 1px; background: var(--st-separator); border: 0; margin: 0 auto; max-width: 1180px; }
 
-.sheet { width: 100%; max-width: 1180px; margin: 0 auto; padding-inline: var(--pad-x);
-         padding-bottom: clamp(48px, 7vw, 96px); }
+.pg { padding-bottom: clamp(56px, 8vw, 104px); word-break: keep-all; overflow-wrap: anywhere; }
+.pg-sec { margin-top: clamp(52px, 7vw, 92px); }
+.pg-sec > h2 { font-size: clamp(1.25rem, 2.1vw, 1.6rem); font-weight: 700; letter-spacing: -0.025em; color: var(--st-label); }
+.pg-lead { margin-top: 10px; max-width: 64ch; font-size: 14.5px; line-height: 1.75; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.pg a.in { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.pg small, .pg .note { font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); line-height: 1.65; }
 
-/* ── 머리 ──
-   골격은 geo.css의 .sheet-* 를 쓴다. 'Project Guide'는 두 줄이라
-   기본 크기로는 화면을 넘긴다. 크기만 덮어쓴다. */
-.sheet-head { --sheet-title-size: clamp(2.6rem, 9vw, 6.5rem); }
+/* 공용 안내 줄(geo.css .learning-route)을 머리 아래로 */
+.pg .learning-route { margin-top: clamp(24px, 3vw, 36px); margin-inline: 0; max-width: none; }
 
-/* ── 섹션 ── */
-section { margin-top: clamp(40px, 6vw, 76px); }
-.section-title {
-  display: flex; align-items: center; gap: 10px;
-  font-size: clamp(1.05rem, 1.7vw, 1.35rem); font-weight: 700; letter-spacing: -0.022em;
-  color: var(--st-label);
-  padding-bottom: 14px; margin-bottom: 20px;
-  border-bottom: 1px solid var(--st-separator);
-}
-.section-title svg { width: 19px; height: 19px; color: var(--accent); flex-shrink: 0; }
+/* ── 한눈에: 이름표 칸 + 내용 ── */
+.ov { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 18px clamp(20px, 3vw, 40px); margin-top: 26px; max-width: 920px; }
+.ov dt { font-size: 13px; font-weight: 600; color: var(--st-label-3); letter-spacing: var(--track-ko); padding-top: 2px; }
+.ov dd { margin: 0; font-size: 15px; line-height: 1.7; color: var(--st-label); letter-spacing: var(--track-ko); }
+.ov dd p + p { margin-top: 6px; }
+.ov dd .sub { color: var(--st-label-2); font-size: 14px; }
+.ov b { font-weight: 700; }
 
-.grid-4 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-.grid-3 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+details.sched { margin-top: 10px; }
+details.sched summary { cursor: pointer; font-size: 13.5px; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+details.sched summary:hover { color: var(--st-label); }
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 12px; }
 
-.panel {
-  background: var(--st-surface); border: 1px solid var(--st-separator);
-  border-radius: var(--st-r-container); box-shadow: var(--st-shadow-low);
-  transition: border-color var(--st-dur-fast) var(--st-ease),
-              box-shadow var(--st-dur-fast) var(--st-ease),
-              transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
-}
-.panel:hover { transform: translateY(-2px); box-shadow: var(--st-shadow-med);
-               border-color: var(--st-separator-strong); }
+/* ── 표 공통(삼선표) ── */
+.tb { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.6; letter-spacing: var(--track-ko); }
+.tb th { text-align: left; font-size: 12.5px; font-weight: 600; color: var(--st-label-3); padding: 10px 12px; border-bottom: 1px solid var(--st-separator-strong); }
+.tb td { padding: 12px; vertical-align: top; color: var(--st-label-2); border-bottom: 1px solid var(--st-separator); }
+.tb tbody tr:last-child td { border-bottom-color: var(--st-separator-strong); }
+.tb .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tb.sch { min-width: 640px; font-size: 13px; }
+.tb.sch td, .tb.sch th { padding: 8px 10px; white-space: nowrap; }
+.tb.sch td:first-child { color: var(--st-label); font-weight: 600; }
 
-/* ── 진행 단계 ── */
-.step-card { padding: 20px; }
-.step-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.step-icon {
-  width: 44px; height: 44px; border-radius: var(--st-r-element);
-  display: grid; place-items: center;
-  background: var(--st-accent-soft); color: var(--accent-ink);
-}
-.step-icon svg { width: 22px; height: 22px; }
-.step-num { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em; color: var(--st-label-4);
-            font-variant-numeric: tabular-nums; }
-.step-card h3 { font-size: 15px; font-weight: 700; letter-spacing: -0.018em; color: var(--st-label); }
-.step-card p { margin-top: 8px; font-size: 13px; line-height: 1.7; color: var(--st-label-2);
-               letter-spacing: var(--track-ko); }
+/* ── 차시 — 큰 회색 숫자 + 본문 ── */
+.step { display: grid; grid-template-columns: clamp(52px, 8vw, 112px) minmax(0, 1fr); gap: 0 clamp(14px, 3vw, 40px); margin-top: clamp(40px, 5.5vw, 68px); }
+.step-n { font-size: clamp(3rem, 7vw, 5.4rem); line-height: 0.82; font-weight: 600; letter-spacing: -0.05em; color: var(--st-label-4); font-variant-numeric: tabular-nums; }
+.step h3 { font-size: clamp(1.1rem, 1.7vw, 1.3rem); font-weight: 700; letter-spacing: -0.02em; color: var(--st-label); }
+.step-do { margin-top: 8px; max-width: 66ch; font-size: 14.5px; line-height: 1.75; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.step-out { margin-top: 6px; font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
 
-/* ── 탐구 사례 ── */
-.ex-card { overflow: hidden; display: flex; flex-direction: column; }
-.ex-thumb {
-  position: relative; height: 128px; display: grid; place-items: center;
-  border-bottom: 1px solid var(--st-separator);
-}
-.pat-1 { background: linear-gradient(135deg, var(--st-blue), var(--st-indigo)); }
-.pat-2 { background: linear-gradient(135deg, var(--st-teal), var(--st-blue)); }
-.pat-3 { background: linear-gradient(135deg, var(--st-green), var(--st-teal)); }
-.ex-tag {
-  position: absolute; top: 12px; left: 12px;
-  padding: 3px 10px; border-radius: var(--st-r-full);
-  background: rgba(255,255,255,0.22); color: #fff;
-  -webkit-backdrop-filter: blur(8px) saturate(160%); backdrop-filter: blur(8px) saturate(160%);
-  box-shadow: inset 0 0.5px 0 0 rgba(255,255,255,0.6), inset 0 0 0 0.5px rgba(255,255,255,0.3);
-  font-size: 9.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
-}
-.ex-icon-box { color: rgba(255,255,255,0.92); }
-.ex-icon-box svg { width: 30px; height: 30px; }
-.ex-content { padding: 18px 20px 20px; flex: 1; display: flex; flex-direction: column; }
-.ex-content h3 { font-size: 15px; font-weight: 700; letter-spacing: -0.018em; line-height: 1.45;
-                 color: var(--st-label); }
-.ex-content p { margin-top: 9px; font-size: 13px; line-height: 1.7; color: var(--st-label-2);
-                letter-spacing: var(--track-ko); flex: 1; }
-.ex-tech { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-.ex-tech span {
-  padding: 3px 9px; border-radius: var(--st-r-full);
-  background: var(--st-fill-2); color: var(--st-label-3);
-  font-size: 11px; font-weight: 600; letter-spacing: var(--track-ko);
-}
+.blk { margin-top: 26px; }
+.blk h4 { font-size: 14px; font-weight: 700; color: var(--st-label); letter-spacing: -0.005em; }
+.blk h4 + * { margin-top: 10px; }
+.blk-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 26px clamp(24px, 4vw, 56px); margin-top: 26px; }
+.blk-2 > .blk { margin-top: 0; }
 
-/* ── 마무리 유도 — 잉크 패널. 한 화면에 하나만 쓰는 강조 수단 ── */
-.obs-cta {
-  position: relative; overflow: hidden; text-align: center;
-  background: var(--st-ink); color: var(--st-on-ink);
-  border-radius: var(--st-r-page);
-  padding: clamp(40px, 6vw, 72px) clamp(24px, 4vw, 48px);
-}
-.obs-cta .orbit {
-  position: absolute; right: -14%; top: -46%; width: 520px; max-width: 90%;
-  color: var(--st-on-ink-3); opacity: 0.45; pointer-events: none;
-}
-.obs-cta-icon { width: 30px; height: 30px; color: var(--st-accent); position: relative; }
-.obs-cta h2 { margin-top: 16px; font-size: clamp(1.35rem, 3vw, 2.1rem); font-weight: 700;
-              letter-spacing: -0.03em; position: relative; }
-.obs-cta p { margin-top: 12px; font-size: clamp(0.8125rem, 1.3vw, 0.9375rem); line-height: 1.75;
-             color: var(--st-on-ink-2); letter-spacing: var(--track-ko); position: relative; }
-.obs-go {
-  position: relative; display: inline-flex; align-items: center; gap: 9px; margin-top: 26px;
-  height: 46px; padding: 0 24px; border-radius: var(--st-r-full);
-  background: var(--st-on-ink); color: var(--st-ink);
-  font-size: 14px; font-weight: 600; letter-spacing: var(--track-ko);
-  --lg-x: 0px; --lg-y: 0px;
-  transition: transform var(--st-spring-snappy-dur) var(--st-spring-snappy);
-}
-.obs-go:hover { transform: translateY(-2px); }
-.obs-go:active { transform: translateY(0) scale(0.98); }
-.obs-go svg { width: 15px; height: 15px; transition: transform 0.4s var(--ease); }
-.obs-go:hover svg { transform: translateX(3px); }
+.ol { list-style: none; margin: 0; padding: 0; counter-reset: ol; display: grid; gap: 10px; }
+.ol > li { counter-increment: ol; display: grid; grid-template-columns: 1.6em minmax(0, 1fr); font-size: 14px; line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.ol > li::before { content: counter(ol); color: var(--st-label-3); font-variant-numeric: tabular-nums; font-weight: 600; }
+.ol > li b { color: var(--st-label); font-weight: 600; }
+.ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; font-size: 14px; line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.ul li::marker { color: var(--st-label-4); }
+.check { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; line-height: 1.6; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.check li { display: grid; grid-template-columns: 1.6em minmax(0, 1fr); }
+.check li::before { content: "□"; color: var(--st-label-3); }
+q { quotes: "「" "」"; color: var(--st-label); }
 
-.ico { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+/* 피할 주제 — 세 칸 행 */
+.pat { display: grid; gap: 14px; }
+.pat-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.2fr); gap: 4px 20px; font-size: 14px; line-height: 1.6; letter-spacing: var(--track-ko); }
+.pat-row .k { font-size: 12px; color: var(--st-label-3); display: block; margin-bottom: 2px; }
+.pat-row .bad { color: var(--st-label-2); text-decoration: line-through; text-decoration-color: var(--st-label-4); }
+.pat-row .why { color: var(--st-label-3); }
+.pat-row .fix { color: var(--st-label); }
 
+/* 자료 출처 — 이름 칸 + 쓰는 법 */
+.src { display: grid; gap: 18px; }
+.src-row { display: grid; grid-template-columns: 14rem minmax(0, 1fr); gap: 4px 28px; }
+.src-row .nm { font-size: 14.5px; font-weight: 600; color: var(--st-label); letter-spacing: var(--track-ko); }
+.src-row .nm small { display: block; margin-top: 2px; font-weight: 400; }
+.src-row .ul { font-size: 13.5px; }
+.src-row .eg { margin-top: 6px; font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+
+/* 이 사이트의 도구 — 줄 링크(hover: 면 + 밀림 + 제목 색) */
+.tools { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.tool { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 4px 24px; align-items: baseline; padding: 12px 14px; margin-inline: -14px; border-radius: var(--st-r-element);
+  transition: background var(--st-dur-fast) var(--st-ease), padding var(--st-dur-fast) var(--st-ease); }
+.tool:hover { background: var(--st-fill-3); padding-left: 20px; }
+.tool:hover .t { color: var(--accent-ink); }
+.tool .t { font-size: 15px; font-weight: 700; color: var(--st-label); letter-spacing: -0.01em; transition: color var(--st-dur-fast) var(--st-ease); }
+.tool .d { font-size: 13.5px; line-height: 1.6; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+
+/* 자료 읽는 법 */
+.read3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px clamp(20px, 3vw, 40px); }
+.read3 dt { font-size: 14px; font-weight: 700; color: var(--st-label); }
+.read3 dd { margin: 4px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.read3 dd .eg { display: block; margin-top: 4px; color: var(--st-label-3); font-size: 12.5px; }
+
+/* 누가 + 무엇을 + 어떻게 */
+.wwh { width: 100%; }
+.wwh td:first-child { color: var(--st-label); white-space: nowrap; }
+
+/* ── 채점 기준 ── */
+.rb { max-width: 980px; margin-top: 22px; }
+.rb td.el { color: var(--st-label); font-weight: 600; white-space: nowrap; }
+.rb td.el small { display: block; font-weight: 400; }
+.rb tr.top td:not(.el) { color: var(--st-label); }
+.rb tfoot td { padding: 12px; font-weight: 700; color: var(--st-label); }
+.rb-note { margin-top: 12px; max-width: 980px; display: grid; gap: 4px; }
+
+/* ── 예시 보고서 ── */
+.ex { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 2fr); gap: 24px clamp(28px, 4vw, 56px); margin-top: 24px; }
+.ex-meta dt { font-size: 12.5px; color: var(--st-label-3); letter-spacing: var(--track-ko); }
+.ex-meta dd { margin: 4px 0 16px; font-size: 15px; line-height: 1.6; color: var(--st-label); letter-spacing: var(--track-ko); font-weight: 600; }
+.ex .tb td:first-child { white-space: nowrap; color: var(--st-label); }
+
+/* ── 막힐 때 ── */
+.help { list-style: none; margin: 22px 0 0; padding: 0; counter-reset: h; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px clamp(20px, 3vw, 40px); max-width: 980px; }
+.help li { counter-increment: h; font-size: 14px; line-height: 1.65; color: var(--st-label-2); letter-spacing: var(--track-ko); }
+.help li::before { content: counter(h); display: block; font-size: 1.9rem; line-height: 1; font-weight: 600; color: var(--st-label-4); margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.help b { display: block; color: var(--st-label); font-weight: 700; margin-bottom: 4px; }
+
+.pg-src { margin-top: clamp(48px, 6vw, 72px); max-width: 80ch; }
+
+@media (max-width: 760px) {
+  .ov { grid-template-columns: 1fr; gap: 4px; }
+  .ov dd { margin-bottom: 14px; }
+  .blk-2, .read3, .help, .ex { grid-template-columns: 1fr; }
+  .pat-row, .src-row, .tool { grid-template-columns: 1fr; }
+  .pat-row { gap: 2px; }
+  .rb td, .rb th { padding: 10px 8px; }
+  .rb td.el { white-space: normal; }
+}
+@media (max-width: 480px) {
+  .step { grid-template-columns: 1fr; }
+  .step-n { font-size: 3rem; margin-bottom: 8px; }
+}
 </style>
 <!-- PWA — 홈 화면에 추가 시 앱처럼 동작 -->
 <link rel="manifest" href="manifest.json">
@@ -154,7 +175,7 @@ section { margin-top: clamp(40px, 6vw, 76px); }
 <meta name="theme-color" content="#121815">
 <meta name="description" content="지역 탐구 수행평가 안내 — 탐구할 지역 문제를 정하고, 이를 설명할 지도·통계·관찰 근거를 찾아보세요.">
 <link rel="canonical" href="https://nyuheatgis.com/project_guide.html">
-<meta property="og:title" content="지역 탐구 수행평가 안내 · Geographia">
+<meta property="og:title" content="지역 탐구 프로젝트 — Geographia">
 <meta property="og:description" content="지역 탐구 수행평가 안내 — 탐구할 지역 문제를 정하고, 이를 설명할 지도·통계·관찰 근거를 찾아보세요.">
 <meta property="og:url" content="https://nyuheatgis.com/project_guide.html">
 <meta property="og:type" content="website">
@@ -185,181 +206,363 @@ section { margin-top: clamp(40px, 6vw, 76px); }
       </button>
     </div>
   </header>
+    <section class="wrap sheet-head">
+        <div class="sheet-num">수행평가 · 통합사회</div>
+        <h1 class="sheet-title">지역 탐구 프로젝트</h1>
+        <p class="sheet-meta">한 지역에서 나타나는 현상을 골라 「이 지역에서 왜 이런 현상이 나타날까?」를 묻습니다. 지도 · 통계 · 기사로 까닭을 밝히고 해결 방안까지 제안하는 조별 보고서입니다. 4차시 동안 활동지를 한 차시씩 채워 완성합니다.</p>
+    </section>
+    <hr class="rule">
+
+    <main class="wrap pg">
+
 <aside class="learning-route" aria-label="관찰과 수업 연결">
-<p class="learning-route__q"><span class="learning-route__cap">관찰 질문</span>탐구할 지역 문제를 정하고, 이를 설명할 지도·통계·관찰 근거를 찾아보세요.</p><p class="learning-route__q"><span class="learning-route__cap">제출 안내 확인</span>제출물 형식, 제출 기한, 평가 기준과 제출 장소는 이 페이지에 아직 공지되지 않았습니다. 수업 공지를 확인하세요. 질문 게시판은 제출 접수처가 아닙니다.</p>
+<p class="learning-route__q"><span class="learning-route__cap">관찰 질문</span>이 지역에서 왜 이런 현상이 나타날까? 다른 지역과 무엇이 다른가?</p><p class="learning-route__q"><span class="learning-route__cap">제출 안내 확인</span>완성한 보고서는 마지막 차시에 리로스쿨 과제란(활동 보고서 → 교과활동 → 사회)에 냅니다. 이번 학기의 진행 날짜는 수업 공지를 확인하세요. 질문 게시판은 제출 접수처가 아닙니다.</p>
 <nav class="learning-route__links" aria-label="관련 학습"><a href="progress.html#class-progress">우리 반 진도</a><a href="library.html">공개 자료실</a><a href="qna.html?q=%EC%A7%80%EC%97%AD%20%ED%83%90%EA%B5%AC">관련 질문 보기</a></nav>
 </aside>
 
+        <!-- ── 한눈에 ── -->
+        <section class="pg-sec" id="overview" aria-labelledby="h-ov">
+            <h2 id="h-ov">진행 방식</h2>
+            <dl class="ov">
+                <dt>차시</dt>
+                <dd><p>통합사회 4차시(A · B · C · D 차시).</p>
+                    <p class="sub">첫 시간은 통합사회 C 시간입니다. 이 시간에 주제 정하는 법, 활동지(템플릿) 쓰는 법, 유의 사항을 모두 안내합니다. 나머지 세 차시는 선생님이 따로 개입하지 않고 조별로 진행합니다.</p></dd>
 
-    <main class="sheet">
-        
-        <header class="sheet-head">
-            <div class="sheet-num">
-                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
-                수행평가 · 지역 탐구
+                <dt>제출</dt>
+                <dd><p>마지막 차시에 리로스쿨 과제란에 냅니다.</p>
+                    <p class="sub">경로: 활동 보고서 → 교과활동 → 사회</p></dd>
+
+                <dt>날짜</dt>
+                <dd><p>이번 학기의 진행 날짜는 수업 공지를 확인하세요.</p>
+                    <p class="sub">2026학년도 1학기에는 5월 26일(화)부터 6월 10일(수)까지 진행했습니다(공휴일 · 모의고사일 제외).</p>
+                    <details class="sched">
+                        <summary>2026학년도 1학기 반별 일정 보기(끝난 일정)</summary>
+                        <div class="scroll-x">
+                        <table class="tb sch">
+                            <thead><tr><th scope="col">학급</th><th scope="col">1차시(시작)</th><th scope="col">2차시</th><th scope="col">3차시</th><th scope="col">4차시(종료)</th></tr></thead>
+                            <tbody>
+                                <tr><td>1반</td><td>5/28(목) 4교시 · 통사1D</td><td>6/1(월) 2교시 · 통사1C</td><td>6/2(화) 5교시 · 통사1B</td><td>6/8(월) 2교시 · 통사1C</td></tr>
+                                <tr><td>2반</td><td>5/27(수) 3교시 · 통사1C</td><td>5/27(수) 5교시 · 통사1B</td><td>5/28(목) 2교시 · 통사1D</td><td>5/28(목) 6교시 · 통사1A</td></tr>
+                                <tr><td>3반</td><td>6/1(월) 6교시 · 통사1C</td><td>6/2(화) 1교시 · 통사1D</td><td>6/8(월) 6교시 · 통사1C</td><td>6/9(화) 1교시 · 통사1D</td></tr>
+                                <tr><td>4반</td><td>5/26(화) 1교시 · 통사1C</td><td>5/27(수) 2교시 · 통사1A</td><td>5/28(목) 7교시 · 통사1B</td><td>5/29(금) 3교시 · 통사1D</td></tr>
+                                <tr><td>5반</td><td>5/29(금) 4교시 · 통사1C</td><td>6/2(화) 1교시 · 통사1B</td><td>6/5(금) 4교시 · 통사1C</td><td>6/10(수) 3교시 · 통사1D</td></tr>
+                                <tr><td>6반</td><td>5/26(화) 6교시 · 통사1C</td><td>5/27(수) 2교시 · 통사1B</td><td>6/1(월) 6교시 · 통사1A</td><td>6/2(화) 6교시 · 통사1C</td></tr>
+                                <tr><td>7반</td><td>5/27(수) 5교시 · 통사1C</td><td>5/28(목) 3교시 · 통사1D</td><td>5/29(금) 1교시 · 통사1C</td><td>5/29(금) 4교시 · 통사1A</td></tr>
+                                <tr><td>8반</td><td>5/27(수) 5교시 · 통사1C</td><td>5/27(수) 6교시 · 통사1A</td><td>5/28(목) 6교시 · 통사1D</td><td>5/29(금) 2교시 · 통사1B</td></tr>
+                                <tr><td>9반</td><td>5/26(화) 4교시 · 통사1C</td><td>5/27(수) 6교시 · 통사1A</td><td>6/1(월) 3교시 · 통사1B</td><td>6/2(화) 4교시 · 통사1C</td></tr>
+                                <tr><td>10반</td><td>5/27(수) 6교시 · 통사1C</td><td>5/29(금) 1교시 · 통사1A</td><td>6/1(월) 3교시 · 통사1D</td><td>6/2(화) 7교시 · 통사1B</td></tr>
+                                <tr><td>11반</td><td>5/28(목) 7교시 · 통사1C</td><td>5/29(금) 3교시 · 통사1B</td><td>6/1(월) 5교시 · 통사1A</td><td>6/2(화) 3교시 · 통사1D</td></tr>
+                                <tr><td>12반</td><td>5/26(화) 7교시 · 통사1C</td><td>5/28(목) 1교시 · 통사1B</td><td>6/1(월) 1교시 · 통사1A</td><td>6/2(화) 2교시 · 통사1D</td></tr>
+                                <tr><td>13반</td><td>6/1(월) 5교시 · 통사1C</td><td>6/1(월) 6교시 · 통사1B</td><td>6/2(화) 3교시 · 통사1A</td><td>6/8(월) 1교시 · 통사1D</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </details></dd>
+
+                <dt>배점</dt>
+                <dd><p>40점 만점. 채점 요소 네 가지는 <a class="in" href="#rubric">아래 채점 기준</a>에 있습니다.</p></dd>
+
+                <dt>생성형 AI</dt>
+                <dd><p><b>써도 되는 곳</b> — 디자인, 일러스트, 복잡한 계산(통계 계산), 통계 자료로 그래프 만들기.</p>
+                    <p><b>쓰면 안 되는 곳</b> — 주제와 관련된 학습과 탐구 내용.</p>
+                    <p class="sub">GPT · Claude · Gemini 등 모든 생성형 AI에 해당합니다.</p></dd>
+
+                <dt>빠진 경우</dt>
+                <dd><p>부득이한 이유로 출석 · 활동에 참가하지 못했으면 추가 수행평가 학습지와 활동이 따로 있습니다.</p>
+                    <p class="sub">본인 의사로 응시하지 않거나 내지 않으면 20점, 미인정 결석이면 20점을 줍니다.</p></dd>
+            </dl>
+        </section>
+
+        <!-- ── 차시별 진행 ── -->
+        <section class="pg-sec" id="steps" aria-labelledby="h-steps">
+            <h2 id="h-steps">차시별 진행</h2>
+            <p class="pg-lead">차시마다 활동지 한 부분을 채웁니다. 막히면 그 차시의 안내를 다시 읽으세요.</p>
+
+            <!-- 1차시 -->
+            <article class="step" id="step1">
+                <div class="step-n" aria-hidden="true">1</div>
+                <div>
+                    <h3>주제 선정 및 역할 분담</h3>
+                    <p class="step-do">탐구 지역과 주제를 정하고, 조원 역할을 나누고, 예상 결론을 미리 써 보고, 자료 조사 계획을 세웁니다.</p>
+                    <p class="step-out">활동지 1차시 — 우리 조 프로필 · 탐구 주제 및 대상 · 주제 선정 이유 · 자료 조사 및 분석 계획 · 예상되는 결론 및 해결책</p>
+
+                    <div class="blk-2">
+                        <div class="blk">
+                            <h4>좋은 탐구 주제의 조건</h4>
+                            <ol class="ol">
+                                <li><span><b>탐구 지역이 구체적입니다.</b> 「서울 전체」보다 「마포구 홍대 일대」 「경북 안동 구도심」처럼 좁혀야 조사할 수 있습니다.</span></li>
+                                <li><span><b>지도로 위치나 현황을 파악할 수 있습니다.</b> 카카오맵 · 네이버지도에서 검색해 위치와 주변 환경을 확인할 수 있으면 됩니다. 눈에 보이는 현상이 아니어도 됩니다.</span></li>
+                                <li><span><b>통계 · 뉴스 자료를 찾을 수 있습니다.</b> SGIS, 공공데이터포털, 뉴스 기사에서 근거 자료를 실제로 검색해 보세요.</span></li>
+                                <li><span><b>「왜?」 질문으로 바꿀 수 있습니다.</b> 단순 소개가 아니라 원인과 결과를 묻는 질문이어야 합니다.</span></li>
+                            </ol>
+                        </div>
+                        <div class="blk">
+                            <h4>분야별 주제 예시</h4>
+                            <ul class="ul">
+                                <li>인문 · 사회 — <q>서울 용산구 이태원 일대에 외국 음식점이 밀집한 이유는 무엇인가?</q></li>
+                                <li>이공 · 환경 — <q>○○시 산업단지 인근 주거 지역의 대기오염 농도가 높은 이유는 무엇인가?</q></li>
+                                <li>의료 · 보건 — <q>농촌 지역에서 의료 시설 접근성이 낮은 원인과 개선 방안은 무엇인가?</q></li>
+                            </ul>
+                            <p class="note" style="margin-top:10px">지리 · 환경이 아니어도 의료 · 복지 · 문화 등 관심 분야면 됩니다. 활동지의 주제 분야 칸은 인문 / 사회 / 과학·보건 / 공학·IT / 기타입니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="blk">
+                        <h4>피해야 할 주제와 고쳐 쓴 주제</h4>
+                        <div class="pat">
+                            <div class="pat-row"><span><span class="k">탐구 지역이 없음</span><span class="bad">기후 변화가 지구에 미치는 영향</span></span><span class="why">어느 지역인지 정해지지 않아 조사할 범위가 없습니다.</span><span class="fix"><span class="k">고쳐 쓴 주제</span>○○ 지역에서 기후 변화로 나타나는 현상은?</span></div>
+                            <div class="pat-row"><span><span class="k">자료로 검증할 수 없음</span><span class="bad">우리 학교 주변이 무서운 이유</span></span><span class="why">주관적 느낌은 통계 · 자료로 뒷받침할 수 없습니다.</span><span class="fix"><span class="k">고쳐 쓴 주제</span>○○ 지역 범죄 발생률이 높은 원인은?</span></div>
+                            <div class="pat-row"><span><span class="k">소개에 그침</span><span class="bad">○○ 지역의 날씨와 기후</span></span><span class="why">현상만 소개하고 원인 · 결과 · 해결책이 없습니다.</span><span class="fix"><span class="k">고쳐 쓴 주제</span>○○ 지역의 강수량 편차가 큰 원인은?</span></div>
+                        </div>
+                    </div>
+
+                    <div class="blk-2">
+                        <div class="blk">
+                            <h4>주제를 정하기 전에 확인</h4>
+                            <ul class="check">
+                                <li>탐구 지역을 구 · 동 · 마을 수준으로 정했다.</li>
+                                <li>카카오맵 · 네이버지도에서 위치와 주변 환경을 확인했다.</li>
+                                <li>관련 통계나 뉴스 기사를 실제로 검색해 봤다.</li>
+                                <li>「왜 이런 현상이 나타날까?」로 바꿀 수 있다.</li>
+                            </ul>
+                            <p class="note" style="margin-top:10px">넷 다 되면 탐구 주제로 알맞습니다. 너무 넓거나 좁다고 느끼면 범위를 동네 하나로 좁히거나 「왜」 질문을 하나 더하세요. 잘 모르겠으면 선생님께 주제를 먼저 보여 주세요.</p>
+                        </div>
+                        <div class="blk">
+                            <h4>네 가지 역할</h4>
+                            <table class="tb">
+                                <tbody>
+                                    <tr><td style="color:var(--st-label);white-space:nowrap">시각 자료</td><td>지도에서 탐구 지역의 위치 · 주변 환경을 확인해 캡처하고, 사진 · 그래프 · 도표를 모아 출처와 함께 정리합니다. 활동지 2차시의 시각 자료 칸을 맡습니다.</td></tr>
+                                    <tr><td style="color:var(--st-label);white-space:nowrap">통계 / 문헌</td><td>SGIS에서 인구 · 상권 · 면적 통계를 모으고, 뉴스 기사를 3개 이상 찾고, 공공데이터포털에서 원자료를 받습니다. 출처(URL · 날짜)를 모두 적습니다.</td></tr>
+                                    <tr><td style="color:var(--st-label);white-space:nowrap">내용 구조화</td><td>모은 자료를 원인 → 결과 순서로 정리하고 핵심만 추립니다. 탐구 목적과 결론이 이어지는지 확인하고 본문 초안을 씁니다.</td></tr>
+                                    <tr><td style="color:var(--st-label);white-space:nowrap">최종 편집</td><td>흐름과 논리 오류, 오탈자, 시각 자료의 위치를 검토하고 제출 전에 전체를 마무리합니다.</td></tr>
+                                </tbody>
+                            </table>
+                            <p class="note" style="margin-top:10px">역할은 나눠도 조사한 내용은 모두가 알고 있어야 합니다. 한 사람만 알면 보고서를 완성하기 어렵습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 2차시 -->
+            <article class="step" id="step2">
+                <div class="step-n" aria-hidden="true">2</div>
+                <div>
+                    <h3>자료 수집 및 현상 분석</h3>
+                    <p class="step-do">통계 · 뉴스 · 문헌 자료를 모으고, 현상의 원인을 찾고, 자료를 종합해 해석합니다.</p>
+                    <p class="step-out">활동지 2차시 — 탐구 지역의 모습(시각 자료) · 자료 조사 내용 · 자료 종합 해석</p>
+
+                    <div class="blk">
+                        <h4>자료를 찾는 곳</h4>
+                        <div class="src">
+                            <div class="src-row">
+                                <span class="nm">카카오맵 · 네이버지도<small>map.kakao.com · map.naver.com</small></span>
+                                <div><ul class="ul"><li>탐구 지역을 검색해 위치와 주변 건물 · 상점 · 도로 · 교통 시설의 분포를 봅니다.</li><li>캡처할 때 URL을 함께 적습니다.</li></ul>
+                                <p class="eg">쓰임: 위치 확인, 주변 시설 분포, 접근성 분석</p></div>
+                            </div>
+                            <div class="src-row">
+                                <span class="nm">SGIS 통계지리정보서비스<small>국가데이터처 · <a class="in" href="https://sgis.mods.go.kr/" target="_blank" rel="noopener">sgis.mods.go.kr</a></small></span>
+                                <div><ul class="ul"><li>통계지도 메뉴에서 인구 · 연령 · 가구 통계를 지도 위 색으로 봅니다.</li><li>생활업종 메뉴에서 상권 분포를 봅니다. 화면 캡처와 자료 내려받기 모두 됩니다.</li></ul>
+                                <p class="eg">쓰임: 고령화 지역, 의료 시설 분포, 인구 감소 구역</p></div>
+                            </div>
+                            <div class="src-row">
+                                <span class="nm">공공데이터포털<small><a class="in" href="https://www.data.go.kr/" target="_blank" rel="noopener">data.go.kr</a></small></span>
+                                <div><ul class="ul"><li>환경 · 교통 · 복지 · 의료 · 토지 자료를 「기관명 + 핵심어」로 검색합니다(예: 환경부 대기오염).</li><li>CSV · Excel로 받아 필요한 수치를 확인합니다.</li></ul>
+                                <p class="eg">쓰임: 수질 · 대기 오염, 의료 시설 현황, 빈집 현황</p></div>
+                            </div>
+                            <div class="src-row">
+                                <span class="nm">뉴스 · 문헌<small>네이버 뉴스 · 구글 학술검색</small></span>
+                                <div><ul class="ul"><li>「지역명 + 핵심어」로 검색하고 최근 3년 안의 기사를 먼저 봅니다. 기사 제목과 URL을 적습니다.</li><li>위키백과는 출발점으로만 쓰고 원출처를 확인합니다.</li></ul>
+                                <p class="eg">쓰임: 지역 개발 이슈, 환경 오염, 의료 공백, 문화 시설 부족</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="blk">
+                        <h4>이 사이트에서 쓸 수 있는 도구</h4>
+                        <ul class="tools">
+                            <li><a class="tool" href="map-fieldwork.html"><span class="t">지역 조사 지도 도구</span><span class="d">탐구 지역에서 본 문제점 · 시설 · 사진 찍은 곳을 점 · 선 · 면으로 표시하고 거리와 넓이를 잽니다. PNG 그림과 GeoJSON 파일로 내보내 활동지의 시각 자료 칸에 붙입니다.</span></a></li>
+                            <li><a class="tool" href="stats.html?scope=kr"><span class="t">통계로 보는 세계 — 우리나라 시·도</span><span class="d">국가데이터처 KOSIS의 시·도 통계 23개 지표를 지도와 순위로 봅니다. 탐구 지역이 속한 시·도를 다른 시·도와 비교할 때 씁니다.</span></a></li>
+                            <li><a class="tool" href="maps.html"><span class="t">통합사회 GIS 지도</span><span class="d">단원별 지도 14개에서 중첩 · 버퍼 · 흐름 · 접근성 분석을 해 봅니다. 자료를 지도로 읽는 방법을 익힐 때 씁니다.</span></a></li>
+                            <li><a class="tool" href="climate.html"><span class="t">기후 그래프</span><span class="d">관측소의 월별 기온 · 강수량 평년값을 그래프로 봅니다. 기후와 관련된 주제에서 씁니다.</span></a></li>
+                        </ul>
+                    </div>
+
+                    <div class="blk">
+                        <h4>자료를 읽는 법</h4>
+                        <dl class="read3">
+                            <div><dt>비교하기</dt><dd>다른 지역이나 다른 시기와 수치를 견줍니다.<span class="eg">예) A 지역 노인 의료 시설 3개, 이웃 B 지역 14개 — 4배 넘게 차이</span></dd></div>
+                            <div><dt>추세 보기</dt><dd>시간에 따라 어느 쪽으로 변하는지 봅니다.<span class="eg">예) 2010년 이후 해마다 인구가 300명씩 줄어듦</span></dd></div>
+                            <div><dt>분포 보기</dt><dd>어디에 몰려 있는지 봅니다.<span class="eg">예) 문화 시설 대부분이 도심 반경 2km 안에 모여 있음</span></dd></div>
+                        </dl>
+                        <p class="note" style="margin-top:12px">위 예의 수치는 읽는 법을 보이기 위한 가상의 값입니다.</p>
+                    </div>
+
+                    <div class="blk-2">
+                        <div class="blk">
+                            <h4>해석할 때 스스로 묻기</h4>
+                            <ul class="ul">
+                                <li>왜 이 지역에서만 이 현상이 나타날까? 다른 지역과 무엇이 다른가?</li>
+                                <li>이 지역의 자연환경 · 역사 · 경제 · 정책 가운데 어떤 것이 이 현상을 만들었을까?</li>
+                                <li>이 자료가 말해 주는 것은 무엇이고, 말해 주지 않는 것은 무엇인가?</li>
+                            </ul>
+                        </div>
+                        <div class="blk">
+                            <h4>자료 종합 해석 쓰는 법</h4>
+                            <ul class="ul">
+                                <li>발견한 사실 → 그 사실의 의미 → 원인 추측의 순서로 씁니다.</li>
+                                <li>「~한 것 같다」 대신 「~이므로 ~이다」처럼 근거를 붙여 씁니다.</li>
+                                <li>주장마다 모은 자료를 근거로 이어 붙입니다.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 3차시 -->
+            <article class="step" id="step3">
+                <div class="step-n" aria-hidden="true">3</div>
+                <div>
+                    <h3>해결 방안 모색</h3>
+                    <p class="step-do">마인드맵으로 아이디어를 모으고, 고른 아이디어를 구체적으로 다듬고, 기대 효과와 한계를 검토합니다.</p>
+                    <p class="step-out">활동지 3차시 — 아이디어 브레인스토밍 · 내용 구체화 · 기대 효과 및 예상 한계점</p>
+
+                    <div class="blk-2">
+                        <div class="blk">
+                            <h4>마인드맵 그리기</h4>
+                            <ol class="ol">
+                                <li><span><b>가운데에 탐구 문제를 한 문장으로 씁니다.</b> 예) 농촌 지역 의료 접근성이 낮은 문제를 어떻게 해결할까?</span></li>
+                                <li><span><b>둘레의 칸은 조원이 하나씩 맡습니다.</b> 크기와 현실성은 아직 따지지 않고 모두 적습니다.</span></li>
+                                <li><span><b>이 단계에서는 비판하지 않습니다.</b> 「그건 불가능해」보다 「더 발전시켜 보자」로 받습니다.</span></li>
+                                <li><span><b>비슷한 것끼리 묶어 1~2개를 고릅니다.</b> 현실에서 실제로 해 볼 수 있는 방안을 먼저 고릅니다.</span></li>
+                            </ol>
+                        </div>
+                        <div class="blk">
+                            <h4>해결 방안은 「누가 + 무엇을 + 어떻게」로</h4>
+                            <table class="tb wwh">
+                                <thead><tr><th scope="col">누가</th><th scope="col">무엇을</th><th scope="col">어떻게</th></tr></thead>
+                                <tbody>
+                                    <tr><td>지자체가</td><td>농촌 지역에</td><td>이동 건강 검진 차량을 정기 운행한다</td></tr>
+                                    <tr><td>교육청이</td><td>폐교 건물을</td><td>지역 문화 · 체육 센터로 고친다</td></tr>
+                                    <tr><td>지역 주민이</td><td>쓰지 않는 공터를</td><td>공동 텃밭으로 만든다</td></tr>
+                                </tbody>
+                            </table>
+                            <p class="note" style="margin-top:10px">실행하는 주체 · 대상 · 방법이 분명해야 설득력이 생깁니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="blk">
+                        <h4>기대 효과와 한계</h4>
+                        <p class="step-do" style="margin-top:8px">기대 효과에는 이 방안이 실행되면 생길 변화를, 한계에는 예산 · 법적 제약 · 반대 의견을 씁니다. 한계를 솔직하게 쓴 보고서가 더 좋은 보고서입니다.</p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- 4차시 -->
+            <article class="step" id="step4">
+                <div class="step-n" aria-hidden="true">4</div>
+                <div>
+                    <h3>최종 결론 및 개별 성찰</h3>
+                    <p class="step-do">최종 보고서를 완성하고, 조원 상호 평가와 개별 성찰 일지를 쓰고, 참고문헌을 정리해 제출합니다.</p>
+                    <p class="step-out">활동지 4차시 — 탐구 내용 최종 정리 · 조원 상호 평가 · 개별 성찰 일지 · 참고문헌 및 출처</p>
+
+                    <div class="blk-2">
+                        <div class="blk">
+                            <h4>최종 정리의 다섯 부분</h4>
+                            <ol class="ol">
+                                <li><span><b>탐구 목적</b> — 이 주제를 왜 탐구했는지 1~2문장으로.</span></li>
+                                <li><span><b>주요 발견</b> — 조사로 확인한 핵심 사실 2~3가지를 수치와 함께.</span></li>
+                                <li><span><b>현상의 변화 과정</b> — 이 지역의 현상이 시간에 따라 어떻게 달라졌는지.</span></li>
+                                <li><span><b>인과 관계</b> — 「○○ 원인 → ○○ 결과」의 구조로.</span></li>
+                                <li><span><b>결론과 해결책</b> — 최종 판단과 3차시에 고른 해결 방안.</span></li>
+                            </ol>
+                        </div>
+                        <div class="blk">
+                            <h4>참고문헌 적는 법</h4>
+                            <p class="step-do" style="margin-top:8px">자료 제목과 URL만 적으면 됩니다. URL이 길면 앞부분(도메인)만 적어도 되고, 제목으로 원본을 찾을 수 있으면 충분합니다. 출처가 없는 주장은 사실이 아니라 의견이 됩니다.</p>
+                            <ul class="ul" style="margin-top:10px">
+                                <li>SGIS 평창군 고령 인구 현황 — sgis.mods.go.kr</li>
+                                <li>「강원 농촌 의료 공백 심각」 — news.naver.com/article/…</li>
+                                <li>수질측정소 측정 결과 공공데이터 — data.go.kr/data/…</li>
+                            </ul>
+                            <p class="note" style="margin-top:8px">적는 모양을 보이기 위한 예입니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <!-- ── 채점 기준 ── -->
+        <section class="pg-sec" id="rubric" aria-labelledby="h-rb">
+            <h2 id="h-rb">채점 기준</h2>
+            <p class="pg-lead">채점 요소 네 가지, 40점 만점입니다. 표의 문장은 학생 안내문 그대로입니다.</p>
+            <div class="scroll-x">
+            <table class="tb rb">
+                <thead><tr><th scope="col">채점 요소</th><th scope="col">기대 수행</th><th scope="col" class="num">배점</th></tr></thead>
+                <tbody>
+                    <tr class="top"><td class="el" rowspan="3">지역의 공간 변화<small>10점</small></td><td>지역 변화 과정을 사진 자료를 활용하여 서술하며, 지역 변화의 양상을 구체적인 수치를 통해 표현한다.</td><td class="num">10</td></tr>
+                    <tr><td>지역 변화 과정을 사진 자료를 활용하여 서술하나, 지역 변화의 양상을 수치를 통해 표현하지 못한다.</td><td class="num">8</td></tr>
+                    <tr><td>지역 변화 과정을 사진 자료를 활용하여 서술하지 못하며, 지역 변화의 양상을 수치를 통해 표현하지 못한다.</td><td class="num">6</td></tr>
+
+                    <tr class="top"><td class="el" rowspan="3">주제 심층 탐구<small>15점</small></td><td>지역의 특징(상권, 역사, 환경 등) 중 하나를 선정하여 인과 관계나 공간적 패턴을 논리적으로 분석한다.</td><td class="num">15</td></tr>
+                    <tr><td>지역의 특징(상권, 역사, 환경 등) 중 하나를 선정하였으나, 인과 관계나 공간적 패턴을 분석하지 못한다.</td><td class="num">13</td></tr>
+                    <tr><td>지역의 특징(상권, 역사, 환경 등)을 적절히 선정하지 못하며, 인과 관계나 공간적 패턴을 분석하지 못한다.</td><td class="num">12</td></tr>
+
+                    <tr class="top"><td class="el" rowspan="3">자료 활용 및 시각화<small>10점</small></td><td>공신력 있는 통계 자료를 활용하며 출처를 밝혔으며, 탐구 내용을 지도나 그래프를 활용하여 명확하게 시각화한다.</td><td class="num">10</td></tr>
+                    <tr><td>공신력 있는 통계 자료를 사용하고 출처를 밝혔으나, 탐구 내용에 지도나 그래프를 활용하지 못한다.</td><td class="num">8</td></tr>
+                    <tr><td>공신력 있는 통계 자료를 사용하지 못하고, 탐구 내용에 지도나 그래프를 활용하지 못한다.</td><td class="num">6</td></tr>
+
+                    <tr class="top"><td class="el" rowspan="5">동료 평가 및 자기평가<small>5점</small></td><td>탐구 목적을 명확히 인식하여 주도적으로 의견을 나누고, 팀원과 유기적으로 소통하며, 자아 성찰적 태도를 통해 팀 목표 달성에 헌신함.</td><td class="num">5</td></tr>
+                    <tr><td>부여된 역할에 높은 책임감을 보이며, 팀원과 협력하고, 성실한 탐구 자세를 통해 결과물의 완성도를 높이는 데 기여함.</td><td class="num">4</td></tr>
+                    <tr><td>팀 활동의 취지를 이해하고 원만한 소통을 유지하며, 자신에게 주어진 역할을 수행하는 등 공동체 탐구 과정에 참여함.</td><td class="num">3</td></tr>
+                    <tr><td>탐구 과정 및 역할 수행에 있어 부분적인 미흡함이 있으나, 팀 활동의 흐름을 유지하기 위해 노력하며 최소한의 참여도를 보임.</td><td class="num">2</td></tr>
+                    <tr><td>탐구 과정에 있어 부여된 역할을 이행하지 않으며, 팀 탐구 활동 및 소통 과정에 유의미한 참여를 보이지 않음.</td><td class="num">1</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="2">만점</td><td class="num">40</td></tr></tfoot>
+            </table>
             </div>
-            <h1 class="sheet-title">Project<br><em>Guide</em></h1>
-            <p class="sheet-meta">지역 탐구 프로젝트 — 우리 동네의 지리적, 사회적 문제를 직접 발굴하고, 실증적 데이터 분석을 통해 창의적인 대안을 제시하는 통합사회 현장 연구 프로젝트입니다.</p>
-        </header>
-
-        <section>
-            <h2 class="section-title">
-                <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
-                탐구 진행 프로세스
-            </h2>
-            
-            <div class="grid-4">
-                <div class="panel step-card">
-                    <div class="step-head">
-                        <div class="step-icon">
-                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-                        </div>
-                        <span class="step-num">I.</span>
-                    </div>
-                    <h3>주제 및 지역 선정</h3>
-                    <p>내가 사는 동네, 혹은 관심 있는 지역에서 발생하고 있는 지리/사회적 현상이나 갈등을 탐색합니다.</p>
-                </div>
-
-                <div class="panel step-card">
-                    <div class="step-head">
-                        <div class="step-icon">
-                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                        </div>
-                        <span class="step-num">II.</span>
-                    </div>
-                    <h3>공간 데이터 수집</h3>
-                    <p>통계청 및 공개 데이터, 뉴스 자료, 서적 등 여러 자료들을 통해 객관적인 데이터를 수집합니다.</p>
-                </div>
-
-                <div class="panel step-card">
-                    <div class="step-head">
-                        <div class="step-icon">
-                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                        </div>
-                        <span class="step-num">III.</span>
-                    </div>
-                    <h3>분석 및 시각화</h3>
-                    <p>수집한 자료를 바탕으로 현상의 원인을 분석하고 그래프나 지도, 도표 등의 형태로 시각화하여 한 눈에 알아볼 수 있게 표현합니다.</p>
-                </div>
-
-                <div class="panel step-card">
-                    <div class="step-head">
-                        <div class="step-icon">
-                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                        </div>
-                        <span class="step-num">IV.</span>
-                    </div>
-                    <h3>결론 및 대안 제시</h3>
-                    <p>도출된 결론을 바탕으로 지역 사회를 위한 현실적이고 창의적인 해결책을 제안합니다.</p>
-                </div>
+            <div class="rb-note">
+                <p class="note">본인 의사로 응시하지 않거나 내지 않은 경우 20점, 미인정 결석인 경우 20점을 줍니다.</p>
             </div>
         </section>
 
-        <section>
-            <h2 class="section-title">
-                <svg class="ico" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                분야별 탐구 사례 아카이브
-            </h2>
-            
-            <div class="grid-3">
-                
-                <div class="panel ex-card">
-                    <div class="ex-thumb pat-1">
-                        <span class="ex-tag">Demographics</span>
-                        <div class="ex-icon-box">
-                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                        </div>
-                    </div>
-                    <div class="ex-content">
-                        <h3>서울시 병원 개원 경쟁과 필수 의료시설의 공백</h3>
-                        <p>서울시의 병원 업종별 개수 변화와 최근 개원 병원 데이터를 분석하여 산부인과 부족 현상을 공간적으로 시각화하고 원인을 규명함.</p>
-                        <div class="ex-tech">
-                            <span>#의료공백</span> <span>#저출산</span> <span>#상권분석</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel ex-card">
-                    <div class="ex-thumb pat-2">
-                        <span class="ex-tag">Transportation</span>
-                        <div class="ex-icon-box">
-                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
-                        </div>
-                    </div>
-                    <div class="ex-content">
-                        <h3>광역철도망 개통이 신도시 인구 이동에 미치는 영향</h3>
-                        <p>GTX 예정역 주변의 인구 유입 및 부동산 데이터를 활용해, 개통 이후에 발생할 수 있는 빨대 효과(Straw Effect)를 지리적으로 예측함.</p>
-                        <div class="ex-tech">
-                            <span>#GTX</span> <span>#인구이동</span> <span>#공간데이터</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel ex-card">
-                    <div class="ex-thumb pat-3">
-                        <span class="ex-tag">Climate & Env</span>
-                        <div class="ex-icon-box">
-                            <svg class="ico" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/><path d="M12 12v4"/></svg>
-                        </div>
-                    </div>
-                    <div class="ex-content">
-                        <h3>기후 변화에 따른 제주도 농작물 재배 한계선 북상</h3>
-                        <p>과거 30년간의 기온 데이터와 감귤 재배 면적 변화를 교차 분석하여, 미래 한반도 농업 지도의 변화를 환경 결정론적 관점에서 시뮬레이션함.</p>
-                        <div class="ex-tech">
-                            <span>#기후온난화</span> <span>#농업지리</span> <span>#통계분석</span>
-                        </div>
-                    </div>
-                </div>
-
+        <!-- ── 예시 보고서 ── -->
+        <section class="pg-sec" id="example" aria-labelledby="h-ex">
+            <h2 id="h-ex">예시 보고서</h2>
+            <p class="pg-lead">활동지를 어떻게 채우는지 보이려고 선생님이 만든 예시입니다. 실제 학생 보고서가 아닙니다. 예시의 내용과 수치를 내 보고서의 근거로 옮겨 쓰지 마세요.</p>
+            <div class="ex">
+                <dl class="ex-meta">
+                    <dt>탐구 지역</dt><dd>서울 강남구 삼성동 일대</dd>
+                    <dt>탐구 주제</dt><dd>선정릉의 위치가 주변 지역 개발에 미친 영향</dd>
+                </dl>
+                <table class="tb">
+                    <thead><tr><th scope="col">차시</th><th scope="col">예시에 적은 내용</th></tr></thead>
+                    <tbody>
+                        <tr><td>1차시</td><td>주제 선정 이유 — 강남은 개발이 많이 되었는데 선정릉 근처는 어떻게 개발되었는지 궁금했음. 예상 결론 — 선정릉이 훼손되지 않도록 가까운 곳은 개발하지 않고 그 바깥만 개발해 지금의 선릉역 인근 모습이 되었을 것.</td></tr>
+                        <tr><td>2차시</td><td>시각 자료 — 선정릉 근처에는 낮은 건물이 모여 있고, 조금 떨어진 테헤란로에는 높은 건물이 늘어선 스카이라인. 조사 자료 — 선정릉 개발 관련 기사, 서울시 재개발(재건축) 통계, 선정릉 근처 기온 자료. 종합 해석 — 문화재 주변은 높은 건물을 지을 수 없어 낮은 건물이 모였음.</td></tr>
+                        <tr><td>3차시</td><td>마인드맵 — 도심 속 쉼터, 역사 문화 거리, 열섬 현상과의 관계, 관광 콘텐츠. 고른 탐구 질문 — ① 높이 제한이 주변 상권의 업종 구성(카페 · 사무실)에 어떤 영향을 주는가 ② 녹지인 선정릉의 위치가 도심 열섬 현상과 관련이 있는가. 한계 — 시민이 느끼는 안정감은 자료로 보이기 어려워 땅값 · 유동 인구로 보완해야 함.</td></tr>
+                        <tr><td>4차시</td><td>최종 정리 — 규제 구역 안은 낮은 건물, 규제 밖 테헤란로는 초고층 건물. 선정릉 녹지는 주변보다 기온이 낮음(기온 그래프 첨부). 제안 — 선정릉을 가리는 개발 대신 녹지를 도심으로 끌어들이는 방향의 개발.</td></tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
-        <section class="obs-cta">
-            <svg class="orbit" viewBox="0 0 600 600" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="300" cy="300" r="280"/>
-                <ellipse cx="300" cy="300" rx="280" ry="100"/>
-                <circle cx="300" cy="20" r="6" fill="currentColor"/>
-                <circle cx="580" cy="300" r="4" fill="currentColor"/>
-            </svg>
-            <svg class="obs-cta-icon ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-            <h2>주제 선정을 완료했나요?</h2>
-            <p>본 가이드라인의 연구 방법론과 선행 사례를 충분히 숙지했다면,<br>이제 여러분만의 탐구를 시작할 차례입니다.</p>
-            
-            <a href="qna.html" class="obs-go">
-                QnA 이동
-                <svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
-            </a>
+        <!-- ── 막힐 때 ── -->
+        <section class="pg-sec" id="help" aria-labelledby="h-help">
+            <h2 id="h-help">막힐 때</h2>
+            <ol class="help">
+                <li><b>조원과 먼저 이야기합니다.</b>「이 부분 어떻게 생각해?」 하고 물어보세요. 한 사람이 다 알 필요는 없습니다.</li>
+                <li><b>이 안내를 다시 읽습니다.</b>주제 정하기는 <a class="in" href="#step1">1차시</a>, 자료 찾기와 읽기는 <a class="in" href="#step2">2차시</a>, 해결 방안은 <a class="in" href="#step3">3차시</a>, 보고서 구성은 <a class="in" href="#step4">4차시</a>에 있습니다.</li>
+                <li><b>선생님께 묻습니다.</b>어느 부분이 막혔는지 구체적으로 말하면 더 빨리 도울 수 있습니다. 수업 밖에서는 <a class="in" href="qna.html?q=%EC%A7%80%EC%97%AD%20%ED%83%90%EA%B5%AC">Q&amp;A 게시판</a>에 남기세요.</li>
+            </ol>
         </section>
 
+        <p class="note pg-src">이 페이지는 2026학년도 1학기에 학생에게 나눠 준 「통합사회 지역 탐구 프로젝트 안내」(일정 · 생성형 AI 활용 · 채점 기준), 「지역 탐구 활동 안내」(차시별 가이드), 지역 탐구 보고서 활동지와 예시를 옮긴 것입니다. 활동지의 「통계청 지리정보서비스」는 2025년 10월 기관 개편에 따라 국가데이터처 SGIS로 적었습니다.</p>
     </main>
 
     <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
     <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
     <a class="lg" href="index.html">← 메인으로</a>
   </footer>
-
-    <script>
-        // 1. 마우스 우클릭 차단
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        // 2. 텍스트 드래그 및 선택 차단
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-        });
-
-        // 3. F12 및 주요 개발자 도구 단축키 차단
-        document.addEventListener('keydown', function(e) {
-            if (e.keyCode === 123) { e.preventDefault(); }
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
-            if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
-            if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
-        });
-    </script>
 <div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="geo-menu__top">
     <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
@@ -386,12 +589,12 @@ section { margin-top: clamp(40px, 6vw, 76px); }
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -401,7 +604,7 @@ section { margin-top: clamp(40px, 6vw, 76px); }
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -416,6 +619,6 @@ section { margin-top: clamp(40px, 6vw, 76px); }
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

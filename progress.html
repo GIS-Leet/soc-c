@@ -11,15 +11,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
-<title>진도표 — 통합사회 C</title>
+<title>진도표 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
+
 
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
+<link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
 
 <style>
 /* ============================================================================
@@ -127,7 +132,7 @@
              letter-spacing: var(--track-ko); }
 /* 반이 열세 개면 한 줄에 안 들어간다. 줄바꿈 대신 옆으로 밀리게 둔다 —
    세그먼티드는 한 줄일 때만 '고르는 자'처럼 읽힌다. */
-.picker__scroll { flex: 1 1 auto; min-width: 0; overflow-x: auto; padding: 3px 0;
+.picker__scroll { flex: 1 1 200px; min-width: 0; overflow-x: auto; padding: 3px 0;
                   scrollbar-width: thin; }
 .picker__scroll::-webkit-scrollbar { height: 5px; }
 .picker__scroll::-webkit-scrollbar-thumb { background: var(--st-fill); border-radius: 3px; }
@@ -286,11 +291,11 @@ body.is-admin .admin-tools { display: block; }
 <meta name="theme-color" content="#121815">
 <meta name="description" content="수업 진도와 계획 — 반별 수업 진도, 다음 수업과 등록된 시험 범위를 확인하세요.">
 <link rel="canonical" href="https://nyuheatgis.com/progress.html">
-<meta property="og:title" content="수업 진도와 계획 · Geographia">
+<meta property="og:title" content="진도표 — Geographia">
 <meta property="og:description" content="수업 진도와 계획 — 반별 수업 진도, 다음 수업과 등록된 시험 범위를 확인하세요.">
 <meta property="og:url" content="https://nyuheatgis.com/progress.html">
 <meta property="og:type" content="website">
-<style>details > summary { cursor: pointer; padding: var(--st-sp-4); } #exam-range { margin-block: var(--st-sp-6); padding: var(--st-sp-4); border: 1px solid var(--st-separator); } .dash { grid-template-columns: 1fr 2fr; } @media(max-width: 760px) { .dash { grid-template-columns: 1fr; } } #class-progress, #lesson-plan, #exam-range { scroll-margin-top: var(--st-sp-20); }</style>
+<style>#classPicker { min-height: 38px; } /* 자료가 오기 전 자리 — 바닥글이 화면에 들어왔다가 밀려나지 않게 */ #units:empty { min-height: 70vh; } details > summary { cursor: pointer; padding: var(--st-sp-4); } #exam-range { margin-block: var(--st-sp-6); padding: var(--st-sp-4); border: 1px solid var(--st-separator); } .dash { grid-template-columns: 1fr 2fr; } @media(max-width: 760px) { .dash { grid-template-columns: 1fr; } } #class-progress, #lesson-plan, #exam-range { scroll-margin-top: var(--st-sp-20); }</style>
 </head>
 <body>
 
@@ -333,7 +338,7 @@ body.is-admin .admin-tools { display: block; }
       </svg>
       <span class="sheet-num"><i class="st-dot st-dot--live"></i>수업 진도 · 계획</span>
       <h1 class="sheet-title">Progress</h1>
-      <p class="sheet-meta" id="headMeta">수업 진도가 어디까지 나갔는지, 다음 시간에 무엇을 하는지,<br>시험 범위가 어디까지인지 확인하세요.</p>
+      <p class="sheet-meta" id="headMeta">반별 수업 진도와 다음 수업,<br>등록된 시험 범위를 확인할 수 있습니다.</p>
 
       <div class="admin-header-row">
         <button id="adminBtn" class="btn-outline" onclick="window.toggleAdminPanel()">관리자</button>
@@ -517,12 +522,12 @@ body.is-admin .admin-tools { display: block; }
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -532,7 +537,7 @@ body.is-admin .admin-tools { display: block; }
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -547,7 +552,7 @@ body.is-admin .admin-tools { display: block; }
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -846,12 +851,19 @@ body.is-admin .admin-tools { display: block; }
 
     function renderExam(total) {
         const box = document.getElementById('exam'), none = document.getElementById('examNone');
+        none.textContent = '아직 등록된 시험 일정이 없습니다.';
         if (!exam || !exam.date) { box.hidden = true; none.hidden = false; return; }
-        box.hidden = false; none.hidden = true;
 
         const t = new Date(exam.date + 'T00:00:00');
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const days = Math.round((t - today) / 86400000);
+        // 지난 시험은 「다음 시험」 자리에 두지 않는다 — 다음 시험을 등록할 때까지 한 줄로만 알린다
+        if (days < 0) {
+            box.hidden = true; none.hidden = false;
+            none.textContent = `지난 시험: ${exam.label ? exam.label + ' · ' : ''}${t.getFullYear()}년 ${fmtDate(t)}. 다음 시험 일정은 아직 등록되지 않았습니다.`;
+            return;
+        }
+        box.hidden = false; none.hidden = true;
         document.getElementById('examD').textContent = days > 0 ? `D−${days}` : days === 0 ? 'D-DAY' : '종료';
         document.getElementById('examLabel').textContent = exam.label || '';
         document.getElementById('examWhen').textContent = `${t.getFullYear()}년 ${fmtDate(t)}`;
@@ -1216,20 +1228,5 @@ body.is-admin .admin-tools { display: block; }
     };
 </script>
 
-<script>
-    // 콘텐츠 보호 (사이트 공통 설정) — 입력란에서는 선택을 풀어 준다
-    document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-    document.addEventListener('selectstart', function(e) {
-        if (e.target.closest('input, textarea')) return;
-        e.preventDefault();
-    });
-    document.addEventListener('keydown', function(e) {
-        if (e.keyCode === 123) { e.preventDefault(); }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) { e.preventDefault(); }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 67) { e.preventDefault(); }
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 74) { e.preventDefault(); }
-        if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); }
-    });
-</script>
 </body>
 </html>

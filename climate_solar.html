@@ -40,18 +40,20 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
       name="viewport"
     />
-    <title>햇빛의 각도, 에너지의 밀도 — Geographia Lab</title>
+    <title>태양 고도와 일사량 — Geographia</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
     <meta
-      content="태양을 조금 더 높이 올려 보세요. 같은 빛이 닿는 면적이 줄어들면서 지표가 받는 에너지가 달라집니다."
+      content="태양 고도를 바꾸면 같은 빛이 닿는 면적이 달라지고, 그만큼 지표가 받는 에너지도 달라집니다."
       name="description"
     />
     <link href="https://nyuheatgis.com/climate_solar.html" rel="canonical" />
+    <meta property="og:title" content="태양 고도와 일사량 — Geographia">
     <meta
-      content="햇빛의 각도, 에너지의 밀도 · Geographia Lab"
-      property="og:title"
-    />
-    <meta
-      content="태양을 조금 더 높이 올려 보세요. 같은 빛이 닿는 면적이 줄어들면서 지표가 받는 에너지가 달라집니다."
+      content="태양 고도를 바꾸면 같은 빛이 닿는 면적이 달라지고, 그만큼 지표가 받는 에너지도 달라집니다."
       property="og:description"
     />
     <meta
@@ -64,13 +66,10 @@
     <link href="icons/apple-touch-icon.png" rel="apple-touch-icon" />
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
     <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-    <link rel="stylesheet" href="design-system/geo.css?v=710ba61f">
-    <link href="assets/sim-stratum.css?v=86ccf0c0" rel="stylesheet" />
+    <link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
+    <link href="assets/sim-stratum.css?v=41cbdabd" rel="stylesheet" />
   </head>
   <body data-design="stratum" data-lab="climate_solar">
     <a class="skip-link" href="#main">본문으로 이동</a>
@@ -115,15 +114,15 @@
     <main class="lab-main" id="main">
       <nav aria-label="현재 위치" class="breadcrumb">
         <a href="simulators.html">모든 실험</a><span>/</span
-        ><span>기후 실험실</span><span>/</span><span>03</span>
+        ><span>기후 실험실</span><span>/</span><span>태양 고도와 일사량</span>
       </nav>
       <section class="lab-intro">
         <div>
-          <h1>햇빛의 각도, 에너지의 밀도</h1>
+          <h1>태양 고도와 일사량</h1>
         </div>
         <p class="intro-copy">
-          태양을 조금 더 높이 올려 보세요. 같은 빛이 닿는 면적이 줄어들면서
-          지표가 받는 에너지가 달라집니다.
+          태양 고도가 높을수록 같은 양의 햇빛이 좁은 면적에 닿아, 단위 면적이
+          받는 에너지가 커집니다. 고도를 바꾸며 비교해 보세요.
         </p>
       </section>
       <div class="lab-workspace">
@@ -196,7 +195,7 @@
         <aside aria-label="실험 조작" class="lab-controls">
           <section class="control-panel">
             <div class="panel-heading">
-              <h2>태양을 움직여 보세요</h2>
+              <h2>태양 고도 조절</h2>
               <span class="panel-no">01</span>
             </div>
             <div class="field-label">
@@ -259,7 +258,7 @@
           </section>
           <section class="control-panel">
             <div class="panel-heading">
-              <h2>같은 빛, 다른 에너지</h2>
+              <h2>고도에 따른 일사량</h2>
               <span class="panel-no">02</span>
             </div>
             <div class="metric-grid">
@@ -330,12 +329,12 @@
   <div class="geo-group">
     <h3>공간 시뮬레이터</h3>
     <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 입사각 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형의 형성 과정 <small>3.2 지형 변화</small></a>
+    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
     <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">지형 탐구 시뮬레이터 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권 팽창 <small>3.3 도시 공간</small></a>
+    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
     <h3>관측 · 통계 자료</h3>
@@ -345,7 +344,7 @@
   </div>
   <div class="geo-group">
     <h3>수업 · 지원</h3>
-    <a href="ai_dashboard.html">AI 분석 대시보드 <small>식생 · 열섬 · 인구</small></a>
+    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
     <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
@@ -359,6 +358,6 @@
   </div>
 </div>
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=6bc17095"></script>
+<script src="design-system/geo.js?v=fac9e662"></script>
 </body>
 </html>

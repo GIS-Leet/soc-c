@@ -37,3 +37,7 @@ CLAUDE.md
 # 로컬 검증 기록
 .superpowers/
 *-debug.log
+
+# 공개하지 않는 로컬 자료 (2026-10-20 점검 뒤)
+docs/previews/
+추가 업로드 예정 자료/

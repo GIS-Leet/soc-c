@@ -270,7 +270,8 @@ body.is-launching .geo-page { transform: scale(0.965); opacity: 0.5; transform-o
   animation: sealSpin 120s linear infinite;
 }
 @keyframes sealSpin { to { transform: rotate(360deg); } }
-@media (max-width: 700px) { .head-seal { opacity: 0.05; top: auto; bottom: -20px; } }
+@media (max-width: 700px) { .head-seal { opacity: 0.05; top: auto; bottom: -20px; }
+  .head-aura { right: 0; } /* 오른쪽으로 삐져나가 휴대폰에서 가로 스크롤이 생기지 않게 */ }
 
 /* ── 게시판형 페이지의 머리 ──
    Q&A · 진도표 · 건의 · 기기문의가 함께 쓴다. 네 페이지가 각자 복사해 두었더니
