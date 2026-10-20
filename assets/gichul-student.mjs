@@ -1,6 +1,7 @@
 // 통합사회 기출 문항(gichul.html) — Desk 「학생용 공개」가 올린 data/gichul/index.json 과 문항 그림을 단원별로 보여 준다.
 // 목록에서 풀어 보기(번호 고르기 → 정답 · 풀이), 한 문항씩 풀기(전체 화면, 키보드 1~5 · ← →). 분류표는 data/gichul-taxonomy.json(Desk 와 같은 것).
 import * as G from './gichul.mjs?v=79235d16';
+import { GEO_UNITS } from './gichul-publish.mjs?v=d49ed47b';
 import { $, esc, params, setParams, shareButton } from './map-kit.mjs?v=affb9c7a';
 
 
@@ -118,7 +119,8 @@ async function main() {
     fetch('data/gichul-taxonomy.json', { cache: 'no-cache' }).then((r) => r.json()),
   ]);
   TAX = G.parseTaxonomy(tax);
-  SUBJ = TAX.concepts.filter((c) => c.name.startsWith('통합사회'));
+  // 지리 단원만 목록에 — 공개하는 문항도 이 단원들뿐(gichul-publish.mjs GEO_UNITS)
+  SUBJ = TAX.concepts.filter((c) => c.name.startsWith('통합사회')).map((c) => ({ ...c, units: c.units.filter((u) => GEO_UNITS.includes(u.tag)) })).filter((c) => c.units.length);
   if (!idx || !idx.items?.length) {
     $('#gxMain').classList.add('gx--empty'); $('#gxMain').innerHTML = '<p class="gx-empty">아직 공개된 문항이 없습니다. 문항을 단원별로 정리해 올리면 여기에 나타납니다.</p>';
     return;

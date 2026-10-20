@@ -54,3 +54,22 @@ test('그림 이름은 조각이 바뀌면 바뀌고, 한글 · 경로가 드러
   assert.match(n1, /^[0-9a-z]+\.webp$/);
   assert.equal(n1, imageName(it, signature(ex, it)));
 });
+
+test('지리 단원(통사1 Ⅲ·Ⅳ·Ⅴ, 통사2 Ⅳ·Ⅴ) 문항만 — 단원 이름은 분류표와 같다', async () => {
+  const { GEO_UNITS, isGeo } = await import('../assets/gichul-publish.mjs');
+  const { readFileSync } = await import('node:fs');
+  const tax = G.parseTaxonomy(JSON.parse(readFileSync(new URL('../data/gichul-taxonomy.json', import.meta.url), 'utf8')));
+  const all = tax.concepts.flatMap((c) => c.units.map((u) => u.tag));
+  for (const u of GEO_UNITS) assert.ok(all.includes(u), u);
+  const d = G.parseData({
+    exams: { a: { title: 't', year: 2026, exam: '3월 학평', grade: '고1', subject: '통합사회', pdf: 'p', createdAt: 1 } },
+    items: { a: {
+      '01': { parts: part, ans: 1, c: ['통사2 Ⅲ 시장 경제와 지속가능발전 > 금융 자산과 금융 생활 설계'] },          // 일반사회 — 빠짐
+      '02': { parts: part, ans: 1, c: ['통사1 Ⅰ 통합적 관점', '통사1 Ⅴ 생활공간과 사회 > 교통·통신 발달과 생활양식 변화'] }, // 하나라도 지리 — 들어감
+      '03': { parts: part, ans: 1, c: ['통사1 Ⅲ 자연환경과 인간 > 자연을 바라보는 관점(인간 중심·생태 중심)'] },        // 단원 통째로 — 들어감
+      '04': { parts: part, ans: 1, c: ['통사2 Ⅰ 인권 보장과 헌법'] },                                                  // 빠짐
+    } },
+  });
+  assert.deepEqual(buildPublic(d).items.map((i) => i.n), [2, 3]);
+  assert.equal(isGeo({ c: ['통사2 Ⅴ 미래와 지속가능한 삶 > 인구 문제'] }), true);
+});

@@ -1,4 +1,4 @@
-// 기출 「학생용 공개」 — Desk 기출 뷰에서 교사가 누르면, 검증까지 끝난 통합사회 문항을 그림으로 그려
+// 기출 「학생용 공개」 — Desk 기출 뷰에서 교사가 누르면, 검증까지 끝난 통합사회 지리 단원 문항을 그림으로 그려
 // 공개 저장소(soc-c)의 data/gichul/ 에 커밋 하나로 올린다. 학생 화면은 gichul.html(assets/gichul-student.mjs).
 // 학생에게 가는 것: 문항 그림 · 시험 이름 · 번호 · 배점 · 정답 · 분류(개념 · 자료 · 오답) · 메모 가운데 「핵심」「함정」 줄.
 // 가지 않는 것: 기타 태그(x), 이름표 없는 메모(수업용 메모), PDF 원본, 비공개 저장소 경로.
@@ -7,6 +7,10 @@ import * as G from './gichul.mjs?v=79235d16';
 export const SUBJECT = '통합사회';
 export const DIR = 'data/gichul';
 export const INDEX = DIR + '/index.json';
+/** 공개하는 단원 — 지리 단원만(2026-10-20 사용자: 「지리 관련 문제만 공개」, 범위는 단원 통째로).
+ *  문항의 개념 분류 가운데 하나라도 이 단원(또는 그 세부)에 들면 공개. 이름은 data/gichul-taxonomy.json 의 「약칭 단원이름」 */
+export const GEO_UNITS = ['통사1 Ⅲ 자연환경과 인간', '통사1 Ⅳ 문화와 다양성', '통사1 Ⅴ 생활공간과 사회', '통사2 Ⅳ 세계화와 평화', '통사2 Ⅴ 미래와 지속가능한 삶'];
+export const isGeo = (it) => (it.tags?.c || it.c || []).some((t) => GEO_UNITS.includes(G.unitOf(t)));
 /** 메모 이름표 → 학생 화면의 이름(2026-10-20 사용자: 「요점 · 함정」 대신 담백한 낱말) */
 export const NOTE_LABEL = { 핵심: '풀이', 함정: '주의할 점' };
 
@@ -37,7 +41,7 @@ export function buildPublic(data) {
   const rank = (e) => { const i = G.SESSION_ORDER.indexOf(e.meta.exam); return i < 0 ? G.SESSION_ORDER.length : i; };
   const items = data.items
     .filter((it) => ids.has(it.examId) && G.verified(it) && it.parts.length && (it.tags.c || []).length)
-    .filter((it) => !(it.tags.c || []).includes(G.OUT_OF_SCOPE))
+    .filter((it) => !(it.tags.c || []).includes(G.OUT_OF_SCOPE) && isGeo(it))
     .sort((a, b) => { const x = ids.get(a.examId), y = ids.get(b.examId);
       return y.meta.year - x.meta.year || rank(x) - rank(y) || (a.examId < b.examId ? -1 : a.examId > b.examId ? 1 : 0) || a.number - b.number; });
   const used = [...new Set(items.map((it) => it.examId))].map((id) => ids.get(id));
@@ -79,7 +83,7 @@ const canvasBlob = (cv) => new Promise((ok, no) => cv.toBlob((b) => (b ? ok(b) :
  */
 export async function publish({ data, token, repo = 'GIS-Leet/soc-c', branch = 'main', pdfOf, renderParts, onProgress = () => {} }) {
   const pub = buildPublic(data);
-  if (!pub.items.length) throw new Error('공개할 문항이 없습니다 — 통합사회 시험에서 개념 분류까지 확인(저장)한 문항만 올라갑니다.');
+  if (!pub.items.length) throw new Error('공개할 문항이 없습니다 — 통합사회 시험의 지리 단원에서 개념 분류까지 확인(저장)한 문항만 올라갑니다.');
   onProgress('지금 공개된 목록을 확인하는 중…');
   const ref = await gh(token, api(repo, `git/ref/heads/${branch}`));
   const head = await gh(token, api(repo, `git/commits/${ref.object.sha}`));
@@ -112,7 +116,7 @@ export async function publish({ data, token, repo = 'GIS-Leet/soc-c', branch = '
   onProgress('저장소에 올리는 중…');
   const t = await gh(token, api(repo, 'git/trees'), { method: 'POST', body: JSON.stringify({ base_tree: head.tree.sha, tree }) });
   const c = await gh(token, api(repo, 'git/commits'), { method: 'POST', body: JSON.stringify({
-    message: `기출 문항 학생용 공개: 통합사회 ${pub.items.length}문항(새 그림 ${rendered} · 지움 ${gone.length})`, tree: t.sha, parents: [head.sha] }) });
+    message: `기출 문항 학생용 공개: 통합사회 지리 단원 ${pub.items.length}문항(새 그림 ${rendered} · 지움 ${gone.length})`, tree: t.sha, parents: [head.sha] }) });
   await gh(token, api(repo, `git/refs/heads/${branch}`), { method: 'PATCH', body: JSON.stringify({ sha: c.sha }) });
   return { items: pub.items.length, rendered, reused, removed: gone.length, commit: c.sha };
 }
