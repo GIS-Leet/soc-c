@@ -409,7 +409,7 @@ export function mountGichul(root, fb) {
         : `분류를 넣습니다. 넣은 문항에는 「검증 전」이 붙고, 분류 화면에서 확인 · 저장하면 떼어집니다.\n\n${lines}`)) return;
       let n = 0;
       for (const p of plans) for (const w of p.writes) { await set(ref(db, w.path), w.record); n++; status(`분류 넣는 중 ${n}`); }
-      status(`분류를 넣었습니다 · ${n}문항. 「이어서 분류」로 하나씩 확인해 주세요.`);
+      status(fin ? `확정했습니다 · ${n}문항(「검증 전」 표시를 뗌).` : `분류를 넣었습니다 · ${n}문항. 「이어서 분류」로 하나씩 확인해 주세요.`);
     } catch (err) { status('분류를 넣지 못했습니다: ' + err.message, true); }
   };
 
