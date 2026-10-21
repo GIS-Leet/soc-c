@@ -144,7 +144,8 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
      한대 전선에는 구름이 몰리고 아열대 고압대(사막 위도)는 비어 있다.
      실제 대기 대순환과 같은 배치라 수업에서 그대로 짚어줄 수 있다. */
   const CW = 512, CH = 256;
-  const cloudTex = (function buildClouds(){
+  let cloudTex = null;                 // 처음 그릴 때 만든다(start) — 스크립트를 읽는 순간에 만들면 페이지 준비(DOMContentLoaded)가 그만큼 늦는다
+  function buildClouds(){
     const out = new Uint8Array(CW * CH);
     const mk = (n) => { const g = new Float32Array(n * n); for (let i = 0; i < g.length; i++) g[i] = Math.random(); return g; };
     // 경도 방향은 순환, 위도 방향은 고정 — 이음매가 생기지 않도록
@@ -178,7 +179,7 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
       }
     }
     return out;
-  })();
+  }
 
   /* ── ② 픽셀별 위경도·음영 미리 계산 ─────────────────────────────────
      내부 렌더 해상도는 실제 표시 크기에 맞춰 정한다. 폰에서 255px로 보이는
@@ -274,10 +275,14 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
   }
 
   const PERIOD = 80;                   // 1회전 80초
+  // 1초에 20번만 그린다 — 80초에 한 바퀴라 한 번에 0.2°도 안 움직여서 60번 그리는 것과 눈으로는 같다.
+  // 한 번 그릴 때 원반의 픽셀(많게는 18만 개)을 모두 다시 계산하므로, 60번이면 저사양 기기에서 페이지 전체가 굼떠진다(2026-10-21)
+  const STEP = 1000 / 20;
   let last = 0;
   function frame(now){
     if (!last) last = now;
-    const dt = Math.min((now - last) / 1000, 0.05);
+    if (now - last < STEP - 2) { requestAnimationFrame(frame); return; }
+    const dt = Math.min((now - last) / 1000, 0.25);
     last = now;
     lon0 -= (360 / PERIOD) * dt;       // 서→동 자전
     cloudLon -= (360 / PERIOD) * 1.09 * dt;
@@ -293,6 +298,7 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
   function start(){
     if (started) { setup(); draw(); return; }      // 이미 돌고 있으면(늦게 온 위성 영상) 텍스처만 바꿔 그린다
     started = true;
+    if (!cloudTex) cloudTex = buildClouds();
     setup(); draw();
     cv.style.visibility = ''; cv.style.animation = 'none'; void cv.offsetWidth; cv.style.animation = '';
     if (!reduce) requestAnimationFrame(frame);
@@ -301,9 +307,14 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
 
   /* ── ④ 위성 영상 — NASA Blue Marble Next Generation(2004년 달별 합성), 접속한 달 ──
      처음부터 이 영상으로 그린다(페이지 머리에서 미리 받기 시작함). 1월엔 북반구가 눈에 덮이고 7월엔 녹는다.
-     사이트 색에 맞춰 채도·밝기를 낮춘 사본: assets/earth/earth-MM.jpg(2048×1024).
+     사이트 색에 맞춰 채도·밝기를 낮춘 사본: assets/earth/earth-MM.webp(2048×1024, 2026-10-21 JPG 에서 WebP 로 — 약 35% 작음).
      못 받으면 그림 지구로 대신하고, 6초 넘게 걸리면 그림 지구를 먼저 보여 주다가 영상이 오면 바꾼다. */
-  (function loadMonth(){
+  // 지구는 배경이라 첫 화면 · 첫 입력보다 늦어도 된다 — 페이지가 다 뜨고 브라우저가 한가할 때 시작한다(영상은 머리에서 미리 받는 중)
+  const whenIdle = (fn) => {
+    const go = () => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1200 }) : setTimeout(fn, 200));
+    if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true });
+  };
+  whenIdle(function loadMonth(){
     const mm = String(new Date().getMonth() + 1).padStart(2, '0');
     const fallback = () => { if (!tex) { tex = drawnTexture(); cloudMix = 1; start(); } };
     const late = setTimeout(fallback, 6000);
@@ -318,8 +329,8 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
       start();
     };
     im.onerror = () => { clearTimeout(late); fallback(); };
-    im.src = new URL('../assets/earth/earth-' + mm + '.jpg', GLOBE_SRC || location.href).href;
-  })();
+    im.src = new URL('../assets/earth/earth-' + mm + '.webp', GLOBE_SRC || location.href).href;
+  });
 
   // 화면 회전·창 크기 변경으로 표시 크기가 크게 달라지면 해상도를 다시 잡는다
   let rt;

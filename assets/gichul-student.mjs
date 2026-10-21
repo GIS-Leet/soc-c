@@ -76,11 +76,11 @@ function choicesHtml(it, idx) {
 }
 // 문항 머리의 작은 글씨 — 단원별에서는 어느 시험인지, 시험별에서는 어느 단원인지
 const sourceOf = (it) => inExam() ? [...new Set((it.c || []).map(leaf))].join(' · ') : examOf(it).title;
-function itemHtml(it, idx) {
+function itemHtml(it, idx, pos = 9) {
   const e = examOf(it);
   return `<article class="gx-item" id="q-${idx}" data-i="${idx}">
     <header class="gx-h"><b>${it.n}번</b>${it.pts ? `<span>${it.pts}점</span>` : ''}<em>${esc(sourceOf(it))}</em></header>
-    <figure class="gx-paper"><img src="data/gichul/img/${esc(it.img)}" alt="${esc(e.title)} ${it.n}번 문항" ${it.w ? `width="${it.w}" height="${it.h}"` : ''} loading="lazy" decoding="async"></figure>
+    <figure class="gx-paper"><img src="data/gichul/img/${esc(it.img)}" alt="${esc(e.title)} ${it.n}번 문항" ${it.w ? `width="${it.w}" height="${it.h}"` : ''} ${pos < 2 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"></figure>
     <div class="gx-act">${choicesHtml(it, idx)}<button type="button" class="opt gx-show" data-show="${idx}" aria-expanded="false">정답과 풀이</button></div>
     <div class="gx-ans" id="a-${idx}" hidden>${notesHtml(it)}</div>
   </article>`;
@@ -99,7 +99,7 @@ function render() {
     <p>${list.length}문항${st.type ? ` · 자료 「${esc(st.type)}」` : ''}</p>
     ${types.length > 1 ? `<div class="gx-types" role="group" aria-label="자료 유형"><button type="button" class="opt" data-type="" aria-pressed="${!st.type}">모두</button>${types.map((t) => `<button type="button" class="opt" data-type="${esc(t)}" aria-pressed="${st.type === t}">${esc(t)}</button>`).join('')}</div>` : ''}
     <div class="gx-tools"><button type="button" class="opt gx-solvebtn" id="gxSolve" ${list.length ? '' : 'disabled'}>한 문항씩 풀기</button><button type="button" class="share-btn" id="gxShare">공유</button></div>`;
-  $('#gxList').innerHTML = list.map((it) => itemHtml(it, D.items.indexOf(it))).join('') || `<p class="gx-empty">이 ${inExam() ? '시험' : '단원'}에는 아직 문항이 없습니다.</p>`;
+  $('#gxList').innerHTML = list.map((it, k) => itemHtml(it, D.items.indexOf(it), k)).join('') || `<p class="gx-empty">이 ${inExam() ? '시험' : '단원'}에는 아직 문항이 없습니다.</p>`;
   shareButton($('#gxShare'), () => location.href, () => `통합사회 기출 · ${headName()}`);
   setParams(inExam() ? { v: 'exam', x: st.exam, t: st.type } : { u: st.tag, t: st.type });
 }

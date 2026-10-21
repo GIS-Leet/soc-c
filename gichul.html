@@ -2,7 +2,7 @@
 <!-- 통합사회 기출 문항 — Desk 「학생용 공개」가 올린 data/gichul/(index.json · img/)을 단원별 · 시험별로 보여 준다. 화면은 assets/gichul-student.mjs -->
 <html lang="ko">
 <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4"></script>
+    <script>addEventListener('load',function(){setTimeout(function(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-E1W226W5M4';document.head.appendChild(s);},1500);});</script>   <!-- 방문 통계(약 180KB)는 화면이 다 뜬 뒤에 받는다 — 첫 화면과 다투지 않게 -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -25,6 +25,10 @@
 
 <link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
 <link rel="stylesheet" href="design-system/geo.css?v=b25e77e3">
+<!-- 문항 화면 스크립트가 차례로 부르는 모듈을 처음부터 함께 받는다(한 단계씩 기다리지 않게) -->
+<link rel="modulepreload" href="assets/gichul-student.mjs?v=9f1a8b55">
+<link rel="modulepreload" href="assets/gichul.mjs?v=7adfbb60">
+<link rel="modulepreload" href="assets/gichul-publish.mjs?v=ada1f9ee">
 <style>
 /* 통합사회 기출 문항 — 읽기 쉬움이 먼저: 큰 글자 · 넓은 줄 간격 · 문항 그림은 흰 종이 위에, 한 줄 너비는 짧게 */
 .rule { height: 1px; background: var(--st-separator); border: 0; margin: 0; max-width: 1180px; margin-inline: auto; }
@@ -165,7 +169,7 @@ body.gx-lock { overflow: hidden; }
       <a class="lg" href="index.html">← 메인으로</a>
     </footer>
 
-<script type="module" src="assets/gichul-student.mjs?v=1e5b1da8"></script>
+<script type="module" src="assets/gichul-student.mjs?v=9f1a8b55"></script>
 <div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="geo-menu__top">
     <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
