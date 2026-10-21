@@ -20,11 +20,13 @@ export function createRestStore({ credential, databaseURL, fetcher = fetch }) {
     get: (path) => call("GET", url(path)),
     async set(path, value) { await call("PUT", url(path), value === undefined ? null : value); },
     async update(changes) { await call("PATCH", url(""), changes); },
-    async page(path, { after = "", limit = 50 } = {}) {
-      // REST 는 키 순서를 보장하지 않는 객체를 준다 — 한 개 더 받아 after 자신을 빼고 키 순으로
-      const query = `?orderBy=${encodeURIComponent('"$key"')}` + (after ? `&startAt=${encodeURIComponent(JSON.stringify(after))}` : "") + `&limitToFirst=${limit + (after ? 1 : 0)}`;
+    async page(path, { after = "", limit = 50, desc = false } = {}) {
+      // REST 는 키 순서를 보장하지 않는 객체를 준다 — 한 개 더 받아 after 자신을 빼고 키 순으로.
+      // desc: 최신(큰 키)부터 — after 보다 작은 키 가운데 끝에서 limit 개
+      const edge = after ? `&${desc ? "endAt" : "startAt"}=${encodeURIComponent(JSON.stringify(after))}` : "";
+      const query = `?orderBy=${encodeURIComponent('"$key"')}` + edge + `&${desc ? "limitToLast" : "limitToFirst"}=${limit + (after ? 1 : 0)}`;
       const rows = Object.entries((await call("GET", url(path, query))) || {}).filter(([key]) => key !== after);
-      rows.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+      rows.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0) * (desc ? -1 : 1));
       return rows.slice(0, limit);
     },
     transaction,
@@ -38,6 +40,8 @@ export function withGrantSnapshot(store) {
   const touched = (path) => { if (String(path).startsWith("boardGrants")) grants = undefined; };
   return {
     ...store,
+    /** 목록이 글을 받는 동안 미리 받아 둔다(차례로 기다리지 않게) */
+    prefetchGrants() { grants ??= store.get("boardGrants").then((all) => all || {}); grants.catch(() => {}); },
     async get(path) {
       const match = /^boardGrants\/([^/]+)$/.exec(path);
       if (!match) return store.get(path);

@@ -397,14 +397,14 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
     </div>
 
     <script type="module">
-        import {installBoardControls} from "./assets/board-controls.mjs?v=94f70103";
-    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs?v=93c9417a";
+        import {installBoardControls} from "./assets/board-controls.mjs?v=1830dc75";
+    import {uploadAttachment, onBoardState, placeNewest} from "./assets/board-client.mjs?v=ae807f94";
     // 접힌 글의 첨부 그림은 글을 펼칠 때 받는다 — 목록만 열어도 모든 글의 그림을 받아 함수 전송 요금이 나가던 것을 막음(2026-10-08).
     // 글 본문 틀은 <img data-src>, 여기서 펼쳐진 글의 것만 src 로 옮긴다
     const showPostImages = () => { for (const img of document.querySelectorAll('img[data-src]')) { const item = img.closest('.q-item'); if (item ? item.classList.contains('is-open') : img.offsetParent !== null) { img.src = img.dataset.src; img.removeAttribute('data-src'); } } };
     new MutationObserver(showPostImages).observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'style'] });
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=93c9417a";
+        import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=ae807f94";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDBgqclt0Qnnal7SlQmoYL-63L0DDplZkM",
@@ -545,7 +545,7 @@ textarea.form-input { min-height: 120px; resize: vertical; line-height: 1.7; }
                         <div class="reply-input-group" id="reply-group-${id}"><textarea aria-label="교사 답변" id="reply-input-${id}" placeholder="답변을 입력하세요" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); window.addReply('${id}'); }"></textarea><button onclick="window.addReply('${id}')">답변 등록</button></div>
                     </div>
                 </div>`;
-            list.prepend(li); refreshAdminUI();
+            placeNewest(list, li); refreshAdminUI();
         }
 
         window.addReply = async (id) => { if (!isAdmin) return; const input = document.getElementById(`reply-input-${id}`); const text = input.value.trim(); if (!text) return; try { await push(dbRef(db, `feedback/${id}/replies`), { text, time: getCurrentTime(), isTeacher: true }); input.value = ''; } catch (error) { window.AppModal.show({type: 'alert', msg: '답변을 저장하지 못했습니다. 입력한 내용은 유지됩니다.'}); } };

@@ -1,5 +1,5 @@
 // 기존 게시판 화면에 서버 인증·비밀글 접근·폼 저장 상태를 연결함.
-import {ensureAccess,loginTeacher,logoutTeacher,onSessionChanged,onBoardState,refreshBoard} from './board-client.mjs?v=93c9417a';
+import {ensureAccess,loginTeacher,logoutTeacher,onSessionChanged,onBoardState,refreshBoard} from './board-client.mjs?v=ae807f94';
 import {guardPending} from './pending-write.mjs?v=8cfe1cd0';
 // 비밀글 표시 — 그림 글자 대신 선 아이콘(qna.html 과 같은 모양)
 const LOCK_ICON='<svg class="ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-label="비밀글" role="img"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';

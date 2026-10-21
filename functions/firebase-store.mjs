@@ -58,15 +58,15 @@ export function createFirebaseStore({
     async update(changes) {
       await database.ref().update(changes);
     },
-    async page(path, { after = "", limit = 50 } = {}) {
+    async page(path, { after = "", limit = 50, desc = false } = {}) {
       let q = database.ref(path).orderByKey();
-      if (after) q = q.startAfter(after);
-      const snapshot = await q.limitToFirst(limit).get(),
+      if (after) q = desc ? q.endBefore(after) : q.startAfter(after);
+      const snapshot = await (desc ? q.limitToLast(limit) : q.limitToFirst(limit)).get(),
         rows = [];
       snapshot.forEach((child) => {
         rows.push([child.key, child.val()]);
       });
-      return rows;
+      return desc ? rows.reverse() : rows;   // desc: 최신(큰 키)부터
     },
     transaction,
   };

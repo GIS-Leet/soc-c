@@ -909,8 +909,8 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
 <script src="design-system/geo.js?v=5b90e0aa" defer></script>
 
 <script type="module">
-    import {installBoardControls} from "./assets/board-controls.mjs?v=94f70103";
-    import {uploadAttachment, onBoardState} from "./assets/board-client.mjs?v=93c9417a";
+    import {installBoardControls} from "./assets/board-controls.mjs?v=1830dc75";
+    import {uploadAttachment, onBoardState, placeNewest} from "./assets/board-client.mjs?v=ae807f94";
     // 접힌 글의 첨부 그림은 글을 펼칠 때 받는다 — 목록만 열어도 모든 글의 그림을 받아 함수 전송 요금이 나가던 것을 막음(2026-10-08).
     // 글 본문 틀은 <img data-src>, 여기서 펼쳐진 글의 것만 src 로 옮긴다
     // 글 본문은 펼칠 때 처음 만든다(아래 ensureBody). 그림이 있는 곳은 게시판 안뿐이므로 게시판만 지켜본다 —
@@ -919,7 +919,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
     const showPostImages = () => { for (const img of boardRoot.querySelectorAll('img[data-src]')) { const item = img.closest('.q-item'); if (item && item.classList.contains('is-open')) { img.src = img.dataset.src; img.removeAttribute('data-src'); } } };
     new MutationObserver(showPostImages).observe(boardRoot, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] });
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=93c9417a";
+    import { getDatabase, ref as dbRef, push, onValue, onChildAdded, onChildRemoved, onChildChanged, remove, update } from "./assets/board-client.mjs?v=ae807f94";
 
     /* ========================================================================
        ★★★ 학기가 바뀌면 여기 맨 위에 한 줄만 추가하면 됩니다 ★★★
@@ -1328,7 +1328,7 @@ textarea.form-input { min-height: 130px; resize: vertical; line-height: 1.7; }
             </button>
             <div class="q-body" id="content-${id}" inert><div class="q-body__in"><div class="q-body__pad"></div></div></div>`;
 
-        list.prepend(li);
+        placeNewest(list, li);
         // 스냅샷에 이미 답변이 들어 있으면 첫 그림부터 '답변 완료'로 칠한다
         const replyKeys = data.replies ? Object.keys(data.replies) : [];
         if (replyKeys.length) replyKeys.forEach(k => { noteAnswerText(id, k, data.replies[k]); noteAnswer(id, k, true); });

@@ -68,6 +68,9 @@ test("RTDB REST 저장 계층 — 쪽 나누기는 키 순 · after 제외, upda
   assert.deepEqual(seen[2].slice(0, 2), ["PATCH", "https://db.example/.json"]);
   await store.set("x", null); assert.equal(seen[3][2], "null");
   await assert.rejects(store.get("broken"), (e) => e.code === "unavailable");
+  // 최신부터: after 보다 작은 키 가운데 끝에서 — endAt · limitToLast, 큰 키부터
+  assert.deepEqual(await store.page("questions", { after: "c", limit: 2, desc: true }), [["b", 2], ["a", 1]]);
+  assert.match(seen.at(-1)[1], /questions\.json\?orderBy=%22%24key%22&endAt=%22c%22&limitToLast=3$/);
 });
 
 test("첨부 저장(KV) — mime 은 metadata 에, 없으면 null", async () => {

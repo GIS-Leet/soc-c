@@ -68,7 +68,7 @@ async function hydrateImages(handle,item){
 function storeFor(handle,board){
  if(!handle.stores.has(board)){
   const store=new BoardStore(async options=>{
-   const page=await request(handle,{action:'list',board,...options});
+   const page=await request(handle,{action:'list',board,desc:true,...options});   // 최신 글부터 — 화면 맨 위(이번 학기)가 첫 쪽에 온다(2026-10-21). 끼울 자리는 placeNewest
    // 목록 단계에서는 이미지를 받지 않는다. 공개 이미지는 <img loading="lazy"> 가 화면에 보일 때 직접 받고(서버가 익명 읽기 허용),
    // 비공개 글의 이미지는 열람(read/unlock) 때 토큰으로 받는다(adopt → hydrateImages). 주소만 검증해 허용 밖이면 지운다.
    for(const item of page.items){sanitizeImages(item);expireGrant(handle,board,item);}return page;
@@ -87,6 +87,8 @@ export const onValue=(target,callback,error,options)=>subscribe('value',target,c
 export const onChildAdded=(target,callback,error)=>subscribe('added',target,callback,error);
 export const onChildChanged=(target,callback,error)=>subscribe('changed',target,callback,error);
 export const onChildRemoved=(target,callback,error)=>subscribe('removed',target,callback,error);
+/** 글 줄을 제자리(최신이 위)에 끼운다 — 목록은 최신 글부터 오고, 새로 쓴 글 · 다시 받은 글은 아무 때나 온다. 글 키(push id)는 쓴 시각 순 */
+export function placeNewest(list,li){for(const other of list.children){if(other.id&&other.id<li.id){list.insertBefore(li,other);return;}}list.appendChild(li);}
 export function onBoardState(target,callback){return storeFor(target.handle,target.board).onState(callback);}
 export function onSessionChanged(handle,callback){handle.sessions.add(callback);callback({isTeacher:teacher(handle.auth.currentUser),user:handle.auth.currentUser});return()=>handle.sessions.delete(callback);}
 export async function loginTeacher(handle){

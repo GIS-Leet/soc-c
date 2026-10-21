@@ -47,12 +47,10 @@ class MemoryStore {
   async update(changes) {
     for (const [p, v] of Object.entries(changes)) await this.set(p, v);
   }
-  async page(path, { after = "", limit = 50 } = {}) {
+  async page(path, { after = "", limit = 50, desc = false } = {}) {
     const d = (await this.get(path)) || {};
-    return Object.entries(d)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .filter(([k]) => k > after)
-      .slice(0, limit);
+    const rows = Object.entries(d).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+    return (desc ? rows.reverse().filter(([k]) => !after || k < after) : rows.filter(([k]) => k > after)).slice(0, limit);
   }
 }
 function setup(seed = {}) {
@@ -378,6 +376,34 @@ test("pagination drains all posts with stable keys and explicit more flag", asyn
   } while (cursor);
   assert.equal(items.length, 121);
   assert.equal(items.at(-1).text, "B120");
+});
+test("최신 글부터(desc) 받아도 모두 한 번씩, 큰 키부터 — 학생 화면이 맨 위 글을 먼저 받는다", async () => {
+  const questions = Object.fromEntries(
+    Array.from({ length: 121 }, (_, i) => ["key" + String(i).padStart(3, "0"), { title: "T" + i, text: "B" + i, time: "", timestamp: i, isSecret: false }]),
+  );
+  const { api } = setup({ questions });
+  let cursor = null, items = [];
+  do {
+    const result = await api.call(req("list", { limit: 50, desc: true, ...(cursor ? { cursor } : {}) }), alice);
+    items.push(...result.items);
+    cursor = result.cursor;
+    assert.equal(result.hasMore, !!cursor);
+  } while (cursor);
+  assert.equal(items.length, 121);
+  assert.equal(items[0].text, "B120");
+  assert.equal(items.at(-1).text, "B0");
+  assert.equal(new Set(items.map((x) => x.id)).size, 121);
+  await rejected(api.call(req("list", { desc: "yes" }), alice), "invalid-argument");
+});
+test("목록의 요청 수 제한 — 응답 뒤로 미뤄 기록해도 한도를 넘으면 막힌다", async () => {
+  const { api } = setup({ questions: { a: { title: "T", text: "B", time: "", timestamp: 1, isSecret: false } } });
+  const later = [];
+  const context = { defer: (work) => later.push(work) };
+  for (let i = 0; i < 240; i++) {
+    await api.call(req("list"), alice, context);
+    await Promise.all(later.splice(0));
+  }
+  await rejected(api.call(req("list"), alice, context), "resource-exhausted");
 });
 test("image signature and size enforced; attachment cannot be stolen", async () => {
   const { api } = setup();

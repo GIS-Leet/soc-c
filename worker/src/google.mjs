@@ -8,11 +8,21 @@ export const pemBytes = (pem) => Uint8Array.from(atob(pem.replace(/-----[^-]+---
 
 const SCOPES = "https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/identitytoolkit";
 let cachedToken = { value: "", until: 0 };
+let pendingToken = null;   // 받는 중인 토큰 — 목록이 여러 조회를 함께 시작하면 각자 받으러 가던 것(2026-10-21 계측에서 네 번)을 한 번으로
 /** 서비스 계정 액세스 토큰 — 55분 동안 인스턴스 메모리에 둔다 */
-export function createCredential(serviceAccountJSON, { now = Date.now, fetcher = fetch, scope = SCOPES } = {}) {
+export function createCredential(serviceAccountJSON, options = {}) {
+  const fresh = createFreshCredential(serviceAccountJSON, options), now = options.now || Date.now;
   return {
     async getAccessToken() {
       if (cachedToken.value && cachedToken.until > now()) return { access_token: cachedToken.value };
+      pendingToken ??= fresh.getAccessToken().finally(() => { pendingToken = null; });
+      return pendingToken;
+    },
+  };
+}
+function createFreshCredential(serviceAccountJSON, { now = Date.now, fetcher = fetch, scope = SCOPES } = {}) {
+  return {
+    async getAccessToken() {
       const account = JSON.parse(serviceAccountJSON), seconds = Math.floor(now() / 1000);
       const input = b64uText(JSON.stringify({ alg: "RS256", typ: "JWT" })) + "." +
         b64uText(JSON.stringify({ iss: account.client_email, scope, aud: "https://oauth2.googleapis.com/token", iat: seconds, exp: seconds + 3600 }));
@@ -45,7 +55,13 @@ async function signingKey(kid, { now, fetcher }) {
   return cachedKeys.keys[kid];
 }
 /** Firebase ID 토큰 검증(firebase-admin verifyIdToken(token, true) 와 같은 검사 — 서명 · 대상 · 만료 · 폐기 · 정지). 실패하면 던진다 */
-export async function verifyIdToken(token, { projectId, credential, now = Date.now, fetcher = fetch }) {
+export async function verifyIdToken(token, options) {
+  const claims = await verifyTokenSignature(token, options);
+  await checkAccount(claims, options);
+  return { ...claims, uid: claims.sub };
+}
+/** 앞 절반 — 서명 · 대상 · 만료(네트워크는 서명 키를 처음 받을 때뿐) */
+export async function verifyTokenSignature(token, { projectId, now = Date.now, fetcher = fetch }) {
   const parts = String(token).split(".");
   if (parts.length !== 3) throw new Error("malformed");
   const header = JSON.parse(new TextDecoder().decode(fromB64u(parts[0]))), claims = JSON.parse(new TextDecoder().decode(fromB64u(parts[1])));
@@ -56,7 +72,10 @@ export async function verifyIdToken(token, { projectId, credential, now = Date.n
   if (!(claims.exp > seconds) || !(claims.iat <= seconds + 300) || !(claims.auth_time <= seconds + 300)) throw new Error("expired");
   const key = await signingKey(header.kid, { now, fetcher });
   if (!key || !(await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, fromB64u(parts[2]), enc.encode(parts[0] + "." + parts[1])))) throw new Error("signature");
-  // 폐기 · 정지 확인 — 계정의 validSince 뒤에 로그인한 토큰만
+  return claims;
+}
+/** 뒤 절반 — 계정 조회로 폐기 · 정지 확인(구글 서버 왕복 한 번). 계정의 validSince 뒤에 로그인한 토큰만 */
+export async function checkAccount(claims, { projectId, credential, fetcher = fetch }) {
   const access = (await credential.getAccessToken()).access_token;
   const lookup = await fetcher(`https://identitytoolkit.googleapis.com/v1/projects/${projectId}/accounts:lookup`, {
     method: "POST", headers: { Authorization: `Bearer ${access}`, "content-type": "application/json" },
@@ -66,5 +85,4 @@ export async function verifyIdToken(token, { projectId, credential, now = Date.n
   const user = (await lookup.json()).users?.[0];
   if (!user || user.disabled) throw new Error("disabled");
   if (user.validSince && claims.auth_time < Number(user.validSince)) throw new Error("revoked");
-  return { ...claims, uid: claims.sub };
 }

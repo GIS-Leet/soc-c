@@ -6,7 +6,7 @@ import { createMaintenance } from "../../functions/board-maintenance.mjs";
 import { scheduledMaintenance } from "../../functions/board-schedule.mjs";
 import { BoardError, isTeacher, fields } from "../../functions/board-security.mjs";
 import { createDeskPushService } from "../../functions/desk-push.mjs";
-import { createCredential, verifyIdToken } from "./google.mjs";
+import { createCredential, verifyIdToken, verifyTokenSignature, checkAccount } from "./google.mjs";
 import { createRestStore, createKVStorage, withGrantSnapshot } from "./store.mjs";
 import { createWorkerApnsSender } from "./apns.mjs";
 import { serveOta } from "./ota.mjs";
@@ -14,7 +14,7 @@ import { serveOta } from "./ota.mjs";
 // firebase-functions 의 onCall 이 쓰는 상태 이름 · HTTP 코드(클라이언트가 body.error.status 를 읽는다)
 const HTTP = { "invalid-argument": 400, "failed-precondition": 400, "out-of-range": 400, unauthenticated: 401, "permission-denied": 403, "not-found": 404,
   "already-exists": 409, aborted: 409, "resource-exhausted": 429, cancelled: 499, internal: 500, unknown: 500, "data-loss": 500, unimplemented: 501, unavailable: 503, "deadline-exceeded": 504 };
-const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "Authorization, Content-Type", "Access-Control-Max-Age": "86400" };
+const CORS = { "Timing-Allow-Origin": "*", "Access-Control-Expose-Headers": "Server-Timing", "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "Authorization, Content-Type", "Access-Control-Max-Age": "86400" };
 const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...CORS, ...headers } });
 function callableError(error) {
   const code = error instanceof BoardError && HTTP[error.code] ? error.code : "internal";
@@ -22,21 +22,56 @@ function callableError(error) {
   return json({ error: { message, status: code.toUpperCase().replace(/-/g, "_") } }, HTTP[code]);
 }
 
-function build(env, origin) {
-  const credential = createCredential(env.GOOGLE_SERVICE_ACCOUNT);
-  const store = createRestStore({ credential, databaseURL: env.DATABASE_URL });
+/** 단계별 걸린 시간 — 응답 머리말 Server-Timing 으로 내보낸다(브라우저 개발자 도구 · curl 로 어디서 느린지 본다). 값에는 경로 · 내용을 넣지 않는다 */
+function timings() {
+  const rows = [];
+  const time = async (name, work) => { const start = Date.now(); try { return await work(); } finally { rows.push([name, Date.now() - start]); } };
+  const header = () => {
+    const sum = new Map();
+    for (const [name, ms] of rows) { const [n, total] = sum.get(name) || [0, 0]; sum.set(name, [n + 1, total + ms]); }
+    return [...sum].map(([name, [n, ms]]) => `${name};dur=${ms};desc="${n}"`).join(", ");
+  };
+  const note = (name, value) => rows.push([name, value]);   // 시간이 아닌 값(받은 크기 등)
+  return { time, note, header };
+}
+function timedStore(store, t) {
+  return { ...store,
+    get: (path) => t.time(String(path).split("/")[0] === "boardGrants" ? "grants" : "get", () => store.get(path)),
+    page: (path, options) => t.time("page", async () => { const rows = await store.page(path, options); t.note("pagekb", Math.round(JSON.stringify(rows).length / 1024)); return rows; }),
+    transaction: (path, transform) => t.time("tx", () => store.transaction(path, transform)),
+    set: (path, value) => t.time("set", () => store.set(path, value)),
+    update: (changes) => t.time("update", () => store.update(changes)) };
+}
+
+// 구글 계정 서버 호출(서비스 계정 토큰 · 서명 키 · 계정 조회)도 따로 잰다
+const googleCall = (t) => (target, init) => t.time(
+  /oauth2\.googleapis/.test(target) ? "oauth" : /service_accounts/.test(target) ? "jwks" : /accounts:lookup/.test(target) ? "lookup" : "google",
+  () => fetch(target, init));
+function build(env, origin, t = timings()) {
+  const fetcher = googleCall(t);
+  const credential = createCredential(env.GOOGLE_SERVICE_ACCOUNT, { fetcher });
+  const store = timedStore(createRestStore({ credential, databaseURL: env.DATABASE_URL }), t);
   const storage = createKVStorage(env.FILES);
   const service = createBoardService({ store: withGrantSnapshot(store), storage, attachmentBase: `${origin}/boardAttachment` });
   const maintenance = createMaintenance({ store, storage, containsAttachment: service.containsAttachment });
   const push = async () => createDeskPushService({ store, send: await createWorkerApnsSender(env.DESK_APNS_CREDENTIAL), owner: () => `worker-${crypto.randomUUID()}` })   // 전송 기록의 owner 로 누가 보냈는지 구분;
-  return { credential, store, service, maintenance, push };
+  return { credential, fetcher, store, service, maintenance, push };
 }
-async function authenticate(request, env, credential, required) {
+// defer: 계정 조회(폐기 · 정지 확인)를 기다리지 않고 auth.account(약속)로 넘긴다 — 읽기만 하는 목록이 그동안 글을 받게.
+// 부르는 쪽은 응답을 보내기 전에 반드시 auth.account 를 기다린다
+async function authenticate(request, env, credential, required, fetcher = fetch, defer = false) {
   const bearer = request.headers.get("Authorization");
   if (!bearer) { if (required) throw new BoardError("unauthenticated"); return null; }
   if (!bearer.startsWith("Bearer ")) throw new BoardError("unauthenticated");
+  const denied = (error) => { console.error("auth:", error?.message); throw new BoardError("unauthenticated"); };   // 사유만 기록(토큰은 남기지 않음)
+  if (defer) {
+    const claims = await verifyTokenSignature(bearer.slice(7), { projectId: env.PROJECT_ID, fetcher }).catch(denied);
+    const account = checkAccount(claims, { projectId: env.PROJECT_ID, credential, fetcher }).catch(denied);
+    account.catch(() => {});
+    return { uid: claims.sub, token: { ...claims, uid: claims.sub }, account };
+  }
   try {
-    const token = await verifyIdToken(bearer.slice(7), { projectId: env.PROJECT_ID, credential });
+    const token = await verifyIdToken(bearer.slice(7), { projectId: env.PROJECT_ID, credential, fetcher });
     return { uid: token.uid, token };
   } catch (error) { console.error("auth:", error?.message); throw new BoardError("unauthenticated"); }   // 사유만 기록(토큰은 남기지 않음)
 }
@@ -72,11 +107,12 @@ export default {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/ota/")) return serveOta(request, env.FILES, url.pathname);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
-    const app = build(env, url.origin);
+    const t = timings();
+    const app = build(env, url.origin, t);
     if (url.pathname === "/boardTouch") {
       try {
         const body = await request.json().catch(() => ({}));
-        if (!isTeacher(await authenticate(request, env, app.credential, false))) throw new BoardError("permission-denied");
+        if (!isTeacher(await authenticate(request, env, app.credential, false, app.fetcher))) throw new BoardError("permission-denied");
         if (!BOARDS.includes(body.data?.board)) throw new BoardError("invalid-argument", "Invalid board");
         await bumpBoardVersion(app.store, body.data.board);
         return json({ result: { ok: true } });
@@ -86,17 +122,18 @@ export default {
       if (request.method !== "POST") return json({ error: { message: "POST only", status: "INVALID_ARGUMENT" } }, 405);
       try {
         const body = await request.json().catch(() => { throw new BoardError("invalid-argument", "Invalid request body"); });
-        const auth = await authenticate(request, env, app.credential, false);
+        const listing = url.pathname === "/boardApi" && body.data?.action === "list";
+        const auth = await t.time("auth", () => authenticate(request, env, app.credential, false, app.fetcher, listing));
         if (url.pathname === "/boardMaintenance") {
           if (!isTeacher(auth)) throw new BoardError("permission-denied");
           fields(body.data || {}, ["limit", "cursors"]);
           const send = notificationSender(env);
           return json({ result: await app.maintenance.run({ ...body.data, notificationsEnabled: !!send, send }) });
         }
-        const result = await app.service.call(body.data, auth, { ip: request.headers.get("CF-Connecting-IP") || "" });
+        const [result] = await Promise.all([app.service.call(body.data, auth, { ip: request.headers.get("CF-Connecting-IP") || "", defer: (work) => ctx.waitUntil(work) }), auth?.account]);
         if (mutates(body.data)) ctx.waitUntil(bumpBoardVersion(app.store, body.data.board).catch(() => {}));
         if (["create", "subreply.create"].includes(body.data?.action)) ctx.waitUntil(pushAfter(body.data, auth, result, app).catch(() => {}));   // 실패는 매분 재시도가 이어받음
-        return json({ result });
+        return json({ result }, 200, { "Server-Timing": t.header() });
       } catch (error) { return callableError(error); }
     }
     if (url.pathname === "/boardAttachment") {
@@ -104,7 +141,7 @@ export default {
       if (request.method !== "GET") return new Response(null, { status: 405, headers: base });
       try {
         const q = url.searchParams;
-        const auth = await authenticate(request, env, app.credential, false);
+        const auth = await authenticate(request, env, app.credential, false, app.fetcher);
         const result = await app.service.attachment({ board: q.get("board") ?? undefined, id: q.get("id") ?? undefined, attachmentId: q.get("attachmentId") ?? undefined }, auth);
         return new Response(result.bytes, { headers: { ...base, "Content-Type": result.mime, ...(result.cacheable ? { "Cache-Control": "private, max-age=604800, immutable" } : {}) } });
       } catch (error) {

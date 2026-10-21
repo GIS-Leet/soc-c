@@ -30,7 +30,7 @@ function boundedThread(value) {
   return value;
 }
 const SAFE = Object.freeze({
-  list: ["cursor", "limit", "stamp"],
+  list: ["cursor", "limit", "stamp", "desc"],
   read: ["id"],
   unlock: ["id", "password"],
   create: [
@@ -92,6 +92,14 @@ export function createBoardService({
       return { ...active, count: active.count + 1 };
     });
     if (blocked) fail("resource-exhausted", "Try again later");
+  }
+  // 읽기 전용(목록)용 — 지금 횟수만 읽어 막을지 정하고, 횟수 올리기(읽기 + 조건부 쓰기 두 왕복)는 응답 뒤로 미룬다(defer = Workers 의 waitUntil).
+  // 미룰 수 없는 곳(함수)에서는 예전대로 기다린다
+  async function rateRead(bucket, limit, windowMs, defer) {
+    if (!defer) return rate(bucket, limit, windowMs);
+    const old = await store.get(`boardRate/${digest(bucket)}`);
+    if (old && old.until > now() && old.count >= limit) fail("resource-exhausted", "Try again later");
+    defer(rate(bucket, limit, windowMs).catch(() => {}));
   }
   async function permission(board, id, post, auth) {
     const owner = !!auth?.uid && post?._board?.ownerUid === auth.uid,
@@ -622,6 +630,48 @@ export function createBoardService({
     });
     return { attachmentId };
   }
+  // 목록 — 서로 기다릴 까닭이 없는 조회(요청 수 기록 · 열람 허가 묶음 · 판 번호와 글)를 함께 시작한다.
+  // 차례로 하면 구글 서버를 다섯 번 왕복해 한 번에 2.5~4초가 걸렸다(2026-10-21, 서버 계측). 판 번호는 여전히 글보다 먼저 읽는다
+  // desc: 최신 글부터(학생 화면) — 오래된 글부터 받으면 맨 위의 이번 학기 글이 마지막 쪽에서야 왔다
+  async function list(data, auth, context = {}) {
+    const limit = data.limit ?? 50;
+    if (!Number.isInteger(limit) || limit < 1 || limit > 50)
+      fail("invalid-argument", "Invalid limit");
+    if (data.desc !== undefined && typeof data.desc !== "boolean")
+      fail("invalid-argument", "Invalid order");
+    if (data.stamp !== undefined && (typeof data.stamp !== "string" || !/^[0-9]{1,20}$/.test(data.stamp)))
+      fail("invalid-argument", "Invalid stamp");
+    const after = data.cursor === undefined ? "" : key(data.cursor, "cursor");
+    const desc = data.desc === true;
+    const limited = rateRead(`api:${auth.uid}`, 240, 60000, context.defer);
+    store.prefetchGrants?.();
+    // 판 번호는 목록보다 먼저 읽는다 — 읽는 사이 글이 바뀌면 다음 폴링이 어긋난 번호로 전체를 다시 받는다
+    const read = (async () => {
+      const stamp = String(number(await store.get(boardVersionPath(data.board))));
+      if (data.stamp !== undefined && data.cursor === undefined && data.stamp === stamp) return { stamp, rows: null };
+      return { stamp, rows: await store.page(data.board, { after, limit: limit + 1, desc }) };
+    })();
+    const [, { stamp, rows }] = await Promise.all([limited, read]);
+    if (!rows) return { notModified: true, stamp };
+    const selected = rows.slice(0, limit),
+      items = [];
+    let bytes = 0,
+      consumed = 0,
+      lastConsumed = after;
+    for (const [id, post] of selected) {
+      if (post && typeof post === "object") {
+        const item = await serialize(data.board, id, post, auth);
+        const size = Buffer.byteLength(JSON.stringify(item)) + 1;
+        if (items.length && bytes + size > MAX_PAGE_BYTES) break;
+        items.push(item);
+        bytes += size;
+      }
+      consumed++;
+      lastConsumed = id;
+    }
+    const hasMore = rows.length > limit || consumed < selected.length;
+    return { items, cursor: hasMore ? lastConsumed : null, hasMore, stamp };
+  }
   async function call(data, auth, context = {}) {
     if (!auth?.uid) fail("unauthenticated");
     key(auth.uid, "uid");
@@ -632,40 +682,8 @@ export function createBoardService({
       if (SAFE[data.action].includes(name)) key(data[name], name);
     if (data.action.startsWith("subreply.") && data.board !== "questions")
       fail("invalid-argument");
+    if (data.action === "list") return list(data, auth, context);
     await rate(`api:${auth.uid}`, 240, 60000);
-    if (data.action === "list") {
-      const limit = data.limit ?? 50;
-      if (!Number.isInteger(limit) || limit < 1 || limit > 50)
-        fail("invalid-argument", "Invalid limit");
-      const after = data.cursor === undefined ? "" : key(data.cursor, "cursor");
-      // 판 번호는 목록보다 먼저 읽는다 — 읽는 사이 글이 바뀌면 다음 폴링이 어긋난 번호로 전체를 다시 받는다
-      const stamp = String(number(await store.get(boardVersionPath(data.board))));
-      if (data.stamp !== undefined) {
-        if (typeof data.stamp !== "string" || !/^[0-9]{1,20}$/.test(data.stamp))
-          fail("invalid-argument", "Invalid stamp");
-        if (data.cursor === undefined && data.stamp === stamp)
-          return { notModified: true, stamp };
-      }
-      const rows = await store.page(data.board, { after, limit: limit + 1 });
-      const selected = rows.slice(0, limit),
-        items = [];
-      let bytes = 0,
-        consumed = 0,
-        lastConsumed = after;
-      for (const [id, post] of selected) {
-        if (post && typeof post === "object") {
-          const item = await serialize(data.board, id, post, auth);
-          const size = Buffer.byteLength(JSON.stringify(item)) + 1;
-          if (items.length && bytes + size > MAX_PAGE_BYTES) break;
-          items.push(item);
-          bytes += size;
-        }
-        consumed++;
-        lastConsumed = id;
-      }
-      const hasMore = rows.length > limit || consumed < selected.length;
-      return { items, cursor: hasMore ? lastConsumed : null, hasMore, stamp };
-    }
     if (data.action === "read") {
       const p = await existing(data.board, data.id);
       if (!(await permission(data.board, data.id, p, auth)).read)
