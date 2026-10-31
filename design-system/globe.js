@@ -264,14 +264,7 @@ const GLOBE_SRC = document.currentScript && document.currentScript.src;   // 위
       buf[o + 3] = 255;
     }
     ctx.putImageData(img, 0, 0);
-
-    // 바깥 대기 헤일로 — 구가 상단바에 닿지 않으므로, 유리가 굴절할 대상은
-    // 이 헤일로다. 그래서 조금 진하게 잡는다.
-    const halo = ctx.createRadialGradient(CX, CY, R, CX, CY, R * 1.15);
-    halo.addColorStop(0, 'rgba(126,170,200,0.40)');
-    halo.addColorStop(1, 'rgba(126,170,200,0)');
-    ctx.beginPath(); ctx.arc(CX, CY, R * 1.15, 0, Math.PI * 2);
-    ctx.fillStyle = halo; ctx.fill();
+
   }
 
   const PERIOD = 80;                   // 1회전 80초

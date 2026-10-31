@@ -43,7 +43,6 @@
 /* ── 페이지 머리 ──
    골격은 geo.css의 .sheet-* 를 쓴다. 'PROGRESS'는 여덟 글자라 기본 크기로는
    좁은 화면에서 줄이 넘친다. 크기만 덮어쓴다. */
-.sheet-head { --sheet-title-size: clamp(2.4rem, 9vw, 6rem); }
 
 /* ── 버튼 ── */
 
@@ -326,18 +325,7 @@ body.is-admin .admin-tools { display: block; }
 
   <main class="sheet">
     <div class="sheet-head">
-      <div class="head-aura" aria-hidden="true"></div>
-      <svg class="head-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="24" cy="24" r="22"/>
-        <circle cx="24" cy="24" r="20"/>
-        <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
-        <circle cx="24" cy="24" r="8"/>
-        <path d="M24 2v44M2 24h44"/>
-        <path d="M24 10l4.5 14L24 20.5 19.5 24z" fill="currentColor" stroke="none"/>
-        <path d="M24 38l-4.5-14L24 27.5 28.5 24z" opacity="0.45" fill="currentColor" stroke="none"/>
-      </svg>
-      <span class="sheet-num"><i class="st-dot st-dot--live"></i>수업 진도 · 계획</span>
-      <h1 class="sheet-title">Progress</h1>
+      <h1 class="sheet-title">수업 진도와 계획</h1>
       <p class="sheet-meta" id="headMeta">반별 수업 진도와 다음 수업,<br>등록된 시험 범위를 확인할 수 있습니다.</p>
 
       <div class="admin-header-row">
@@ -480,7 +468,7 @@ body.is-admin .admin-tools { display: block; }
   </main>
 
   <footer class="geo-foot" style="max-width:1180px;margin:0 auto;padding-inline:var(--pad-x)">
-    <span>KGGHS 통합사회<br>Copyright 2026 TaeHyun Lee. All rights reserved.</span>
+    <span>KGGHS 통합사회</span>
     <a class="lg" href="index.html">← 메인으로</a>
   </footer>
 

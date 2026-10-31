@@ -18,7 +18,7 @@
   --bar-h: 58px;
   --scrim: 242,242,247;
 
-  --sans: 'Space Grotesk', 'Pretendard Variable', 'Pretendard',
+  --sans: 'Pretendard Variable', 'Pretendard',
           -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --st-font-sans: var(--sans);
   --st-font-kr:   var(--sans);
@@ -286,8 +286,8 @@ body.is-launching .geo-page { transform: scale(0.965); opacity: 0.5; transform-o
 .sheet-num svg { width: 13px; height: 13px; }
 .sheet-title {
   margin-top: 12px;
-  font-size: var(--sheet-title-size, clamp(3rem, 11vw, 7.5rem)); line-height: 0.9;
-  font-weight: 600; letter-spacing: -0.045em; text-transform: uppercase;
+  font-size: var(--sheet-title-size, clamp(2.2rem, 6vw, 3.75rem)); line-height: 1.2;
+  font-weight: 700;
 }
 /* 제목의 둘째 낱말을 흐리게 — Project **Guide** 처럼 */
 .sheet-title em { font-style: normal; color: var(--st-label-3); }
