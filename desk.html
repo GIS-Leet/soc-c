@@ -1308,6 +1308,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     <button data-view="lec">영상</button>
     <button data-view="notes">노트</button>
     <button data-view="class">상담</button>
+    <button data-view="page">시안</button>
   </nav>
 
   <!-- ══════════ 로그인 게이트 ══════════ -->
@@ -1784,6 +1785,9 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     <!-- ── 강의 영상 뷰 (assets/desk-lectures.mjs 가 채움 — Desk 앱 「강의 영상」과 같은 데이터) ── -->
     <section id="lecView" style="display:none;"></section>
 
+    <!-- ── 시안 뷰 — 비공개 저장소의 desk-pages.json 에 적힌 화면 시안을 연다 ── -->
+    <section class="pg-wrap" id="pageView" style="display:none;"></section>
+
     <!-- ── 학급 뷰 ── -->
     <section class="class-wrap" id="classView" style="display:none;">
 
@@ -1906,6 +1910,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
     import {mountAssist} from './assets/desk-assist.mjs';
     import {mountHeroAdmin} from './assets/desk-hero.mjs';
     import {mountApps} from './assets/desk-apps.mjs';
+    import {mountPages} from './assets/desk-pages.mjs';
     import {renderGrammar} from './assets/grammar-format.mjs';
     import {renderConcept} from './assets/concept-format.mjs';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1956,6 +1961,11 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       db, ref, get, set, escapeHTML: s => escapeHTML(String(s ?? '')), active: () => !!sessionUid,
       github: async () => { await loadGhSettings(); return ghToken ? { token: ghToken, repo: matRepo } : null; }
     });
+    // 시안 탭 — 비공개 저장소의 화면 시안. 이름과 내용은 공개 저장소에 두지 않는다
+    const pagesView = mountPages($('pageView'), {
+      escapeHTML: s => escapeHTML(String(s ?? '')), active: () => !!sessionUid,
+      github: async () => { await loadGhSettings(); return ghToken ? { token: ghToken, repo: matRepo } : null; }
+    });
     const weekly = mountWeekly($('weekReport'), { escapeHTML: s => escapeHTML(String(s ?? '')), study: () => study });   // 공부 탭 주간 리포트
     // 브라우저 알림(수업·일정·주간) — 상단 바 종 버튼에서 켜고 끔
     const alerts = mountAlerts(document.querySelector('.desk-side'), { active: () => !!sessionUid, table: () => ttable, start: () => P_START, calendar: () => calendar, weeklyLine: () => summaryLine(weekly.summary()) });
@@ -1983,7 +1993,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
 
     // ════════════════ 뷰 전환 ════════════════
     const deskViews = $('deskViews');
-    const VIEW_EL = { dash: 'dashView', study: 'studyView', qa: 'qaView', mat: 'matView', gichul: 'gichulView', lec: 'lecView', notes: 'notesView', class: 'classView' };
+    const VIEW_EL = { dash: 'dashView', study: 'studyView', qa: 'qaView', mat: 'matView', gichul: 'gichulView', lec: 'lecView', notes: 'notesView', class: 'classView', page: 'pageView' };
     function moveInd() {
       const btn = deskViews.querySelector('button.on');
       if (!btn || deskViews.style.display === 'none') return;
@@ -2007,6 +2017,7 @@ div.gc-row { box-sizing: border-box; align-items: center; } div.gc-row > div:nth
       if (btn.dataset.view === 'mat') initMatView();
       if (btn.dataset.view === 'gichul') gichul.open();
       if (btn.dataset.view === 'lec') lectures.open();
+      if (btn.dataset.view === 'page') pagesView.open();
       if (btn.dataset.view === 'study') renderHeat(minByDay());   // 숨겨져 있던 동안은 폭을 몰라 그리지 못했다
     });
 

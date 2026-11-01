@@ -39,7 +39,7 @@ export function parseManifest(text) {
   return out;
 }
 
-const rawUrl = (repo, path) => `https://api.github.com/repos/${repo}/contents/` + path.split('/').map(encodeURIComponent).join('/');
+export const rawUrl = (repo, path) => `https://api.github.com/repos/${repo}/contents/` + path.split('/').map(encodeURIComponent).join('/');
 
 /**
  * 틀 하나와 주고받는 일을 맡는다(화면 없음 — 시험할 수 있게 떼어 둠).
