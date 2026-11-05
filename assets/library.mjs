@@ -53,7 +53,7 @@ function card(item,here) {
   const top=node('div',undefined,'card-top');
   top.append(icon(folder?'dir':isImg?'img':(isPDF||isOffice)?'doc':'file',folder?'dir':'file'));
   const head=node('div',undefined,'card-head');head.append(node('div',name,'card-name'));
-  const meta=node('div',undefined,'card-meta');meta.append(node('span',folder?'폴더':(e||'file').toUpperCase(),folder?'tag dir':'tag'));
+  const meta=node('div',undefined,'card-meta');if(!folder)meta.append(node('span',(e||'file').toUpperCase(),'tag'));   // 폴더는 아이콘으로 충분 — 「폴더」 꼬리표는 달지 않는다
   if(folder){const n=countFiles(snapshot.index,item.path);meta.append(node('span',`자료 ${n}개`,'size'));}
   else if(item.size!=null)meta.append(node('span',fmtSize(item.size),'size'));
   head.append(meta);

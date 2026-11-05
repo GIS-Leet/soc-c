@@ -12,7 +12,7 @@
     <meta charset="UTF-8">
     <script>(function(){try{var t=localStorage.getItem('geo-theme');document.documentElement.dataset.theme='dark';}catch(e){}})();</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>통합사회 기출 문항 — Geographia</title>
+    <title>통합사회 기출 문항 | Geographia</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <meta property="og:image" content="https://nyuheatgis.com/icons/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -21,10 +21,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="stylesheet" href="design-system/fonts.css?v=068fb5ef">
+<link rel="stylesheet" href="design-system/fonts.css?v=406b7817">
 
-<link rel="stylesheet" href="design-system/stratum.css?v=6d99ab6c">
-<link rel="stylesheet" href="design-system/geo.css?v=43b89ed6">
+<link rel="stylesheet" href="design-system/stratum.css?v=1ca183c4">
+<link rel="stylesheet" href="design-system/geo.css?v=94d622f9">
 <!-- 문항 화면 스크립트가 차례로 부르는 모듈을 처음부터 함께 받는다(한 단계씩 기다리지 않게) -->
 <link rel="modulepreload" href="assets/gichul-student.mjs?v=9f1a8b55">
 <link rel="modulepreload" href="assets/gichul.mjs?v=7adfbb60">
@@ -111,10 +111,10 @@ body.gx-lock { overflow: hidden; }
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#121815">
-<meta name="description" content="수능 · 모의평가 · 학력평가의 통합사회 지리 단원 문항을 모았습니다. 문제를 풀고 정답과 풀이를 확인하세요.">
+<meta name="description" content="수능, 모의평가, 학력평가의 통합사회 지리 단원 문항을 모았습니다. 문제를 풀고 정답과 풀이를 확인하세요.">
 <link rel="canonical" href="https://nyuheatgis.com/gichul.html">
-<meta property="og:title" content="통합사회 기출 문항 — Geographia">
-<meta property="og:description" content="통합사회 기출 문항을 단원별 · 시험별로 풀고 정답과 풀이를 확인합니다.">
+<meta property="og:title" content="통합사회 기출 문항 | Geographia">
+<meta property="og:description" content="통합사회 기출 문항을 단원별, 시험별로 풀고 정답과 풀이를 확인합니다.">
 <meta property="og:url" content="https://nyuheatgis.com/gichul.html">
 <meta property="og:type" content="website">
 </head>
@@ -123,13 +123,6 @@ body.gx-lock { overflow: hidden; }
     <header class="st-glass st-bar">
     <div class="geo-bar__in">
       <a class="geo-logo lg" href="index.html" aria-label="Geographia 홈">
-        <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="24" cy="24" r="20"/>
-          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
-          <path d="M24 4v40M4 24h40"/>
-          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
-          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
-        </svg>
         <b>Geographia</b>
       </a>
       <nav class="geo-nav">
@@ -146,20 +139,19 @@ body.gx-lock { overflow: hidden; }
   </header>
 
     <section class="wrap sheet-head">
-        <div class="sheet-num reveal">기출 · 지리 단원</div>
-        <h1 class="sheet-title reveal">통합사회 기출 문항</h1>
-        <p class="sheet-meta reveal">수능 · 모의평가 · 학력평가의 통합사회 문항 가운데 지리 단원 문항을 모았습니다.<br>먼저 풀어 보고, 번호를 고르면 정답과 풀이가 열립니다.</p>
+        <h1 class="sheet-title">통합사회 기출 문항</h1>
+        <p class="sheet-meta">수능, 모의평가, 학력평가의 통합사회 문항 가운데 지리 단원 문항을 모았습니다.<br>먼저 풀어 보고, 번호를 고르면 정답과 풀이가 열립니다.</p>
         <p class="gx-made" id="gxMade"></p>
     </section>
     <hr class="rule">
 
     <main class="wrap gx" id="gxMain">
-      <nav class="gx-nav" id="gxNav" aria-label="단원 · 시험"></nav>
+      <nav class="gx-nav" id="gxNav" aria-label="단원과 시험"></nav>
       <div class="gx-col">
         <div id="gxPickWrap"></div>
         <div class="gx-head" id="gxHead"></div>
         <div class="gx-list" id="gxList"><p class="gx-empty">문항을 불러오는 중…</p></div>
-        <p class="gx-src">문항 출처: 대학수학능력시험 · 모의평가는 한국교육과정평가원, 전국연합학력평가는 주관 시·도 교육청에 저작권이 있습니다. 학습용으로만 보세요. 단원 분류와 풀이는 수업 교사가 정리했습니다.</p>
+        <p class="gx-src">문항 출처: 대학수학능력시험, 모의평가는 한국교육과정평가원, 전국연합학력평가는 주관 시·도 교육청에 저작권이 있습니다. 학습용으로만 보세요. 단원 분류와 풀이는 수업 교사가 정리했습니다.</p>
       </div>
     </main>
     <div class="gx-solvebox" id="gxSolveBox" role="dialog" aria-modal="true" aria-label="한 문항씩 풀기" tabindex="-1" hidden></div>
@@ -173,13 +165,6 @@ body.gx-lock { overflow: hidden; }
 <div class="geo-menu" id="geoMenu" role="dialog" aria-modal="true" aria-label="전체 메뉴">
   <div class="geo-menu__top">
     <a class="geo-logo" href="index.html" aria-label="Geographia 홈">
-      <svg class="geo-seal" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="24" cy="24" r="20"/>
-          <circle cx="24" cy="24" r="14.5" stroke-dasharray="1.5 3.5"/>
-          <path d="M24 4v40M4 24h40"/>
-          <path d="M24 13l4.5 11L24 21.5 19.5 24z" fill="currentColor" stroke="none"/>
-          <path d="M24 35l-4.5-11L24 26.5 28.5 24z" opacity="0.4" fill="currentColor" stroke="none"/>
-        </svg>
       <b>Geographia</b>
     </a>
     <button class="geo-close" id="geoClose" aria-label="메뉴 닫기">
@@ -204,24 +189,24 @@ body.gx-lock { overflow: hidden; }
     <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
   </div>
   <div class="geo-group">
-    <h3>관측 · 통계 자료</h3>
-    <a href="climate.html">기후 그래프 <small>관측소 평년값 · 쾨펜 기후</small></a>
-    <a href="stats.html">통계로 보는 세계 <small>세계 217개국 · 우리나라 시·도</small></a>
-    <a href="maps.html">통합사회 GIS 지도 <small>통합사회1 · 2 단원별 지도</small></a>
+    <h3>관측과 통계 자료</h3>
+    <a href="climate.html">기후 그래프 <small>관측소 평년값, 쾨펜 기후</small></a>
+    <a href="stats.html">통계로 보는 세계 <small>세계 217개국, 우리나라 시·도</small></a>
+    <a href="maps.html">통합사회 GIS 지도 <small>통합사회1, 2 단원별 지도</small></a>
   </div>
   <div class="geo-group">
-    <h3>수업 · 지원</h3>
-    <a href="gichul.html">통합사회 기출 문항 <small>단원별 · 시험별 풀이</small></a>
-    <a href="ai_dashboard.html">도시 · 인구 변화 실험 <small>녹지 · 열섬 · 인구</small></a>
-    <a href="support.html">정보화 기기 문의 <small>기기 고장 · 기술 지원</small></a>
+    <h3>수업과 지원</h3>
+    <a href="gichul.html">통합사회 기출 문항 <small>단원별, 시험별 풀이</small></a>
+    <a href="ai_dashboard.html">도시와 인구 변화 실험 <small>녹지, 열섬, 인구</small></a>
+    <a href="support.html">정보화 기기 문의 <small>기기 고장, 기술 지원</small></a>
     <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
     <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
   </div>
   <div class="geo-menu__foot">
-    <a class="geo-menu__cta lg" href="index.html">홈으로 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+    <a class="geo-menu__cta lg" href="index.html">홈으로</a>
     <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
       <svg class="moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=5b90e0aa"></script>
+<script src="design-system/geo.js?v=e2e6a2e9"></script>
 </body>
 </html>

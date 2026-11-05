@@ -1,6 +1,6 @@
 import { earthImage } from "./sim-earth-image.mjs?v=9051904f";
 import { cloudField } from "./sim-cloud-field.mjs?v=b501d35c";
-import { line, text, arrow } from "./sim-canvas.mjs?v=0a622b13";
+import { line, text, arrow } from "./sim-canvas.mjs?v=32f4bd43";
 let earth = null;
 const cloudImage = cloudField();
 earthImage.then((image) => {

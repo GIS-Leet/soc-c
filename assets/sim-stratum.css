@@ -1134,7 +1134,7 @@ body[data-renderer="2d"] #label-layer {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: var(--track-wide, 0.1em);
-  text-transform: uppercase;
+
   color: var(--st-accent-ink);
   margin-bottom: var(--st-sp-3);
 }

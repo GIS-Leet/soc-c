@@ -1,6 +1,6 @@
 import { earthImage } from "./sim-earth-image.mjs?v=9051904f";
 import { dailyInsolation, solarAltitude } from "./sim-models.mjs?v=a32b816f";
-import { fitCanvas, line, text } from "./sim-canvas.mjs?v=0a622b13";
+import { fitCanvas, line, text } from "./sim-canvas.mjs?v=32f4bd43";
 import {
   declination,
   noonAltitude,

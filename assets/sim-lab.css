@@ -12,7 +12,7 @@
   --green: #2c6554;
   --dark: #102827;
   --sans: "Pretendard Variable", "Pretendard", "DM Sans", system-ui, sans-serif;
-  --mono: "Space Grotesk", var(--sans);
+  --mono: var(--sans);
   --shadow: 0 18px 50px #1a302d09;
 }
 :root[data-theme="dark"] {
@@ -256,7 +256,7 @@ input[type="range"]::-moz-range-thumb {
 .eyebrow {
   font: 500 10px/1.5 var(--mono);
   letter-spacing: 1.8px;
-  text-transform: uppercase;
+
   color: var(--accent);
   display: flex;
   gap: 12px;

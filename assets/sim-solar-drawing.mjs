@@ -1,4 +1,4 @@
-import { line, text, arrow, circle } from "./sim-canvas.mjs?v=0a622b13";
+import { line, text, arrow, circle } from "./sim-canvas.mjs?v=32f4bd43";
 const ground = new Image();
 ground.src = "assets/sim-textures/ground-color.jpg";
 ground.onload = () => document.dispatchEvent(new Event("lab:assets"));

@@ -1,4 +1,4 @@
-import { drawConvergence } from "./sim-itcz-drawing.mjs?v=6740d58e";
+import { drawConvergence } from "./sim-itcz-drawing.mjs?v=b45388e6";
 import {
   convergenceLatitude,
   rainIndex,
@@ -13,7 +13,7 @@ import {
   createElapsedClock,
   advancePhase,
 } from "./simulation-time.mjs?v=422c4a21";
-import { fitCanvas, line, text, arrow } from "./sim-canvas.mjs?v=0a622b13";
+import { fitCanvas, line, text, arrow } from "./sim-canvas.mjs?v=32f4bd43";
 const $ = (id) => document.getElementById(id),
   month = $("monthSlider"),
   latitude = $("latitudeSlider"),

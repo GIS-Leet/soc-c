@@ -480,7 +480,7 @@ function drawFocus() {
   el.innerHTML = `<p class="focus__q">${esc(s.q)}</p>
     <p class="focus__look"><span>볼 것</span>${esc(s.look)}</p>
     <details class="focus__why"><summary>까닭 보기</summary><p>${esc(s.why(S))}</p></details>
-    ${s.sim ? `<a class="focus__sim" href="${s.sim.href}">${esc(s.sim.text)} →</a>` : ''}`;
+    ${s.sim ? `<a class="focus__sim" href="${s.sim.href}">${esc(s.sim.text)}</a>` : ''}`;
 }
 
 // ── 카드 ──

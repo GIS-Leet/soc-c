@@ -95,7 +95,7 @@
     c.lineTo(cx + rr * 0.8, cy - rr * 0.78);
     c.lineTo(Math.min(w - 25, cx + rr * 1.2), cy - rr * 0.78);
     c.stroke();
-    c.font = '9px "Space Grotesk",monospace';
+    c.font = '9px "Pretendard Variable",sans-serif';
     c.fillStyle = "#b8caaa";
     c.fillText(
       "OUR PLANET",

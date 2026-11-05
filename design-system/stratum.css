@@ -86,7 +86,7 @@
   /* ── Type — Apple iOS 램프를 rem으로, 한글 leading으로 재보정 ──────── */
   /* Apple의 body leading은 17/22 = 1.29(라틴 기준).
      한글은 받침·조합형 특성상 그대로 쓰면 답답하므로 +0.25~0.35 보정. */
-  --st-font-sans: 'Figtree', 'Pretendard', -apple-system, BlinkMacSystemFont,
+  --st-font-sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
                   'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
   --st-font-kr:   'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
                   'Segoe UI', system-ui, sans-serif;
@@ -325,6 +325,16 @@
   --st-mat-clear-bg:rgba(242,239,230,0.20); --st-mat-thin-bg:rgba(242,239,230,0.62); --st-mat-regular-bg:rgba(242,239,230,0.82); --st-mat-thick-bg:rgba(242,239,230,0.95);
   --pal-aura-1:rgba(46,94,78,0.14); --pal-aura-2:rgba(31,38,34,0.06); --pal-aura-3:rgba(46,94,78,0.06);
 }
+/* 2026-11-06 — 유리 · 반사광 · 색 번짐을 쓰지 않는다(하네스 design-bans §3 · §7-1 · §8). 「투명도 줄이기」 설정과 같은 값을 늘 쓴다 — 면은 단색 */
+:root:not([data-theme="light"]), :root[data-theme="light"] {
+  --st-mat-clear-bg: var(--st-bedrock); --st-mat-thin-bg: var(--st-bedrock);
+  --st-mat-regular-bg: var(--st-bedrock); --st-mat-thick-bg: var(--st-surface);
+  --st-mat-clear-blur: none; --st-mat-thin-blur: none; --st-mat-regular-blur: none; --st-mat-thick-blur: none;
+  --st-glass-sheen: none; --st-glass-specular: transparent; --st-glass-under: transparent;
+  --pal-aura-1: transparent; --pal-aura-2: transparent; --pal-aura-3: transparent;
+  /* 「완료」 초록도 팔레트 강조색으로 — 시스템 초록(#34C759)은 지도 팔레트 위에서 형광으로 뜬다 */
+  --st-success: var(--st-accent); --st-success-ink: var(--st-accent-ink); --st-success-soft: var(--st-accent-soft);
+}
 @media (prefers-reduced-transparency: reduce) {
   :root:not([data-theme="light"]), :root[data-theme="light"] {
     --st-mat-clear-bg: var(--st-bedrock); --st-mat-thin-bg: var(--st-bedrock);
@@ -455,7 +465,7 @@ img, svg, video { display: block; max-width: 100%; }
   line-height: var(--st-t-micro-lh);
   letter-spacing: var(--st-t-micro-tr);
   font-weight: var(--st-fw-semibold);
-  text-transform: uppercase;
+
   color: var(--st-label-3);
   display: inline-flex; align-items: center; gap: var(--st-sp-15);
 }
@@ -528,8 +538,7 @@ a.st-card:active, button.st-card:active {
   box-shadow:
     inset 0 0.5px 0 0 var(--st-glass-specular),   /* 상단 반사광 */
     inset 0 0 0 0.5px var(--st-glass-rim),        /* 굴절되는 테두리 */
-    inset 0 -0.5px 0 0 var(--st-glass-under),     /* 하단 되비침 */
-    var(--st-shadow-glass);
+    inset 0 -0.5px 0 0 var(--st-glass-under);     /* 하단 되비침 — 바깥 그림자는 쓰지 않는다(2026-11-06) */
 }
 .st-glass--thin    { background: var(--st-glass-sheen), var(--st-mat-thin-bg);  -webkit-backdrop-filter: var(--st-mat-thin-blur);  backdrop-filter: var(--st-mat-thin-blur); }
 .st-glass--thick   { background: var(--st-glass-sheen), var(--st-mat-thick-bg); -webkit-backdrop-filter: var(--st-mat-thick-blur); backdrop-filter: var(--st-mat-thick-blur); }
@@ -702,7 +711,7 @@ a.st-row:hover .st-row__chevron { opacity: 1; transform: translateX(0); color: v
 
 /* 상태 표시 — 색만으로 뜻을 전하지 않는다. 항상 텍스트를 동반 */
 .st-dot { width: 6px; height: 6px; border-radius: var(--st-r-full); background: var(--st-label-3); flex-shrink: 0; }
-.st-dot--live    { background: var(--st-accent); animation: st-pulse 2.8s ease-in-out infinite; }
+.st-dot--live    { background: var(--st-accent); }
 .st-dot--success { background: var(--st-success); }
 .st-dot--warning { background: var(--st-warning); }
 .st-dot--danger  { background: var(--st-danger); }
@@ -712,7 +721,7 @@ a.st-row:hover .st-row__chevron { opacity: 1; transform: translateX(0); color: v
   display: inline-flex; align-items: center; gap: var(--st-sp-1);
   padding: 2px var(--st-sp-15); border-radius: var(--st-r-inner);
   font-size: var(--st-t-micro-size); font-weight: var(--st-fw-bold);
-  letter-spacing: 0.06em; text-transform: uppercase;
+  letter-spacing: 0.06em;
   background: var(--st-fill-2); color: var(--st-label-3);
   border: var(--st-border) solid var(--st-separator);
 }
@@ -793,7 +802,7 @@ a.st-row:hover .st-row__chevron { opacity: 1; transform: translateX(0); color: v
 .st-spacer { flex: 1; }
 
 /* 진입 연출 — 스크롤로 들어올 때 한 번. 반복 애니메이션 금지 */
-.st-reveal { opacity: 0; transform: translateY(14px); }
+.st-reveal { opacity: 1; transform: none; }   /* 2026-11-06: 스크롤마다 나타나는 효과는 쓰지 않는다 */
 .st-reveal.is-in {
   opacity: 1; transform: none;
   transition: opacity var(--st-dur-medium) var(--st-ease),

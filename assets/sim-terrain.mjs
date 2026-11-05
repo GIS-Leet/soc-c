@@ -67,7 +67,7 @@ let profileChart = new Chart(ctxChart, {
         display: true,
         grid: { color: "rgba(26,23,20,0.06)" },
         ticks: {
-          font: { family: "'Space Grotesk', sans-serif" },
+          font: { family: "'Pretendard Variable', sans-serif" },
           color: "#8c8479",
         },
       },

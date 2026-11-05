@@ -1,5 +1,5 @@
 import { curriculum } from "./sim-curriculum.mjs?v=6025bf3a";
-import { fitCanvas, line, text } from "./sim-canvas.mjs?v=0a622b13";
+import { fitCanvas, line, text } from "./sim-canvas.mjs?v=32f4bd43";
 // Observation tools only. No notebook, record collection or storage writes.
 const $ = (id) => document.getElementById(id);
 const create = (tag, content, cls) => {

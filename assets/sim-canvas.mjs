@@ -89,7 +89,7 @@ export function text(
       getComputedStyle(document.documentElement)
         .getPropertyValue("--muted")
         .trim() || color;
-  ctx.font = `${size}px "Space Grotesk","Pretendard Variable",sans-serif`;
+  ctx.font = `${size}px "Pretendard Variable",sans-serif`;
   ctx.fillStyle = color;
   ctx.textAlign = align;
   ctx.fillText(label, x, y);

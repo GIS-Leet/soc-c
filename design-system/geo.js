@@ -66,7 +66,7 @@
           { label: 'PPT',        href: 'library.html#PPT' },
           { label: '참고자료',   href: 'library.html#참고자료' },
           { label: '강의 영상', href: 'lecture.html', desc: '학번·이름 확인 후 시청' },
-          { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별 · 시험별로 풀고 풀이 확인' }
+          { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별, 시험별로 풀고 풀이 확인' }
         ]},
         { title: '수행평가', items: [
           { label: '지역 탐구 프로젝트', href: 'project_guide.html', desc: '주제 선정부터 발표까지' },
@@ -87,12 +87,12 @@
           { label: '시험 범위',      href: 'progress.html#exam-range', desc: '몇 차시부터 몇 차시까지' }
         ]},
         { title: '함께 보기', items: [
-          { label: '자료실',      href: 'library.html', desc: '차시별 학습지 · PPT' },
+          { label: '자료실',      href: 'library.html', desc: '차시별 학습지, PPT' },
           { label: '시뮬레이터',  href: 'simulators.html', desc: '눈으로 확인하기' }
         ]},
         { title: '막혔다면', items: [
           { label: 'Q&A 게시판', href: 'qna.html', desc: '수업 내용 질문' },
-          { label: '건의함',      href: 'feedback.html', desc: '수업 · 홈페이지 의견' }
+          { label: '건의함',      href: 'feedback.html', desc: '수업과 홈페이지 의견' }
         ]}
       ]
     },
@@ -106,9 +106,9 @@
           { label: '카카오 오픈채팅', href: 'https://open.kakao.com/o/siXWPozi', desc: '정말 급한 질문만', ext: true },
           { label: '교무실 방문',     href: 'qna.html', desc: '평일 08:00 – 16:00' }
         ]},
-        { title: '문의 · 건의', items: [
-          { label: '건의함',          href: 'feedback.html', desc: '수업 · 홈페이지 의견' },
-          { label: '정보화 기기 문의', href: 'support.html', desc: '기기 고장 · 기술 지원' }
+        { title: '문의와 건의', items: [
+          { label: '건의함',          href: 'feedback.html', desc: '수업과 홈페이지 의견' },
+          { label: '정보화 기기 문의', href: 'support.html', desc: '기기 고장, 기술 지원' }
         ]}
       ]
     },
@@ -126,12 +126,12 @@
         ]},
         { title: '3.3 도시 공간', items: [
           { label: '서울 대도시권의 확장', href: 'seoul.html' },
-          { label: '도시 · 인구 변화 실험',   href: 'ai_dashboard.html', desc: '녹지 · 열섬 · 인구' }
+          { label: '도시와 인구 변화 실험',   href: 'ai_dashboard.html', desc: '녹지, 열섬, 인구' }
         ]},
-        { title: '관측 · 통계 자료', items: [
-          { label: '기후 그래프',     href: 'climate.html', desc: '관측소 223곳 · 쾨펜 기후' },
-          { label: '통계로 보는 세계', href: 'stats.html', desc: '세계 217개국 · 우리나라 시·도' },
-          { label: '통합사회 GIS 지도', href: 'maps.html', desc: '통합사회1 · 2 단원별 지도' }
+        { title: '관측과 통계 자료', items: [
+          { label: '기후 그래프',     href: 'climate.html', desc: '관측소 223곳, 쾨펜 기후' },
+          { label: '통계로 보는 세계', href: 'stats.html', desc: '세계 217개국, 우리나라 시·도' },
+          { label: '통합사회 GIS 지도', href: 'maps.html', desc: '통합사회1, 2 단원별 지도' }
         ]}
       ],
       foot: { text: '단원별로 정리된 전체 목록', link: { label: '시뮬레이터 전체 보기', href: 'simulators.html' } }
@@ -139,8 +139,8 @@
     'feedback.html': {
       cols: [
         { title: '의견 보내기', items: [
-          { label: '건의함',           href: 'feedback.html', desc: '수업 · 홈페이지에 바라는 점' },
-          { label: '정보화 기기 문의',  href: 'support.html', desc: '기기 고장 · 기술 지원' }
+          { label: '건의함',           href: 'feedback.html', desc: '수업과 홈페이지에 바라는 점' },
+          { label: '정보화 기기 문의',  href: 'support.html', desc: '기기 고장, 기술 지원' }
         ]},
         { title: '질문이라면', items: [
           { label: 'Q&A 게시판',      href: 'qna.html', desc: '수업 내용 질문' },
@@ -194,7 +194,7 @@
         '</div>').join('');
       const foot = cfg.foot
         ? `<div class="geo-drop__foot"><span>${esc(cfg.foot.text)}</span>` +
-          `<a class="lg" href="${esc(cfg.foot.link.href)}">${esc(cfg.foot.link.label)} →</a></div>`
+          `<a class="lg" href="${esc(cfg.foot.link.href)}">${esc(cfg.foot.link.label)}</a></div>`
         : '';
       const panel = document.createElement('div');
       panel.className = 'geo-drop__panel';

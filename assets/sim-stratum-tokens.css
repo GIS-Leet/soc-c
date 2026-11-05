@@ -101,7 +101,7 @@
 
   /* 글꼴 */
   --st-font-sans:
-    "Space Grotesk", "Pretendard Variable", "Pretendard", -apple-system,
+    "Pretendard Variable", "Pretendard", -apple-system,
     BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --st-font-mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
 }

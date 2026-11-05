@@ -36,7 +36,7 @@
 .sheet-num {
   display: inline-flex; align-items: center; gap: 8px;
   font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--accent-ink);
+ color: var(--accent-ink);
 }
 .sheet-title {
   margin-top: 10px; font-size: clamp(1.6rem, 3.6vw, 2.4rem); line-height: 1.12;
@@ -112,7 +112,7 @@
 .control-group > label, .input-group > label, .ctl-label {
   display: block; margin-bottom: 8px;
   font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--st-label-3);
+ color: var(--st-label-3);
 }
 
 /* ── 세그먼티드 (라디오 2~3개) ────────────────────────────────────────── */
@@ -204,7 +204,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: inset 0 0 
   padding: 12px 18px; border-bottom: 1px solid var(--st-separator);
   background: var(--st-bedrock-sunken);
   font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--st-label-3);
+ color: var(--st-label-3);
 }
 .info-header svg { width: 14px; height: 14px; color: var(--accent); }
 .info-content {
@@ -217,7 +217,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: inset 0 0 
 .caption-box { display: flex; flex-direction: column; gap: 6px; }
 .caption-category {
   font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-  text-transform: uppercase; color: var(--accent-ink);
+ color: var(--accent-ink);
 }
 .caption-title { font-size: 16px; font-weight: 700; letter-spacing: -0.022em; color: var(--st-label); }
 .caption-sub { font-size: 12.5px; line-height: 1.7; color: var(--st-label-2); letter-spacing: var(--track-ko); }
@@ -229,7 +229,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: inset 0 0 
 /* 수식 */
 .equation-box { text-align: center; }
 .eq-title { justify-content: center; font-size: 10px; letter-spacing: var(--track-wide);
-            text-transform: uppercase; color: var(--st-label-3); font-weight: 600; }
+ color: var(--st-label-3); font-weight: 600; }
 .eq-formula { margin-top: 10px; font-size: 17px; font-weight: 600; letter-spacing: -0.01em;
               color: var(--accent-ink); font-variant-numeric: tabular-nums; }
 .badge-inc, .badge-alt {
@@ -275,7 +275,7 @@ input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: inset 0 0 
 .info-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .info-card { padding: 16px 18px; }
 .info-card .k { font-size: 10px; font-weight: 600; letter-spacing: var(--track-wide);
-                text-transform: uppercase; color: var(--st-label-3); }
+ color: var(--st-label-3); }
 .info-card .v { margin-top: 5px; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.025em;
                 color: var(--st-label); font-variant-numeric: tabular-nums; }
 /* 글이 든 카드 */

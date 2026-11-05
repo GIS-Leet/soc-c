@@ -1,4 +1,4 @@
-import { drawSolar } from "./sim-solar-drawing.mjs?v=1c99307a";
+import { drawSolar } from "./sim-solar-drawing.mjs?v=732a36d9";
 import { surfaceIllumination } from "./sim-models.mjs?v=a32b816f";
 import {
   fitCanvas,
@@ -6,7 +6,7 @@ import {
   text,
   circle,
   arrow,
-} from "./sim-canvas.mjs?v=0a622b13";
+} from "./sim-canvas.mjs?v=32f4bd43";
 const $ = (id) => document.getElementById(id),
   slider = $("sunSlider");
 const extra = document.createElement("div");
