@@ -1,7 +1,7 @@
 {
   "name": "Geographia — 통합사회 C",
   "short_name": "Geographia",
-  "description": "경기여자고등학교 통합사회 C · 수업 자료, Q&A, 공간 시뮬레이터",
+  "description": "통합사회 수업 자료, Q&A, 공간 시뮬레이터",
   "lang": "ko",
   "start_url": "./index.html",
   "scope": "./",

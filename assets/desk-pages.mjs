@@ -2,7 +2,7 @@
 // 무엇이 있는지는 비공개 저장소 맨 위의 desk-pages.json 이 정한다(이 공개 저장소에는 시안의 이름도 내용도 없다). 모양은 desk-apps.json 과 같다.
 // 시안은 격리된 틀(sandbox, 출처 없음)에서 돈다. 암기장과 달리 남길 기록이 없어 Desk 와 주고받는 말이 없고, 바깥 주소는 새 탭으로만 연다.
 
-import { parseManifest, rawUrl } from './desk-apps.mjs';
+import { parseManifest, rawUrl } from './desk-apps.mjs?v=cf3f574f';
 
 // allow-same-origin 을 넣지 않는다 — 넣으면 틀 안의 글이 Desk 의 로그인과 토큰에 닿는다
 export const SANDBOX = 'allow-scripts allow-popups allow-popups-to-escape-sandbox';

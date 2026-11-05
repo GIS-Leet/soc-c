@@ -18,7 +18,7 @@ export function placeOf(path) {
   return segs.join(' · ');
 }
 const KEY = 'geo-materials-index-v1';
-export const fileURL = path => 'https://gis-leet.github.io/kgghs-soc-c/' + path.split('/').map(encodeURIComponent).join('/');
+export const fileURL = path => 'https://gis-leet.github.io/soc-c-materials/' + path.split('/').map(encodeURIComponent).join('/');
 export function parsePath(hash) {
   try {
     const path = decodeURIComponent(hash.replace(/^#/, '')).replace(/\/+$/, '');
@@ -31,10 +31,10 @@ export function buildIndex(tree, generatedAt = new Date().toISOString()) {
   const items = tree.tree.filter(item => isPublicTop(item.path.split('/')[0]) &&
     !item.path.split('/').some(p => p.startsWith('.')) && ['tree','blob'].includes(item.type) && item.mode !== '120000')
     .map(item => ({name:item.path.split('/').at(-1),path:item.path,type:item.type === 'tree' ? 'dir' : 'file',...(item.type === 'blob' ? {size:item.size ?? 0} : {})}));
-  return {version:1,source:'GIS-Leet/kgghs-soc-c',sourceSha:tree.sha,generatedAt,items};
+  return {version:1,source:'GIS-Leet/soc-c-materials',sourceSha:tree.sha,generatedAt,items};
 }
 const LIVE_KEY = 'geo-materials-live-v1';
-const API = 'https://api.github.com/repos/GIS-Leet/kgghs-soc-c';
+const API = 'https://api.github.com/repos/GIS-Leet/soc-c-materials';
 /// 배포된 색인이 저장소보다 뒤처졌으면 그 자리에서 다시 만든다 — 자료를 올리면 색인 갱신을 기다리지 않고 바로 보이게.
 /// 비로그인 GitHub API 는 IP 당 시간 60회라 확인 결과를 ttl 동안 저장하고, 한도 초과·오류면 조용히 기존 색인을 쓴다.
 export async function refreshIndex(index, {fetcher = fetch, storage, now = Date.now(), ttl = 10 * 60 * 1000} = {}) {
