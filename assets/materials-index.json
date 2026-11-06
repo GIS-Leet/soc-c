@@ -1,8 +1,8 @@
 {
   "version": 1,
   "source": "GIS-Leet/soc-c-materials",
-  "sourceSha": "98fec1f6939f81e7cd2a522188546d5fd0cb8655",
-  "generatedAt": "2026-10-28T23:29:31.219Z",
+  "sourceSha": "9df0c935da3c74c7c85cac60fb31ebc0cd4b4fd1",
+  "generatedAt": "2026-11-06T03:12:50.385Z",
   "items": [
     {
       "name": "2026-1학기 통사C",
@@ -24,7 +24,7 @@
       "name": "지형_수업자료.pdf",
       "path": "2026-1학기 통사C/PPT/지형_수업자료.pdf",
       "type": "file",
-      "size": 11322737
+      "size": 12512045
     },
     {
       "name": "통사 C 1강.pdf",
@@ -88,43 +88,43 @@
       "name": "통사 C 지형 학습지.pdf",
       "path": "2026-1학기 통사C/학습지/통사 C 지형 학습지.pdf",
       "type": "file",
-      "size": 1990621
+      "size": 3165032
     },
     {
       "name": "통사 C 학습지 - 바람 보충.pdf",
       "path": "2026-1학기 통사C/학습지/통사 C 학습지 - 바람 보충.pdf",
       "type": "file",
-      "size": 1652738
+      "size": 2831830
     },
     {
       "name": "통사 C 학습지 1.pdf",
       "path": "2026-1학기 통사C/학습지/통사 C 학습지 1.pdf",
       "type": "file",
-      "size": 1520036
+      "size": 2702617
     },
     {
       "name": "통사 C 학습지 2.pdf",
       "path": "2026-1학기 통사C/학습지/통사 C 학습지 2.pdf",
       "type": "file",
-      "size": 1520503
+      "size": 2697619
     },
     {
       "name": "통사 C 학습지 3.pdf",
       "path": "2026-1학기 통사C/학습지/통사 C 학습지 3.pdf",
       "type": "file",
-      "size": 454329
+      "size": 1624134
     },
     {
       "name": "통사 C 학습지 자연관.pdf",
       "path": "2026-1학기 통사C/학습지/통사 C 학습지 자연관.pdf",
       "type": "file",
-      "size": 120705
+      "size": 1303534
     },
     {
       "name": "통사C_특수지형.pdf",
       "path": "2026-1학기 통사C/학습지/통사C_특수지형.pdf",
       "type": "file",
-      "size": 856852
+      "size": 2043011
     },
     {
       "name": "2026-2학기 통사2C",
