@@ -3,7 +3,7 @@ import {readFile,readdir,stat} from 'node:fs/promises';
 import {resolve,dirname,join,extname,relative} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {spawnSync} from 'node:child_process';
-export const PUBLIC_PAGES=['index.html','library.html','progress.html','simulators.html','climate_3d.html','climate_solar.html','climate_itcz.html','terrain.html','dynamic_earth.html','world_landforms.html','seoul.html','ai_dashboard.html','project_guide.html'];
+export const PUBLIC_PAGES=['index.html','library.html','progress.html','simulators.html','climate_3d.html','climate_solar.html','climate_itcz.html','terrain.html','dynamic_earth.html','world_landforms.html','seoul.html','ai_dashboard.html'];
 export async function checkSite(root,{publicPages=PUBLIC_PAGES}={}) {
  root=resolve(root);const errors=[];const files=(await readdir(root)).filter(x=>x.endsWith('.html'));
  for(const file of files){const html=await readFile(join(root,file),'utf8');let index=0;

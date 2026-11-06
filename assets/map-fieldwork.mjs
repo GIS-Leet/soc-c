@@ -479,10 +479,6 @@ export async function main() {
     </div>
     <div class="fw-after">
       <section class="mk-panel">
-        <h2>지역 탐구 프로젝트와 이어 쓰기</h2>
-        <div class="mk-why"><p>수행평가 <a href="project_guide.html">「지역 탐구 프로젝트」</a>의 <b>Ⅱ 공간 데이터 수집</b>과 <b>Ⅲ 분석 및 시각화</b> 단계에서 쓰는 도구입니다. 현장에서 본 문제점 · 시설 · 사진 찍은 곳을 범주로 나누어 표시하고, 거리와 넓이를 재어 근거로 삼으세요. 다 그렸으면 지도 그림(PNG)을 보고서에 넣고, GeoJSON은 다음 시간에 이어 그릴 때 불러옵니다. 제출 형식과 기한은 가이드와 수업 공지를 따릅니다.</p></div>
-      </section>
-      <section class="mk-panel">
         <h2>생각해 볼 것</h2>
         <ol class="mk-steps">
           <li>학교에서 가장 가까운 버스 정류장까지 선을 그어 보세요. 지도 위 직선 거리와 실제로 걷는 길의 길이는 얼마나 다른가요? 차이가 큰 까닭은 무엇일까요?</li>
@@ -555,8 +551,7 @@ export async function main() {
     .fw-file:focus-within { outline: 2px solid var(--st-accent); }
     .fw-del { color: var(--st-label-3); }
     .opt:disabled { opacity: 0.4; cursor: default; }
-    .fw-after { display: grid; gap: 16px; margin-top: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
-    @media (max-width: 900px) { .fw-after { grid-template-columns: 1fr; } }
+    .fw-after { margin-top: 16px; }
     .fw-after a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
   `;
   document.head.append(style);

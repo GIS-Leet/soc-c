@@ -61,8 +61,7 @@
   const NAV_DROP = {
     'library.html': {
       cols: [
-        { title: '공부 자료', items: [{ label: '자료실', href: 'library.html', desc: '학습지, PPT, 참고자료' }, { label: '강의 영상', href: 'lecture.html', desc: '학번과 이름 확인 뒤 시청' }, { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별, 시험별 풀이' }] },
-        { title: '수행평가', items: [{ label: '지역 탐구 프로젝트', href: 'project_guide.html', desc: '주제 고르기부터 발표까지' }, { label: '질문 아카이브 목록', href: 'https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec', desc: '제출한 질문 확인', ext: true }] }
+        { title: '공부 자료', items: [{ label: '자료실', href: 'library.html', desc: '학습지, PPT, 참고자료' }, { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별, 시험별 풀이' }] }
       ]
     },
     'progress.html': {

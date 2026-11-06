@@ -289,6 +289,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .home-dir { width: min(660px, 100%); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 22px 28px; text-align: left; }
 .home-dir__col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.home-dir__col--tall { grid-row: span 2; }
 .home-dir h2 { font-size: 12px; font-weight: 600; color: var(--st-label-3); padding-bottom: 6px;
                border-bottom: 1px solid var(--st-separator); margin-bottom: 4px; }
 .home-dir a { font-size: 14px; font-weight: 500; line-height: 1.4; padding: 4px 0; color: var(--st-label); }
@@ -371,15 +372,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
       <div class="home-dir__col">
         <h2>공부 자료</h2>
         <a href="library.html">자료실</a>
-        <a href="lecture.html">강의 영상</a>
         <a href="gichul.html">통합사회 기출 문항</a>
       </div>
-      <div class="home-dir__col">
-        <h2>수행평가</h2>
-        <a href="project_guide.html">지역 탐구 프로젝트</a>
-        <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록</a>
-      </div>
-      <div class="home-dir__col">
+      <div class="home-dir__col home-dir__col--tall">
         <h2>시뮬레이터</h2>
         <a href="simulators.html">시뮬레이터 전체</a>
         <a href="climate_3d.html">지구 공전과 계절</a>
@@ -450,13 +445,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     <div class="geo-group">
       <h3>공부 자료</h3>
       <a href="library.html">자료실 <small>학습지, PPT, 참고자료</small></a>
-      <a href="lecture.html">강의 영상 <small>학번과 이름 확인 뒤 시청</small></a>
       <a href="gichul.html">통합사회 기출 문항 <small>단원별, 시험별 풀이</small></a>
-    </div>
-    <div class="geo-group">
-      <h3>수행평가</h3>
-      <a href="project_guide.html">지역 탐구 프로젝트 <small>주제 고르기부터 발표까지</small></a>
-      <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>제출한 질문 확인</small></a>
     </div>
     <div class="geo-group">
       <h3>시뮬레이터</h3>
@@ -498,7 +487,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=51ba465d"></script>
+<script src="design-system/geo.js?v=5f2b529c"></script>
 <script>
 /* ============================================================================
    ★★★ 여기 두 개만 고치면 됩니다 ★★★

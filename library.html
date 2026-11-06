@@ -140,7 +140,7 @@
 
 
 /* 자료는 기존 브랜드 토큰을 사용하는 행 목록으로 비교함. */
-/* ── 도구 줄: 검색칸 · 종류 세그먼트 · 강의 영상 — 한 줄, 좁으면 줄바꿈 ── */
+/* ── 도구 줄: 검색칸 · 종류 세그먼트 · 기출 문항 — 한 줄, 좁으면 줄바꿈 ── */
 .tools { display: flex; align-items: center; flex-wrap: wrap; gap: var(--st-sp-3); margin-block: var(--st-sp-2) var(--st-sp-3); }
 .tools__search { position: relative; display: block; flex: 1 1 260px; min-width: 220px; }
 .tools__ico { position: absolute; left: 13px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--st-label-3); pointer-events: none; }
@@ -161,10 +161,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Geographia">
 <meta name="theme-color" content="#121815">
-<meta name="description" content="공개된 통합사회 학습지·PPT·참고자료를 파일명으로 찾고 강의 영상으로 이어가세요.">
+<meta name="description" content="공개된 통합사회 학습지, PPT, 참고자료를 파일명으로 찾아보세요.">
 <link rel="canonical" href="https://nyuheatgis.com/library.html">
 <meta property="og:title" content="자료실 | Geographia">
-<meta property="og:description" content="공개된 통합사회 학습지·PPT·참고자료를 파일명으로 찾고 강의 영상으로 이어가세요.">
+<meta property="og:description" content="공개된 통합사회 학습지, PPT, 참고자료를 파일명으로 찾아보세요.">
 <meta property="og:url" content="https://nyuheatgis.com/library.html">
 <meta property="og:type" content="website">
 </head>
@@ -208,7 +208,6 @@
             <div class="st-segmented" id="materialTypes" role="tablist" aria-label="자료 종류"></div>
             <select class="st-sr-only" id="materialCategory" tabindex="-1" aria-hidden="true"><option value="">전체</option><option>학습지</option><option>PPT</option><option>참고자료</option></select>
           </div>
-          <a class="btn btn-ghost tools__lecture" href="lecture.html">강의 영상</a>
           <a class="btn btn-ghost tools__lecture" href="gichul.html">기출 문항</a>
         </form>
         <p class="tools__note">자료는 모든 반의 해당 수업이 끝난 뒤 공개합니다. 파일을 연 뒤 브라우저의 저장 기능을 쓸 수 있습니다.</p>
@@ -244,13 +243,7 @@
     <div class="geo-group">
       <h3>공부 자료</h3>
       <a href="library.html">자료실 <small>학습지, PPT, 참고자료</small></a>
-      <a href="lecture.html">강의 영상 <small>학번과 이름 확인 뒤 시청</small></a>
       <a href="gichul.html">통합사회 기출 문항 <small>단원별, 시험별 풀이</small></a>
-    </div>
-    <div class="geo-group">
-      <h3>수행평가</h3>
-      <a href="project_guide.html">지역 탐구 프로젝트 <small>주제 고르기부터 발표까지</small></a>
-      <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>제출한 질문 확인</small></a>
     </div>
     <div class="geo-group">
       <h3>시뮬레이터</h3>
@@ -289,6 +282,6 @@
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=51ba465d"></script>
+<script src="design-system/geo.js?v=5f2b529c"></script>
 </body>
 </html>
