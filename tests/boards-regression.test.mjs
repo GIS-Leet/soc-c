@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 
-const pages = ['qna.html', 'feedback.html', 'support.html'];
+const pages = ['qna.html'];
 const read = (name) => fs.readFileSync(new URL(`../${name}`, import.meta.url), 'utf8');
 
 function extractFunction(source, name) {

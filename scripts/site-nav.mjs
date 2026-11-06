@@ -27,9 +27,7 @@ export function menuHTML() {
 export function homeHTML() {
   const cols = MENU.map((m) => {
     const items = [...(m.first ? [m.first] : []), ...m.groups.flatMap((k) => GROUPS[k].items)];
-    // 긴 묶음(시뮬레이터)은 두 줄에 걸쳐 놓아, 짧은 묶음 아래에 빈자리가 생기지 않게 한다
-    const cls = items.length > 6 ? 'home-dir__col home-dir__col--tall' : 'home-dir__col';
-    return `      <div class="${cls}">\n        <h2>${esc(m.title)}</h2>\n${items.map((it) => `        <a href="${esc(it.href)}"${ext(it)}>${esc(it.label)}</a>`).join('\n')}\n      </div>`;
+    return `      <div class="home-dir__col">\n        <h2>${esc(m.title)}</h2>\n${items.map((it) => `        <a href="${esc(it.href)}"${ext(it)}>${esc(it.label)}</a>`).join('\n')}\n      </div>`;
   });
   return `    <!-- site-nav:home — scripts/site-map.mjs 에서 만든다 -->\n    <nav class="home-dir" aria-label="모든 페이지 바로가기">\n${cols.join('\n')}\n    </nav>\n    <!-- /site-nav:home -->`;
 }

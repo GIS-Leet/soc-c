@@ -64,11 +64,6 @@
         { title: '공부 자료', items: [{ label: '자료실', href: 'library.html', desc: '학습지, PPT, 참고자료' }, { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별, 시험별 풀이' }] }
       ]
     },
-    'progress.html': {
-      cols: [
-        { title: '진도와 시험', items: [{ label: '반별 진도', href: 'progress.html#class-progress', desc: '우리 반은 어디까지' }, { label: '시험 범위', href: 'progress.html#exam-range', desc: '몇 차시부터 몇 차시까지' }, { label: '전체 수업 계획', href: 'progress.html#lesson-plan', desc: '단원별 차시와 학습 목표' }] }
-      ]
-    },
     'simulators.html': {
       cols: [
         { title: '3.1 기후 환경', items: [{ label: '지구 공전과 계절', href: 'climate_3d.html' }, { label: '적도 수렴대의 이동', href: 'climate_itcz.html' }, { label: '태양 고도와 일사량', href: 'climate_solar.html' }] },

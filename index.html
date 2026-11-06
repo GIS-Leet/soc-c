@@ -286,16 +286,16 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   .menu { transition-duration: 1ms; }
 }
 /* ── 모든 페이지 바로가기 — 지구 오른쪽 빈자리에. 목록은 scripts/site-map.mjs(전체 메뉴와 같음) ── */
-.home-dir { width: min(660px, 100%); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 22px 28px; text-align: left; }
-.home-dir__col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.home-dir__col--tall { grid-row: span 2; }
+/* 단 나누기 — 긴 묶음(시뮬레이터)이 있어도 짧은 묶음 아래에 빈칸이 생기지 않게 칸이 위에서부터 채워진다 */
+.home-dir { width: min(660px, 100%); columns: 3; column-gap: 28px; text-align: left; }
+.home-dir__col { display: flex; flex-direction: column; gap: 2px; min-width: 0; break-inside: avoid; margin-bottom: 22px; }
 .home-dir h2 { font-size: 12px; font-weight: 600; color: var(--st-label-3); padding-bottom: 6px;
                border-bottom: 1px solid var(--st-separator); margin-bottom: 4px; }
 .home-dir a { font-size: 14px; font-weight: 500; line-height: 1.4; padding: 4px 0; color: var(--st-label); }
 .home-dir a:hover { color: var(--accent-ink); }
 @media (max-width: 767px) {
-  .home-dir { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
+  .home-dir { columns: 2; column-gap: 20px; }
+  .home-dir__col { margin-bottom: 18px; }
   /* 좁은 화면에서는 지구가 위 가운데에 있다 — 글자가 지구에 겹치지 않게 그 아래에서 시작한다 */
   .stats { justify-content: flex-start; padding-top: calc(min(80vw, 44vh, 420px) * 0.94); }
 }
@@ -311,10 +311,10 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Geographia">
 <meta name="theme-color" content="#121815">
-<meta name="description" content="공개 수업 자료, 우리 반 진도, 질문과 지리 시뮬레이터를 한곳에서 확인하세요.">
+<meta name="description" content="공개 수업 자료, 질문과 지리 시뮬레이터를 한곳에서 확인하세요.">
 <link rel="canonical" href="https://nyuheatgis.com/">
 <meta property="og:title" content="Geographia | 통합사회 수업 홈페이지">
-<meta property="og:description" content="공개 수업 자료, 우리 반 진도, 질문과 지리 시뮬레이터를 한곳에서 확인하세요.">
+<meta property="og:description" content="공개 수업 자료, 질문과 지리 시뮬레이터를 한곳에서 확인하세요.">
 <meta property="og:url" content="https://nyuheatgis.com/">
 <meta property="og:type" content="website">
 </head>
@@ -333,10 +333,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
       </a>
       <div class="geo-nav">
         <a class="fd lg" style="--i:1" href="library.html">자료실</a>
-        <a class="fd lg" style="--i:2" href="progress.html">진도표</a>
         <a class="fd lg" style="--i:3" href="qna.html">Q&amp;A</a>
         <a class="fd lg" style="--i:4" href="simulators.html">시뮬레이터</a>
-        <a class="fd lg" style="--i:5" href="feedback.html">건의</a>
       </div>
       <button class="geo-burger fd lg" style="--i:6" id="geoBurger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="geoMenu">
         <span></span><span></span><span></span>
@@ -364,17 +362,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     <!-- site-nav:home — scripts/site-map.mjs 에서 만든다 -->
     <nav class="home-dir" aria-label="모든 페이지 바로가기">
       <div class="home-dir__col">
-        <h2>진도와 시험</h2>
-        <a href="progress.html#class-progress">반별 진도</a>
-        <a href="progress.html#exam-range">시험 범위</a>
-        <a href="progress.html#lesson-plan">전체 수업 계획</a>
-      </div>
-      <div class="home-dir__col">
         <h2>공부 자료</h2>
         <a href="library.html">자료실</a>
         <a href="gichul.html">통합사회 기출 문항</a>
       </div>
-      <div class="home-dir__col home-dir__col--tall">
+      <div class="home-dir__col">
         <h2>시뮬레이터</h2>
         <a href="simulators.html">시뮬레이터 전체</a>
         <a href="climate_3d.html">지구 공전과 계절</a>
@@ -396,8 +388,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
         <h2>질문과 의견</h2>
         <a href="qna.html">Q&amp;A 게시판</a>
         <a href="https://open.kakao.com/o/siXWPozi" target="_blank" rel="noopener">카카오 오픈채팅</a>
-        <a href="feedback.html">건의함</a>
-        <a href="support.html">정보화 기기 문의</a>
       </div>
     </nav>
     <!-- /site-nav:home -->
@@ -437,12 +427,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   <!-- site-nav:menu — scripts/site-map.mjs 에서 만든다. 여기를 직접 고치지 말 것 -->
   <nav class="geo-menu__map" aria-label="전체 페이지">
     <div class="geo-group">
-      <h3>진도와 시험</h3>
-      <a href="progress.html#class-progress">반별 진도 <small>우리 반은 어디까지</small></a>
-      <a href="progress.html#exam-range">시험 범위 <small>몇 차시부터 몇 차시까지</small></a>
-      <a href="progress.html#lesson-plan">전체 수업 계획 <small>단원별 차시와 학습 목표</small></a>
-    </div>
-    <div class="geo-group">
       <h3>공부 자료</h3>
       <a href="library.html">자료실 <small>학습지, PPT, 참고자료</small></a>
       <a href="gichul.html">통합사회 기출 문항 <small>단원별, 시험별 풀이</small></a>
@@ -469,8 +453,6 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
       <h3>질문과 의견</h3>
       <a href="qna.html">Q&amp;A 게시판 <small>수업 내용 질문</small></a>
       <a href="https://open.kakao.com/o/siXWPozi" target="_blank" rel="noopener">카카오 오픈채팅 <small>정말 급한 질문만</small></a>
-      <a href="feedback.html">건의함 <small>수업과 홈페이지 의견</small></a>
-      <a href="support.html">정보화 기기 문의 <small>기기 고장, 기술 지원</small></a>
     </div>
   </nav>
   <!-- /site-nav:menu -->
@@ -487,7 +469,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 </div>
 
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=5f2b529c"></script>
+<script src="design-system/geo.js?v=8a1b6816"></script>
 <script>
 /* ============================================================================
    ★★★ 여기 두 개만 고치면 됩니다 ★★★

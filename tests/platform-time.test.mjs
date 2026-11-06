@@ -28,7 +28,3 @@ test('인라인 모듈의 의존성 로드 실패도 대체 안내를 표시한�
  const html=await readFile(new URL('../'+page,import.meta.url),'utf8'),script=html.match(/<script>([\s\S]*?)<\/script>/)[1],handlers={},notice={hidden:true};const context={window:{addEventListener:(event,fn)=>handlers[event]=fn},document:{getElementById:()=>notice,addEventListener(){}}};vm.createContext(context);vm.runInContext(script,context);handlers.error({target:{tagName:'SCRIPT',src:'',type:'module'}});assert.equal(notice.hidden,false,page);
  }
 });
-test('진도표는 데이터 수신 전과 수신 후 오류를 빈 성공과 구분한다',async()=>{
- const html=await readFile(new URL('../progress.html',import.meta.url),'utf8'),body=html.slice(html.indexOf('    function render() {'),html.indexOf('    function renderDash(total)'));
- const heading={},empty={hidden:true,querySelector:()=>heading},message={},seed={};const context={lessons:[{}],loadError:'network',loaded:false,isAdmin:false,document:{getElementById:id=>id==='empty'?empty:id==='emptyMsg'?message:seed},renderDash(){},renderPicker(){},renderUnits(){},syncAdminInputs(){},window:{},firstPaint:true};vm.createContext(context);vm.runInContext(body,context);context.render();assert.equal(empty.hidden,false);assert.match(heading.textContent,/불러오지 못/);context.loadError=null;context.lessons=[];context.render();assert.match(heading.textContent,/불러오는 중/);
-});
