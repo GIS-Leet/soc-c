@@ -26,7 +26,7 @@
 <link rel="stylesheet" href="design-system/fonts.css?v=406b7817">
 
 <link rel="stylesheet" href="design-system/stratum.css?v=1ca183c4">
-<link rel="stylesheet" href="design-system/geo.css?v=94d622f9">
+<link rel="stylesheet" href="design-system/geo.css?v=03e50961">
 <style>
 /* 도시 · 인구 변화 실험 — 이 페이지에만 있는 것. 공용은 geo.css 「지도 실험실 공용」(.mk-*) · 「자료 그래프 공용」(.cg-*) */
 .rule { height: 1px; background: var(--st-separator); border: 0; margin: 0; max-width: 1180px; margin-inline: auto; }
@@ -86,7 +86,7 @@
   </header>
 
     <section class="wrap sheet-head">
-        <h1 class="sheet-title" style="--sheet-title-size: clamp(2.4rem, 8vw, 5.6rem)">도시와 인구 변화 실험</h1>
+        <h1 class="sheet-title">도시와 인구 변화 실험</h1>
         <p class="sheet-meta">도시가 넓어지며 녹지와 땅의 온도가 어떻게 달라졌는지 실제 위성 자료로 견줍니다.<br>출산, 수명, 이동을 가정하면 앞으로의 인구가 어떻게 되는지 유엔 인구 자료로 계산합니다.</p>
     </section>
     <hr class="rule">
@@ -117,37 +117,52 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
     </button>
   </div>
-  <div class="geo-menu__links">
-    <a class="lg" href="library.html">자료실</a>
-    <a class="lg" href="progress.html">진도표</a>
-    <a class="lg" href="qna.html">Q&amp;A</a>
-    <a class="lg" href="simulators.html">시뮬레이터</a>
-    <a class="lg" href="feedback.html">건의</a>
-  </div>
-  <div class="geo-group">
-    <h3>공간 시뮬레이터</h3>
-    <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
-    <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
-    <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
-    <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
-    <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
-    <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
-    <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
-  </div>
-  <div class="geo-group">
-    <h3>관측과 통계 자료</h3>
-    <a href="climate.html">기후 그래프 <small>관측소 평년값, 쾨펜 기후</small></a>
-    <a href="stats.html">통계로 보는 세계 <small>세계 217개국, 우리나라 시·도</small></a>
-    <a href="maps.html">통합사회 GIS 지도 <small>통합사회1, 2 단원별 지도</small></a>
-  </div>
-  <div class="geo-group">
-    <h3>수업과 지원</h3>
-    <a href="gichul.html">통합사회 기출 문항 <small>단원별, 시험별 풀이</small></a>
-    <a href="ai_dashboard.html">도시와 인구 변화 실험 <small>녹지, 열섬, 인구</small></a>
-    <a href="support.html">정보화 기기 문의 <small>기기 고장, 기술 지원</small></a>
-    <a href="project_guide.html">지역 탐구 프로젝트 <small>수행평가 가이드</small></a>
-    <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>수행평가</small></a>
-  </div>
+  <!-- site-nav:menu — scripts/site-map.mjs 에서 만든다. 여기를 직접 고치지 말 것 -->
+  <nav class="geo-menu__map" aria-label="전체 페이지">
+    <div class="geo-group">
+      <h3>진도와 시험</h3>
+      <a href="progress.html#class-progress">반별 진도 <small>우리 반은 어디까지</small></a>
+      <a href="progress.html#exam-range">시험 범위 <small>몇 차시부터 몇 차시까지</small></a>
+      <a href="progress.html#lesson-plan">전체 수업 계획 <small>단원별 차시와 학습 목표</small></a>
+    </div>
+    <div class="geo-group">
+      <h3>공부 자료</h3>
+      <a href="library.html">자료실 <small>학습지, PPT, 참고자료</small></a>
+      <a href="lecture.html">강의 영상 <small>학번과 이름 확인 뒤 시청</small></a>
+      <a href="gichul.html">통합사회 기출 문항 <small>단원별, 시험별 풀이</small></a>
+    </div>
+    <div class="geo-group">
+      <h3>수행평가</h3>
+      <a href="project_guide.html">지역 탐구 프로젝트 <small>주제 고르기부터 발표까지</small></a>
+      <a href="https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec" target="_blank" rel="noopener">질문 아카이브 목록 <small>제출한 질문 확인</small></a>
+    </div>
+    <div class="geo-group">
+      <h3>시뮬레이터</h3>
+      <a href="simulators.html">시뮬레이터 전체</a>
+      <a href="climate_3d.html">지구 공전과 계절 <small>3.1 기후 환경</small></a>
+      <a href="climate_itcz.html">적도 수렴대의 이동 <small>3.1 기후 환경</small></a>
+      <a href="climate_solar.html">태양 고도와 일사량 <small>3.1 기후 환경</small></a>
+      <a href="terrain.html">지형 만들기 스튜디오 <small>3.2 지형 변화</small></a>
+      <a href="dynamic_earth.html">지형 형성 작용 <small>3.2 지형 변화</small></a>
+      <a href="world_landforms.html">세계 지형 탐구 <small>3.2 지형 변화</small></a>
+      <a href="seoul.html">서울 대도시권의 확장 <small>3.3 도시 공간</small></a>
+      <a href="ai_dashboard.html">도시와 인구 변화 실험 <small>3.3 도시 공간</small></a>
+    </div>
+    <div class="geo-group">
+      <h3>지도와 통계</h3>
+      <a href="maps.html">통합사회 GIS 지도 <small>단원마다 지도 하나</small></a>
+      <a href="climate.html">기후 그래프 <small>관측소 223곳, 쾨펜 기후</small></a>
+      <a href="stats.html">통계로 보는 세계 <small>세계 217개국, 우리나라 시·도</small></a>
+    </div>
+    <div class="geo-group">
+      <h3>질문과 의견</h3>
+      <a href="qna.html">Q&amp;A 게시판 <small>수업 내용 질문</small></a>
+      <a href="https://open.kakao.com/o/siXWPozi" target="_blank" rel="noopener">카카오 오픈채팅 <small>정말 급한 질문만</small></a>
+      <a href="feedback.html">건의함 <small>수업과 홈페이지 의견</small></a>
+      <a href="support.html">정보화 기기 문의 <small>기기 고장, 기술 지원</small></a>
+    </div>
+  </nav>
+  <!-- /site-nav:menu -->
   <div class="geo-menu__foot">
     <a class="geo-menu__cta lg" href="index.html">홈으로</a>
     <button class="st-btn st-btn--icon st-btn--outline" id="geoTheme" aria-label="라이트/다크 전환" title="테마 전환">
@@ -157,6 +172,6 @@
   </div>
 </div>
 <script src="design-system/stratum.js?v=ccfe0bf1"></script>
-<script src="design-system/geo.js?v=e2e6a2e9"></script>
+<script src="design-system/geo.js?v=51ba465d"></script>
 </body>
 </html>

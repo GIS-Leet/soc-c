@@ -57,98 +57,30 @@
      목록은 아래 한 곳에만 적으면 되고, .geo-nav 가 있는 모든 페이지가
      같은 것을 쓴다 — 페이지마다 메뉴를 복사해 두면 반드시 어긋난다.
      키는 링크의 파일 이름. 없는 항목은 그냥 평범한 링크로 남는다. */
+  /* site-nav:drop — scripts/site-map.mjs 에서 만든다. 여기를 직접 고치지 말 것 */
   const NAV_DROP = {
     'library.html': {
       cols: [
-        { title: '자료 폴더', items: [
-          { label: '자료실 전체', href: 'library.html', desc: '수업에 쓴 모든 파일' },
-          { label: '학습지',     href: 'library.html#학습지' },
-          { label: 'PPT',        href: 'library.html#PPT' },
-          { label: '참고자료',   href: 'library.html#참고자료' },
-          { label: '강의 영상', href: 'lecture.html', desc: '학번·이름 확인 후 시청' },
-          { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별, 시험별로 풀고 풀이 확인' }
-        ]},
-        { title: '수행평가', items: [
-          { label: '지역 탐구 프로젝트', href: 'project_guide.html', desc: '주제 선정부터 발표까지' },
-          { label: '질문 아카이브 목록', href: 'https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec', desc: '제출한 질문 확인', ext: true }
-        ]},
-        { title: '함께 보기', items: [
-          { label: '진도표',       href: 'progress.html', desc: '어느 자료를 볼 차례인지' },
-          { label: 'Q&A 게시판',   href: 'qna.html', desc: '자료를 보다 막혔다면' },
-          { label: '시뮬레이터',   href: 'simulators.html', desc: '눈으로 확인하기' }
-        ]}
+        { title: '공부 자료', items: [{ label: '자료실', href: 'library.html', desc: '학습지, PPT, 참고자료' }, { label: '강의 영상', href: 'lecture.html', desc: '학번과 이름 확인 뒤 시청' }, { label: '통합사회 기출 문항', href: 'gichul.html', desc: '단원별, 시험별 풀이' }] },
+        { title: '수행평가', items: [{ label: '지역 탐구 프로젝트', href: 'project_guide.html', desc: '주제 고르기부터 발표까지' }, { label: '질문 아카이브 목록', href: 'https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec', desc: '제출한 질문 확인', ext: true }] }
       ]
     },
     'progress.html': {
       cols: [
-        { title: '수업 진도', items: [
-          { label: '반별 진도 현황', href: 'progress.html#class-progress', desc: '우리 반은 어디까지' },
-          { label: '전체 수업 계획', href: 'progress.html#lesson-plan', desc: '단원별 차시와 학습 목표' },
-          { label: '시험 범위',      href: 'progress.html#exam-range', desc: '몇 차시부터 몇 차시까지' }
-        ]},
-        { title: '함께 보기', items: [
-          { label: '자료실',      href: 'library.html', desc: '차시별 학습지, PPT' },
-          { label: '시뮬레이터',  href: 'simulators.html', desc: '눈으로 확인하기' }
-        ]},
-        { title: '막혔다면', items: [
-          { label: 'Q&A 게시판', href: 'qna.html', desc: '수업 내용 질문' },
-          { label: '건의함',      href: 'feedback.html', desc: '수업과 홈페이지 의견' }
-        ]}
-      ]
-    },
-    'qna.html': {
-      cols: [
-        { title: '질문과 답변', items: [
-          { label: 'Q&A 게시판',    href: 'qna.html', desc: '질문하고 답변 확인하기' },
-          { label: '질문 아카이브',  href: 'https://script.google.com/macros/s/AKfycbypib8sHxEek7DxJcFNizTKbm17yammTCOBRmAvVM16WbgxsNKvcMzePFEBEcZ4HGlL/exec', desc: '수행평가 제출 목록', ext: true }
-        ]},
-        { title: '더 빠른 길', items: [
-          { label: '카카오 오픈채팅', href: 'https://open.kakao.com/o/siXWPozi', desc: '정말 급한 질문만', ext: true },
-          { label: '교무실 방문',     href: 'qna.html', desc: '평일 08:00 – 16:00' }
-        ]},
-        { title: '문의와 건의', items: [
-          { label: '건의함',          href: 'feedback.html', desc: '수업과 홈페이지 의견' },
-          { label: '정보화 기기 문의', href: 'support.html', desc: '기기 고장, 기술 지원' }
-        ]}
+        { title: '진도와 시험', items: [{ label: '반별 진도', href: 'progress.html#class-progress', desc: '우리 반은 어디까지' }, { label: '시험 범위', href: 'progress.html#exam-range', desc: '몇 차시부터 몇 차시까지' }, { label: '전체 수업 계획', href: 'progress.html#lesson-plan', desc: '단원별 차시와 학습 목표' }] }
       ]
     },
     'simulators.html': {
       cols: [
-        { title: '3.1 기후 환경', items: [
-          { label: '지구 공전과 계절',   href: 'climate_3d.html' },
-          { label: '적도 수렴대의 이동',   href: 'climate_itcz.html' },
-          { label: '태양 고도와 일사량', href: 'climate_solar.html' }
-        ]},
-        { title: '3.2 지형 변화', items: [
-          { label: '지형 만들기 스튜디오',   href: 'terrain.html' },
-          { label: '지형 형성 작용',     href: 'dynamic_earth.html' },
-          { label: '세계 지형 탐구', href: 'world_landforms.html' }
-        ]},
-        { title: '3.3 도시 공간', items: [
-          { label: '서울 대도시권의 확장', href: 'seoul.html' },
-          { label: '도시와 인구 변화 실험',   href: 'ai_dashboard.html', desc: '녹지, 열섬, 인구' }
-        ]},
-        { title: '관측과 통계 자료', items: [
-          { label: '기후 그래프',     href: 'climate.html', desc: '관측소 223곳, 쾨펜 기후' },
-          { label: '통계로 보는 세계', href: 'stats.html', desc: '세계 217개국, 우리나라 시·도' },
-          { label: '통합사회 GIS 지도', href: 'maps.html', desc: '통합사회1, 2 단원별 지도' }
-        ]}
+        { title: '3.1 기후 환경', items: [{ label: '지구 공전과 계절', href: 'climate_3d.html' }, { label: '적도 수렴대의 이동', href: 'climate_itcz.html' }, { label: '태양 고도와 일사량', href: 'climate_solar.html' }] },
+        { title: '3.2 지형 변화', items: [{ label: '지형 만들기 스튜디오', href: 'terrain.html' }, { label: '지형 형성 작용', href: 'dynamic_earth.html' }, { label: '세계 지형 탐구', href: 'world_landforms.html' }] },
+        { title: '3.3 도시 공간', items: [{ label: '서울 대도시권의 확장', href: 'seoul.html' }, { label: '도시와 인구 변화 실험', href: 'ai_dashboard.html', desc: '녹지, 열섬, 인구' }] },
+        { title: '지도와 통계', items: [{ label: '통합사회 GIS 지도', href: 'maps.html', desc: '단원마다 지도 하나' }, { label: '기후 그래프', href: 'climate.html', desc: '관측소 223곳, 쾨펜 기후' }, { label: '통계로 보는 세계', href: 'stats.html', desc: '세계 217개국, 우리나라 시·도' }] }
       ],
       foot: { text: '단원별로 정리된 전체 목록', link: { label: '시뮬레이터 전체 보기', href: 'simulators.html' } }
-    },
-    'feedback.html': {
-      cols: [
-        { title: '의견 보내기', items: [
-          { label: '건의함',           href: 'feedback.html', desc: '수업과 홈페이지에 바라는 점' },
-          { label: '정보화 기기 문의',  href: 'support.html', desc: '기기 고장, 기술 지원' }
-        ]},
-        { title: '질문이라면', items: [
-          { label: 'Q&A 게시판',      href: 'qna.html', desc: '수업 내용 질문' },
-          { label: '카카오 오픈채팅',  href: 'https://open.kakao.com/o/siXWPozi', desc: '정말 급한 질문만', ext: true }
-        ]}
-      ]
     }
   };
+  /* /site-nav:drop */
 
   navDrop();
   function navDrop() {

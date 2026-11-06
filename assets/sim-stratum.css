@@ -1127,7 +1127,7 @@ body[data-renderer="2d"] #label-layer {
 
 /* 실험 목록 — 다른 목록 페이지(Archive · Q&A)와 같은 폭(1180px)·좌우 여백. 실험 화면이 있는 개별 페이지는 넓게 둔다 */
 .directory { max-width: 1180px; padding: 0 var(--pad-x, 20px) var(--st-sp-8); }
-.directory > .sheet-head { padding-top: clamp(38px, 6.5vw, 82px); }
+.directory > .sheet-head { padding-top: clamp(24px, 3.6vw, 48px); }
 
 /* 실험 머리 — 경로는 꼬리표(.sheet-num)처럼, 제목과 설명은 홈페이지 머리처럼 위아래로 */
 .breadcrumb {
